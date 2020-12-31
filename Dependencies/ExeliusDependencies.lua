@@ -82,11 +82,13 @@ function exeliusDepends.LinkDependency(dependency)
 	-- Dependency Root Folder
 	local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency);
 	
-	if dependency.link ~= nil then
+	if dependency.Link ~= nil then
 		-- Reset Filters
 		filter {}
 
 		dependency.Link(depRoot, EXELIUS_OUTPUT_FOLDER_PATH);
+	else
+		printf("Could not link the dependency.");
 	end
 end
 
@@ -151,7 +153,6 @@ end
 function exeliusDepends.Require(id)
 
 	local dependency = exeliusDepends.dependencies[id];
-
 	if dependency ~= nil then
 		exeliusDepends.IncludeDependency(dependency);
 		exeliusDepends.LinkDependency(dependency);

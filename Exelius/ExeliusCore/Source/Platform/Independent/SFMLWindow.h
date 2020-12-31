@@ -9,17 +9,19 @@ namespace sf
 
 namespace Exelius
 {
-	class WindowsWindow
+	class SFMLWindow
 		: public Window
 	{
 	public:
-		WindowsWindow(const WindowProperties& props);
-		virtual ~WindowsWindow();
+		SFMLWindow(const WindowProperties& props);
+		virtual ~SFMLWindow();
 
 		virtual void OnUpdate() final override;
 
 		virtual unsigned int GetWidth() const final override { return m_data.m_width; }
 		virtual unsigned int GetHeight() const final override { return m_data.m_height; }
+		//virtual std::pair<uint32_t, uint32_t> GetSize() const final override { return std::make_pair<uint32_t, uint32_t>(m_data.m_width, m_data.m_height); }
+		//virtual std::pair<float, float> GetWindowPos() const final override {}
 
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }

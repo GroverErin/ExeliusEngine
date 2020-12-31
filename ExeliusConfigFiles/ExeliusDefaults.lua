@@ -105,6 +105,7 @@ function exeliusDefaults.InitializeEngine()
 	--dependencies.Require("EASTL")
 	--dependencies.Require("IMGUI")
 	--dependencies.Require("TMXLite")
+	dependencies.Require("spdlog")
 	dependencies.Require("SFML")
 end
 

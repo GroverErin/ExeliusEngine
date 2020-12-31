@@ -5,7 +5,9 @@
 namespace Exelius
 {
 	Application::Application()
+		: m_isRunning(true)
 	{
+		m_pWindow = std::unique_ptr<Window>(Window::Create());
 	}
 
 	Application::~Application()
@@ -14,6 +16,9 @@ namespace Exelius
 
 	void Application::Run()
 	{
-		while (true);
+		while (m_isRunning)
+		{
+			m_pWindow->OnUpdate();
+		}
 	}
 }

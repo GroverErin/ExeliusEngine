@@ -1,6 +1,4 @@
 #pragma once
-#include "EXEPCH.h"
-
 #include "Source/Events/Event.h"
 
 namespace Exelius
@@ -33,8 +31,8 @@ namespace Exelius
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
-		virtual std::pair<uint32_t, uint32_t> GetSize() const = 0;
-		virtual std::pair<float, float> GetWindowPos() const = 0;
+		//virtual std::pair<uint32_t, uint32_t> GetSize() const = 0;
+		//virtual std::pair<float, float> GetWindowPos() const = 0;
 
 
 		// Window attributes
@@ -46,5 +44,4 @@ namespace Exelius
 
 		static Window* Create(const WindowProperties& props = WindowProperties());
 	};
-
 }

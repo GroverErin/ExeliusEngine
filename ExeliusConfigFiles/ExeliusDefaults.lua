@@ -9,15 +9,12 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	License for more details. You should have received a copy of the
 	License along with this Engine.
-
-	File Last Edited: 10/21/2020
-	Last Edit Details: Initial Creation
 --]]
 ------------------------------------------------------------------------------------------------------
 
 -- Exelius Default Settings Script:
 -- It sets the workspace and project settings for the Exelius.
--- *Heavily copied from Dylan Wijnen's _utils lua script: https://github.com/dylanwijnen1/DragonEngine/blob/master/tools/modules/dragoncore/_utils.lua
+-- *From Dylan Wijnen's _utils lua script: https://github.com/dylanwijnen1/DragonEngine/blob/master/tools/modules/dragoncore/_utils.lua
 
 -- Create a new module for premake and get it.
 premake.modules.exeliusDefaultSettings = {}
@@ -69,7 +66,7 @@ function exeliusDefaults.ProjectDefaults()
 
 	staticruntime("On")
 
-	targetdir("Output/" .. outputdir)
+	targetdir("Builds/" .. outputdir)
 	objdir("Temp/" .. outputdir)
 
 	filter("platforms:x64")
@@ -100,12 +97,20 @@ end
 -- Links and includes all dependencies for the Exelius Engine.
 function exeliusDefaults.InitializeEngine()
 
-	local dependencies = require("../Dependencies/ExeliusDependencies")
+	local dependencies = require("../Dependencies/ExeliusDependencies")	
 
+	-- Planned Dependencies:
 	--dependencies.Require("EASTL")
 	--dependencies.Require("IMGUI")
 	--dependencies.Require("TMXLite")
-	dependencies.Require("spdlog")
+
+	-- Possible Distant Future Dependencies:
+	--dependencies.Require("OpenGL")
+	--dependencies.Require("Vulkan")
+	--dependencies.Require("DragonBones")
+
+	-- Current Dependencies:
+	dependencies.Require("spdlog") -- Temporary, will write in house Logger.
 	dependencies.Require("SFML")
 end
 
@@ -113,12 +118,17 @@ end
 -- @param engine_root string | "The root path to the engine. Can pass nil for current executing premake file being in the same as the root directory."
 function exeliusDefaults.InitializeProject(engine_root)
 
-	engine_root = engine_root or ""
+	engine_root = engine_root or "";
 
-	exeliusDefaults.InitializeEngine()
-	
-	links("Exelius")
-	includedirs(engine_root .. "Exelius/ExeliusCore")
+	links("Exelius");
+
+	local incldir = os.realpath(engine_root .. "Exelius/ExeliusCore/");
+	printf(incldir);
+	includedirs(incldir);
+
+	exeliusDefaults.InitializeEngine();
+	--local dependencies = require("../Dependencies/ExeliusDependencies")
+	--dependencies.Require("spdlog") -- Temporary, will write in house Logger.
 end
 
 return exeliusDefaults

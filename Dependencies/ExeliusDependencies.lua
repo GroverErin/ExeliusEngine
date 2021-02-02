@@ -8,7 +8,7 @@ premake.modules.exeliusDependencies = {}
 local exeliusDepends = premake.modules.exeliusDependencies
 
 -- Get the path of this module file.
---local MODULE_ROOT_PATH = path.getabsolute("");
+--local MODULE_ROOT_PATH = path.getabsolute("")
 
 -- Get the path of the workspace relative to this file.
 --local EXELIUS_WORKSPACE_ROOT_PATH = path.getabsolute("../")
@@ -17,7 +17,7 @@ local exeliusDepends = premake.modules.exeliusDependencies
 local EXELIUS_DEPENDENCY_FOLDER_PATH = path.getabsolute("ThirdParty")
 
 -- Get the path of the Exelius output folder relative to this file.
-local EXELIUS_OUTPUT_FOLDER_PATH = path.getabsolute("../Output/ThirdParty")
+local EXELIUS_OUTPUT_FOLDER_PATH = path.getabsolute("../Builds/ThirdParty")
 
 -- Create an empty dependency table.
 exeliusDepends.dependencies = {}
@@ -42,7 +42,7 @@ end
 function exeliusDepends.Add(id, dependency)
 
 	if exeliusDepends.dependencies[id] == nil then
-		dependency.location = dependency.location or id;
+		dependency.location = dependency.location or id
 
 		exeliusDepends.dependencies[id] = dependency
 		printf("Registered dependency [" .. id .. "]")
@@ -56,7 +56,7 @@ function exeliusDepends.ListDependancies()
 
 	printf("Registered Dependencies: ")
 	for id, dependency in pairs(exeliusDepends.dependencies) do
-		printf("\t - " .. id);
+		printf("\t - " .. id)
 	end
 end
 
@@ -64,14 +64,14 @@ function exeliusDepends.PrintDetails(id)
 
 	for _, dependency in pairs(exeliusDepends.dependencies) do
 		if dependency.shortname ~= nil then
-			printf("\t" .. dependency.shortname);
+			printf("\t" .. dependency.shortname)
 		end
 
 		if dependency.description ~= nil then
-			printf("\t" .. dependency.description);
+			printf("\t" .. dependency.description)
 		end
 
-		printf("\t" .. dependency.location);
+		printf("\t" .. dependency.location)
 		printf("\n\n");
 	end
 end
@@ -80,15 +80,15 @@ end
 function exeliusDepends.LinkDependency(dependency)
 
 	-- Dependency Root Folder
-	local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency);
+	local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency)
 	
 	if dependency.Link ~= nil then
 		-- Reset Filters
 		filter {}
 
-		dependency.Link(depRoot, EXELIUS_OUTPUT_FOLDER_PATH);
+		dependency.Link(depRoot, EXELIUS_OUTPUT_FOLDER_PATH)
 	else
-		printf("Could not link the dependency.");
+		printf("Could not link the dependency. Check to make sure it needs to be linked.")
 	end
 end
 
@@ -96,12 +96,14 @@ end
 -- @param id | "The dependency id the dependency has registered with."
 function exeliusDepends.Link(id)
 
-	local dependency = exeliusDepends.dependencies[id];
+	printf("Linking Dependency: " .. id .. "...")
+
+	local dependency = exeliusDepends.dependencies[id]
 
 	if dependency ~= nil then
-		exeliusDepends.LinkDependency(dependency);
+		exeliusDepends.LinkDependency(dependency)
 	else
-		printf("Could not link the dependency: " .. id .. ".");
+		printf("Could not link the dependency: " .. id .. ". Dependency was not found.")
 	end
 end
 
@@ -109,7 +111,7 @@ end
 function exeliusDepends.LinkAll()
 
 	for _, dependency in pairs(exeliusDepends.dependencies) do
-		exeliusDepends.LinkDependency(dependency);
+		exeliusDepends.LinkDependency(dependency)
 	end
 end
 
@@ -118,13 +120,13 @@ end
 function exeliusDepends.IncludeDependency(dependency)
 	
 	-- Dependency Root Folder
-	local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency);
+	local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency)
 		
 	if dependency.Include ~= nil then
 		-- Reset Filters
 		filter {}
 		
-		dependency.Include(depRoot);
+		dependency.Include(depRoot)
 	end
 end
 
@@ -132,12 +134,12 @@ end
 -- @param id | "The dependency id the dependency has registered with."
 function exeliusDepends.Include(id)
 
-	local dependency = exeliusDepends.dependencies[id];
+	local dependency = exeliusDepends.dependencies[id]
 
 	if dependency ~= nil then
-		exeliusDepends.IncludeDependency(dependency);
+		exeliusDepends.IncludeDependency(dependency)
 	else
-		printf("Could not include the dependency: " .. id .. ".");
+		printf("Could not include the dependency: " .. id .. ".")
 	end
 end
 
@@ -152,12 +154,14 @@ end
 -- Links and includes the dependency.
 function exeliusDepends.Require(id)
 
-	local dependency = exeliusDepends.dependencies[id];
+	printf("Requiring Dependency: " .. id .. "...")
+
+	local dependency = exeliusDepends.dependencies[id]
 	if dependency ~= nil then
-		exeliusDepends.IncludeDependency(dependency);
-		exeliusDepends.LinkDependency(dependency);
+		exeliusDepends.IncludeDependency(dependency)
+		exeliusDepends.LinkDependency(dependency)
 	else
-		printf("Could not find the dependency: " .. id .. ".");
+		printf("Could not find the dependency: " .. id .. ".")
 	end
 end
 
@@ -166,10 +170,10 @@ function exeliusDepends.GenerateProjects()
 
 	for _, dependency in pairs(exeliusDepends.dependencies) do
 
-		local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency);
+		local depRoot = DependencyFolder(EXELIUS_DEPENDENCY_FOLDER_PATH, dependency)
 
 		if dependency.Project ~= nil then
-			dependency.Project(depRoot);
+			dependency.Project(depRoot)
 		end
 	end
 end
@@ -177,11 +181,11 @@ end
 -- Load all dependencies in the dependency folder.
 function exeliusDepends.Initialize()
 
-	local matches = os.matchfiles(EXELIUS_DEPENDENCY_FOLDER_PATH .. "/*.lua");
+	local matches = os.matchfiles(EXELIUS_DEPENDENCY_FOLDER_PATH .. "/*.lua")
 	for _, match in pairs(matches) do
-		include(match);
+		include(match)
 	end
 end
 
 -- Return the module.
-return exeliusDepends;
+return exeliusDepends

@@ -22,6 +22,6 @@
 
 #include <Source/Log.h>
 
-#ifdef HZ_PLATFORM_WINDOWS
+#ifdef EXE_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif

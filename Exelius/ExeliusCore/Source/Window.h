@@ -23,7 +23,7 @@ namespace Exelius
 	class Window
 	{
 	public:
-		using EventCallbackFn = std::function<void(Event&)>;
+		//using EventCallbackFn = std::function<void(Event&)>;
 
 		virtual ~Window() = default;
 
@@ -31,12 +31,10 @@ namespace Exelius
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
-		//virtual std::pair<uint32_t, uint32_t> GetSize() const = 0;
-		//virtual std::pair<float, float> GetWindowPos() const = 0;
 
 
 		// Window attributes
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		//virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;
 

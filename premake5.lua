@@ -9,9 +9,6 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 	License for more details. You should have received a copy of the
 	License along with this Engine.
-
-	File Last Edited: 10/21/2020
-	Last Edit Details: Initial Creation
 --]]
 ------------------------------------------------------------------------------------------------------
 
@@ -83,8 +80,8 @@ project("Exelius")
 	-- Premake function for allowing <Exelius/...> includes.
 	includedirs
 	{
-		"%{prj.name}/ExeliusCore",
-		"%{prj.name}/ExeliusCore/Source/Precompilation"
+		"%{prj.name}/ExeliusCore/",
+		"%{prj.name}/ExeliusCore/Source/Precompilation/"
 	}
 
 	-- Retrieve and Set any additional settings for the engine.
@@ -118,9 +115,10 @@ project("EXESandbox")
 		"%{prj.name}/Source/**.cpp"
 	}
 
-	includedirs("%{prj.name}/Source")
+	includedirs("%{prj.name}/Source/")
 
 	-- Retrieve and Set any additional settings for the project.
+	printf("Initializing Sandbox");
 	exeliusDefaults.InitializeProject()
 
 ------------------------------------------------------------------------------------------------------

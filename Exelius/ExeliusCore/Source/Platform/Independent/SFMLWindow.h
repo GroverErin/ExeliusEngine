@@ -20,11 +20,9 @@ namespace Exelius
 
 		virtual unsigned int GetWidth() const final override { return m_data.m_width; }
 		virtual unsigned int GetHeight() const final override { return m_data.m_height; }
-		//virtual std::pair<uint32_t, uint32_t> GetSize() const final override { return std::make_pair<uint32_t, uint32_t>(m_data.m_width, m_data.m_height); }
-		//virtual std::pair<float, float> GetWindowPos() const final override {}
 
 		// Window attributes
-		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }
+		//virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }
 		virtual void SetVSync(bool enabled) final override;
 		virtual bool IsVSync() const final override;
 
@@ -44,7 +42,7 @@ namespace Exelius
 			unsigned int m_height;
 			bool m_isVSync;
 
-			EventCallbackFn EventCallback;
+			//EventCallbackFn EventCallback;
 		};
 
 		WindowData m_data;

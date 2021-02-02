@@ -3,7 +3,9 @@
 #include "Events/Event.h"
 #include "Window.h"
 
-int main(int argc, char* argv[]);
+// I had this here for a reason initially, but now I am not sure why...
+// I will remove this if no issues are found later on.
+//int main(int argc, char* argv[]);
 
 namespace Exelius
 {

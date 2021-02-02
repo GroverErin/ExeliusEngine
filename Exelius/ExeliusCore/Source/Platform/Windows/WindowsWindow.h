@@ -22,7 +22,7 @@ namespace Exelius
 		virtual unsigned int GetHeight() const final override { return m_data.m_height; }
 
 		// Window attributes
-		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }
+		//virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }
 		virtual void SetVSync(bool enabled) final override;
 		virtual bool IsVSync() const final override;
 
@@ -42,7 +42,7 @@ namespace Exelius
 			unsigned int m_height;
 			bool m_isVSync;
 
-			EventCallbackFn EventCallback;
+			//EventCallbackFn EventCallback;
 		};
 
 		WindowData m_data;

@@ -12,26 +12,30 @@
 --]]
 ------------------------------------------------------------------------------------------------------
 
+printf("--------- Beginning Premake File Generation ---------")
+
 -- Main Exelius Solution/Workspace and Project Generation Script.
 
 -- The module containing the default settings for the Premake generation.
--- This usually will include the architecture settings as well as the
+-- This should include the architecture settings as well as the
 -- build configurations, and similar settings.
-local exeliusDefaults = require("../ExeliusConfigFiles/ExeliusDefaults")
+local exeliusDefaults = require("ExeliusConfigFiles/ExeliusDefaults")
 
--- The module containing the dependancies and third party tools used by Exelius
-local exeliusDepends = require("../Dependencies/ExeliusDependencies")
+-- The module containing the dependancies and third party tools used by Exelius.
+local exeliusDepends = require("Dependencies/ExeliusDependencies")
+
+-- Prepares the modules to be used.
 exeliusDepends.Initialize()
 
 ------------------------------------------------------------------------------------------------------
 -- Exelius Solution/Workspace Creation
 ------------------------------------------------------------------------------------------------------
 
-printf("[ExeliusEngine-Premake] Creating ExeliusEngine Solution/Workspace.")
+printf("----- Creating ExeliusEngine Solution/Workspace -----")
 
 -- Call Premake functions to generate the .sln file or platform/compiler specific files
 workspace("ExeliusEngine")
-	startproject("EXESandbox")
+	startproject("EXESandbox") -- Eventually this will be replaced with the Editor.
 
 	-- Retrieve and Set all of the default settings for the workspace.
 	exeliusDefaults.WorkspaceDefaults()
@@ -42,14 +46,15 @@ workspace("ExeliusEngine")
 
 -- Create all of the Projects for the Third-party tools and other dependancies used by Exelius.
 -- Having this allows for the Engine to auto-detect Third-party tools and include them
--- into the Solution/Workspace.
+-- into the Solution/Workspace. This only effects tools that have a .lua script that has a
+-- GenerateProjects function.
 exeliusDepends.GenerateProjects()
 
 ------------------------------------------------------------------------------------------------------
 -- Exelius Engine Creation
 ------------------------------------------------------------------------------------------------------
 
-printf("[ExeliusEngine-Premake] Creating Exelius Engine Project.")
+printf("---------- Creating Exelius Engine Project ----------")
 
 -- Call Premake functions to generate .vcxproj files or platform/compiler specific files.
 project("Exelius")
@@ -68,7 +73,7 @@ project("Exelius")
 
 	-- Set the precompiled headers.
 	pchheader("EXEPCH.h")
-	pchsource("Exelius/ExeliusCore/Source/Precompilation/EXEPCH.cpp")
+	pchsource("%{prj.name}/ExeliusCore/Source/Precompilation/EXEPCH.cpp")
 
 	-- Premake function for getting all of the files to be included into the Project.
 	files
@@ -84,14 +89,14 @@ project("Exelius")
 		"%{prj.name}/ExeliusCore/Source/Precompilation/"
 	}
 
-	-- Retrieve and Set any additional settings for the engine.
-	exeliusDefaults.InitializeEngine()
+	-- Retrieve and set any additional settings for the engine.
+	exeliusDefaults.InitializeEngine(exeliusDepends)
 
 ------------------------------------------------------------------------------------------------------
 -- Exelius Sandbox Application Creation
 ------------------------------------------------------------------------------------------------------
 
-printf("[ExeliusEngine-Premake] Creating Exelius Sandbox Project.")
+printf("---------- Creating Exelius Sandbox Project ---------")
 
 -- Call Premake functions to generate .vcxproj files or platform/compiler specific files.
 project("EXESandbox")
@@ -118,9 +123,10 @@ project("EXESandbox")
 	includedirs("%{prj.name}/Source/")
 
 	-- Retrieve and Set any additional settings for the project.
-	printf("Initializing Sandbox");
 	exeliusDefaults.InitializeProject()
+	exeliusDefaults.InitializeEngine(exeliusDepends)
 
 ------------------------------------------------------------------------------------------------------
 -- Additional Creation Steps
 ------------------------------------------------------------------------------------------------------
+printf("----------- Completed Premake Generation  -----------")

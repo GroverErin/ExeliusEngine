@@ -1,3 +1,4 @@
+printf("Including ExeliusDefaults.lua - This should only appear once.")
 ------------------------------------------------------------------------------------------------------
 --[[
 	Exelius Game Engine - Game Development Tool
@@ -37,13 +38,14 @@ function exeliusDefaults.WorkspaceDefaults()
 	}
 
 	-- Calls a premake command to generate the different platforms.
+	-- Win32 seems to be depreciated on most libraries and some platforms. SFML doesn't have build options for it. Might be able to be added later.
 	platforms
 	{
 		"x64",
-		"Win32"
+		--"Win32"
 	}
 
-	-- Set the compilation process to be multithreaded
+	-- Set the compilation process to be multithreaded, this only effects MSVC... not sure how to speed up Linux.
 	flags
 	{
 		"MultiProcessorCompile"
@@ -72,8 +74,9 @@ function exeliusDefaults.ProjectDefaults()
 	filter("platforms:x64")
 		architecture("x64")
 
-	filter("platforms:Win32")
-		architecture("x86")
+	-- Win32 is being depreciated in most libraries.
+	--filter("platforms:Win32")
+	--	architecture("x86")
 
 	filter("configurations:Debug")
 		symbols("full")
@@ -95,23 +98,23 @@ function exeliusDefaults.ProjectDefaults()
 end
 
 -- Links and includes all dependencies for the Exelius Engine.
-function exeliusDefaults.InitializeEngine()
+function exeliusDefaults.InitializeEngine(dependencies)
 
-	local dependencies = require("../Dependencies/ExeliusDependencies")	
+	--local dependencies = require("../Dependencies/ExeliusDependencies")	
 
 	-- Planned Dependencies:
-	--dependencies.Require("EASTL")
-	--dependencies.Require("IMGUI")
-	--dependencies.Require("TMXLite")
+	--dependencies.RequireTool("EASTL")
+	--dependencies.RequireTool("IMGUI")
+	--dependencies.RequireTool("TMXLite")
 
 	-- Possible Distant Future Dependencies:
-	--dependencies.Require("OpenGL")
-	--dependencies.Require("Vulkan")
-	--dependencies.Require("DragonBones")
+	--dependencies.RequireTool("OpenGL")
+	--dependencies.RequireTool("Vulkan")
+	--dependencies.RequireTool("DragonBones")
 
 	-- Current Dependencies:
-	dependencies.Require("spdlog") -- Temporary, will write in house Logger.
-	dependencies.Require("SFML")
+	dependencies.RequireTool("spdlog") -- Temporary, will write in house Logger.
+	dependencies.RequireTool("SFML")
 end
 
 -- Initializes the Exelius Engine in the current project scope.
@@ -123,10 +126,9 @@ function exeliusDefaults.InitializeProject(engine_root)
 	links("Exelius");
 
 	local incldir = os.realpath(engine_root .. "Exelius/ExeliusCore/");
-	printf(incldir);
 	includedirs(incldir);
 
-	exeliusDefaults.InitializeEngine();
+	--exeliusDefaults.InitializeEngine();
 	--local dependencies = require("../Dependencies/ExeliusDependencies")
 	--dependencies.Require("spdlog") -- Temporary, will write in house Logger.
 end

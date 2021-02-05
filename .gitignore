@@ -6,8 +6,9 @@
 # Exelius Files
 [Pp]rojects/
 [Oo]utput/
+[Bb]uilds/
 [Tt]emp/
-[Dd]ependencies/[Tt]hird[Pp]arty/*/
+[Dd]ependencies/[Tt]hird[Pp]arty/spdlog/
 
 *.sln
 *.vcxproj*

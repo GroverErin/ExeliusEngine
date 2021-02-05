@@ -1,3 +1,4 @@
+printf("Including premake5_sfml.lua - This should only appear once.")
 ------------------------------------------------------------------------------------------------------
 --[[
     Exelius Game Engine - Game Development Tool
@@ -12,9 +13,7 @@
 --]]
 ------------------------------------------------------------------------------------------------------
 
-local dependencies = require("../Dependencies/ExeliusDependencies")
-
-local exeliusDefaults = require("../ExeliusConfigFiles/ExeliusDefaults")
+local dependencies = require("Dependencies/ExeliusDependencies")
 
 local sfml = 
 {
@@ -27,44 +26,77 @@ function sfml.Include(rootDir)
 		rootDir .. [[include/]]
 	}
 
-	filter("configurations:Debug")
+	--------------------------------------------------------------------------------------------------
+	-- Windows Library Directories
+	--------------------------------------------------------------------------------------------------
+
+	filter{"configurations:Debug", "system:windows"}
 		libdirs
 		{
-			rootDir .. [[lib/Debug/]]
+			rootDir .. [[lib/Debug/]],
 		}
 
-	filter("configurations:Release")
+	filter{"configurations:Release", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/RelWithDebinfo/]]
 		}
 
-	filter("configurations:Distribution")
+	filter{"configurations:Distribution", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/MinSizeRel/]]
 		}
 
-	filter "architecture:x64"
+	filter {"architecture:x64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[extlibs/libs-msvc/x64/]],
 		}
 
-	filter "architecture:x86"
+	--filter {"architecture:x86", "system:windows"}
+		--libdirs
+		--{
+		--	rootDir .. [[extlibs/libs-msvc/x86/]],
+		--}
+
+	--------------------------------------------------------------------------------------------------
+	-- Linux Library Directories
+	--------------------------------------------------------------------------------------------------
+
+	filter{"configurations:Debug", "system:linux"}
 		libdirs
 		{
-			rootDir .. [[extlibs/libs-msvc/x86/]],
+			rootDir .. [[lib/Linux/Debug/]],
 		}
-	
-	-- Reset Filter
-	filter {}
 
-	defines 
-	{
-		"SFML_STATIC",
-		"EXELIUS_RENDERSKIN=EXELIUS_RENDERSKIN_SFML"
-	}
+	filter{"configurations:Release", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Linux/Release/]]
+		}
+
+	filter{"configurations:Distribution", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Linux/Release/]]
+		}
+
+	filter("system:windows")
+		defines 
+		{
+			"SFML_STATIC",
+			"EXELIUS_RENDERSKIN=EXELIUS_RENDERSKIN_SFML"
+		}
+
+	filter("system:linux")
+		defines 
+		{
+			"LINUX",
+			"EXELIUS_RENDERSKIN=EXELIUS_RENDERSKIN_SFML"
+		}
+
+	filter{}
 end
 
 function sfml.Link(rootdir, exeliusLibDir)
@@ -72,51 +104,40 @@ function sfml.Link(rootdir, exeliusLibDir)
 	filter("configurations:Debug")
 		links
 		{
-			"sfml-audio-s-d.lib",
-			"sfml-graphics-s-d.lib",
-			"sfml-main-d.lib",
-			"sfml-network-s-d.lib",
-			"sfml-system-s-d.lib",
-			"sfml-window-s-d.lib"
+			"sfml-audio-d",
+			"sfml-graphics-d",
+			"sfml-network-d",
+			"sfml-system-d",
+			"sfml-window-d"
 		}
 
 	filter("configurations:Release")
-		links
+		links 
 		{
-			"sfml-audio-s.lib",
-			"sfml-graphics-s.lib",
-			"sfml-main.lib",
-			"sfml-network-s.lib",
-			"sfml-system-s.lib",
-			"sfml-window-s.lib"
+			"sfml-audio",
+			"sfml-graphics",
+			"sfml-network",
+			"sfml-system",
+			"sfml-window"
 		}
 
 	filter("configurations:Distribution")
-		links
+		links 
 		{
-			"sfml-audio-s.lib",
-			"sfml-graphics-s.lib",
-			"sfml-main.lib",
-			"sfml-network-s.lib",
-			"sfml-system-s.lib",
-			"sfml-window-s.lib"
+			"sfml-audio",
+			"sfml-graphics",
+			"sfml-network",
+			"sfml-system",
+			"sfml-window"
+			-- "flac", -- May be necessary for windows.
+			-- "freetype",
+			-- "ogg",
+			-- "vorbis",
+			-- "vorbisenc",
+			-- "vorbisfile",
 		}
 
-	filter{}
-	
-	links 
-	{
-		"flac.lib",
-		"freetype.lib",
-		"ogg.lib",
-		"openal32.lib",
-		"vorbis.lib",
-		"vorbisenc.lib",
-		"vorbisfile.lib",
-		"opengl32.lib",
-		"gdi32.lib",
-		"winmm.lib"
-	}
+	filter {}
 end
 
 dependencies.Add("SFML", sfml)

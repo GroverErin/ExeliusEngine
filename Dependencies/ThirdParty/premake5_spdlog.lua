@@ -1,4 +1,5 @@
-local dependencies = require("../Dependencies/ExeliusDependencies")
+printf("Including premake5_spdlog.lua - This should only appear once.")
+local dependencies = require("Dependencies/ExeliusDependencies")
 
 local spdlog = 
 {

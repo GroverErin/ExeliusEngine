@@ -1,7 +1,4 @@
--- Dependancy injector tool:
--- It automatically detects all the third party tools/libraries located in the ThirdParty folder,
--- then adds them to the solution.
--- *Heavily copied from Dylan Wijnen's dependancy injector tool: https://github.com/dylanwijnen1/DragonEngine/blob/master/tools/modules/dependency-injector/dependency-injector.lua*
+printf("Including ExeliusDependencies.lua - This should only appear once.")
 
 -- Create a new module for premake and get it.
 premake.modules.exeliusDependencies = {}
@@ -22,32 +19,24 @@ local EXELIUS_OUTPUT_FOLDER_PATH = path.getabsolute("../Builds/ThirdParty")
 -- Create an empty dependency table.
 exeliusDepends.dependencies = {}
 
-
 --- Returns the dependency folder relative to the current executing script.
 local function DependencyFolder(dependencyRoot, dependency)
 	return dependencyRoot .. "/" .. dependency.location .. "/"
 end
 
--- @ref dependency-example 
--- local dep = 
--- {
---		project		= function(rootdir) end
---		include		= function(rootdir) end
---		link		= function(rootdir, outputdir) end
--- }
-
 -- Adds a dependency project to the dependency injector.
 -- @param id string | "The id of the dependency"
 -- @param dependency table | "A dependency table. @see dependency-example"
 function exeliusDepends.Add(id, dependency)
-
 	if exeliusDepends.dependencies[id] == nil then
 		dependency.location = dependency.location or id
 
 		exeliusDepends.dependencies[id] = dependency
 		printf("Registered dependency [" .. id .. "]")
 	else
-		printf("Dependency with id [" .. id .. "] already registered.")
+		term.setTextColor(term.yellow)
+		printf("[Warning] Dependency [" .. id .. "] already registered.")
+		term.setTextColor()
 	end
 end
 
@@ -57,22 +46,6 @@ function exeliusDepends.ListDependancies()
 	printf("Registered Dependencies: ")
 	for id, dependency in pairs(exeliusDepends.dependencies) do
 		printf("\t - " .. id)
-	end
-end
-
-function exeliusDepends.PrintDetails(id)
-
-	for _, dependency in pairs(exeliusDepends.dependencies) do
-		if dependency.shortname ~= nil then
-			printf("\t" .. dependency.shortname)
-		end
-
-		if dependency.description ~= nil then
-			printf("\t" .. dependency.description)
-		end
-
-		printf("\t" .. dependency.location)
-		printf("\n\n");
 	end
 end
 
@@ -88,7 +61,9 @@ function exeliusDepends.LinkDependency(dependency)
 
 		dependency.Link(depRoot, EXELIUS_OUTPUT_FOLDER_PATH)
 	else
-		printf("Could not link the dependency. Check to make sure it needs to be linked.")
+		term.setTextColor(term.yellow)
+		printf("[Warning] Didn't link dependency. Check if link is required.")
+		term.setTextColor()
 	end
 end
 
@@ -96,22 +71,16 @@ end
 -- @param id | "The dependency id the dependency has registered with."
 function exeliusDepends.Link(id)
 
-	printf("Linking Dependency: " .. id .. "...")
+	printf("Linking dependency [" .. id .. "]")
 
 	local dependency = exeliusDepends.dependencies[id]
 
 	if dependency ~= nil then
 		exeliusDepends.LinkDependency(dependency)
 	else
-		printf("Could not link the dependency: " .. id .. ". Dependency was not found.")
-	end
-end
-
--- Links all dependencies at once.
-function exeliusDepends.LinkAll()
-
-	for _, dependency in pairs(exeliusDepends.dependencies) do
-		exeliusDepends.LinkDependency(dependency)
+		term.setTextColor(term.red)
+		printf("[Error] Dependency not linked [" .. id .. "]")
+		term.setTextColor()
 	end
 end
 
@@ -139,29 +108,25 @@ function exeliusDepends.Include(id)
 	if dependency ~= nil then
 		exeliusDepends.IncludeDependency(dependency)
 	else
-		printf("Could not include the dependency: " .. id .. ".")
-	end
-end
-
--- Includes all dependencies into the project.
-function exeliusDepends.IncludeAll()
-
-	for _, dependency in pairs(exeliusDepends.dependencies) do
-		exeliusDepends.IncludeDependency(dependency)
+		term.setTextColor(term.red)
+		printf("[Error] Dependency not included [" .. id .. "]")
+		term.setTextColor()
 	end
 end
 
 -- Links and includes the dependency.
-function exeliusDepends.Require(id)
+function exeliusDepends.RequireTool(id)
 
-	printf("Requiring Dependency: " .. id .. "...")
+	printf("Requiring dependency [" .. id .. "]")
 
 	local dependency = exeliusDepends.dependencies[id]
 	if dependency ~= nil then
 		exeliusDepends.IncludeDependency(dependency)
 		exeliusDepends.LinkDependency(dependency)
 	else
-		printf("Could not find the dependency: " .. id .. ".")
+		term.setTextColor(term.red)
+		printf("[Error] Dependency not found [" .. id .. "]")
+		term.setTextColor()
 	end
 end
 
@@ -178,9 +143,8 @@ function exeliusDepends.GenerateProjects()
 	end
 end
 
--- Load all dependencies in the dependency folder.
+-- Load all dependencies in the dependency folder using the lua scripts.
 function exeliusDepends.Initialize()
-
 	local matches = os.matchfiles(EXELIUS_DEPENDENCY_FOLDER_PATH .. "/*.lua")
 	for _, match in pairs(matches) do
 		include(match)

@@ -2,6 +2,7 @@
 #include "SFMLWindow.h"
 
 #include "SFML/Graphics.hpp"
+#include "SFML/Window.hpp"
 
 namespace Exelius
 {

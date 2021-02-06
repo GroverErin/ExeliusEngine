@@ -2,6 +2,8 @@
 
 #include "Events/Event.h"
 #include "Window.h"
+
+#include "Events/ApplicationEvent.h"
 #include <memory>
 
 // I had this here for a reason initially, but now I am not sure why...
@@ -18,7 +20,11 @@ namespace Exelius
 
 		void Run();
 
+		void OnEvent(Event& evnt);
+
 	private:
+		bool OnWindowClose(WindowCloseEvent& evnt);
+
 		std::unique_ptr<Window> m_pWindow;
 		bool m_isRunning;
 	};

@@ -22,7 +22,7 @@ namespace Exelius
 		virtual unsigned int GetHeight() const final override { return m_data.m_height; }
 
 		// Window attributes
-		//virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }
+		virtual void SetEventCallback(const EventCallbackFn& callback) final override { m_data.EventCallback = callback; }
 		virtual void SetVSync(bool enabled) final override;
 		virtual bool IsVSync() const final override;
 
@@ -38,11 +38,11 @@ namespace Exelius
 		struct WindowData
 		{
 			std::string m_title;
-			unsigned int m_width;
-			unsigned int m_height;
-			bool m_isVSync;
+			unsigned int m_width = 0;
+			unsigned int m_height = 0;
+			bool m_isVSync = false;
 
-			//EventCallbackFn EventCallback;
+			EventCallbackFn EventCallback;
 		};
 
 		WindowData m_data;

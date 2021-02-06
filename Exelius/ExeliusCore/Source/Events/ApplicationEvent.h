@@ -14,11 +14,13 @@ namespace Exelius
 			//
 		}
 
+		void SetWidth(unsigned int width) { m_width = width; }
 		unsigned int GetWidth() const
 		{
 			return m_width;
 		}
 
+		void SetHeight(unsigned int height) { m_height = height; }
 		unsigned int GetHeight() const
 		{
 			return m_height;

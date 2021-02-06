@@ -4,6 +4,10 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 
+#include "Source/Events/ApplicationEvent.h"
+#include "Source/Events/KeyEvent.h"
+#include "Source/Events/MouseEvent.h"
+
 namespace Exelius
 {
 	Window* Window::Create(const WindowProperties& properties)
@@ -47,6 +51,8 @@ namespace Exelius
 
 	void SFMLWindow::OnUpdate()
 	{
+		WindowCloseEvent winCloseEvnt;
+		WindowResizeEvent winResizeEvent(0,0);
 		sf::Event evnt;
 		while (m_pWindow->pollEvent(evnt))
 		{
@@ -57,8 +63,14 @@ namespace Exelius
 				//----------------------------------------------------------------------------------------------------
 
 			case sf::Event::EventType::Closed:
+				m_data.EventCallback(winCloseEvnt);
 				break;
 			case sf::Event::EventType::Resized:
+				m_data.m_width = evnt.size.width;
+				m_data.m_height = evnt.size.height;
+				winResizeEvent.SetWidth(evnt.size.width);
+				winResizeEvent.SetHeight(evnt.size.height);
+				m_data.EventCallback(winResizeEvent);
 				break;
 			case sf::Event::EventType::LostFocus:
 				break;

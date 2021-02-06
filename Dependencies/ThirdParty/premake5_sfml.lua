@@ -33,19 +33,19 @@ function sfml.Include(rootDir)
 	filter{"configurations:Debug", "system:windows"}
 		libdirs
 		{
-			rootDir .. [[lib/Debug/]],
+			rootDir .. [[lib/Windows/Debug/]],
 		}
 
 	filter{"configurations:Release", "system:windows"}
 		libdirs
 		{
-			rootDir .. [[lib/RelWithDebinfo/]]
+			rootDir .. [[lib/Windows/RelWithDebInfo/]]
 		}
 
 	filter{"configurations:Distribution", "system:windows"}
 		libdirs
 		{
-			rootDir .. [[lib/MinSizeRel/]]
+			rootDir .. [[lib/Windows/MinSizeRel/]]
 		}
 
 	filter {"architecture:x64", "system:windows"}
@@ -101,7 +101,67 @@ end
 
 function sfml.Link(rootdir, exeliusLibDir)
 
-	filter("configurations:Debug")
+	filter{"configurations:Debug", "system:windows"}
+		links
+		{
+			"sfml-audio-s-d",
+			"sfml-graphics-s-d",
+			"sfml-network-s-d",
+			"sfml-system-s-d",
+			"sfml-window-s-d",
+			"flac",
+			"freetype",
+			"ogg",
+			"openal32",
+			"vorbis",
+			"vorbisenc",
+			"vorbisfile",
+			"opengl32",
+			"gdi32",
+			"winmm"
+		}
+
+	filter{"configurations:Release", "system:windows"}
+		links 
+		{
+			"sfml-audio-s",
+			"sfml-graphics-s",
+			"sfml-network-s",
+			"sfml-system-s",
+			"sfml-window-s",
+			"flac",
+			"freetype",
+			"ogg",
+			"openal32",
+			"vorbis",
+			"vorbisenc",
+			"vorbisfile",
+			"opengl32",
+			"gdi32",
+			"winmm"
+		}
+
+	filter{"configurations:Distribution", "system:windows"}
+		links 
+		{
+			"sfml-audio-s",
+			"sfml-graphics-s",
+			"sfml-network-s",
+			"sfml-system-s",
+			"sfml-window-s",
+			"flac",
+			"freetype",
+			"ogg",
+			"openal32",
+			"vorbis",
+			"vorbisenc",
+			"vorbisfile",
+			"opengl32",
+			"gdi32",
+			"winmm"
+		}
+
+	filter{"configurations:Debug", "system:linux"}
 		links
 		{
 			"sfml-audio-d",
@@ -111,7 +171,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"sfml-window-d"
 		}
 
-	filter("configurations:Release")
+	filter{"configurations:Release", "system:linux"}
 		links 
 		{
 			"sfml-audio",
@@ -121,7 +181,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"sfml-window"
 		}
 
-	filter("configurations:Distribution")
+	filter{"configurations:Distribution", "system:linux"}
 		links 
 		{
 			"sfml-audio",
@@ -129,12 +189,6 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"sfml-network",
 			"sfml-system",
 			"sfml-window"
-			-- "flac", -- May be necessary for windows.
-			-- "freetype",
-			-- "ogg",
-			-- "vorbis",
-			-- "vorbisenc",
-			-- "vorbisfile",
 		}
 
 	filter {}

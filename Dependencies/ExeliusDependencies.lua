@@ -36,7 +36,7 @@ function exeliusDepends.Add(id, dependency)
 	else
 		term.setTextColor(term.yellow)
 		printf("[Warning] Dependency [" .. id .. "] already registered.")
-		term.setTextColor()
+		term.setTextColor(term.white)
 	end
 end
 
@@ -63,7 +63,7 @@ function exeliusDepends.LinkDependency(dependency)
 	else
 		term.setTextColor(term.yellow)
 		printf("[Warning] Didn't link dependency. Check if link is required.")
-		term.setTextColor()
+		term.setTextColor(term.white)
 	end
 end
 
@@ -80,7 +80,7 @@ function exeliusDepends.Link(id)
 	else
 		term.setTextColor(term.red)
 		printf("[Error] Dependency not linked [" .. id .. "]")
-		term.setTextColor()
+		term.setTextColor(term.white)
 	end
 end
 
@@ -110,7 +110,7 @@ function exeliusDepends.Include(id)
 	else
 		term.setTextColor(term.red)
 		printf("[Error] Dependency not included [" .. id .. "]")
-		term.setTextColor()
+		term.setTextColor(term.white)
 	end
 end
 
@@ -126,7 +126,7 @@ function exeliusDepends.RequireTool(id)
 	else
 		term.setTextColor(term.red)
 		printf("[Error] Dependency not found [" .. id .. "]")
-		term.setTextColor()
+		term.setTextColor(term.white)
 	end
 end
 

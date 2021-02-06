@@ -127,10 +127,6 @@ function exeliusDefaults.InitializeProject(engine_root)
 
 	local incldir = os.realpath(engine_root .. "Exelius/ExeliusCore/");
 	includedirs(incldir);
-
-	--exeliusDefaults.InitializeEngine();
-	--local dependencies = require("../Dependencies/ExeliusDependencies")
-	--dependencies.Require("spdlog") -- Temporary, will write in house Logger.
 end
 
 return exeliusDefaults

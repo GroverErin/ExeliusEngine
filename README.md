@@ -4,8 +4,7 @@
 
 # Exelius Engine - A Simple Multiplatform 2D Game Engine
 [![License](https://img.shields.io/github/license/GroverErin/ExeliusEngine.svg)](https://github.com/GroverErin/ExeliusEngine/blob/main/LICENSE)
-[![Build Status](https://github.com/GroverErin/ExeliusEngine/workflows/build/badge.svg)](https://github.com/GroverErin/ExeliusEngine/actions?workflow=build)
-[![Static Analysis Status](https://github.com/GroverErin/ExeliusEngine/workflows/static-analysis/badge.svg)](https://github.com/GroverErin/ExeliusEngine/actions?workflow=static-analysis)
+
 Exelius written primarily with C++, as part of the Academy of Art GAP program.
 
 This is the second version of the Engine that was written as a part of GAP 301 (Game Engine Programming).
@@ -26,7 +25,7 @@ Exelius currently supports the following platforms:
 ## Plans
 ___
 ### Trello Board
-Check out the [![Trello Board](https://trello.com/b/AYUYeK4x)] for this project to see the specific roadmap for this project.
+Check out the [Trello Board](https://trello.com/b/AYUYeK4x) for this project to see the specific roadmap for this project.
 ### Upcomming
 Spring 2021 goals:
   - Linux & Windows Build System

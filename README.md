@@ -72,23 +72,25 @@ ___
 Building on windows:
   - Clone this repository into an empty directory using this command:
     - `git clone --recursive https://github.com/GroverErin/ExeliusEngine`
-  - Run the GenerateExeliusEngine.bat script.
-  - Open the ExeliusEngine.sln with Visual Studio.
+  - Navigate to the `ExeliusEngine/StartHere/` directory.
+  - Run the GenerateEngineWindows.bat script.
+  - Open the ExeliusEngine.sln in the root directory with Visual Studio 2019.
   - Build desired configuration - Outputs to Builds/ directory.
-  - You can run in either the Visual Studio IDE or navigate to the Builds directory and run the executable.
+  - You can run the build in either the Visual Studio IDE or navigate to the `ExeliusEngine/Builds/[Config]_x86_64/EXESandbox/` directory and run the executable.
 ### Linux
-Building on linux (tested on Ubuntu):
-  - Clone this repository into an empty directory using this command:
-    - `git clone --recursive https://github.com/GroverErin/ExeliusEngine`
-  - Open the Terminal in the directory containing the cloned repository.
-  - Run this command in the terminal:
-    - `./GenerateLinuxFiles.sh`
-  - Run this command in the terminal:
-    - `sudo make && sudo make install`
-  - Run one of the following commands to run the engine:
-    - `./LaunchDebug.sh`
-    - `./LaunchRelease.sh`
-    - `./LaunchDistribution.sh`
+Linux builds are currently broken due to directory restructuring.
+~Building on linux (tested on Ubuntu):~
+  - ~Clone this repository into an empty directory using this command:~
+    - ~`git clone --recursive https://github.com/GroverErin/ExeliusEngine`~
+  - ~Open the Terminal in the directory containing the cloned repository.~
+  - ~Run this command in the terminal:~
+    - ~`./GenerateLinuxFiles.sh`~
+  - ~Run this command in the terminal:~
+    - ~`sudo make && sudo make install`~
+  - ~Run one of the following commands to run the engine:~
+    - ~`./LaunchDebug.sh`~
+    - ~`./LaunchRelease.sh`~
+    - ~`./LaunchDistribution.sh`~
 ___
 ## Learn
 ### Tutorials

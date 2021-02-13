@@ -18,7 +18,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <Source/Debug/EngineLog.h>
+#include <Source/Debugging/EngineLog.h>
 
 #ifdef EXE_PLATFORM_WINDOWS
 	#include <Windows.h>

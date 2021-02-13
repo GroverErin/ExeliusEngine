@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 
-#include "Source/Debug/LogBase.h"
+#include "Source/Debugging/LogBase.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/sinks/rotating_file_sink.h"

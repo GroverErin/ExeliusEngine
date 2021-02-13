@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Source/Debug/LogBase.h"
+#include "Source/Debugging/LogBase.h"
 
 //Engine Log Macros
 #ifdef EXE_DEBUG

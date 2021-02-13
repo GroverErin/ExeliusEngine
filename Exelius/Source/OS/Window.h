@@ -1,6 +1,8 @@
 #pragma once
 #include "Source/OS/Events/EventManagement.h"
 
+#include <string>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
@@ -19,7 +21,7 @@ namespace Exelius
 		/// <summary>
 		/// The purpose of this constructor is to pass the window parameters to the Implementation Window.
 		/// </summary>
-		/// <param name="title">The name of the window to be opened."</param>
+		/// <param name="title">The name of the window to be opened.</param>
 		/// <param name="width">The width of the window to be opened.</param>
 		/// <param name="height">The height of the window to be opened.</param>
 		_Window(const std::string& title, unsigned int width, unsigned int height)

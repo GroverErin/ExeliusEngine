@@ -1,15 +1,17 @@
 #include <Include/Exelius.h>
+#include <Include/Log.h>
 
 class Sandbox final
 	: public Exelius::Application
 {
 public:
-	Sandbox() = default;
+	Sandbox()
+		: Application("ClientTitle", 720, 640)
+	{
+
+	}
 
 	~Sandbox() = default;
 };
 
-Exelius::Application* Exelius::CreateApplication()
-{
-	return new Sandbox();
-}
+EXELIUS_MAIN(Sandbox)

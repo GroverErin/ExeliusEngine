@@ -1,3 +1,3 @@
-[submodule "Dependencies/ThirdParty/spdlog"]
-	path = Dependencies/ThirdParty/spdlog
+[submodule "Tools/ThirdParty/spdlog"]
+	path = Tools/ThirdParty/spdlog
 	url = https://github.com/gabime/spdlog

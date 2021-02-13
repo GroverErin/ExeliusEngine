@@ -11,7 +11,7 @@
 	License along with this Engine.
 --]]
 ------------------------------------------------------------------------------------------------------
-
+term.setTextColor(term.white)
 printf("--------- Beginning Premake File Generation ---------")
 
 -- Main Exelius Solution/Workspace and Project Generation Script.
@@ -19,13 +19,18 @@ printf("--------- Beginning Premake File Generation ---------")
 -- The module containing the default settings for the Premake generation.
 -- This should include the architecture settings as well as the
 -- build configurations, and similar settings.
-local exeliusDefaults = require("ExeliusConfigFiles/ExeliusDefaults")
+local exeliusDefaults = require("ExeliusConfigFiles/ExeliusBuildDefaults")
 
 -- The module containing the dependancies and third party tools used by Exelius.
-local exeliusDepends = require("Dependencies/ExeliusDependencies")
+local exeliusDepends = require("Tools/ThirdParty/DependencyManager")
 
 -- Prepares the modules to be used.
 exeliusDepends.Initialize()
+
+--local matches = package.loaded
+--for thing, match in pairs(matches) do
+--	printf(thing)
+--end
 
 ------------------------------------------------------------------------------------------------------
 -- Exelius Solution/Workspace Creation
@@ -68,25 +73,24 @@ project("Exelius")
 	characterset("Default")
 
 	-- Premake function that makes this project into a static lib.
-	-- We are choosing static over dynamic for speed, at the expense of executable size.
 	kind("StaticLib")
 
 	-- Set the precompiled headers.
 	pchheader("EXEPCH.h")
-	pchsource("%{prj.name}/ExeliusCore/Source/Precompilation/EXEPCH.cpp")
+	pchsource("%{prj.name}/Source/Precompilation/EXEPCH.cpp")
 
 	-- Premake function for getting all of the files to be included into the Project.
 	files
 	{
-		"%{prj.name}/ExeliusCore/**.h",
-		"%{prj.name}/ExeliusCore/**.cpp"
+		"%{prj.name}/**.h",
+		"%{prj.name}/**.cpp"
 	}
 
 	-- Premake function for allowing <Exelius/...> includes.
 	includedirs
 	{
-		"%{prj.name}/ExeliusCore/",
-		"%{prj.name}/ExeliusCore/Source/Precompilation/"
+		"%{prj.name}/",
+		"%{prj.name}/Source/Precompilation/"
 	}
 
 	-- Retrieve and set any additional settings for the engine.

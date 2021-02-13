@@ -8,7 +8,7 @@
 [Oo]utput/
 [Bb]uilds/
 [Tt]emp/
-[Dd]ependencies/[Tt]hird[Pp]arty/spdlog/
+[Tt]ools/[Tt]hird[Pp]arty/spdlog/
 
 *.sln
 *.vcxproj*

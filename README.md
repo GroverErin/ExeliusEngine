@@ -25,7 +25,7 @@ Exelius currently supports the following platforms:
 ## Plans
 ___
 ### Trello Board
-Check out the [![Trello Board](https://trello.com/b/AYUYeK4x)] for this project to see the specific roadmap for this project.
+Check out the [[Trello Board](https://trello.com/b/AYUYeK4x)] for this project to see the specific roadmap for this project.
 ### Upcomming
 Spring 2021 goals:
   - Linux & Windows Build System

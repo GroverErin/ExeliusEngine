@@ -4,6 +4,7 @@
 
 # Exelius Engine - A Simple Multiplatform 2D Game Engine
 [![License](https://img.shields.io/github/license/GroverErin/ExeliusEngine.svg)](https://github.com/GroverErin/ExeliusEngine/blob/main/LICENSE)
+
 Exelius written primarily with C++, as part of the Academy of Art GAP program.
 
 This is the second version of the Engine that was written as a part of GAP 301 (Game Engine Programming).

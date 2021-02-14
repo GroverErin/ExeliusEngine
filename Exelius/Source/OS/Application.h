@@ -28,6 +28,9 @@ namespace Exelius
 		Application(const std::string& title = "Exelius Engine", unsigned int width = 1280, unsigned int height = 720);
 		virtual ~Application();
 
+		Application(const Application& other) = delete; // No copy constructor.
+		Application& operator=(const Application& other) = delete; // No copy assignment.
+
 		/// <summary>
 		/// Applications main loop.
 		/// Not inheretable, the client can't change this loop.

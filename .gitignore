@@ -9,6 +9,7 @@
 [Bb]uilds/
 [Tt]emp/
 [Tt]ools/[Tt]hird[Pp]arty/spdlog/
+[Ll]ogs/
 
 *.sln
 *.vcxproj*

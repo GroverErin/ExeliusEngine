@@ -39,6 +39,9 @@ namespace Exelius
 		SFMLWindow(const std::string& title, unsigned int width, unsigned int height);
 		~SFMLWindow();
 
+		SFMLWindow(const SFMLWindow& other) = delete; // No copy constructor.
+		SFMLWindow& operator=(const SFMLWindow& other) = delete; // No copy assignment.
+
 		/// <summary>
 		/// Retrieves and notifies of any SFML events.
 		/// </summary>

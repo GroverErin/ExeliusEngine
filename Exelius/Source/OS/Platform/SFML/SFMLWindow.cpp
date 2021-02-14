@@ -249,7 +249,7 @@ namespace Exelius
 
 			default:
 			{
-				EXE_ENGINE_ERROR("This event is unidentified by SFML");
+				EXELOG_ENGINE_ERROR("This event is unidentified by SFML");
 				break;
 			}
 			}
@@ -283,13 +283,13 @@ namespace Exelius
 	/// </summary>
 	void SFMLWindow::Initialize()
 	{
-		EXE_ENGINE_INFO("Creating SFML Window: {0} ({1}, {2})", m_title, m_width, m_height);
+		EXELOG_ENGINE_INFO("Creating SFML Window: {0} ({1}, {2})", m_title, m_width, m_height);
 
 		m_pWindow = new sf::RenderWindow(sf::VideoMode(m_width, m_height), m_title);
 
 		if (!m_pWindow->isOpen())
 		{
-			EXE_ENGINE_ERROR("Failed to create SFML RenderWindow.");
+			EXELOG_ENGINE_ERROR("Failed to create SFML RenderWindow.");
 			return;
 		}
 

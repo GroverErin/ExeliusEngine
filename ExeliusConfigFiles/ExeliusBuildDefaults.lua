@@ -106,6 +106,7 @@ function exeliusDefaults.InitializeEngine(dependencies)
 	-- Current Dependencies:
 	dependencies.RequireTool("spdlog")
 	dependencies.RequireTool("SFML")
+	dependencies.RequireTool("ZLib")
 end
 
 -- Initializes the Exelius Engine in the current project scope.

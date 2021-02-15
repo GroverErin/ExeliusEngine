@@ -41,8 +41,11 @@ namespace Exelius
 	/// </summary>
 	void Application::Run()
 	{
+		auto previousTime = std::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
+			auto time = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<float> deltaTime = time - previousTime;
 			m_window.OnUpdate();
 		}
 	}

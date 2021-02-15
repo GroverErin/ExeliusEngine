@@ -94,7 +94,6 @@ end
 -- Links and includes all dependencies for the Exelius Engine.
 function exeliusDefaults.InitializeEngine(dependencies)
 	-- Planned Dependencies:
-	--dependencies.RequireTool("EASTL")
 	--dependencies.RequireTool("IMGUI")
 	--dependencies.RequireTool("TMXLite")
 
@@ -107,6 +106,7 @@ function exeliusDefaults.InitializeEngine(dependencies)
 	dependencies.RequireTool("spdlog")
 	dependencies.RequireTool("SFML")
 	dependencies.RequireTool("ZLib")
+	dependencies.RequireTool("EASTL")
 end
 
 -- Initializes the Exelius Engine in the current project scope.

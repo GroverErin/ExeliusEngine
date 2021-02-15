@@ -32,6 +32,7 @@ namespace Exelius
 	class JoystickEvent
 		: public Event
 	{
+		unsigned int m_joystickID;
 	public:
 		/// <summary>
 		/// Get the unique identifier of the triggering joystick.
@@ -52,9 +53,6 @@ namespace Exelius
 		{
 			//
 		}
-
-	private:
-		unsigned int m_joystickID;
 	};
 
 	/// <summary>
@@ -63,6 +61,8 @@ namespace Exelius
 	class JoystickMovedEvent
 		: public JoystickEvent
 	{
+		float m_position;
+		JoystickAxis m_axis;
 	public:
 		/// <summary>
 		/// Event that occurs when a Joystick axis is moved.
@@ -110,10 +110,6 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(JoystickMoved)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input)
-
-	private:
-		float m_position;
-		JoystickAxis m_axis;
 	};
 
 	/// <summary>
@@ -122,6 +118,7 @@ namespace Exelius
 	class JoystickButtonPressedEvent
 		: public JoystickEvent
 	{
+		unsigned int m_button;
 	public:
 		/// <summary>
 		/// Event that occurs when a Joystick button is pressed.
@@ -137,8 +134,6 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(JoystickButtonPressed)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input | (int)EventCategory::JoystickButton)
-	private:
-		unsigned int m_button;
 	};
 
 	/// <summary>
@@ -147,6 +142,7 @@ namespace Exelius
 	class JoystickButtonReleasedEvent
 		: public JoystickEvent
 	{
+		unsigned int m_button;
 	public:
 		/// <summary>
 		/// Event that occurs when a Joystick button is released.
@@ -162,8 +158,6 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(JoystickButtonReleased)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input | (int)EventCategory::JoystickButton)
-	private:
-		unsigned int m_button;
 	};
 
 	/// <summary>

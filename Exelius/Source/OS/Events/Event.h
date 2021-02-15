@@ -40,22 +40,11 @@ namespace Exelius
 	};
 
 	/// <summary>
-	/// Sets some of the basic functions required for a base inheretor of the Event class.
-	/// </summary>
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
-								virtual EventType GetEventType() const final override { return GetStaticType(); }\
-								virtual const char* GetName() const final override { return #type; }
-
-	/// <summary>
-	/// Return the categories this event belongs to. Set at Compile Time.
-	/// </summary>
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const final override { return (int)category; }
-
-	/// <summary>
 	/// OS event triggered by the platform window.
 	/// </summary>
 	class Event
 	{
+		bool m_handled;
 	public:
 		/// <summary>
 		/// OS event triggered by the platform window.
@@ -107,7 +96,17 @@ namespace Exelius
 		/// Set the event to be handled. (No longer propagates)
 		/// </summary>
 		void SetEventHandled() { m_handled = true; }
-	private:
-		bool m_handled;
 	};
+
+	/// <summary>
+	/// Sets some of the basic functions required for a base inheretor of the Event class.
+	/// </summary>
+#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
+								virtual EventType GetEventType() const final override { return GetStaticType(); }\
+								virtual const char* GetName() const final override { return #type; }
+
+	/// <summary>
+	/// Return the categories this event belongs to. Set at Compile Time.
+	/// </summary>
+#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const final override { return (int)category; }
 }

@@ -16,6 +16,9 @@ namespace Exelius
 	class TouchEvent
 		: public Event
 	{
+		unsigned int m_fingerIndex;
+		int m_touchX;
+		int m_touchY;
 	public:
 
 		/// <summary>
@@ -63,11 +66,6 @@ namespace Exelius
 		{
 			//
 		}
-
-	private:
-		unsigned int m_fingerIndex;
-		int m_touchX;
-		int m_touchY;
 	};
 
 	class TouchMovedEvent

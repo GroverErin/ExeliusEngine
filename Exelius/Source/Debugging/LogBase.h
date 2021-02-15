@@ -16,6 +16,8 @@ namespace Exelius
 	/// </summary>
 	class _Log
 	{
+		inline static std::shared_ptr<spdlog::logger> s_pEngineLogger;
+		inline static std::shared_ptr<spdlog::logger> s_pClientLogger;
 	public:
 		/// <summary>
 		/// Intialize the engine and client macros.
@@ -33,11 +35,7 @@ namespace Exelius
 		/// Retrieve the client specific logger.
 		/// Prefer the EXELIUS_ macro.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The clent logger.</returns>
 		static constexpr std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_pClientLogger; }
-
-	private:
-		inline static std::shared_ptr<spdlog::logger> s_pEngineLogger;
-		inline static std::shared_ptr<spdlog::logger> s_pClientLogger;
 	};
 }

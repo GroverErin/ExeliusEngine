@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Window.h"
+#include "Source/OS/Window.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -16,6 +16,12 @@ namespace Exelius
 	class Application
 		: public OSEventObserver
 	{
+		inline static Application* s_pAppInstance = nullptr;
+		Window m_window;
+		float m_lastFrameTime;
+		bool m_isRunning;
+		bool m_hasLostFocus;
+
 	public:
 		/// <summary>
 		/// Clients must inheret from this class in order to hook into the engine.
@@ -56,13 +62,6 @@ namespace Exelius
 		/// </summary>
 		/// <returns> Application instance singleton.</returns>
 		static const Application& GetInstance() { return *s_pAppInstance; }
-
-	private:
-		inline static Application* s_pAppInstance = nullptr;
-		Window m_window;
-		float m_lastFrameTime;
-		bool m_isRunning;
-		bool m_hasLostFocus;
 	};
 	
 	// Defined in Entrypoint.h and by the client.

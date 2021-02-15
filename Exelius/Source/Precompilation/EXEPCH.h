@@ -19,6 +19,7 @@
 #include <unordered_set>
 
 #include <Source/Debugging/EngineLog.h>
+#include <Source/Utility/Containers/Vector2.h>
 
 #ifdef EXE_PLATFORM_WINDOWS
 	#include <Windows.h>

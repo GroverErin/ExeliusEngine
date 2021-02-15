@@ -1,7 +1,7 @@
 #pragma once
+#include "Source/OS/Events/EventManagement.h"
 
 #include <string>
-#include "Source/OS/Events/EventManagement.h"
 
 /// <summary>
 /// SFML namespace, used only in SFML specific code within Exelius.
@@ -28,6 +28,14 @@ namespace Exelius
 	/// </summary>
 	class SFMLWindow
 	{
+		sf::RenderWindow* m_pWindow;
+		OSEventMessenger m_messenger;
+
+		std::string m_title;
+		unsigned int m_width;
+		unsigned int m_height;
+		bool m_isVSync;
+
 	public:
 		/// <summary>
 		/// The SFML window class that handles SFML specific events.
@@ -87,13 +95,5 @@ namespace Exelius
 		/// Call any code required to shut down a window in SFML.
 		/// </summary>
 		void Shutdown();
-
-		sf::RenderWindow* m_pWindow;
-		OSEventMessenger m_messenger;
-
-		std::string m_title;
-		unsigned int m_width;
-		unsigned int m_height;
-		bool m_isVSync;
 	};
 }

@@ -15,6 +15,8 @@ namespace Exelius
 	class MouseMovedEvent
 		: public Event
 	{
+		int m_mouseX;
+		int m_mouseY;
 	public:
 		/// <summary>
 		/// Event that occurs when a mouse movement event is detected.
@@ -48,10 +50,6 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(MouseMoved)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Mouse | (int)EventCategory::Input)
-
-	private:
-		int m_mouseX;
-		int m_mouseY;
 	};
 
 	/// <summary>
@@ -102,6 +100,7 @@ namespace Exelius
 	class MouseScrolledEvent
 		: public Event
 	{
+		float m_delta;
 	public:
 		/// <summary>
 		/// Event that occurs when a mouse scroll wheel move is detected.
@@ -124,9 +123,6 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(MouseScrolled)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Mouse | (int)EventCategory::Input)
-
-	private:
-		float m_delta;
 	};
 
 	/// <summary>
@@ -135,6 +131,7 @@ namespace Exelius
 	class MouseButtonEvent
 		: public Event
 	{
+		int m_button;
 	public:
 		/// <summary>
 		/// Get the button data.
@@ -157,9 +154,6 @@ namespace Exelius
 		{
 			//
 		}
-
-	private:
-		int m_button;
 	};
 
 	/// <summary>

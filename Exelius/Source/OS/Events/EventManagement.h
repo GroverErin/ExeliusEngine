@@ -42,6 +42,7 @@ namespace Exelius
 	/// </summary>
 	class OSEventMessenger
 	{
+		std::list<OSEventObserver*> m_observers;
 	public:
 
 		/// <summary>
@@ -61,8 +62,5 @@ namespace Exelius
 		/// </summary>
 		/// <param name="observerToRemove">observer to remove.</param>
 		void RemoveObserver(OSEventObserver& observerToRemove);
-
-	private:
-		std::list<OSEventObserver*> m_observers;
 	};
 }

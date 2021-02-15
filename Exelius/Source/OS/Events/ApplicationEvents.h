@@ -15,6 +15,8 @@ namespace Exelius
 	class WindowResizedEvent
 		: public Event
 	{
+		unsigned int m_width;
+		unsigned int m_height;
 	public:
 		/// <summary>
 		/// Event that occurs when the window is resized.
@@ -45,10 +47,6 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(WindowResized)
 		EVENT_CLASS_CATEGORY(EventCategory::Application)
-
-	private:
-		unsigned int m_width;
-		unsigned int m_height;
 	};
 
 	/// <summary>

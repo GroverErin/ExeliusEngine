@@ -15,6 +15,7 @@ namespace Exelius
 	class KeyEvent
 		: public Event
 	{
+		int m_keyCode;
 	public:
 		/// <summary>
 		/// Get the input key code.
@@ -37,9 +38,6 @@ namespace Exelius
 		{
 			//
 		}
-
-	private:
-		int m_keyCode;
 	};
 
 	/// <summary>
@@ -93,6 +91,7 @@ namespace Exelius
 	class KeyTypedEvent
 		: public KeyEvent
 	{
+		uint32_t m_character;
 	public:
 		/// <summary>
 		/// Event that occurs when a keyboard key event is detected.
@@ -120,7 +119,5 @@ namespace Exelius
 		}
 
 		EVENT_CLASS_TYPE(KeyTyped)
-	private:
-		uint32_t m_character;
 	};
 }

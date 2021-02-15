@@ -17,6 +17,7 @@ namespace Exelius
 	template <class ImplWindow>
 	class _Window
 	{
+		ImplWindow m_impl;
 	public:
 		/// <summary>
 		/// The purpose of this constructor is to pass the window parameters to the Implementation Window.
@@ -61,8 +62,6 @@ namespace Exelius
 		/// </summary>
 		/// <returns>The implementations OS Event messenger.</returns>
 		OSEventMessenger& GetEventMessenger() { return m_impl.GetEventMessenger(); }
-	private:
-		ImplWindow m_impl;
 	};
 }
 

@@ -30,6 +30,10 @@ namespace Exelius
 	class SensorEvent
 		: public Event
 	{
+		SensorType m_type;
+		float m_x;
+		float m_y;
+		float m_z;
 	public:
 		/// <summary>
 		/// Sensor event creation.
@@ -50,11 +54,5 @@ namespace Exelius
 
 		EVENT_CLASS_TYPE(Misc)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Misc | (int)EventCategory::Input)
-
-	private:
-		SensorType m_type;
-		float m_x;
-		float m_y;
-		float m_z;
 	};
 }

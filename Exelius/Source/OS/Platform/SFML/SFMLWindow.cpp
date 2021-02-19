@@ -25,7 +25,7 @@ namespace Exelius
 	/// <param name="title">The name of the window to be opened. Default: "Exelius Engine"</param>
 	/// <param name="width">The width of the window to be opened. Default: 1280</param>
 	/// <param name="height">The height of the window to be opened. Default: 720</param>
-	SFMLWindow::SFMLWindow(const std::string& title, unsigned int width, unsigned int height)
+	SFMLWindow::SFMLWindow(const eastl::string& title, unsigned int width, unsigned int height)
 		: m_pWindow(nullptr)
 		, m_title(title)
 		, m_width(width)
@@ -283,9 +283,11 @@ namespace Exelius
 	/// </summary>
 	void SFMLWindow::Initialize()
 	{
-		EXELOG_ENGINE_INFO("Creating SFML Window: {0} ({1}, {2})", m_title, m_width, m_height);
+		EXELOG_ENGINE_INFO("Creating SFML Window: {0} ({1}, {2})", m_title.c_str(), m_width, m_height);
 
-		m_pWindow = new sf::RenderWindow(sf::VideoMode(m_width, m_height), m_title);
+		//std::string title = m_title.c_str();
+
+		m_pWindow = new sf::RenderWindow(sf::VideoMode(m_width, m_height), m_title.c_str());
 
 		if (!m_pWindow->isOpen())
 		{

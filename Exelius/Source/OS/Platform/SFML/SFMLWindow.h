@@ -1,7 +1,7 @@
 #pragma once
 #include "Source/OS/Events/EventManagement.h"
 
-#include <string>
+#include <EASTL/string.h>
 
 /// <summary>
 /// SFML namespace, used only in SFML specific code within Exelius.
@@ -31,7 +31,7 @@ namespace Exelius
 		sf::RenderWindow* m_pWindow;
 		OSEventMessenger m_messenger;
 
-		std::string m_title;
+		eastl::string m_title;
 		unsigned int m_width;
 		unsigned int m_height;
 		bool m_isVSync;
@@ -44,7 +44,7 @@ namespace Exelius
 		/// <param name="title">The name of the window to be opened. Default: "Exelius Engine"</param>
 		/// <param name="width">The width of the window to be opened. Default: 1280</param>
 		/// <param name="height">The height of the window to be opened. Default: 720</param>
-		SFMLWindow(const std::string& title, unsigned int width, unsigned int height);
+		SFMLWindow(const eastl::string& title, unsigned int width, unsigned int height);
 		~SFMLWindow();
 
 		SFMLWindow(const SFMLWindow& other) = delete; // No copy constructor.

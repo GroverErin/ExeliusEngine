@@ -7,16 +7,30 @@
 	#endif
 #endif
 
-#include <memory>
-#include <utility>
-#include <algorithm>
-#include <functional>
+//#include <memory>
+#include <EASTL/memory.h>
+//#include <utility>
+#include <EASTL/utility.h>
+//#include <algorithm>
+#include <EASTL/algorithm.h>
+//#include <functional>
+#include <EASTL/functional.h>
 
-#include <string>
-#include <array>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
+//#include <string>
+#include <EASTL/string.h>
+//#include <array>
+#include <EASTL/array.h>
+//#include <vector>
+#include <EASTL/vector.h>
+//#include <unordered_map>
+#include <EASTL/unordered_map.h>
+//#include <unordered_set>
+#include <EASTL/unordered_set.h>
+#include <EASTL/list.h>
+#include <EASTL/chrono.h>
+
+#include <EASTL/shared_ptr.h>
+#include <EASTL/unique_ptr.h>
 
 #include <Source/Debugging/EngineLog.h>
 #include <Source/Utility/Containers/Vector2.h>

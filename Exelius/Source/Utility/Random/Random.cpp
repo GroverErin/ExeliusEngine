@@ -2,8 +2,9 @@
 #include "Source/Utility/Random/Random.h"
 
 #include <stdint.h>
-#include <limits>
 #include <ctime>
+
+#include <EASTL/numeric_limits.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -45,7 +46,7 @@ namespace Exelius
 	/// <returns>Random float.</returns>
 	float Random::FRand()
 	{
-		float randF = static_cast<float>(Rand()) / static_cast<float>(std::numeric_limits<unsigned long long>::max());
+		float randF = static_cast<float>(Rand()) / static_cast<float>(eastl::numeric_limits<unsigned long long>::max());
 		return randF;
 	}
 

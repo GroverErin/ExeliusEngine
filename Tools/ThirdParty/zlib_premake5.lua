@@ -48,12 +48,6 @@ function zlib.Include(rootDir)
 			rootDir .. [[lib/Windows/MinSizeRel/]]
 		}
 
-	filter {"architecture:x64", "system:windows"}
-		libdirs
-		{
-			rootDir .. [[extlibs/libs-msvc/x64/]],
-		}
-
 	--------------------------------------------------------------------------------------------------
 	-- Linux Library Directories
 	--------------------------------------------------------------------------------------------------

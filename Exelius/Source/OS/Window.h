@@ -1,7 +1,7 @@
 #pragma once
 #include "Source/OS/Events/EventManagement.h"
 
-#include <string>
+#include <EASTL/string.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -25,7 +25,7 @@ namespace Exelius
 		/// <param name="title">The name of the window to be opened.</param>
 		/// <param name="width">The width of the window to be opened.</param>
 		/// <param name="height">The height of the window to be opened.</param>
-		_Window(const std::string& title, unsigned int width, unsigned int height)
+		_Window(const eastl::string& title, unsigned int width, unsigned int height)
 			: m_impl(title, width, height)
 		{
 		}

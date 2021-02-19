@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Source/OS/Events/Event.h"
-
-#include <list>
-
+#include <EASTL/list.h>
 // Events in Exelius are currently blocking, meaning when an event occurs it
 // immediately gets dispatched and must be dealt with right then an there.
 // For the future, a better strategy might be to buffer events in an event
@@ -42,7 +40,7 @@ namespace Exelius
 	/// </summary>
 	class OSEventMessenger
 	{
-		std::list<OSEventObserver*> m_observers;
+		eastl::list<OSEventObserver*> m_observers;
 	public:
 
 		/// <summary>

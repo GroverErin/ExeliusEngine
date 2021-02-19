@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <EASTL/numeric_limits.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -14,7 +15,7 @@ namespace Exelius
 	template <class NumberType>
 	class Vector2
 	{
-		static_assert(std::is_integral_v<NumberType> || std::is_floating_point_v<NumberType>, "Type must be of integral number type.");
+		static_assert(eastl::is_integral_v<NumberType> || eastl::is_floating_point_v<NumberType>, "Type must be of integral number type.");
 
 	public:
 		NumberType x;
@@ -26,7 +27,7 @@ namespace Exelius
 		template<class ScalarType>
 		Vector2 operator*(ScalarType right)
 		{
-			static_assert(std::is_integral_v<ScalarType> || std::is_floating_point_v<ScalarType>, "Type must be of integral number type.");
+			static_assert(eastl::is_integral_v<ScalarType> || eastl::is_floating_point_v<ScalarType>, "Type must be of integral number type.");
 			return Vector2{ x * right, y * right };
 		}
 
@@ -127,7 +128,7 @@ namespace Exelius
 		/// <returns>Float length.</returns>
 		float Length()
 		{
-			return std::sqrt(GetSquareLength());
+			return eastl::sqrt(GetSquareLength());
 		}
 
 		/// <summary>
@@ -135,12 +136,12 @@ namespace Exelius
 		/// A Unit vector.
 		/// </summary>
 		template <class _NumberType = NumberType>
-		typename std::enable_if_t<std::is_floating_point_v<_NumberType>, Vector2<_NumberType>> Normalize()
+		typename eastl::enable_if_t<eastl::is_floating_point_v<_NumberType>, Vector2<_NumberType>> Normalize()
 		{
 			if (x == 0 && y == 0)
 				return { 0,0 };
 
-			float length = std::sqrt(GetSquareLength());
+			float length = eastl::sqrt(GetSquareLength());
 			return { x / length, y / length };
 		}
 	};

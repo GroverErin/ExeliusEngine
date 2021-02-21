@@ -1,5 +1,6 @@
 #pragma once
 #include "Source/Debugging/LogBase.h"
+#include "Source/Engine/Application.h" // May be removed if necessary
 
 extern Exelius::Application* Exelius::CreateApplication();
 

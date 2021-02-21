@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Source/OS/Window.h"
+#include "Source/OS/Interface/Window.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

@@ -66,7 +66,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Platform/SFML/SFMLWindow.h"
+	#include "Source/OS/Platform/SFML/SFMLWindow.h"
 	namespace Exelius
 	{
 		using Window = _Window<SFMLWindow>;

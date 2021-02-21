@@ -107,6 +107,7 @@ function exeliusDefaults.InitializeEngine(dependencies)
 	dependencies.RequireTool("SFML")
 	dependencies.RequireTool("ZLib")
 	dependencies.RequireTool("EASTL")
+	dependencies.RequireTool("TinyXML2")
 end
 
 -- Initializes the Exelius Engine in the current project scope.

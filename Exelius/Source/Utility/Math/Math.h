@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Source/Utility/Containers/Vector2.h"
+#include <string>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -69,5 +70,17 @@ namespace Exelius
 	static inline float Distance(const Vector2f& pos1, const Vector2f& pos2)
 	{
 		return std::sqrtf(SquareDistance(pos1, pos2));
+	}
+
+	static inline unsigned int HashString(const char* pName)
+	{
+		std::hash<std::string> hasher;
+		return static_cast<unsigned int>(hasher(std::string(pName)));
+	}
+
+	static inline unsigned int HashString(std::string& pName)
+	{
+		std::hash<std::string> hasher;
+		return static_cast<unsigned int>(hasher(pName));
 	}
 }

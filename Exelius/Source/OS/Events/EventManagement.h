@@ -58,7 +58,7 @@ namespace Exelius
 		/// <summary>
 		/// Remove an observer from the list of notifiable observers.
 		/// </summary>
-		/// <param name="observerToRemove">observer to remove.</param>
+		/// <param name="observerToRemove">Observer to remove.</param>
 		void RemoveObserver(OSEventObserver& observerToRemove);
 	};
 }

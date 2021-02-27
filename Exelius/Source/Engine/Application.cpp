@@ -35,6 +35,12 @@ namespace Exelius
 		m_window.GetEventMessenger().RemoveObserver(*this);
 	}
 
+	bool Application::Initialize()
+	{
+		m_resourceManager.Initialize("Exelius/Resources/", "EXESandbox/Resources/", true);
+		return true;
+	}
+
 	/// <summary>
 	/// Applications main loop.
 	/// Not inheretable, the client can't change this loop.
@@ -44,6 +50,9 @@ namespace Exelius
 		auto previousTime = eastl::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
+			if (!m_resourceManager.IsMultiThreaded())
+				m_resourceManager.ProcessResourceQueue();
+
 			auto time = eastl::chrono::high_resolution_clock::now();
 			eastl::chrono::duration<float> deltaTime = time - previousTime;
 			m_window.OnUpdate();
@@ -58,10 +67,9 @@ namespace Exelius
 	/// <param name="evnt">The event to handle.</param>
 	void Application::HandleEvent(Event& evnt)
 	{
-		//WindowClosedEvent* pWinClosed = dynamic_cast<WindowClosedEvent*>(&evnt);
-
 		if (evnt.GetEventType() == EventType::WindowClosed)
 		{
+			WindowClosedEvent* pWinClosed = static_cast<WindowClosedEvent*>(&evnt);
 			CloseApplication();
 		}
 	}

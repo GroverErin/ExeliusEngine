@@ -19,7 +19,7 @@ namespace Exelius
 	/// <param name="max">Maximum value (Inclusive).</param>
 	/// <param name="weight">Weight of interpolation.</param>
 	/// <returns>Interpolated value.</returns>
-	static constexpr inline float Lerp(float min, float max, float weight) {
+	static constexpr float Lerp(float min, float max, float weight) {
 		return (1.0f - weight) * min + weight * max;
 	}
 
@@ -28,7 +28,7 @@ namespace Exelius
 	/// </summary>
 	/// <param name="x">Value to be smoothed.</param>
 	/// <returns>Smoothed value.</returns>
-	static constexpr inline float SmootherStep(float x)
+	static constexpr float SmootherStep(float x)
 	{
 		float newX = x * x * x * (x * (x * 6 - 15) + 10);
 		if (newX >= 1.0f)
@@ -45,7 +45,7 @@ namespace Exelius
 	/// <param name="min">Minimum range.</param>
 	/// <param name="max">Maximum range.</param>
 	/// <returns>Normalized value.</returns>
-	static constexpr inline float Normalize(float x, float min, float max)
+	static constexpr float Normalize(float x, float min, float max)
 	{
 		return (x - min) / (max - min);
 	}
@@ -56,7 +56,7 @@ namespace Exelius
 	/// <param name="pos1"></param>
 	/// <param name="pos2"></param>
 	/// <returns></returns>
-	static constexpr inline float SquareDistance(const Vector2f& pos1, const Vector2f& pos2)
+	static inline float SquareDistance(const Vector2f& pos1, const Vector2f& pos2)
 	{
 		return (pos2.x - pos1.x) * (pos2.x - pos1.x) + (pos2.y - pos1.y) * (pos2.y - pos1.y);
 	}
@@ -72,15 +72,14 @@ namespace Exelius
 		return std::sqrtf(SquareDistance(pos1, pos2));
 	}
 
-	static inline unsigned int HashString(const char* pName)
-	{
-		std::hash<std::string> hasher;
-		return static_cast<unsigned int>(hasher(std::string(pName)));
-	}
-
-	static inline unsigned int HashString(std::string& pName)
+	static inline unsigned int HashString(const std::string& pName)
 	{
 		std::hash<std::string> hasher;
 		return static_cast<unsigned int>(hasher(pName));
+	}
+
+	static inline unsigned int HashString(const char* pName)
+	{
+		return HashString(std::string(pName));
 	}
 }

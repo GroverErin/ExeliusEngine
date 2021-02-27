@@ -41,7 +41,7 @@ namespace Exelius
 	/// <param name="observerToRemove">observer to remove.</param>
 	void OSEventMessenger::RemoveObserver(OSEventObserver& observerToRemove)
 	{
-		// i don't believe this will throw if it is not found.
+		// I don't believe this will throw if it is not found.
 		m_observers.remove(&observerToRemove);
 	}
 }

@@ -7,22 +7,43 @@ namespace Exelius
 	class Resource
 	{
 		unsigned int m_id;
-		std::string m_name;
+		std::string m_filePath;
 	public:
+		enum class Status
+		{
+			kInvalid,
+			kLoading,
+			kLoaded,
+			kUnloading
+		};
 
-		unsigned int GetID() { return m_id; }
-		std::string& GetName() { return m_name; }
+		unsigned int GetID() const { return m_id; }
+		
+		Status GetStatus() const { return m_status; }
+		void SetStatus(const Status status) { m_status = status; }
+
+		const std::string& GetFilePath() const { return m_filePath; }
+		void SetFilePath(const std::string& filePath) { m_filePath = filePath; }
 
 		virtual void Load() = 0;
 		virtual void Unload() = 0;
 
 	protected:
-		Resource(std::string& resourceName)
-			: m_id(0)
-			, m_name(resourceName)
+		Resource(unsigned int resourceID)
+			: m_id(resourceID)
+			, m_status(Status::kInvalid)
+			, m_filePath("Not Set.")
 		{
-			m_id = HashString(resourceName);
+			//
 		}
+		Resource(const Resource&) = delete;
+		Resource(Resource&&) = delete;
+		Resource& operator=(const Resource&) = delete;
+		Resource& operator=(Resource&&) = delete;
+		~Resource() = default;
+
+	private:
+		Status m_status;
 	};
 
 	using ResourcePtr = std::shared_ptr<Resource>;

@@ -9,9 +9,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 	Exelius::_Log::Initialize();
 
 	auto* pApp = Exelius::CreateApplication();
-
 	assert(pApp);
-	pApp->Run();
+	if (pApp->Initialize())
+		pApp->Run();
 
 	delete pApp;
 	return 0;

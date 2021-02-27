@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Source/OS/Interface/Window.h"
+#include "Source/Resource/ResourceManager.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -18,6 +19,7 @@ namespace Exelius
 	{
 		inline static Application* s_pAppInstance = nullptr;
 		Window m_window;
+		ResourceManager m_resourceManager;
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;
@@ -36,6 +38,12 @@ namespace Exelius
 
 		Application(const Application& other) = delete; // No copy constructor.
 		Application& operator=(const Application& other) = delete; // No copy assignment.
+
+		/// <summary>
+		/// Initialize the engine, this will pull data from a config and initialize important systems.
+		/// </summary>
+		/// <returns>True on success, false on failure.</returns>
+		bool Initialize();
 
 		/// <summary>
 		/// Applications main loop.

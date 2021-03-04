@@ -1,11 +1,76 @@
 #include "EXEPCH.h"
 #include "Source/Resource/ResourceManager.h"
+#include "Source/Resource/ResourceFactory.h"
+
+#include <fstream>
+#include <zlib.h>
 
 namespace Exelius
 {
+#pragma pack(1)
+	struct ZipLocalHeader
+	{
+		static constexpr unsigned int kSignature = 0x04034b50;
+
+		uint32_t sig;
+		uint16_t version;
+		uint16_t flag;
+		uint16_t compression;	// Z_NO_COMPRESSION or Z_DEFLATED
+		uint16_t modTime;
+		uint16_t modDate;
+		uint32_t crc32;
+		uint32_t cSize;
+		uint32_t ucSize;
+		uint16_t fnameLen;	// Filename string follows header.
+		uint16_t xtraLen;	// Extra field follows filename.
+	};
+
+	struct ZipDirHeader
+	{
+		static constexpr unsigned int kSignature = 0x06054b50;
+
+		uint32_t sig;
+		uint16_t nDisk;
+		uint16_t nStartDisk;
+		uint16_t totalDirEntries;
+		uint32_t dirSize;
+		uint32_t dirOffset;
+		uint16_t cmntLen;
+	};
+
+	struct ZipDirFileHeader
+	{
+		static constexpr unsigned int kSignature = 0x02014b50;
+
+		uint32_t sig;
+		uint16_t verMade;
+		uint16_t verNeeded;
+		uint16_t flag;
+		uint16_t compression;	// COMP_xxxx
+		uint16_t modTime;
+		uint16_t modDate;
+		uint32_t crc32;
+		uint32_t cSize;			// Compressed size
+		uint32_t ucSize;		// Uncompressed size
+		uint16_t fnameLen;		// Filename string follows header.
+		uint16_t xtraLen;		// Extra field follows filename.
+		uint16_t cmntLen;		// Comment field follows extra field.
+		uint16_t diskStart;
+		uint16_t intAttr;
+		uint32_t extAttr;
+		uint32_t hdrOffset;
+
+		char* GetName() const { return (char*)(this + 1); }
+		char* GetExtra() const { return GetName() + fnameLen; }
+		char* GetComment() const { return GetExtra() + xtraLen; }
+	};
+#pragma pack()
+
+	static constexpr ptrdiff_t kPtrDelta = -(static_cast<ptrdiff_t>(sizeof(ZipDirHeader)));
+
+
 	ResourceManager::ResourceManager()
 		: m_useRawAssets(false)
-		, m_isMultiThreaded(true)
 	{
 	}
 
@@ -26,192 +91,145 @@ namespace Exelius
 		m_deferredQueueLock.unlock();
 
 		// Forcefully unload all the resources.
-		for (auto& resource : m_resourceMap)
+		//for (auto& resource : m_resourceMap)
+		//{
+		//	Unload(resource.first);
+		//}
+		//m_resourceMap.clear();
+
+		//m_loaderThread.join();
+	}
+
+	bool ResourceManager::Initialize([[maybe_unused]] ResourceFactory* pResourceFactory, [[maybe_unused]] const char* pEngineResourcePath, [[maybe_unused]] const char* pClientResourcePath, [[maybe_unused]] bool useRawAssets, [[maybe_unused]] const char* pInitialClientAssetPackage)
+	{
+		return true;
+	}
+
+	void ResourceManager::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread)
+	{
+		// Check if resource exists...
+		if (IsValidResource(resourceID))
 		{
-			resource.second->Unload();
-		}
-		m_resourceMap.clear();
-
-		//Detroy the loader thread if multi-threaded.
-		if (m_isMultiThreaded)
-			m_loaderThread.join();
-	}
-
-	void ResourceManager::Initialize(const char* engineResourcePath, const char* clientResourcePath, bool usingRawFiles, bool isMultiThreaded)
-	{
-		// Set the paths for resources. This should be configurable.
-		m_engineResourcePath = engineResourcePath;
-		m_clientResourcePath = clientResourcePath;
-
-		// Set using Raw assets vs. packaged assets.
-		m_useRawAssets = usingRawFiles;
-
-		// Get or create a loader thread if multi-threaded.
-		if (isMultiThreaded)
-			m_loaderThread = std::thread(&ResourceManager::ProcessResourceQueueThreaded, this);
-
-		m_isMultiThreaded = isMultiThreaded;
-	}
-
-	void ResourceManager::SetMultiThreaded(bool isThreaded)
-	{
-		// If turning threading off...
-		if (m_isMultiThreaded && !isThreaded)
-		{
-			m_quitThread = true;
-			m_signalThread.notify_all();
-			m_loaderThread.join();
-		}
-
-		// If turning threading on...
-		if (!m_isMultiThreaded && isThreaded)
-		{
-			m_quitThread = false;
-			m_loaderThread = std::thread(&ResourceManager::ProcessResourceQueueThreaded, this);
-		}
-
-		m_isMultiThreaded = isThreaded;
-	}
-
-	ResourcePtr ResourceManager::GetResource(unsigned int resourceID)
-	{
-		//Look to see if this resource has already been loaded or queued.
-		ResourcePtr foundResource = FindAndReturn(resourceID);
-		if (foundResource)
-			return foundResource;
-
-		// Create a pointer to the resource.
-		ResourcePtr newResource = CreateNewResource(resourceID);
-
-		// Add the resource.
-		m_deferredQueueLock.lock();
-		m_deferredQueue.emplace_back(newResource, Task::LOAD);
-		m_deferredQueueLock.unlock();
-
-		// Wake up the loader thread if it is asleep.
-		m_signalThread.notify_all();
-
-		return newResource;
-	}
-
-	ResourcePtr ResourceManager::GetResource(const std::string& resourceName)
-	{
-		// Immediately hash the string name to get the ID.
-		unsigned int resourceID = HashString(resourceName);
-
-		auto& resource = GetResource(resourceID);
-		resource->SetFilePath(resourceName);
-
-		return resource;
-	}
-
-	ResourcePtr ResourceManager::GetResourceNow(unsigned int resourceID)
-	{
-		//Look to see if this resource has already been loaded or queued.
-		ResourcePtr foundResource = FindAndReturn(resourceID);
-
-		// If the resource was found, check to see if it is not yet loaded (In queue).
-		if (foundResource && foundResource->GetStatus() == Resource::Status::kLoaded)
-		{
-			return foundResource;
-		}
-		else if (foundResource)
-		{
-			// Lock the queues, because we may need to remove something from them.
-			m_processingQueueLock.lock();
-			m_deferredQueueLock.lock();
-
-			// Remove it from any queues.
-			auto& found = std::find(m_deferredQueue.begin(), m_deferredQueue.end(), foundResource);
-			if (found != m_deferredQueue.end())
-			{
-				m_deferredQueue.erase(found);
-			}
-
-			auto& found = std::find(m_processingQueue.begin(), m_processingQueue.end(), foundResource);
-			if (found != m_processingQueue.end())
-			{
-				m_processingQueue.erase(found);
-			}
-
-			m_processingQueueLock.unlock();
-			m_deferredQueueLock.unlock();
-
-			foundResource->Load();
-			return foundResource;
-		}
-
-		// Create a pointer to the resource.
-		ResourcePtr newResource = CreateNewResource(resourceID);
-
-		newResource->Load();
-
-		return newResource;
-	}
-
-	ResourcePtr ResourceManager::GetResourceNow(const std::string& resourceName)
-	{
-		// Immediately hash the string name to get the ID.
-		unsigned int resourceID = HashString(resourceName);
-
-		return GetResourceNow(resourceID);
-	}
-
-	void ResourceManager::ReloadResources()
-	{
-	}
-
-	void ResourceManager::UnloadResource(unsigned int resourceID)
-	{
-	}
-
-	void ResourceManager::UnloadResourceNow(unsigned int resourceID)
-	{
-	}
-
-	ResourcePtr ResourceManager::FindAndReturn(unsigned int resourceID)
-	{
-		auto& resource = m_resourceMap.find(resourceID);
-		if (resource != m_resourceMap.end())
-			return resource->second;
-		return nullptr;
-	}
-
-	ResourcePtr ResourceManager::CreateNewResource(unsigned int resourceID)
-	{
-		ResourcePtr newResource = std::make_shared<Resource>(resourceID);
-
-		// Add this new resource to the resource map using it's ID.
-		m_resourceMap.emplace(resourceID, newResource);
-
-		return newResource;
-	}
-
-	void ResourceManager::ProcessResourceQueue()
-	{
-		if (m_isMultiThreaded)
-		{
-			EXELOG_ENGINE_WARN("The Resource Manager is Threaded! Inappropriate call to the non-threaded processing function.");
+			// Resource exists, so increment the ref count.
+			//m_resourceMap.at(resourceID).IncrementRefCount();
 			return;
 		}
 
-		/// Capture the deferred queue into the processing queue (swap buffers)
-		m_processingQueue.swap(m_deferredQueue);
+		// Resource does not yet exist, create an empty entry for it as a placeholder for the data.
+		ResourceEntry* pEntry = new ResourceEntry(resourceID);
+		//m_resourceMap.emplace(resourceID, pEntry);
 
-		// Process the queue
-		while (!m_processingQueue.empty())
+		// Add the resource.
+		m_deferredQueueLock.lock();
+		m_deferredQueue.emplace_back(pEntry);
+		m_deferredQueueLock.unlock();
+
+		// Wake up the loader thread if it is asleep.
+		if (signalLoaderThread)
+			SignalLoaderThread();
+	}
+
+	void ResourceManager::LoadNow(const ResourceID& resourceID)
+	{
+		// Check if resource exists...
+		if (IsValidResource(resourceID))
 		{
-			if (m_processingQueue.front().second == Task::LOAD)
-			{
-				m_processingQueue.front().first->Load();
-			}
-			else if (m_processingQueue.front().second == Task::UNLOAD)
-			{
-				m_processingQueue.front().first->Unload();
-			}
-
-			m_processingQueue.pop_front();
+			// Resource exists, so increment the ref count.
+			//m_resourceMap.at(resourceID).IncrementRefCount();
 		}
+
+		// Resource does not yet exist, create an empty entry for it as a placeholder for the data.
+		ResourceEntry* pNewResourceEntry = new ResourceEntry(resourceID);
+		//m_resourceMap.emplace(resourceID, pNewResourceEntry);
+
+
+		LoadResource(pNewResourceEntry);
+	}
+
+	void ResourceManager::Unload(const ResourceID& resourceID)
+	{
+		// Check if resource exists...
+		if (!IsValidResource(resourceID))
+			return;
+
+		// Resource exists, so decrement the ref count.
+		//if (!m_resourceMap.at(resourceID).DecrementRefCount())
+		//{
+			//m_resourceMap.erase(resourceID);
+		//}
+	}
+
+	void ResourceManager::SignalLoaderThread()
+	{
+		m_signalThread.notify_one();
+	}
+
+	void ResourceManager::SignalAndWaitForLoaderThread()
+	{
+		m_signalThread.notify_one();
+
+		//Wait until thread is finished.
+
+	}
+
+	void ResourceManager::ReloadResource([[maybe_unused]] const ResourceID& resourceID, [[maybe_unused]] bool forceLoad)
+	{
+	}
+
+	void ResourceManager::ReloadAllResources([[maybe_unused]] bool forceLoad)
+	{
+	}
+
+	Resource* ResourceManager::GetResource(const ResourceID& resourceID, bool forceLoad)
+	{
+		// Check if resource exists...
+		if (!IsValidResource(resourceID))
+		{
+			if (!forceLoad)
+				return nullptr;
+
+			LoadNow(resourceID);
+		}
+
+		return nullptr;//m_resourceMap.at(resourceID).GetResource();
+	}
+
+	void ResourceManager::LockResource(const ResourceID& resourceID)
+	{
+		// Check if resource exists...
+		if (!IsValidResource(resourceID))
+			return;
+
+		//m_resourceMap.at(resourceID).IncrementRefCount();
+	}
+
+	void ResourceManager::UnlockResrce(const ResourceID& resourceID)
+	{
+		// Check if resource exists...
+		if (!IsValidResource(resourceID))
+			return;
+
+		/*if (!m_resourceMap.at(resourceID).DecrementRefCount())
+		{
+			m_resourceMap.erase(resourceID);
+		}*/
+	}
+	
+	ResourceLoadStatus ResourceManager::GetResourceStatus(const ResourceID& resourceID)
+	{
+		// Check if resource exists...
+		if (!IsValidResource(resourceID))
+			return ResourceLoadStatus::kInvalid;
+
+		return ResourceLoadStatus::kInvalid;//m_resourceMap.at(resourceID).GetStatus();
+	}
+
+	bool ResourceManager::IsValidResource([[maybe_unused]] const ResourceID& resourceID)
+	{
+		/*auto found = m_resourceMap.find(resourceID);
+		if (found != m_resourceMap.end() && found->second.GetStatus() != ResourceLoadStatus::kInvalid)
+			return false;*/
+		return true;
 	}
 
 	void ResourceManager::ProcessResourceQueueThreaded()
@@ -243,14 +261,111 @@ namespace Exelius
 			// Process the queue
 			while (!m_processingQueue.empty())
 			{
-				if (m_processingQueue.front().second == Task::LOAD)
-					m_processingQueue.front().first->Load();
-				else if (m_processingQueue.front().second == Task::UNLOAD)
-					m_processingQueue.front().first->Unload();
-
+				LoadResource(m_processingQueue.front());
 				m_processingQueue.pop_front();
 			}
 			m_processingQueueLock.unlock();
 		}
+	}
+
+	void ResourceManager::LoadResource(ResourceEntry* resourceEntry)
+	{
+		EXELOG_ENGINE_INFO("Loading Resource: %s", resourceEntry->GetID().c_str());
+		const ResourceType::Type resourceType = m_pResourceFactory->GetResourceType(resourceEntry->GetID().c_str());
+
+		eastl::vector<std::byte> rawData = LoadRawData(resourceEntry);
+
+		Resource* pResource = m_pResourceFactory->CreateResource(resourceEntry->GetID(), resourceType);
+		if (!pResource)
+		{
+			EXELOG_ENGINE_WARN("Failed to create resource from resource factory.");
+		}
+
+		if (pResource->Load(rawData.data(), rawData.size()))
+		{
+			//Keeping the raw data.
+			pResource->SetRawData(rawData.data());
+		}
+		else
+		{
+			rawData.clear();
+		}
+
+		resourceEntry->StoreResourceIntoEntry(pResource);
+	}
+
+	eastl::vector<std::byte> ResourceManager::LoadRawData(ResourceEntry* resourceEntry)
+	{
+		if (m_useRawAssets)
+		{
+			return LoadFromDisk(resourceEntry);
+		}
+		else
+		{
+			return LoadFromZip(resourceEntry);
+		}
+	}
+
+	eastl::vector<std::byte> ResourceManager::LoadFromDisk(ResourceEntry* resourceEntry)
+	{
+		std::string strPath = resourceEntry->GetID().c_str();
+		std::transform(strPath.begin(), strPath.end(), strPath.begin(), [this](unsigned char c) -> unsigned char
+			{
+				return (unsigned char)std::tolower(c);
+			});
+		replace(strPath.begin(), strPath.end(), '\\', '/');
+
+		std::ifstream inFile(strPath.c_str(), std::ios_base::binary | std::ios_base::in);
+		if (inFile.fail())
+		{
+			EXELOG_ENGINE_WARN("Failed to open file: %s", strPath.c_str());
+			return eastl::vector<std::byte>();
+		}
+
+		// find the size of the file in bytes;
+		inFile.seekg(0, std::ios::end);
+		std::streampos size = inFile.tellg();
+		inFile.seekg(0, std::ios::beg);
+
+		// Read contents into vector of bytes
+		eastl::vector<std::byte> data(static_cast<size_t>(size));
+		inFile.read(reinterpret_cast<char*>(data.data()), size);
+
+		inFile.close();
+
+		return data;
+	}
+
+	eastl::vector<std::byte> ResourceManager::LoadFromZip(ResourceEntry* resourceEntry)
+	{
+		std::string strPath = resourceEntry->GetID().c_str();
+		std::transform(strPath.begin(), strPath.end(), strPath.begin(), [this](unsigned char c) -> unsigned char
+			{
+				return (unsigned char)std::tolower(c);
+			});
+		replace(strPath.begin(), strPath.end(), '\\', '/');
+
+		std::ifstream inFile(strPath.c_str(), std::ios_base::binary | std::ios_base::in);
+		if (inFile.fail())
+		{
+			EXELOG_ENGINE_WARN("Failed to open file: %s", strPath.c_str());
+			return eastl::vector<std::byte>();
+		}
+
+		ZipDirHeader dirHeader;
+		memset(&dirHeader, 0, sizeof(dirHeader));
+
+		inFile.seekg(kPtrDelta, std::ios_base::end);
+		const auto dirHeaderOffset = inFile.tellg();
+		inFile.read(reinterpret_cast<char*>(&dirHeader), sizeof(ZipDirHeader));
+		if (dirHeader.sig != ZipDirHeader::kSignature)
+		{
+			EXELOG_ENGINE_WARN("Corrupted Zip file: %s", strPath.c_str());
+			return eastl::vector<std::byte>();
+		}
+
+		// Now load the respective file? I need to think more about how I want this to operate.
+		return eastl::vector<std::byte>();
+
 	}
 }

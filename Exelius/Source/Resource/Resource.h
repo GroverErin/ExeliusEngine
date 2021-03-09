@@ -1,29 +1,40 @@
 #pragma once
 #include "Source/Resource/ResourceHelpers.h"
 
+#include <EASTL/vector.h>
+
 namespace Exelius
 {
 	class Resource
 	{
-		// Raw resource data.
-		const std::byte* m_pData;
-
+		ResourceID m_id;
 	public:
 		virtual ~Resource() = default;
+		
+		enum class LoadResult
+		{
+			kFailed,
+			kKeptRawData,
+			kDiscardRawData
+		};
 
 		/// <summary>
 		/// Load the asset. This will call the assets specific load funcion based on it's type.
 		/// </summary>
 		/// <returns>Return true if the raw data needs to be kept for this resource to live.</returns>
-		virtual bool Load(const std::byte* pData, size_t dataSize) = 0;
+		virtual LoadResult Load(eastl::vector<std::byte>&& data) = 0;
 
-		void SetRawData(const std::byte* const pRawData)
-		{
-			m_pData = pRawData;
-		}
+		/// <summary>
+		/// Calls the
+		/// </summary>
+		virtual void Unload() = 0;
 
 	protected:
-		Resource() = default;
+		Resource(const ResourceID& id)
+			: m_id(id)
+		{
+			//
+		}
 		Resource(const Resource&) = delete;
 		Resource(Resource&&) = delete;
 		Resource& operator=(const Resource&) = delete;

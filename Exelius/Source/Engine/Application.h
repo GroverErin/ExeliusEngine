@@ -2,6 +2,7 @@
 
 #include "Source/OS/Interface/Window.h"
 #include "Source/Resource/ResourceManager.h"
+#include "Source/Engine/Resources/ExeliusResourceFactory.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -20,6 +21,7 @@ namespace Exelius
 		inline static Application* s_pAppInstance = nullptr;
 		Window m_window;
 		ResourceManager m_resourceManager;
+		ExeliusResourceFactory m_resourceFactory;
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;

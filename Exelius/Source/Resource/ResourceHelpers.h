@@ -1,15 +1,15 @@
 #pragma once
-#include <string>
+#include "Source/Utility/String/StringIntern.h"
 
 namespace Exelius
 {
-	using ResourceID = std::string;
+	using ResourceID = StringIntern;
 
 	namespace ResourceType
 	{
 		using Type = uint32_t;
 
-		constexpr Type kInvalid = 0;
+		static constexpr Type kInvalid = 0;
 	}
 
 	enum class ResourceLoadStatus

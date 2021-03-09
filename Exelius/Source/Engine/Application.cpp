@@ -2,6 +2,7 @@
 
 #include "Source/Engine/Application.h"
 #include "Source/OS/Events/ApplicationEvents.h"
+#include "Source/Engine/Resources/TextFileResource.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -37,7 +38,18 @@ namespace Exelius
 
 	bool Application::Initialize()
 	{
-		m_resourceManager.Initialize(nullptr, nullptr, nullptr, true, nullptr);
+		m_resourceManager.Initialize(&m_resourceFactory, "EngineResources/", "NO", true, "NO");
+		eastl::string str = "../TestLoad.txt";
+		auto id = m_resourceManager.QueueLoad(str, true);
+
+		auto* pResource = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
+		while (!pResource)
+		{
+			EXELOG_ENGINE_FATAL("Failed to retrieve resource.");
+			pResource = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
+		}
+
+		EXELOG_ENGINE_INFO("{}: {}", str.c_str(), pResource->GetText().c_str());
 		return true;
 	}
 

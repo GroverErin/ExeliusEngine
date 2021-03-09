@@ -9,10 +9,9 @@ namespace Exelius
 	{
 	public:
 		virtual ~ResourceFactory() = default;
-		virtual Resource* CreateResource(const ResourceID& resourceID, ResourceType::Type type) = 0;
-		virtual ResourceType::Type GetResourceType(const char* resourcePath) const = 0;
+		virtual Resource* CreateResource(const ResourceID& resourceID) = 0;
 
 	protected:
-		static void SetResourceIdOnResource(Resource* pResource, const ResourceID& id);
+		virtual ResourceType::Type GetResourceType(const ResourceID& resourceID) const = 0;
 	};
 }

@@ -1,23 +1,28 @@
 #include "EXEPCH.h"
 #include "TextureResource.h"
 
-Exelius::TextureResource::TextureResource()
-    : m_pTexture(nullptr)
+namespace Exelius
 {
-}
+    TextureResource::TextureResource(const ResourceID& id)
+        : Resource(id)
+        , m_pTexture(nullptr)
+    {
+        //
+    }
 
-Exelius::TextureResource::~TextureResource()
-{
-    delete m_pTexture;
-    m_pTexture = nullptr;
-}
+    TextureResource::~TextureResource()
+    {
+        delete m_pTexture;
+        m_pTexture = nullptr;
+    }
 
-bool Exelius::TextureResource::Load(const std::byte* pData, size_t dataSize)
-{
-    delete m_pTexture;
+    Resource::LoadResult TextureResource::Load(eastl::vector<std::byte>&& data)
+    {
+        delete m_pTexture;
 
-    m_pTexture = new Texture();
-    if (m_pTexture->LoadFromMemory(pData, dataSize))
-        return true;
-    return false;
+        m_pTexture = new Texture();
+        if (m_pTexture->LoadFromMemory(data.data(), data.size()))
+            return LoadResult::kKeptRawData;
+        return LoadResult::kFailed;
+    }
 }

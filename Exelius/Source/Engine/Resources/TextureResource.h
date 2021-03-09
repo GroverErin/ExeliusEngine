@@ -9,13 +9,14 @@ namespace Exelius
 	{
 		Texture* m_pTexture;
 	public:
-		TextureResource();
+		TextureResource(const ResourceID& id);
 		TextureResource(const TextureResource&) = delete;
 		TextureResource(TextureResource&&) = delete;
 		TextureResource& operator=(const TextureResource&) = delete;
 		virtual ~TextureResource() final override;
 
-		virtual bool Load(const std::byte* pData, size_t dataSize) final override;
+		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
+		virtual void Unload() final override {}
 
 		Texture* GetTexture() const { return m_pTexture; }
 	};

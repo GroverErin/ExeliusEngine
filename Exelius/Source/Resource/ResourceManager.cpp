@@ -70,93 +70,102 @@ namespace Exelius
 
 
 	ResourceManager::ResourceManager()
-		: m_useRawAssets(false)
+		: m_pResourceFactory(nullptr)
+		, m_quitThread(false)
+		, m_engineResourcePath("Invalid Engine Resource Path.")
+		, m_clientResourcePath("Invalid Client Resource Path.")
+		, m_clientAssetPackFile("Invalid Client Asset Pack File.")
+		, m_useRawAssets(false)
 	{
 	}
 
 	ResourceManager::~ResourceManager()
 	{
-		m_quitThread = true;
-		m_signalThread.notify_all();
-
-		// Clear the load queues.
-		m_processingQueueLock.lock();
-		while (!m_processingQueue.empty())
-			m_processingQueue.pop_back();
-		m_processingQueueLock.unlock();
-
+		// Remove resources to be loaded.
 		m_deferredQueueLock.lock();
-		while (!m_deferredQueue.empty())
-			m_deferredQueue.pop_back();
+		m_deferredQueue.clear();
 		m_deferredQueueLock.unlock();
 
-		// Forcefully unload all the resources.
-		//for (auto& resource : m_resourceMap)
-		//{
-		//	Unload(resource.first);
-		//}
-		//m_resourceMap.clear();
+		// Tell the thread we are done.
+		m_quitThread = true;
+		SignalAndWaitForLoaderThread();
+		m_loaderThread.join();
 
-		//m_loaderThread.join();
+		// unload all the currently loaded resources.
+		m_resourceDatabase.UnloadAll();
+
+		// Don't delete, this lives on the Application.
+		m_pResourceFactory = nullptr;
+
+
 	}
 
-	bool ResourceManager::Initialize([[maybe_unused]] ResourceFactory* pResourceFactory, [[maybe_unused]] const char* pEngineResourcePath, [[maybe_unused]] const char* pClientResourcePath, [[maybe_unused]] bool useRawAssets, [[maybe_unused]] const char* pInitialClientAssetPackage)
+	const ResourceID& ResourceManager::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread)
 	{
-		return true;
-	}
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Queueing: {}", resourceID.Get().c_str());
 
-	void ResourceManager::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread)
-	{
-		// Check if resource exists...
-		if (IsValidResource(resourceID))
+		// Check if the resource is already in the resource database.
+		if (m_resourceDatabase.IsFound(resourceID))
 		{
-			// Resource exists, so increment the ref count.
-			//m_resourceMap.at(resourceID).IncrementRefCount();
-			return;
+			EXELOG_ENGINE_TRACE("Attempted to Queue a Resource that is either already loaded or queued.");
+			return resourceID;
 		}
 
-		// Resource does not yet exist, create an empty entry for it as a placeholder for the data.
-		ResourceEntry* pEntry = new ResourceEntry(resourceID);
-		//m_resourceMap.emplace(resourceID, pEntry);
-
-		// Add the resource.
+		// Else add it to the load queue and return its id.
+		m_resourceDatabase.CreateEntry(resourceID);
+		
 		m_deferredQueueLock.lock();
-		m_deferredQueue.emplace_back(pEntry);
+		m_deferredQueue.emplace_back(resourceID);
 		m_deferredQueueLock.unlock();
 
-		// Wake up the loader thread if it is asleep.
 		if (signalLoaderThread)
 			SignalLoaderThread();
+
+		return resourceID;
 	}
 
-	void ResourceManager::LoadNow(const ResourceID& resourceID)
+	const ResourceID& ResourceManager::LoadNow(const ResourceID& resourceID)
 	{
-		// Check if resource exists...
-		if (IsValidResource(resourceID))
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Loading Resource On Main Thread: {}", resourceID.Get().c_str());
+
+		// Check if the resource is already loaded.
+		if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoaded)
 		{
-			// Resource exists, so increment the ref count.
-			//m_resourceMap.at(resourceID).IncrementRefCount();
+			EXELOG_ENGINE_TRACE("Attempted to Load a Resource that is already loaded.");
+			return resourceID;
 		}
 
-		// Resource does not yet exist, create an empty entry for it as a placeholder for the data.
-		ResourceEntry* pNewResourceEntry = new ResourceEntry(resourceID);
-		//m_resourceMap.emplace(resourceID, pNewResourceEntry);
+		// Second check may present a race condition.
+		else if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
+		{
+			EXELOG_ENGINE_TRACE("Attempted to Load a Resource that is queued. TODO: Interrupt the thread and Load it immediately.");
+			return resourceID;
+		}
 
+		// Else load and return it.
+		m_resourceDatabase.CreateEntry(resourceID);
 
-		LoadResource(pNewResourceEntry);
+		LoadResource(resourceID);
+
+		return resourceID;
 	}
 
-	void ResourceManager::Unload(const ResourceID& resourceID)
+	void ResourceManager::Release(const ResourceID& resourceID)
 	{
-		// Check if resource exists...
-		if (!IsValidResource(resourceID))
-			return;
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Releasing: {}", resourceID.Get().c_str());
 
-		// Resource exists, so decrement the ref count.
-		//if (!m_resourceMap.at(resourceID).DecrementRefCount())
-		//{
-			//m_resourceMap.erase(resourceID);
-		//}
+		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
+
+		if (!pResourceEntry)
+			return;
+		
+		// Decrement the reference count of this resource.
+		// If there is no longer any references to this resource, then unload it.
+		if (!pResourceEntry->DecrementRefCount())
+			m_resourceDatabase.Unload(resourceID);
 	}
 
 	void ResourceManager::SignalLoaderThread()
@@ -166,88 +175,107 @@ namespace Exelius
 
 	void ResourceManager::SignalAndWaitForLoaderThread()
 	{
-		m_signalThread.notify_one();
+		SignalLoaderThread();
 
-		//Wait until thread is finished.
+		// Not sure if this will work?
+		std::mutex m_waitMutex;
+		std::unique_lock<std::mutex> waitLock(m_waitMutex);
 
+		m_signalThread.wait(waitLock);
 	}
 
-	void ResourceManager::ReloadResource([[maybe_unused]] const ResourceID& resourceID, [[maybe_unused]] bool forceLoad)
+	void ResourceManager::ReloadResource(const ResourceID& resourceID, bool forceLoad)
 	{
-	}
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Reloading: {}", resourceID.Get().c_str());
 
-	void ResourceManager::ReloadAllResources([[maybe_unused]] bool forceLoad)
-	{
+		// Check if the resource is not already loaded.
+		if (m_resourceDatabase.GetLoadStatus(resourceID) != ResourceLoadStatus::kLoaded)
+		{
+			EXELOG_ENGINE_TRACE("Attempted to Reload a Resource that is not loaded.");
+			return;
+		}
+
+		m_resourceDatabase.Unload(resourceID);
+
+		if (forceLoad)
+			LoadNow(resourceID);
+		else
+			QueueLoad(resourceID, true);
 	}
 
 	Resource* ResourceManager::GetResource(const ResourceID& resourceID, bool forceLoad)
 	{
-		// Check if resource exists...
-		if (!IsValidResource(resourceID))
-		{
-			if (!forceLoad)
-				return nullptr;
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Retrieving Resource: {}", resourceID.Get().c_str());
 
-			LoadNow(resourceID);
+		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
+
+		if (!pResourceEntry && forceLoad)
+		{
+			ResourceID id = LoadNow(resourceID);
+			return GetResource(id, false); // Should be guaranteed, but calling false will prevent infinite recursion.
+		}
+		else if (!pResourceEntry)
+		{
+			return nullptr;
 		}
 
-		return nullptr;//m_resourceMap.at(resourceID).GetResource();
+		return pResourceEntry->GetResource();
 	}
 
 	void ResourceManager::LockResource(const ResourceID& resourceID)
 	{
-		// Check if resource exists...
-		if (!IsValidResource(resourceID))
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Locking Resource: {}", resourceID.Get().c_str());
+
+		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
+
+		if (!pResourceEntry)
 			return;
 
-		//m_resourceMap.at(resourceID).IncrementRefCount();
+		pResourceEntry->IncrementLockCount();
 	}
 
 	void ResourceManager::UnlockResrce(const ResourceID& resourceID)
 	{
-		// Check if resource exists...
-		if (!IsValidResource(resourceID))
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Unlocking Resource: {}", resourceID.Get().c_str());
+
+		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
+
+		if (!pResourceEntry)
 			return;
 
-		/*if (!m_resourceMap.at(resourceID).DecrementRefCount())
-		{
-			m_resourceMap.erase(resourceID);
-		}*/
-	}
-	
-	ResourceLoadStatus ResourceManager::GetResourceStatus(const ResourceID& resourceID)
-	{
-		// Check if resource exists...
-		if (!IsValidResource(resourceID))
-			return ResourceLoadStatus::kInvalid;
-
-		return ResourceLoadStatus::kInvalid;//m_resourceMap.at(resourceID).GetStatus();
+		pResourceEntry->DecrementLockCount();
 	}
 
-	bool ResourceManager::IsValidResource([[maybe_unused]] const ResourceID& resourceID)
+	bool ResourceManager::Initialize(ResourceFactory* pResourceFactory, const char* pEngineResourcePath, const char* pClientResourcePath, bool useRawAssets, const char* pInitialClientAssetPackage)
 	{
-		/*auto found = m_resourceMap.find(resourceID);
-		if (found != m_resourceMap.end() && found->second.GetStatus() != ResourceLoadStatus::kInvalid)
-			return false;*/
+		m_deferredQueue.clear();
+
+		m_pResourceFactory = pResourceFactory;
+		m_engineResourcePath = pEngineResourcePath;
+		m_clientResourcePath = pClientResourcePath;
+		m_useRawAssets = useRawAssets;
+		m_clientAssetPackFile = pInitialClientAssetPackage;
+
+		m_loaderThread = std::thread(&ResourceManager::ProcessResourceQueueThreaded, this);
+
 		return true;
 	}
 
 	void ResourceManager::ProcessResourceQueueThreaded()
 	{
+		std::mutex waitMutex;
+		eastl::deque<ResourceID> processingQueue;
+		std::unique_lock<std::mutex> waitLock(waitMutex);
+
 		// While the thread is still active (Not shut down)
 		while (!m_quitThread)
 		{
-			// Wait if we have no work to do.
-			std::unique_lock<std::mutex> waitLock(m_waitMutex);
-			m_signalThread.wait(waitLock, [this]()
-				{
-					bool empty = true;
-					m_deferredQueueLock.lock();
-					empty = m_deferredQueue.empty();
-					m_deferredQueueLock.unlock();
-
-					return m_quitThread || !empty;
-				});
+			// Wait until we are signaled to work.
+			m_signalThread.wait(waitLock);
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
@@ -255,70 +283,86 @@ namespace Exelius
 
 			/// Capture the deferred queue into the processing queue (swap buffers)
 			m_deferredQueueLock.lock();
-			m_processingQueueLock.lock();
-			m_processingQueue.swap(m_deferredQueue);
+			processingQueue.swap(m_deferredQueue);
 			m_deferredQueueLock.unlock();
+
 			// Process the queue
-			while (!m_processingQueue.empty())
+			while (!processingQueue.empty())
 			{
-				LoadResource(m_processingQueue.front());
-				m_processingQueue.pop_front();
+				LoadResource(processingQueue.front());
+				processingQueue.pop_front();
 			}
-			m_processingQueueLock.unlock();
+
+			// Done loading this pass, so signal the main thread in case it is waiting.
+			m_signalThread.notify_one();
 		}
+
+		// Let the main thread know we are fully exiting in case they are waiting.
+		m_signalThread.notify_one();
 	}
 
-	void ResourceManager::LoadResource(ResourceEntry* resourceEntry)
+	void ResourceManager::LoadResource(const ResourceID& resourceID)
 	{
-		EXELOG_ENGINE_INFO("Loading Resource: %s", resourceEntry->GetID().c_str());
-		const ResourceType::Type resourceType = m_pResourceFactory->GetResourceType(resourceEntry->GetID().c_str());
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Loading Resource Internally: {}", resourceID.Get().c_str());
 
-		eastl::vector<std::byte> rawData = LoadRawData(resourceEntry);
+		eastl::vector<std::byte> rawData = LoadRawData(resourceID);
 
-		Resource* pResource = m_pResourceFactory->CreateResource(resourceEntry->GetID(), resourceType);
+		if (rawData.empty())
+		{
+			EXELOG_ENGINE_WARN("Raw file data was empty.");
+			return;
+		}
+
+		Resource* pResource = m_pResourceFactory->CreateResource(resourceID);
 		if (!pResource)
 		{
 			EXELOG_ENGINE_WARN("Failed to create resource from resource factory.");
 		}
 
-		if (pResource->Load(rawData.data(), rawData.size()))
+		if (pResource->Load(std::move(rawData)) != Resource::LoadResult::kFailed)
 		{
-			//Keeping the raw data.
-			pResource->SetRawData(rawData.data());
+			m_resourceDatabase.GetEntry(resourceID)->SetResource(pResource);
 		}
-		else
-		{
-			rawData.clear();
-		}
-
-		resourceEntry->StoreResourceIntoEntry(pResource);
 	}
 
-	eastl::vector<std::byte> ResourceManager::LoadRawData(ResourceEntry* resourceEntry)
+	eastl::vector<std::byte> ResourceManager::LoadRawData(const ResourceID& resourceID)
 	{
+		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Loading Resource Raw Data: {}", resourceID.Get().c_str());
+
 		if (m_useRawAssets)
 		{
-			return LoadFromDisk(resourceEntry);
+			return LoadFromDisk(resourceID);
 		}
 		else
 		{
-			return LoadFromZip(resourceEntry);
+			return LoadFromZip(resourceID);
 		}
 	}
 
-	eastl::vector<std::byte> ResourceManager::LoadFromDisk(ResourceEntry* resourceEntry)
+	eastl::vector<std::byte> ResourceManager::LoadFromDisk(const ResourceID& resourceID)
 	{
-		std::string strPath = resourceEntry->GetID().c_str();
-		std::transform(strPath.begin(), strPath.end(), strPath.begin(), [this](unsigned char c) -> unsigned char
+		eastl::string strPath = resourceID.Get();
+		eastl::transform(strPath.begin(), strPath.end(), strPath.begin(), [this](unsigned char c) -> unsigned char
 			{
 				return (unsigned char)std::tolower(c);
 			});
-		replace(strPath.begin(), strPath.end(), '\\', '/');
+		eastl::replace(strPath.begin(), strPath.end(), '\\', '/');
 
-		std::ifstream inFile(strPath.c_str(), std::ios_base::binary | std::ios_base::in);
-		if (inFile.fail())
+		std::ifstream inFile;
+		inFile.open(strPath.c_str(), std::ios_base::binary | std::ios_base::in);
+		if (!inFile.is_open())
 		{
-			EXELOG_ENGINE_WARN("Failed to open file: %s", strPath.c_str());
+			EXELOG_ENGINE_WARN("Failed to open file: {}", strPath.c_str());
+
+			if (inFile.bad())
+				EXELOG_ENGINE_WARN("I/O error while reading");
+			else if (inFile.eof())
+				EXELOG_ENGINE_WARN("End of file reached successfully");
+			else if (inFile.fail())
+				EXELOG_ENGINE_WARN("Non-integer data encountered");
+			
 			return eastl::vector<std::byte>();
 		}
 
@@ -336,36 +380,35 @@ namespace Exelius
 		return data;
 	}
 
-	eastl::vector<std::byte> ResourceManager::LoadFromZip(ResourceEntry* resourceEntry)
+	eastl::vector<std::byte> ResourceManager::LoadFromZip(const ResourceID& resourceID)
 	{
-		std::string strPath = resourceEntry->GetID().c_str();
-		std::transform(strPath.begin(), strPath.end(), strPath.begin(), [this](unsigned char c) -> unsigned char
+		eastl::string strPath = resourceID.Get().c_str();
+		eastl::transform(strPath.begin(), strPath.end(), strPath.begin(), [this](unsigned char c) -> unsigned char
 			{
 				return (unsigned char)std::tolower(c);
 			});
-		replace(strPath.begin(), strPath.end(), '\\', '/');
+		eastl::replace(strPath.begin(), strPath.end(), '\\', '/');
 
-		std::ifstream inFile(strPath.c_str(), std::ios_base::binary | std::ios_base::in);
-		if (inFile.fail())
-		{
-			EXELOG_ENGINE_WARN("Failed to open file: %s", strPath.c_str());
-			return eastl::vector<std::byte>();
-		}
+		//std::ifstream inFile(strPath.c_str(), std::ios_base::binary | std::ios_base::in);
+		//if (inFile.fail())
+		//{
+		//	EXELOG_ENGINE_WARN("Failed to open file: {}", strPath.c_str());
+		//	return eastl::vector<std::byte>();
+		//}
 
-		ZipDirHeader dirHeader;
-		memset(&dirHeader, 0, sizeof(dirHeader));
+		//ZipDirHeader dirHeader;
+		//memset(&dirHeader, 0, sizeof(dirHeader));
 
-		inFile.seekg(kPtrDelta, std::ios_base::end);
-		const auto dirHeaderOffset = inFile.tellg();
-		inFile.read(reinterpret_cast<char*>(&dirHeader), sizeof(ZipDirHeader));
-		if (dirHeader.sig != ZipDirHeader::kSignature)
-		{
-			EXELOG_ENGINE_WARN("Corrupted Zip file: %s", strPath.c_str());
-			return eastl::vector<std::byte>();
-		}
+		//inFile.seekg(kPtrDelta, std::ios_base::end);
+		//const auto dirHeaderOffset = inFile.tellg();
+		//inFile.read(reinterpret_cast<char*>(&dirHeader), sizeof(ZipDirHeader));
+		//if (dirHeader.sig != ZipDirHeader::kSignature)
+		//{
+		//	EXELOG_ENGINE_WARN("Corrupted Zip file: {}", strPath.c_str());
+		//	return eastl::vector<std::byte>();
+		//}
 
-		// Now load the respective file? I need to think more about how I want this to operate.
+		//// Now load the respective file? I need to think more about how I want this to operate.
 		return eastl::vector<std::byte>();
-
 	}
 }

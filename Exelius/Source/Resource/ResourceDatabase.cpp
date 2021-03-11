@@ -3,14 +3,19 @@
 
 namespace Exelius
 {
+	ResourceDatabase::~ResourceDatabase()
+	{
+		UnloadAll();
+	}
+
 	ResourceEntry* ResourceDatabase::GetEntry(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
 
 		if (IsFound(resourceID))
 		{
-			m_resourceMap.at(resourceID)->IncrementRefCount();
-			return m_resourceMap.at(resourceID);
+			//m_resourceMap.at(resourceID).IncrementRefCount();
+			return &m_resourceMap.at(resourceID);
 		}
 
 		return nullptr;
@@ -21,9 +26,17 @@ namespace Exelius
 		EXE_ASSERT(resourceID.IsValid());
 
 		if (IsFound(resourceID))
-			return m_resourceMap.at(resourceID)->GetStatus();
+			return m_resourceMap.at(resourceID).GetStatus();
 
 		return ResourceLoadStatus::kInvalid;
+	}
+
+	void ResourceDatabase::SetLoadStatus(const ResourceID& resourceID, ResourceLoadStatus newStatus)
+	{
+		EXE_ASSERT(resourceID.IsValid());
+
+		if (IsFound(resourceID))
+			m_resourceMap.at(resourceID).SetStatus(newStatus);
 	}
 
 	void ResourceDatabase::CreateEntry(const ResourceID& resourceID)
@@ -36,7 +49,7 @@ namespace Exelius
 			return;
 		}
 
-		m_resourceMap.emplace(resourceID, new ResourceEntry());
+		m_resourceMap.try_emplace(resourceID);
 	}
 
 	bool ResourceDatabase::IsFound(const ResourceID& resourceID)
@@ -54,19 +67,34 @@ namespace Exelius
 	{
 		EXE_ASSERT(resourceID.IsValid());
 
-		if (IsFound(resourceID))
+		if (!IsFound(resourceID))
+			return;
+
+		m_resourceMap.at(resourceID).SetStatus(ResourceLoadStatus::kUnloading);
+
+		Resource* pResource = m_resourceMap.at(resourceID).GetResource();
+		if (pResource)
 		{
-			m_resourceMap.at(resourceID)->GetResource()->Unload();
+			pResource->Unload();
+			m_resourceMap.at(resourceID).SetStatus(ResourceLoadStatus::kUnloaded);
 		}
-	}
+
+		m_resourceMap.erase(resourceID);
+}
 
 	void ResourceDatabase::UnloadAll()
 	{
 		for (auto& resourcePair : m_resourceMap)
 		{
-			Resource* pResource = resourcePair.second->GetResource();
+			resourcePair.second.SetStatus(ResourceLoadStatus::kUnloading);
+			Resource* pResource = resourcePair.second.GetResource();
 			if (pResource)
+			{
 				pResource->Unload();
+				resourcePair.second.SetStatus(ResourceLoadStatus::kUnloaded);
+			}
 		}
+
+		m_resourceMap.clear();
 	}
 }

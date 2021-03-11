@@ -38,9 +38,13 @@ namespace Exelius
 
 	bool Application::Initialize()
 	{
-		m_resourceManager.Initialize(&m_resourceFactory, "EngineResources/", "NO", true, "NO");
+		EXELOG_ENGINE_ERROR("Resource Manager test code found in Application::Initialize().");
+
+		m_resourceManager.Initialize(&m_resourceFactory, "EngineResources/",  true);
 		eastl::string str = "../TestLoad.txt";
+
 		auto id = m_resourceManager.QueueLoad(str, true);
+		id = m_resourceManager.QueueLoad(str, true);
 
 		auto* pResource = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
 		while (!pResource)
@@ -50,6 +54,29 @@ namespace Exelius
 		}
 
 		EXELOG_ENGINE_INFO("{}: {}", str.c_str(), pResource->GetText().c_str());
+
+		auto* pResource2 = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
+
+		EXELOG_ENGINE_INFO("2nd Retrve: {}: {}", str.c_str(), pResource2->GetText().c_str());
+
+		// Back to 1 reference delete if app closed.
+		m_resourceManager.ReleaseResource(id);
+
+		// Full Unload.
+		m_resourceManager.ReleaseResource(id);
+
+		// Try Reload. Should Fail unless forced.
+		m_resourceManager.ReloadResource(id);
+
+		// Load Again. Should perform full load again.
+		auto* pResource3 = static_cast<TextFileResource*>(m_resourceManager.GetResource(id, true));
+
+		EXELOG_ENGINE_INFO("Last Retrve: {}: {}", str.c_str(), pResource3->GetText().c_str());
+
+		m_resourceManager.ReleaseResource(id);
+
+		// App should close cleanly.
+
 		return true;
 	}
 

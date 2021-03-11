@@ -2,6 +2,8 @@
 
 #include "Source/Resource/Resource.h"
 
+#include "Source/Debugging/EngineLog.h"
+
 #include <EASTL/unordered_map.h>
 
 #include <mutex>
@@ -22,12 +24,11 @@ namespace Exelius
 		ResourceEntry()
 			: m_pResource(nullptr)
 			, m_status(ResourceLoadStatus::kInvalid)
-			, m_refCount(1)
+			, m_refCount(0)
 			, m_lockCount(0)
 		{
-			//
-		}
 
+		}
 		ResourceEntry(const ResourceEntry&) = delete;
 		ResourceEntry(ResourceEntry&&) = delete;
 		ResourceEntry& operator=(const ResourceEntry&) = delete;
@@ -35,13 +36,25 @@ namespace Exelius
 
 		~ResourceEntry()
 		{
-			m_pResource->Unload();
+			if (m_refCount + m_lockCount > 0)
+			{
+				EXELOG_ENGINE_WARN("Destroying resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+			}
+
 			delete m_pResource;
 			m_pResource = nullptr;
 		}
 
 		// Maybe I should check for valid load states and return null value if not loaded?
-		Resource* GetResource() const { return m_pResource; }
+		Resource* GetResource()
+		{
+			if (m_status == ResourceLoadStatus::kLoaded)
+			{
+				IncrementRefCount();
+				return m_pResource;
+			}
+			return nullptr;
+		}
 
 		// This should be better, probably set by some friend function?
 		void SetResource(Resource* pResource) { m_pResource = pResource; }
@@ -83,12 +96,15 @@ namespace Exelius
 	// This must be thread safe because the resource thread will be adding to this map and updating the status' of resources.
 	class ResourceDatabase
 	{
-		eastl::unordered_map<ResourceID, ResourceEntry*> m_resourceMap;
+		eastl::unordered_map<ResourceID, ResourceEntry> m_resourceMap;
 		std::mutex m_mapLock;
 		
 	public:
+		~ResourceDatabase();
+
 		ResourceEntry* GetEntry(const ResourceID& resourceID);
 		ResourceLoadStatus GetLoadStatus(const ResourceID& resourceID);
+		void SetLoadStatus(const ResourceID& resourceID, ResourceLoadStatus newStatus);
 		void CreateEntry(const ResourceID& resourceID);
 		bool IsFound(const ResourceID& resourceID);
 		void Unload(const ResourceID& resourceID);

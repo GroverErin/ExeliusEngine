@@ -7,8 +7,12 @@
 
 namespace Exelius
 {
-#pragma pack(1)
-	struct ZipLocalHeader
+	/// ------------------------------------------------------------------------------------------
+	/// ZLIB Structs - Provided by Rez in GAP 301
+	/// ------------------------------------------------------------------------------------------
+	#pragma region ZLIB_STRUCTS
+		#pragma pack(1)
+		struct ZipLocalHeader
 	{
 		static constexpr unsigned int kSignature = 0x04034b50;
 
@@ -25,7 +29,7 @@ namespace Exelius
 		uint16_t xtraLen;	// Extra field follows filename.
 	};
 
-	struct ZipDirHeader
+		struct ZipDirHeader
 	{
 		static constexpr unsigned int kSignature = 0x06054b50;
 
@@ -38,7 +42,7 @@ namespace Exelius
 		uint16_t cmntLen;
 	};
 
-	struct ZipDirFileHeader
+		struct ZipDirFileHeader
 	{
 		static constexpr unsigned int kSignature = 0x02014b50;
 
@@ -64,17 +68,15 @@ namespace Exelius
 		char* GetExtra() const { return GetName() + fnameLen; }
 		char* GetComment() const { return GetExtra() + xtraLen; }
 	};
-#pragma pack()
-
-	static constexpr ptrdiff_t kPtrDelta = -(static_cast<ptrdiff_t>(sizeof(ZipDirHeader)));
+		#pragma pack()
+		static constexpr ptrdiff_t kPtrDelta = -(static_cast<ptrdiff_t>(sizeof(ZipDirHeader)));
+	#pragma endregion
 
 
 	ResourceManager::ResourceManager()
 		: m_pResourceFactory(nullptr)
 		, m_quitThread(false)
 		, m_engineResourcePath("Invalid Engine Resource Path.")
-		, m_clientResourcePath("Invalid Client Resource Path.")
-		, m_clientAssetPackFile("Invalid Client Asset Pack File.")
 		, m_useRawAssets(false)
 	{
 	}
@@ -91,30 +93,50 @@ namespace Exelius
 		SignalAndWaitForLoaderThread();
 		m_loaderThread.join();
 
-		// unload all the currently loaded resources.
-		m_resourceDatabase.UnloadAll();
-
-		// Don't delete, this lives on the Application.
+		// Don't delete, this lives on the Application/Engine.
+		// [QFR] Should this be the case? Can I make this more explicit?
 		m_pResourceFactory = nullptr;
+	}
 
+	bool ResourceManager::Initialize(ResourceFactory* pResourceFactory, const char* pEngineResourcePath, bool useRawAssets)
+	{
+		// Default resource factory MUST exist.
+		EXE_ASSERT(pResourceFactory);
+		m_pResourceFactory = pResourceFactory;
 
+		if (pEngineResourcePath)
+			m_engineResourcePath = pEngineResourcePath;
+
+		m_useRawAssets = useRawAssets;
+
+		// Should not contain data, but just in case.
+		m_deferredQueue.clear();
+
+		// Spin up the loader thread.
+		m_loaderThread = std::thread(&ResourceManager::ProcessResourceQueueThreaded, this);
+
+		return true;
 	}
 
 	const ResourceID& ResourceManager::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		EXELOG_ENGINE_TRACE("Queueing: {}", resourceID.Get().c_str());
+		EXELOG_ENGINE_TRACE("Queueing Resource: {}", resourceID.Get().c_str());
 
 		// Check if the resource is already in the resource database.
-		if (m_resourceDatabase.IsFound(resourceID))
+		if (!m_resourceDatabase.IsFound(resourceID))
 		{
-			EXELOG_ENGINE_TRACE("Attempted to Queue a Resource that is either already loaded or queued.");
+			EXELOG_ENGINE_TRACE("Creating new resource entry.");
+			m_resourceDatabase.CreateEntry(resourceID);
+		}
+		else if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoaded || m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
+		{
+			EXELOG_ENGINE_TRACE("Resource already loaded or queued.");
 			return resourceID;
 		}
 
-		// Else add it to the load queue and return its id.
-		m_resourceDatabase.CreateEntry(resourceID);
-		
+		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoading);
+
 		m_deferredQueueLock.lock();
 		m_deferredQueue.emplace_back(resourceID);
 		m_deferredQueueLock.unlock();
@@ -130,38 +152,33 @@ namespace Exelius
 		EXE_ASSERT(resourceID.IsValid());
 		EXELOG_ENGINE_TRACE("Loading Resource On Main Thread: {}", resourceID.Get().c_str());
 
-		// Check if the resource is already loaded.
-		if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoaded)
+		// Check if the resource is already in the resource database.
+		if (!m_resourceDatabase.IsFound(resourceID))
 		{
-			EXELOG_ENGINE_TRACE("Attempted to Load a Resource that is already loaded.");
+			EXELOG_ENGINE_TRACE("Creating new resource entry.");
+			m_resourceDatabase.CreateEntry(resourceID);
+		}
+		else if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoaded || m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
+		{
+			EXELOG_ENGINE_TRACE("Resource already loaded or queued.");
 			return resourceID;
 		}
 
-		// Second check may present a race condition.
-		else if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
-		{
-			EXELOG_ENGINE_TRACE("Attempted to Load a Resource that is queued. TODO: Interrupt the thread and Load it immediately.");
-			return resourceID;
-		}
-
-		// Else load and return it.
-		m_resourceDatabase.CreateEntry(resourceID);
-
+		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoading);
 		LoadResource(resourceID);
 
 		return resourceID;
 	}
 
-	void ResourceManager::Release(const ResourceID& resourceID)
+	void ResourceManager::ReleaseResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		EXELOG_ENGINE_TRACE("Releasing: {}", resourceID.Get().c_str());
+		EXELOG_ENGINE_TRACE("Unloading Resource: {}", resourceID.Get().c_str());
 
 		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
-
 		if (!pResourceEntry)
 			return;
-		
+
 		// Decrement the reference count of this resource.
 		// If there is no longer any references to this resource, then unload it.
 		if (!pResourceEntry->DecrementRefCount())
@@ -170,6 +187,7 @@ namespace Exelius
 
 	void ResourceManager::SignalLoaderThread()
 	{
+		EXELOG_ENGINE_TRACE("Signaling Loader Thread");
 		m_signalThread.notify_one();
 	}
 
@@ -177,9 +195,8 @@ namespace Exelius
 	{
 		SignalLoaderThread();
 
-		// Not sure if this will work?
-		std::mutex m_waitMutex;
-		std::unique_lock<std::mutex> waitLock(m_waitMutex);
+		std::mutex waitMutex;
+		std::unique_lock<std::mutex> waitLock(waitMutex);
 
 		m_signalThread.wait(waitLock);
 	}
@@ -193,6 +210,8 @@ namespace Exelius
 		if (m_resourceDatabase.GetLoadStatus(resourceID) != ResourceLoadStatus::kLoaded)
 		{
 			EXELOG_ENGINE_TRACE("Attempted to Reload a Resource that is not loaded.");
+			if (forceLoad)
+				LoadNow(resourceID);
 			return;
 		}
 
@@ -201,20 +220,21 @@ namespace Exelius
 		if (forceLoad)
 			LoadNow(resourceID);
 		else
-			QueueLoad(resourceID, true);
+			QueueLoad(resourceID, false);
 	}
 
 	Resource* ResourceManager::GetResource(const ResourceID& resourceID, bool forceLoad)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		EXELOG_ENGINE_TRACE("Retrieving Resource: {}", resourceID.Get().c_str());
+		EXELOG_ENGINE_TRACE("Main Thread Attempting to Retrieve Resource: {}", resourceID.Get().c_str());
 
 		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
 
 		if (!pResourceEntry && forceLoad)
 		{
+			EXELOG_ENGINE_TRACE("Forcing Resource Creation and Retrieving.");
 			ResourceID id = LoadNow(resourceID);
-			return GetResource(id, false); // Should be guaranteed, but calling false will prevent infinite recursion.
+			return GetResource(id, false); // Should be guaranteed, but false will prevent infinite recursion.
 		}
 		else if (!pResourceEntry)
 		{
@@ -250,21 +270,6 @@ namespace Exelius
 		pResourceEntry->DecrementLockCount();
 	}
 
-	bool ResourceManager::Initialize(ResourceFactory* pResourceFactory, const char* pEngineResourcePath, const char* pClientResourcePath, bool useRawAssets, const char* pInitialClientAssetPackage)
-	{
-		m_deferredQueue.clear();
-
-		m_pResourceFactory = pResourceFactory;
-		m_engineResourcePath = pEngineResourcePath;
-		m_clientResourcePath = pClientResourcePath;
-		m_useRawAssets = useRawAssets;
-		m_clientAssetPackFile = pInitialClientAssetPackage;
-
-		m_loaderThread = std::thread(&ResourceManager::ProcessResourceQueueThreaded, this);
-
-		return true;
-	}
-
 	void ResourceManager::ProcessResourceQueueThreaded()
 	{
 		std::mutex waitMutex;
@@ -276,6 +281,7 @@ namespace Exelius
 		{
 			// Wait until we are signaled to work.
 			m_signalThread.wait(waitLock);
+			EXELOG_ENGINE_TRACE("Loader Thread Recieved Signal");
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
@@ -295,9 +301,11 @@ namespace Exelius
 
 			// Done loading this pass, so signal the main thread in case it is waiting.
 			m_signalThread.notify_one();
+			EXELOG_ENGINE_TRACE("Signaled Main Thread for Queue Finished");
 		}
 
 		// Let the main thread know we are fully exiting in case they are waiting.
+		EXELOG_ENGINE_TRACE("Signaled Main Thread for Thread Terminating.");
 		m_signalThread.notify_one();
 	}
 
@@ -324,6 +332,8 @@ namespace Exelius
 		{
 			m_resourceDatabase.GetEntry(resourceID)->SetResource(pResource);
 		}
+
+		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoaded);
 	}
 
 	eastl::vector<std::byte> ResourceManager::LoadRawData(const ResourceID& resourceID)
@@ -361,7 +371,7 @@ namespace Exelius
 			else if (inFile.eof())
 				EXELOG_ENGINE_WARN("End of file reached successfully");
 			else if (inFile.fail())
-				EXELOG_ENGINE_WARN("Non-integer data encountered");
+				EXELOG_ENGINE_WARN("Non-integer data encountered. Possible incorrect file path.");
 			
 			return eastl::vector<std::byte>();
 		}

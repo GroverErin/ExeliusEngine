@@ -30,6 +30,13 @@ namespace Exelius
 			//
 		}
 
+		MouseMovedEvent() = delete;
+		MouseMovedEvent(const MouseMovedEvent&) = delete;
+		MouseMovedEvent(MouseMovedEvent&&) = delete;
+		MouseMovedEvent& operator=(const MouseMovedEvent&) = delete;
+		MouseMovedEvent& operator=(MouseMovedEvent&&) = delete;
+		virtual ~MouseMovedEvent() = default;
+
 		/// <summary>
 		/// Get the x position data.
 		/// </summary>
@@ -64,10 +71,12 @@ namespace Exelius
 		/// Event that occurs when a mouse moves from
 		/// off-screen to on-screen.
 		/// </summary>
-		MouseGainedFocusEvent()
-		{
-			//
-		}
+		MouseGainedFocusEvent() = default;
+		MouseGainedFocusEvent(const MouseGainedFocusEvent&) = delete;
+		MouseGainedFocusEvent(MouseGainedFocusEvent&&) = delete;
+		MouseGainedFocusEvent& operator=(const MouseGainedFocusEvent&) = delete;
+		MouseGainedFocusEvent& operator=(MouseGainedFocusEvent&&) = delete;
+		virtual ~MouseGainedFocusEvent() = default;
 
 		EVENT_CLASS_TYPE(MouseGainedFocus)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Mouse | (int)EventCategory::Input)
@@ -85,10 +94,12 @@ namespace Exelius
 		/// Event that occurs when a mouse moves from
 		/// on-screen to off-screen.
 		/// </summary>
-		MouseLostFocusEvent()
-		{
-			//
-		}
+		MouseLostFocusEvent() = default;
+		MouseLostFocusEvent(const MouseLostFocusEvent&) = delete;
+		MouseLostFocusEvent(MouseLostFocusEvent&&) = delete;
+		MouseLostFocusEvent& operator=(const MouseLostFocusEvent&) = delete;
+		MouseLostFocusEvent& operator=(MouseLostFocusEvent&&) = delete;
+		virtual ~MouseLostFocusEvent() = default;
 
 		EVENT_CLASS_TYPE(MouseLostFocus)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Mouse | (int)EventCategory::Input)
@@ -112,6 +123,13 @@ namespace Exelius
 			//
 		}
 
+		MouseScrolledEvent() = delete;
+		MouseScrolledEvent(const MouseScrolledEvent&) = delete;
+		MouseScrolledEvent(MouseScrolledEvent&&) = delete;
+		MouseScrolledEvent& operator=(const MouseScrolledEvent&) = delete;
+		MouseScrolledEvent& operator=(MouseScrolledEvent&&) = delete;
+		virtual ~MouseScrolledEvent() = default;
+
 		/// <summary>
 		/// Get the positional data for the scroll wheel movement.
 		/// </summary>
@@ -133,6 +151,13 @@ namespace Exelius
 	{
 		int m_button;
 	public:
+		MouseButtonEvent() = delete;
+		MouseButtonEvent(const MouseButtonEvent&) = delete;
+		MouseButtonEvent(MouseButtonEvent&&) = delete;
+		MouseButtonEvent& operator=(const MouseButtonEvent&) = delete;
+		MouseButtonEvent& operator=(MouseButtonEvent&&) = delete;
+		virtual ~MouseButtonEvent() = default;
+
 		/// <summary>
 		/// Get the button data.
 		/// </summary>
@@ -173,6 +198,13 @@ namespace Exelius
 			//
 		}
 
+		MouseButtonPressedEvent() = delete;
+		MouseButtonPressedEvent(const MouseButtonPressedEvent&) = delete;
+		MouseButtonPressedEvent(MouseButtonPressedEvent&&) = delete;
+		MouseButtonPressedEvent& operator=(const MouseButtonPressedEvent&) = delete;
+		MouseButtonPressedEvent& operator=(MouseButtonPressedEvent&&) = delete;
+		virtual ~MouseButtonPressedEvent() = default;
+
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
@@ -192,6 +224,13 @@ namespace Exelius
 		{
 			//
 		}
+
+		MouseButtonReleasedEvent() = delete;
+		MouseButtonReleasedEvent(const MouseButtonReleasedEvent&) = delete;
+		MouseButtonReleasedEvent(MouseButtonReleasedEvent&&) = delete;
+		MouseButtonReleasedEvent& operator=(const MouseButtonReleasedEvent&) = delete;
+		MouseButtonReleasedEvent& operator=(MouseButtonReleasedEvent&&) = delete;
+		virtual ~MouseButtonReleasedEvent() = default;
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};

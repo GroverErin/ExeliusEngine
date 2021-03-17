@@ -54,7 +54,10 @@ namespace Exelius
 		{
 			//
 		}
-
+		Event(const Event&) = delete;
+		Event(Event&&) = delete;
+		Event& operator=(const Event&) = delete;
+		Event& operator=(Event&&) = delete;
 		virtual ~Event() = default;
 
 		/// <summary>

@@ -21,6 +21,11 @@ namespace Exelius
 	class OSEventObserver
 	{
 	public:
+		OSEventObserver() = default;
+		OSEventObserver(const OSEventObserver&) = delete;
+		OSEventObserver(OSEventObserver&&) = delete;
+		OSEventObserver& operator=(const OSEventObserver&) = delete;
+		OSEventObserver& operator=(OSEventObserver&&) = delete;
 		virtual ~OSEventObserver() = default;
 
 		/// <summary>
@@ -42,6 +47,12 @@ namespace Exelius
 	{
 		eastl::list<OSEventObserver*> m_observers;
 	public:
+		OSEventMessenger() = default;
+		OSEventMessenger(const OSEventMessenger&) = delete;
+		OSEventMessenger(OSEventMessenger&&) = delete;
+		OSEventMessenger& operator=(const OSEventMessenger&) = delete;
+		OSEventMessenger& operator=(OSEventMessenger&&) = delete;
+		~OSEventMessenger() = default;
 
 		/// <summary>
 		/// Notify all OS event observers of an event.

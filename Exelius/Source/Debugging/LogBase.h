@@ -19,6 +19,13 @@ namespace Exelius
 		inline static std::shared_ptr<spdlog::logger> s_pEngineLogger;
 		inline static std::shared_ptr<spdlog::logger> s_pClientLogger;
 	public:
+		_Log() = default;
+		_Log(const _Log&) = delete;
+		_Log(_Log&&) = delete;
+		_Log& operator=(const _Log&) = delete;
+		_Log& operator=(_Log&&) = delete;
+		~_Log() = default;
+
 		/// <summary>
 		/// Intialize the engine and client macros.
 		/// </summary>

@@ -21,6 +21,13 @@ namespace Exelius
 		int m_touchY;
 	public:
 
+		TouchEvent() = delete;
+		TouchEvent(const TouchEvent&) = delete;
+		TouchEvent(TouchEvent&&) = delete;
+		TouchEvent& operator=(const TouchEvent&) = delete;
+		TouchEvent& operator=(TouchEvent&&) = delete;
+		virtual ~TouchEvent() = default;
+
 		/// <summary>
 		/// Get the index of the finger in the case of multi-touch.
 		/// </summary>
@@ -84,6 +91,13 @@ namespace Exelius
 			//
 		}
 
+		TouchMovedEvent() = delete;
+		TouchMovedEvent(const TouchMovedEvent&) = delete;
+		TouchMovedEvent(TouchMovedEvent&&) = delete;
+		TouchMovedEvent& operator=(const TouchMovedEvent&) = delete;
+		TouchMovedEvent& operator=(TouchMovedEvent&&) = delete;
+		virtual ~TouchMovedEvent() = default;
+
 		EVENT_CLASS_TYPE(TouchMoved)
 	};
 
@@ -106,6 +120,13 @@ namespace Exelius
 			//
 		}
 
+		TouchBeganEvent() = delete;
+		TouchBeganEvent(const TouchBeganEvent&) = delete;
+		TouchBeganEvent(TouchBeganEvent&&) = delete;
+		TouchBeganEvent& operator=(const TouchBeganEvent&) = delete;
+		TouchBeganEvent& operator=(TouchBeganEvent&&) = delete;
+		virtual ~TouchBeganEvent() = default;
+
 		EVENT_CLASS_TYPE(TouchBegan)
 	};
 
@@ -127,6 +148,13 @@ namespace Exelius
 		{
 			//
 		}
+
+		TouchEndedEvent() = delete;
+		TouchEndedEvent(const TouchEndedEvent&) = delete;
+		TouchEndedEvent(TouchEndedEvent&&) = delete;
+		TouchEndedEvent& operator=(const TouchEndedEvent&) = delete;
+		TouchEndedEvent& operator=(TouchEndedEvent&&) = delete;
+		virtual ~TouchEndedEvent() = default;
 
 		EVENT_CLASS_TYPE(TouchEnded)
 	};

@@ -9,6 +9,11 @@ namespace Exelius
 	{
 		ResourceID m_id;
 	public:
+		Resource() = delete;
+		Resource(const Resource&) = delete;
+		Resource(Resource&&) = delete;
+		Resource& operator=(const Resource&) = delete;
+		Resource& operator=(Resource&&) = delete;
 		virtual ~Resource() = default;
 		
 		enum class LoadResult
@@ -35,9 +40,5 @@ namespace Exelius
 		{
 			//
 		}
-		Resource(const Resource&) = delete;
-		Resource(Resource&&) = delete;
-		Resource& operator=(const Resource&) = delete;
-		Resource& operator=(Resource&&) = delete;
 	};
 }

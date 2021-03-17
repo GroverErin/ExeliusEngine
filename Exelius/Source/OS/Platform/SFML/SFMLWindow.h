@@ -45,10 +45,12 @@ namespace Exelius
 		/// <param name="width">The width of the window to be opened. Default: 1280</param>
 		/// <param name="height">The height of the window to be opened. Default: 720</param>
 		SFMLWindow(const eastl::string& title, unsigned int width, unsigned int height);
+		SFMLWindow() = delete;
+		SFMLWindow(const SFMLWindow&) = delete;
+		SFMLWindow(SFMLWindow&&) = delete;
+		SFMLWindow& operator=(const SFMLWindow&) = delete;
+		SFMLWindow& operator=(SFMLWindow&&) = delete;
 		~SFMLWindow();
-
-		SFMLWindow(const SFMLWindow& other) = delete; // No copy constructor.
-		SFMLWindow& operator=(const SFMLWindow& other) = delete; // No copy assignment.
 
 		/// <summary>
 		/// Retrieves and notifies of any SFML events.

@@ -36,10 +36,12 @@ namespace Exelius
 		/// <param name="width">The width of the window to be opened. Default: 1280</param>
 		/// <param name="height">The height of the window to be opened. Default: 720</param>
 		Application(const eastl::string& title = "Exelius Engine", unsigned int width = 1280, unsigned int height = 720);
+		Application() = delete;
+		Application(const Application&) = delete;
+		Application(Application&&) = delete;
+		Application& operator=(const Application&) = delete;
+		Application& operator=(Application&&) = delete;
 		virtual ~Application();
-
-		Application(const Application& other) = delete; // No copy constructor.
-		Application& operator=(const Application& other) = delete; // No copy assignment.
 
 		/// <summary>
 		/// Initialize the engine, this will pull data from a config and initialize important systems.

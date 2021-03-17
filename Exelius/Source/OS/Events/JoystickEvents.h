@@ -34,6 +34,13 @@ namespace Exelius
 	{
 		unsigned int m_joystickID;
 	public:
+		JoystickEvent() = delete;
+		JoystickEvent(const JoystickEvent&) = delete;
+		JoystickEvent(JoystickEvent&&) = delete;
+		JoystickEvent& operator=(const JoystickEvent&) = delete;
+		JoystickEvent& operator=(JoystickEvent&&) = delete;
+		virtual ~JoystickEvent() = default;
+
 		/// <summary>
 		/// Get the unique identifier of the triggering joystick.
 		/// </summary>
@@ -77,6 +84,13 @@ namespace Exelius
 		{
 			//
 		}
+
+		JoystickMovedEvent() = delete;
+		JoystickMovedEvent(const JoystickMovedEvent&) = delete;
+		JoystickMovedEvent(JoystickMovedEvent&&) = delete;
+		JoystickMovedEvent& operator=(const JoystickMovedEvent&) = delete;
+		JoystickMovedEvent& operator=(JoystickMovedEvent&&) = delete;
+		virtual ~JoystickMovedEvent() = default;
 
 		/// <summary>
 		/// Get the triggering axis' positional data.
@@ -132,6 +146,13 @@ namespace Exelius
 			//
 		}
 
+		JoystickButtonPressedEvent() = delete;
+		JoystickButtonPressedEvent(const JoystickButtonPressedEvent&) = delete;
+		JoystickButtonPressedEvent(JoystickButtonPressedEvent&&) = delete;
+		JoystickButtonPressedEvent& operator=(const JoystickButtonPressedEvent&) = delete;
+		JoystickButtonPressedEvent& operator=(JoystickButtonPressedEvent&&) = delete;
+		virtual ~JoystickButtonPressedEvent() = default;
+
 		EVENT_CLASS_TYPE(JoystickButtonPressed)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input | (int)EventCategory::JoystickButton)
 	};
@@ -156,6 +177,13 @@ namespace Exelius
 			//
 		}
 
+		JoystickButtonReleasedEvent() = delete;
+		JoystickButtonReleasedEvent(const JoystickButtonReleasedEvent&) = delete;
+		JoystickButtonReleasedEvent(JoystickButtonReleasedEvent&&) = delete;
+		JoystickButtonReleasedEvent& operator=(const JoystickButtonReleasedEvent&) = delete;
+		JoystickButtonReleasedEvent& operator=(JoystickButtonReleasedEvent&&) = delete;
+		virtual ~JoystickButtonReleasedEvent() = default;
+
 		EVENT_CLASS_TYPE(JoystickButtonReleased)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input | (int)EventCategory::JoystickButton)
 	};
@@ -177,6 +205,13 @@ namespace Exelius
 			//
 		}
 
+		JoystickConnectedEvent() = delete;
+		JoystickConnectedEvent(const JoystickConnectedEvent&) = delete;
+		JoystickConnectedEvent(JoystickConnectedEvent&&) = delete;
+		JoystickConnectedEvent& operator=(const JoystickConnectedEvent&) = delete;
+		JoystickConnectedEvent& operator=(JoystickConnectedEvent&&) = delete;
+		virtual ~JoystickConnectedEvent() = default;
+
 		EVENT_CLASS_TYPE(JoystickConnected)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input)
 	};
@@ -197,6 +232,13 @@ namespace Exelius
 		{
 			//
 		}
+
+		JoystickDisconnectedEvent() = delete;
+		JoystickDisconnectedEvent(const JoystickDisconnectedEvent&) = delete;
+		JoystickDisconnectedEvent(JoystickDisconnectedEvent&&) = delete;
+		JoystickDisconnectedEvent& operator=(const JoystickDisconnectedEvent&) = delete;
+		JoystickDisconnectedEvent& operator=(JoystickDisconnectedEvent&&) = delete;
+		virtual ~JoystickDisconnectedEvent() = default;
 
 		EVENT_CLASS_TYPE(JoystickDisconnected)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Joystick | (int)EventCategory::Input)

@@ -100,6 +100,11 @@ namespace Exelius
 		std::mutex m_mapLock;
 		
 	public:
+		ResourceDatabase() = default;
+		ResourceDatabase(const ResourceDatabase&) = delete;
+		ResourceDatabase(ResourceDatabase&&) = delete;
+		ResourceDatabase& operator=(const ResourceDatabase&) = delete;
+		ResourceDatabase& operator=(ResourceDatabase&&) = delete;
 		~ResourceDatabase();
 
 		ResourceEntry* GetEntry(const ResourceID& resourceID);

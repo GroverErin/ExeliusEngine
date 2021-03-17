@@ -26,6 +26,12 @@ namespace Exelius
 		{
 			//
 		}
+		WindowResizedEvent() = delete;
+		WindowResizedEvent(const WindowResizedEvent&) = delete;
+		WindowResizedEvent(WindowResizedEvent&&) = delete;
+		WindowResizedEvent& operator=(const WindowResizedEvent&) = delete;
+		WindowResizedEvent& operator=(WindowResizedEvent&&) = delete;
+		virtual ~WindowResizedEvent() = default;
 
 		/// <summary>
 		/// Get the width data of the window.
@@ -57,6 +63,11 @@ namespace Exelius
 	{
 	public:
 		WindowClosedEvent() = default;
+		WindowClosedEvent(const WindowClosedEvent&) = delete;
+		WindowClosedEvent(WindowClosedEvent&&) = delete;
+		WindowClosedEvent& operator=(const WindowClosedEvent&) = delete;
+		WindowClosedEvent& operator=(WindowClosedEvent&&) = delete;
+		virtual ~WindowClosedEvent() = default;
 
 		EVENT_CLASS_TYPE(WindowClosed)
 		EVENT_CLASS_CATEGORY(EventCategory::Application)
@@ -70,6 +81,11 @@ namespace Exelius
 	{
 	public:
 		WindowGainedFocusEvent() = default;
+		WindowGainedFocusEvent(const WindowGainedFocusEvent&) = delete;
+		WindowGainedFocusEvent(WindowGainedFocusEvent&&) = delete;
+		WindowGainedFocusEvent& operator=(const WindowGainedFocusEvent&) = delete;
+		WindowGainedFocusEvent& operator=(WindowGainedFocusEvent&&) = delete;
+		virtual ~WindowGainedFocusEvent() = default;
 
 		EVENT_CLASS_TYPE(WindowGainedFocus)
 		EVENT_CLASS_CATEGORY(EventCategory::Application)
@@ -83,6 +99,11 @@ namespace Exelius
 	{
 	public:
 		WindowLostFocusEvent() = default;
+		WindowLostFocusEvent(const WindowLostFocusEvent&) = delete;
+		WindowLostFocusEvent(WindowLostFocusEvent&&) = delete;
+		WindowLostFocusEvent& operator=(const WindowLostFocusEvent&) = delete;
+		WindowLostFocusEvent& operator=(WindowLostFocusEvent&&) = delete;
+		virtual ~WindowLostFocusEvent() = default;
 
 		EVENT_CLASS_TYPE(WindowLostFocus)
 		EVENT_CLASS_CATEGORY(EventCategory::Application)

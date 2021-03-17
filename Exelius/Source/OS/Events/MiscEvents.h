@@ -52,6 +52,13 @@ namespace Exelius
 
 		}
 
+		SensorEvent() = delete;
+		SensorEvent(const SensorEvent&) = delete;
+		SensorEvent(SensorEvent&&) = delete;
+		SensorEvent& operator=(const SensorEvent&) = delete;
+		SensorEvent& operator=(SensorEvent&&) = delete;
+		virtual ~SensorEvent() = default;
+
 		EVENT_CLASS_TYPE(Misc)
 		EVENT_CLASS_CATEGORY((int)EventCategory::Misc | (int)EventCategory::Input)
 	};

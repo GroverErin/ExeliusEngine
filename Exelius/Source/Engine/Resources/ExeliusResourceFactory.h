@@ -7,6 +7,13 @@ namespace Exelius
 		: public ResourceFactory
 	{
 	public:
+		ExeliusResourceFactory() = default;
+		ExeliusResourceFactory(const ExeliusResourceFactory&) = delete;
+		ExeliusResourceFactory(ExeliusResourceFactory&&) = delete;
+		ExeliusResourceFactory& operator=(const ExeliusResourceFactory&) = delete;
+		ExeliusResourceFactory& operator=(ExeliusResourceFactory&&) = delete;
+		virtual ~ExeliusResourceFactory() = default;
+
 		virtual Resource* CreateResource(const ResourceID& resourceID) final override;
 
 	protected:

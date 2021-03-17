@@ -17,6 +17,13 @@ namespace Exelius
 	{
 		int m_keyCode;
 	public:
+		KeyEvent() = delete;
+		KeyEvent(const KeyEvent&) = delete;
+		KeyEvent(KeyEvent&&) = delete;
+		KeyEvent& operator=(const KeyEvent&) = delete;
+		KeyEvent& operator=(KeyEvent&&) = delete;
+		virtual ~KeyEvent() = default;
+
 		/// <summary>
 		/// Get the input key code.
 		/// </summary>
@@ -58,6 +65,13 @@ namespace Exelius
 			//
 		}
 
+		KeyPressedEvent() = delete;
+		KeyPressedEvent(const KeyPressedEvent&) = delete;
+		KeyPressedEvent(KeyPressedEvent&&) = delete;
+		KeyPressedEvent& operator=(const KeyPressedEvent&) = delete;
+		KeyPressedEvent& operator=(KeyPressedEvent&&) = delete;
+		virtual ~KeyPressedEvent() = default;
+
 		EVENT_CLASS_TYPE(KeyPressed)
 	};
 
@@ -77,6 +91,13 @@ namespace Exelius
 		{
 			//
 		}
+
+		KeyReleasedEvent() = delete;
+		KeyReleasedEvent(const KeyReleasedEvent&) = delete;
+		KeyReleasedEvent(KeyReleasedEvent&&) = delete;
+		KeyReleasedEvent& operator=(const KeyReleasedEvent&) = delete;
+		KeyReleasedEvent& operator=(KeyReleasedEvent&&) = delete;
+		virtual ~KeyReleasedEvent() = default;
 
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
@@ -108,6 +129,13 @@ namespace Exelius
 		{
 			//
 		}
+
+		KeyTypedEvent() = delete;
+		KeyTypedEvent(const KeyTypedEvent&) = delete;
+		KeyTypedEvent(KeyTypedEvent&&) = delete;
+		KeyTypedEvent& operator=(const KeyTypedEvent&) = delete;
+		KeyTypedEvent& operator=(KeyTypedEvent&&) = delete;
+		virtual ~KeyTypedEvent() = default;
 
 		/// <summary>
 		/// Get the Text character captured by this event.

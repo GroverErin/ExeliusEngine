@@ -40,7 +40,8 @@ function exeliusDefaults.WorkspaceDefaults()
 	-- Calls a premake command to generate the different platforms.
 	platforms
 	{
-		"x64",
+		"Win32",
+		"Win64"
 	}
 
 	-- Set the compilation process to be multithreaded, this only effects MSVC... not sure how to speed up Linux.
@@ -64,28 +65,32 @@ function exeliusDefaults.ProjectDefaults()
 
 	warnings("Extra")
 
-	staticruntime("On")
-
 	targetdir("Build/" .. outputdir)
 	objdir("Temp/" .. outputdir)
 
-	filter("platforms:x64")
-		architecture("x64")
+	filter("platforms:Win64")
+		architecture("x86_64")
+
+	filter("platforms:Win32")
+		architecture("x86")
 
 	filter("configurations:Debug")
 		symbols("full")
 		runtime("Debug")
 		defines("EXE_DEBUG")
+		staticruntime("On")
 
 	filter("configurations:Test")
 		optimize("On")
 		runtime("Release")
 		defines("EXE_TEST")
+		staticruntime("On")
 
 	filter("configurations:Release")
 		optimize("On")
 		runtime("Release")
 		defines("EXE_RELEASE")
+		staticruntime("On")
 		
 	-- Reset filters
 	filter {}
@@ -93,21 +98,22 @@ end
 
 -- Links and includes all dependencies for the Exelius Engine.
 function exeliusDefaults.InitializeEngine(dependencies)
-	-- Planned Dependencies:
-	--dependencies.RequireTool("IMGUI")
-	--dependencies.RequireTool("TMXLite")
 
 	-- Possible Distant Future Dependencies:
 	--dependencies.RequireTool("OpenGL")
 	--dependencies.RequireTool("Vulkan")
-	--dependencies.RequireTool("DragonBones")
 
 	-- Current Dependencies:
-	dependencies.RequireTool("spdlog")
-	dependencies.RequireTool("SFML")
-	dependencies.RequireTool("ZLib")
+	dependencies.RequireTool("DragonBonesCPP")
 	dependencies.RequireTool("EASTL")
-	dependencies.RequireTool("TinyXML2")
+	dependencies.RequireTool("imgui")
+	dependencies.RequireTool("libsodium")
+	dependencies.RequireTool("rapidjson")
+	dependencies.RequireTool("SFML")
+	dependencies.RequireTool("spdlog")
+	dependencies.RequireTool("tmxlite")
+	dependencies.RequireTool("zlib")
+	--dependencies.RequireTool("TinyXML2")
 end
 
 -- Initializes the Exelius Engine in the current project scope.
@@ -120,6 +126,22 @@ function exeliusDefaults.InitializeProject(engine_root)
 
 	local incldir = os.realpath(engine_root .. "Exelius/");
 	includedirs(incldir);
+end
+
+-- Includes the header only libraries into the project.
+-- This could probably be better.
+function exeliusDefaults.IncludeLibHeaders(dependencies)
+
+	-- Current Header Libraries:
+	dependencies.Include("DragonBonesCPP")
+	dependencies.Include("EASTL")
+	dependencies.Include("imgui")
+	dependencies.Include("libsodium")
+	dependencies.Include("rapidjson")
+	dependencies.Include("SFML")
+	dependencies.Include("spdlog")
+	dependencies.Include("tmxlite")
+	dependencies.Include("zlib")
 end
 
 return exeliusDefaults

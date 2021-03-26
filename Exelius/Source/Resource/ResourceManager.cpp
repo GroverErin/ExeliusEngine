@@ -3,7 +3,7 @@
 #include "Source/Resource/ResourceFactory.h"
 
 #include <fstream>
-#include <zlib.h>
+#include <zlib/zlib.h>
 
 namespace Exelius
 {

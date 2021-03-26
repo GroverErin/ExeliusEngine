@@ -128,7 +128,7 @@ project("EXESandbox")
 
 	-- Retrieve and Set any additional settings for the project.
 	exeliusDefaults.InitializeProject()
-	exeliusDefaults.InitializeEngine(exeliusDepends)
+	exeliusDefaults.IncludeLibHeaders(exeliusDepends)
 
 ------------------------------------------------------------------------------------------------------
 -- Additional Creation Steps

@@ -97,6 +97,8 @@ end
 -- @param id | "The dependency id the dependency has registered with."
 function exeliusDepends.Include(id)
 
+	printf("Including dependency [" .. id .. "]")
+
 	local dependency = exeliusDepends.dependencies[id]
 
 	if dependency ~= nil then
@@ -139,7 +141,7 @@ end
 
 -- Load all dependencies in the dependency folder using the lua scripts.
 function exeliusDepends.Initialize()
-	local matches = os.matchfiles(EXELIUS_DEPENDENCY_FOLDER_PATH .. "/*_premake5.lua")
+	local matches = os.matchfiles(EXELIUS_DEPENDENCY_FOLDER_PATH .. "/**/*_premake5.lua")
 	for dir, match in pairs(matches) do
 		include(match)
 	end

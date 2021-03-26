@@ -13,6 +13,6 @@ REM License along with this Engine.
 
 REM ---------------------------------------------------------------------------------------------------
 CD ..\
-CALL Tools\ThirdParty\Premake\Windows\premake5.exe vs2019
+CALL Tools\ThirdParty\premake-core\Windows\premake5.exe vs2019
 
 PAUSE

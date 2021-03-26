@@ -1,0 +1,129 @@
+printf("Including DragonBonesCPP_premake5.lua - This should only appear once.")
+------------------------------------------------------------------------------------------------------
+--[[
+    Exelius Game Engine - Game Development Tool
+    Copyright (c) 2020 Exelius Entertainment
+    Created By: Erin "Ryukana" Grover
+
+    This Engine is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    License for more details. You should have received a copy of the
+    License along with this Engine.
+--]]
+------------------------------------------------------------------------------------------------------
+
+local dependencies = require("Tools/ThirdParty/DependencyManager")
+
+local dragonBones = 
+{
+	location = "DragonBonesCPP"
+};
+
+function dragonBones.Include(rootDir)
+	includedirs
+	{
+		rootDir .. [[include/]]
+	}
+
+	--------------------------------------------------------------------------------------------------
+	-- Windows Library Directories
+	--------------------------------------------------------------------------------------------------
+
+	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
+		libdirs
+		{
+			rootDir .. [[lib/Win32/Debug/]],
+		}
+
+	filter{"platforms:Win32", "configurations:Test", "system:windows"}
+		libdirs
+		{
+			rootDir .. [[lib/Win32/Release/]]
+		}
+
+	filter{"platforms:Win32", "configurations:Release", "system:windows"}
+		libdirs
+		{
+			rootDir .. [[lib/Win32/Release/]]
+		}
+
+	filter{"platforms:Win64", "configurations:Debug", "system:windows"}
+		libdirs
+		{
+			rootDir .. [[lib/Win64/Debug/]],
+		}
+
+	filter{"platforms:Win64", "configurations:Test", "system:windows"}
+		libdirs
+		{
+			rootDir .. [[lib/Win64/Release/]]
+		}
+
+	filter{"platforms:Win64", "configurations:Release", "system:windows"}
+		libdirs
+		{
+			rootDir .. [[lib/Win64/Release/]]
+		}
+		
+	--------------------------------------------------------------------------------------------------
+	-- Linux Library Directories
+	--------------------------------------------------------------------------------------------------
+
+	filter{"platforms:Lin32", "configurations:Debug", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Lin32/Debug/]],
+		}
+
+	filter{"platforms:Lin32", "configurations:Test", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Lin32/Release/]]
+		}
+
+	filter{"platforms:Lin32", "configurations:Release", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Lin32/Release/]]
+		}
+
+	filter{"platforms:Lin64", "configurations:Debug", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Lin64/Debug/]],
+		}
+
+	filter{"platforms:Lin64", "configurations:Test", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Lin64/Release/]]
+		}
+
+	filter{"platforms:Lin64", "configurations:Release", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Lin64/Release/]]
+		}
+
+	filter{}
+end
+
+function dragonBones.Link(rootdir, exeliusLibDir)
+
+	filter{"system:windows"}
+		links
+		{
+			"dragonBones"
+		}
+
+	filter{"system:linux"}
+		links
+		{
+			"dragonBones"
+		}
+
+	filter {}
+end
+
+dependencies.Add("DragonBonesCPP", dragonBones)

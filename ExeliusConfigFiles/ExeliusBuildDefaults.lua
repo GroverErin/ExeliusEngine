@@ -32,16 +32,12 @@ function exeliusDefaults.WorkspaceDefaults()
 	-- Calls a premake command to generate the different build configurations.
 	configurations
 	{
-		"Debug",	-- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
-		"Test",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
-		"Release"	-- Contains compiler optimized code and packaged assets. (Fast and Light)
-	}
-
-	-- Calls a premake command to generate the different platforms.
-	platforms
-	{
-		"Win32",
-		"Win64"
+		"Debug32",	-- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
+		"Debug64",
+		"Test32",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
+		"Test64",
+		"Release32",	-- Contains compiler optimized code and packaged assets. (Fast and Light)
+		"Release64"
 	}
 
 	-- Set the compilation process to be multithreaded, this only effects MSVC... not sure how to speed up Linux.
@@ -68,10 +64,10 @@ function exeliusDefaults.ProjectDefaults()
 	targetdir("Build/" .. outputdir)
 	objdir("Temp/" .. outputdir)
 
-	filter("platforms:Win64")
+	filter("configurations:*64")
 		architecture("x86_64")
 
-	filter("platforms:Win32")
+	filter("configurations:*32")
 		architecture("x86")
 
 	filter("configurations:Debug")

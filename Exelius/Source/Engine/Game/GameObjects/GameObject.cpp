@@ -5,7 +5,7 @@
 
 namespace Exelius
 {
-	bool GameObject::Initialize(JSONResource* pResource)
+	bool GameObject::Initialize([[maybe_unused]] JSONResource* pResource)
 	{
 		// TODO: Parse the JSON file here.
 		return true;

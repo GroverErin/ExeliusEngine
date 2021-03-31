@@ -370,7 +370,7 @@ namespace Exelius
 				EXELOG_ENGINE_WARN("I/O error while reading");
 			else if (inFile.eof())
 				EXELOG_ENGINE_WARN("End of file reached successfully");
-			else if (inFile.fail())
+			else
 				EXELOG_ENGINE_WARN("Non-integer data encountered. Possible incorrect file path.");
 			
 			return eastl::vector<std::byte>();

@@ -57,6 +57,11 @@ namespace Exelius
 
 		auto* pGameObject = m_gameObjectFactory.CreateGameObject(pResource);
 
+		pGameObject->Destroy();
+
+		delete pGameObject;
+		pGameObject = nullptr;
+
 		m_resourceManager.ReleaseResource(id);
 
 		// App should close cleanly.

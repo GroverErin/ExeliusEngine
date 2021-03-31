@@ -2,7 +2,8 @@
 
 #include "Source/Engine/Application.h"
 #include "Source/OS/Events/ApplicationEvents.h"
-#include "Source/Engine/Resources/TextFileResource.h"
+#include "Source/Engine/Resources/JSONResource.h"
+#include "Source/Engine/Game/GameObjects/GameObject.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -41,37 +42,20 @@ namespace Exelius
 		EXELOG_ENGINE_ERROR("Resource Manager test code found in Application::Initialize().");
 
 		m_resourceManager.Initialize(&m_resourceFactory, "EngineResources/",  true);
-		eastl::string str = "../TestLoad.txt";
+		eastl::string str = "../GameObjectTest.json";
 
 		auto id = m_resourceManager.QueueLoad(str, true);
-		id = m_resourceManager.QueueLoad(str, true);
 
-		auto* pResource = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
+		auto* pResource = static_cast<JSONResource*>(m_resourceManager.GetResource(id));
 		while (!pResource)
 		{
 			EXELOG_ENGINE_FATAL("Failed to retrieve resource.");
-			pResource = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
+			pResource = static_cast<JSONResource*>(m_resourceManager.GetResource(id));
 		}
 
-		EXELOG_ENGINE_INFO("{}: {}", str.c_str(), pResource->GetText().c_str());
+		EXELOG_ENGINE_INFO("{}: {}", str.c_str(), pResource->GetRawText().c_str());
 
-		auto* pResource2 = static_cast<TextFileResource*>(m_resourceManager.GetResource(id));
-
-		EXELOG_ENGINE_INFO("2nd Retrve: {}: {}", str.c_str(), pResource2->GetText().c_str());
-
-		// Back to 1 reference delete if app closed.
-		m_resourceManager.ReleaseResource(id);
-
-		// Full Unload.
-		m_resourceManager.ReleaseResource(id);
-
-		// Try Reload. Should Fail unless forced.
-		m_resourceManager.ReloadResource(id);
-
-		// Load Again. Should perform full load again.
-		auto* pResource3 = static_cast<TextFileResource*>(m_resourceManager.GetResource(id, true));
-
-		EXELOG_ENGINE_INFO("Last Retrve: {}: {}", str.c_str(), pResource3->GetText().c_str());
+		auto* pGameObject = m_gameObjectFactory.CreateGameObject(pResource);
 
 		m_resourceManager.ReleaseResource(id);
 

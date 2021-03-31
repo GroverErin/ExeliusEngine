@@ -57,7 +57,8 @@ namespace Exelius
 		Resource* GetResource(const ResourceID& resourceID, bool forceLoad = false);
 
 		void LockResource(const ResourceID& resourceID);
-		void UnlockResrce(const ResourceID& resourceID);
+#undef UnlockResource
+		void UnlockResource(const ResourceID& resourceID);
 
 		bool SetAssetPackageFile(const char* pAssetPackageFilePath) { m_clientAssetPackFile = pAssetPackageFilePath; }
 

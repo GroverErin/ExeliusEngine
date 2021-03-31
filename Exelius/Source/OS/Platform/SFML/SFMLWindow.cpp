@@ -285,8 +285,6 @@ namespace Exelius
 	{
 		EXELOG_ENGINE_INFO("Creating SFML Window: {0} ({1}, {2})", m_title.c_str(), m_width, m_height);
 
-		//std::string title = m_title.c_str();
-
 		m_pWindow = new sf::RenderWindow(sf::VideoMode(m_width, m_height), m_title.c_str());
 
 		if (!m_pWindow->isOpen())

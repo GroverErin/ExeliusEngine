@@ -257,7 +257,7 @@ namespace Exelius
 		pResourceEntry->IncrementLockCount();
 	}
 
-	void ResourceManager::UnlockResrce(const ResourceID& resourceID)
+	void ResourceManager::UnlockResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
 		EXELOG_ENGINE_TRACE("Unlocking Resource: {}", resourceID.Get().c_str());

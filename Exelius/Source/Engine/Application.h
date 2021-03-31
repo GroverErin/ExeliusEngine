@@ -4,6 +4,8 @@
 #include "Source/Resource/ResourceManager.h"
 #include "Source/Engine/Resources/ExeliusResourceFactory.h"
 
+#include "Source/Engine/Game/GameObjects/GameObjectFactory.h"
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
@@ -22,6 +24,7 @@ namespace Exelius
 		Window m_window;
 		ResourceManager m_resourceManager;
 		ExeliusResourceFactory m_resourceFactory;
+		GameObjectFactory m_gameObjectFactory;
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;

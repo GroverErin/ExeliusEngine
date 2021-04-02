@@ -127,10 +127,11 @@ project("EXESandbox")
 
 	includedirs("%{prj.name}/Source/")
 
-	-- Retrieve and Set any additional settings for the project.
-	exeliusDefaults.InitializeProject()
 	-- exeliusDefaults.IncludeLibHeaders(exeliusDepends)
 	exeliusDefaults.InitializeEngine(exeliusDepends)
+	
+	-- Retrieve and Set any additional settings for the project.
+	exeliusDefaults.InitializeProject()
 
 ------------------------------------------------------------------------------------------------------
 -- Additional Creation Steps

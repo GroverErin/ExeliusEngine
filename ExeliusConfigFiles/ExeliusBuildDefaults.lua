@@ -70,19 +70,19 @@ function exeliusDefaults.ProjectDefaults()
 	filter("configurations:*32")
 		architecture("x86")
 
-	filter("configurations:Debug")
+	filter("configurations:Debug*")
 		symbols("full")
 		runtime("Debug")
 		defines("EXE_DEBUG")
 		staticruntime("On")
 
-	filter("configurations:Test")
+	filter("configurations:Test*")
 		optimize("On")
 		runtime("Release")
 		defines("EXE_TEST")
 		staticruntime("On")
 
-	filter("configurations:Release")
+	filter("configurations:Release*")
 		optimize("On")
 		runtime("Release")
 		defines("EXE_RELEASE")
@@ -121,6 +121,7 @@ function exeliusDefaults.InitializeProject(engine_root)
 	links("Exelius");
 
 	local incldir = os.realpath(engine_root .. "Exelius/");
+	printf("Linking Engine: " .. incldir)
 	includedirs(incldir);
 end
 

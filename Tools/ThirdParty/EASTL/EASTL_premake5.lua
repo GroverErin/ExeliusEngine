@@ -30,37 +30,37 @@ function eastl.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
+	filter{"configurations:Debug32", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/Debug/]],
 		}
 
-	filter{"platforms:Win32", "configurations:Test", "system:windows"}
+	filter{"configurations:Test32", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/RelWithDebInfo/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Release", "system:windows"}
+	filter{"configurations:Release32", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/MinSizeRel/]]
 		}
 
-	filter{"platforms:Win64", "configurations:Debug", "system:windows"}
+	filter{"configurations:Debug64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win64/Debug/]],
 		}
 
-	filter{"platforms:Win64", "configurations:Test", "system:windows"}
+	filter{"configurations:Test64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win64/RelWithDebInfo/]]
 		}
 
-	filter{"platforms:Win64", "configurations:Release", "system:windows"}
+	filter{"configurations:Release64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win64/MinSizeRel/]]
@@ -70,37 +70,37 @@ function eastl.Include(rootDir)
 	-- Linux Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Lin32", "configurations:Debug", "system:linux"}
+	filter{"configurations:Debug32", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Debug/]],
 		}
 
-	filter{"platforms:Lin32", "configurations:Test", "system:linux"}
+	filter{"configurations:Test32", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Release/]]
 		}
 
-	filter{"platforms:Lin32", "configurations:Release", "system:linux"}
+	filter{"configurations:Release32", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Release/]]
 		}
 
-	filter{"platforms:Lin64", "configurations:Debug", "system:linux"}
+	filter{"configurations:Debug64", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Debug/]],
 		}
 
-	filter{"platforms:Lin64", "configurations:Test", "system:linux"}
+	filter{"configurations:Test64", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Release/]]
 		}
 
-	filter{"platforms:Lin64", "configurations:Release", "system:linux"}
+	filter{"configurations:Release64", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Release/]]

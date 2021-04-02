@@ -94,7 +94,8 @@ project("Exelius")
 	}
 
 	-- Retrieve and set any additional settings for the engine.
-	exeliusDefaults.InitializeEngine(exeliusDepends)
+	-- exeliusDefaults.InitializeEngine(exeliusDepends)
+	exeliusDefaults.IncludeLibHeaders(exeliusDepends)
 
 ------------------------------------------------------------------------------------------------------
 -- Exelius Sandbox Application Creation
@@ -128,7 +129,8 @@ project("EXESandbox")
 
 	-- Retrieve and Set any additional settings for the project.
 	exeliusDefaults.InitializeProject()
-	exeliusDefaults.IncludeLibHeaders(exeliusDepends)
+	-- exeliusDefaults.IncludeLibHeaders(exeliusDepends)
+	exeliusDefaults.InitializeEngine(exeliusDepends)
 
 ------------------------------------------------------------------------------------------------------
 -- Additional Creation Steps

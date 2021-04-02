@@ -30,42 +30,42 @@ function sfml.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
+	filter{"configurations:Debug32", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/Debug/]],
 			rootDir .. [[extlibs/libs-msvc/x86/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Test", "system:windows"}
+	filter{"configurations:Test32", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/RelWithDebInfo/]],
 			rootDir .. [[extlibs/libs-msvc/x86/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Release", "system:windows"}
+	filter{"configurations:Release32", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/MinSizeRel/]],
 			rootDir .. [[extlibs/libs-msvc/x86/]]
 		}
 
-	filter{"platforms:Win64", "configurations:Debug", "system:windows"}
+	filter{"configurations:Debug64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win64/Debug/]],
 			rootDir .. [[extlibs/libs-msvc/x64/]]
 		}
 
-	filter{"platforms:Win64", "configurations:Test", "system:windows"}
+	filter{"configurations:Test64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win64/RelWithDebInfo/]],
 			rootDir .. [[extlibs/libs-msvc/x64/]]
 		}
 
-	filter{"platforms:Win64", "configurations:Release", "system:windows"}
+	filter{"configurations:Release64", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win64/MinSizeRel/]],
@@ -76,37 +76,37 @@ function sfml.Include(rootDir)
 	-- Linux Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Lin32", "configurations:Debug", "system:linux"}
+	filter{"configurations:Debug32", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Debug/]],
 		}
 
-	filter{"platforms:Lin32", "configurations:Test", "system:linux"}
+	filter{"configurations:Test32", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Release/]]
 		}
 
-	filter{"platforms:Lin32", "configurations:Release", "system:linux"}
+	filter{"configurations:Release32", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Release/]]
 		}
 
-	filter{"platforms:Lin64", "configurations:Debug", "system:linux"}
+	filter{"configurations:Debug64", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Debug/]],
 		}
 
-	filter{"platforms:Lin64", "configurations:Test", "system:linux"}
+	filter{"configurations:Test64", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Release/]]
 		}
 
-	filter{"platforms:Lin64", "configurations:Release", "system:linux"}
+	filter{"configurations:Release64", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Release/]]
@@ -131,7 +131,7 @@ end
 
 function sfml.Link(rootdir, exeliusLibDir)
 
-	filter{"configurations:Debug", "system:windows"}
+	filter{"configurations:Debug*", "system:windows"}
 		links
 		{
 			"sfml-audio-s-d",
@@ -151,7 +151,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"winmm"
 		}
 
-	filter{"configurations:Test", "system:windows"}
+	filter{"configurations:Test*", "system:windows"}
 		links 
 		{
 			"sfml-audio-s",
@@ -171,7 +171,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"winmm"
 		}
 
-	filter{"configurations:Release", "system:windows"}
+	filter{"configurations:Release*", "system:windows"}
 		links 
 		{
 			"sfml-audio-s",
@@ -191,7 +191,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"winmm"
 		}
 
-	filter{"configurations:Debug", "system:linux"}
+	filter{"configurations:Debug*", "system:linux"}
 		links
 		{
 			"sfml-audio-d",
@@ -201,7 +201,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"sfml-window-d"
 		}
 
-	filter{"configurations:Test", "system:linux"}
+	filter{"configurations:Test*", "system:linux"}
 		links 
 		{
 			"sfml-audio",
@@ -211,7 +211,7 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"sfml-window"
 		}
 
-	filter{"configurations:Release", "system:linux"}
+	filter{"configurations:Release*", "system:linux"}
 		links 
 		{
 			"sfml-audio",

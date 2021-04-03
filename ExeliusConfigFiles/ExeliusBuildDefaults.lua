@@ -32,12 +32,15 @@ function exeliusDefaults.WorkspaceDefaults()
 	-- Calls a premake command to generate the different build configurations.
 	configurations
 	{
-		"Debug32",	-- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
-		"Debug64",
-		"Test32",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
-		"Test64",
-		"Release32",	-- Contains compiler optimized code and packaged assets. (Fast and Light)
-		"Release64"
+		"Debug",	-- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
+		"Test",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
+		"Release"	-- Contains compiler optimized code and packaged assets. (Fast and Light)
+	}
+
+	platforms
+	{
+		"x64",
+		"Win32"
 	}
 
 	-- Set the compilation process to be multithreaded, this only effects MSVC... not sure how to speed up Linux.
@@ -64,25 +67,25 @@ function exeliusDefaults.ProjectDefaults()
 	targetdir("Build/" .. outputdir)
 	objdir("Temp/" .. outputdir)
 
-	filter("configurations:*64")
+	filter("platforms:x64")
 		architecture("x86_64")
 
-	filter("configurations:*32")
+	filter("platforms:Win32")
 		architecture("x86")
 
-	filter("configurations:Debug*")
+	filter("configurations:Debug")
 		symbols("full")
 		runtime("Debug")
 		defines("EXE_DEBUG")
 		staticruntime("On")
 
-	filter("configurations:Test*")
+	filter("configurations:Test")
 		optimize("On")
 		runtime("Release")
 		defines("EXE_TEST")
 		staticruntime("On")
 
-	filter("configurations:Release*")
+	filter("configurations:Release")
 		optimize("On")
 		runtime("Release")
 		defines("EXE_RELEASE")
@@ -109,7 +112,6 @@ function exeliusDefaults.InitializeEngine(dependencies)
 	dependencies.RequireTool("spdlog")
 	dependencies.RequireTool("tmxlite")
 	dependencies.RequireTool("zlib")
-	--dependencies.RequireTool("TinyXML2")
 end
 
 -- Initializes the Exelius Engine in the current project scope.

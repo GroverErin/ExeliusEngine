@@ -31,37 +31,37 @@ function spdlog.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"configurations:Debug32", "system:windows"}
+	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/Debug/]],
         }
 
-    filter{"configurations:Test32", "system:windows"}
+    filter{"platforms:Win32", "configurations:Test", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/RelWithDebInfo/]]
         }
 
-    filter{"configurations:Release32", "system:windows"}
+    filter{"platforms:Win32", "configurations:Release", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/MinSizeRel/]]
         }
 
-    filter{"configurations:Debug64", "system:windows"}
+    filter{"platforms:x64", "configurations:Debug", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win64/Debug/]],
         }
 
-    filter{"configurations:Test64", "system:windows"}
+    filter{"platforms:x64", "configurations:Test", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win64/RelWithDebInfo/]]
         }
 
-    filter{"configurations:Release64", "system:windows"}
+    filter{"platforms:x64", "configurations:Release", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win64/MinSizeRel/]]
@@ -71,37 +71,37 @@ function spdlog.Include(rootDir)
     -- Linux Library Directories
     --------------------------------------------------------------------------------------------------
 
-    filter{"configurations:Debug32", "system:linux"}
+    filter{"platforms:Win32", "configurations:Debug", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Debug/]],
         }
 
-    filter{"configurations:Test32", "system:linux"}
+    filter{"platforms:Win32", "configurations:Test", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Release/]]
         }
 
-    filter{"configurations:Release32", "system:linux"}
+    filter{"platforms:Win32", "configurations:Release", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Release/]]
         }
 
-    filter{"configurations:Debug64", "system:linux"}
+    filter{"platforms:x64", "configurations:Debug", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin64/Debug/]],
         }
 
-    filter{"configurations:Test64", "system:linux"}
+    filter{"platforms:x64", "configurations:Test", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin64/Release/]]
         }
 
-    filter{"configurations:Release64", "system:linux"}
+    filter{"platforms:x64", "configurations:Release", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin64/Release/]]
@@ -112,37 +112,37 @@ end
 
 function spdlog.Link(rootdir, exeliusLibDir)
 
-	filter{"configurations:Debug*", "system:windows"}
+	filter{"configurations:Debug", "system:windows"}
 		links
 		{
 			"spdlogd"
 		}
 
-    filter{"configurations:Test*", "system:windows"}
+    filter{"configurations:Test", "system:windows"}
 		links
 		{
 			"spdlog"
 		}
 
-    filter{"configurations:Release*", "system:windows"}
+    filter{"configurations:Release", "system:windows"}
 		links
 		{
 			"spdlog"
 		}
 
-    filter{"configurations:Debug*", "system:linux"}
+    filter{"configurations:Debug", "system:linux"}
 		links
 		{
 			"spdlogd"
 		}
 
-    filter{"configurations:Test*", "system:linux"}
+    filter{"configurations:Test", "system:linux"}
 		links
 		{
 			"spdlog"
 		}
 
-    filter{"configurations:Release*", "system:linux"}
+    filter{"configurations:Release", "system:linux"}
 		links
 		{
 			"spdlog"

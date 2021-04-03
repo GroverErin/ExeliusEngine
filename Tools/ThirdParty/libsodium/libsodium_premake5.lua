@@ -30,37 +30,37 @@ function libsodium.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-    filter{"configurations:Debug32", "system:windows"}
+    filter{"platforms:Win32", "configurations:Debug", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/Debug/]],
         }
 
-    filter{"configurations:Test32", "system:windows"}
+    filter{"platforms:Win32", "configurations:Test", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/Release/]]
         }
 
-    filter{"configurations:Release32", "system:windows"}
+    filter{"platforms:Win32", "configurations:Release", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/Release/]]
         }
 
-    filter{"configurations:Debug64", "system:windows"}
+    filter{"platforms:x64", "configurations:Debug", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win64/Debug/]],
         }
 
-    filter{"configurations:Test64", "system:windows"}
+    filter{"platforms:x64", "configurations:Test", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win64/Release/]]
         }
 
-    filter{"configurations:Release64", "system:windows"}
+    filter{"platforms:x64", "configurations:Release", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win64/Release/]]
@@ -70,37 +70,37 @@ function libsodium.Include(rootDir)
     -- Linux Library Directories
     --------------------------------------------------------------------------------------------------
 
-    filter{"configurations:Debug32", "system:linux"}
+    filter{"platforms:Win32", "configurations:Debug", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Debug/]],
         }
 
-    filter{"configurations:Test32", "system:linux"}
+    filter{"platforms:Win32", "configurations:Test", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Release/]]
         }
 
-    filter{"configurations:Release32", "system:linux"}
+    filter{"platforms:Win32", "configurations:Release", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Release/]]
         }
 
-    filter{"configurations:Debug64", "system:linux"}
+    filter{"platforms:x64", "configurations:Debug", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin64/Debug/]],
         }
 
-    filter{"configurations:Test64", "system:linux"}
+    filter{"platforms:x64", "configurations:Test", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin64/Release/]]
         }
 
-    filter{"configurations:Release64", "system:linux"}
+    filter{"platforms:x64", "configurations:Release", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin64/Release/]]

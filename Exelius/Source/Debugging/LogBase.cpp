@@ -5,28 +5,6 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------
-// EASTL Requirements. TODO: Move this to a better place.
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------
-#include <new>
-
-void* operator new[](size_t size, [[maybe_unused]] const char* pName, [[maybe_unused]] int flags, [[maybe_unused]] unsigned debugFlags, [[maybe_unused]] const char* file, [[maybe_unused]] int line)
-{
-	return ::new char[size];
-}
-
-void* operator new[](size_t size, [[maybe_unused]] size_t alignment, [[maybe_unused]] size_t alignmentOffset, [[maybe_unused]] const char* pName, [[maybe_unused]] int flags, [[maybe_unused]] unsigned debugFlags, [[maybe_unused]] const char* file, [[maybe_unused]] int line)
-{
-	return ::new char[size];
-}
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------
-// EASTL Requirements. TODO: Move this to a better place.
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.

@@ -25,6 +25,11 @@ function rapidjson.Include(rootDir)
 	{
 		rootDir .. [[include/]]
 	}
+
+    defines 
+    {
+        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
+    }
 end
 
 dependencies.Add("rapidjson", rapidjson)

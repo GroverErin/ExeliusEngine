@@ -1,11 +1,10 @@
 #include "EXEPCH.h"
 #include "Source/Engine/Resources/ExeliusResourceFactory.h"
 
-#include "Source/Engine/Resources/ExeliusResourceTypes.h"
+#include "Source/Engine/Resources/ResourceTypes/ExeliusResourceTypes.h"
 
-#include "Source/Engine/Resources/TextFileResource.h"
-#include "Source/Engine/Resources/TextureResource.h"
-#include "Source/Engine/Resources/JSONResource.h"
+#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
+#include "Source/Engine/Resources/ResourceTypes/TextureResource.h"
 
 namespace Exelius
 {
@@ -33,11 +32,6 @@ namespace Exelius
 				pNewResource = new TextureResource(resourceID);
 				break;
 			}
-		case ResourceType::kJSON:
-			{
-				pNewResource = new JSONResource(resourceID);
-				break;
-			}
 		}
 
 		return pNewResource;
@@ -55,17 +49,13 @@ namespace Exelius
 			return ResourceType::kInvalid;
 		}
 
-		if (fileExtension == "txt")
+		if (fileExtension == "txt" || fileExtension == "json")
 		{
 			return ResourceType::kTextFile;
 		}
 		else if (fileExtension == "png" || fileExtension == "jpg" || fileExtension == "bmp")
 		{
 			return ResourceType::kTexture;
-		}
-		else if (fileExtension == "json")
-		{
-			return ResourceType::kJSON;
 		}
 
 		return ResourceType::kInvalid;

@@ -30,9 +30,11 @@ namespace Exelius
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) = 0;
 
 		/// <summary>
-		/// Calls the
+		/// Calls the resources specific unloading function.
 		/// </summary>
 		virtual void Unload() = 0;
+
+		const ResourceID& GetResourceID() const { return m_id; }
 
 	protected:
 		Resource(const ResourceID& id)

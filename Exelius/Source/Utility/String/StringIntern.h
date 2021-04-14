@@ -59,7 +59,7 @@ namespace Exelius
 			return (*this);
 		}
 
-		StringIntern& operator=(StringIntern&& right)
+		StringIntern& operator=(StringIntern&& right) noexcept
 		{
 			if (this == &right)
 				return *this;

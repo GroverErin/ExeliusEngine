@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Source/Utility/Singleton.h"
+#include "Source/Utility/Generic/Singleton.h"
 #include "Source/Resource/ResourceDatabase.h"
 
 #include <EASTL/deque.h>
@@ -42,7 +42,6 @@ namespace Exelius
 		ResourceManager& operator=(ResourceManager&&) = delete;
 		~ResourceManager();
 
-
 		bool Initialize(ResourceFactory* pResourceFactory, const char* pEngineResourcePath = nullptr, bool useRawAssets = false);
 		const ResourceID& QueueLoad(const ResourceID& resourceID, bool signalLoaderThread);
 		const ResourceID& LoadNow(const ResourceID& resourceID);
@@ -55,6 +54,8 @@ namespace Exelius
 		void ReloadResource(const ResourceID& resourceID, bool forceLoad = false);
 
 		Resource* GetResource(const ResourceID& resourceID, bool forceLoad = false);
+
+		bool IsResourceLoaded(const ResourceID& resourceID);
 
 		void LockResource(const ResourceID& resourceID);
 #undef UnlockResource

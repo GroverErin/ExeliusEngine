@@ -244,6 +244,17 @@ namespace Exelius
 		return pResourceEntry->GetResource();
 	}
 
+	bool ResourceManager::IsResourceLoaded(const ResourceID& resourceID)
+	{
+		EXE_ASSERT(resourceID.IsValid());
+		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
+
+		if (!pResourceEntry)
+			return false;
+
+		return true;
+	}
+
 	void ResourceManager::LockResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());

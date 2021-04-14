@@ -5,16 +5,16 @@
 #include <EASTL/string.h>
 namespace Exelius
 {
-	class JSONResource
+	class TextFileResource
 		: public Resource
 	{
 		eastl::string m_text;
 	public:
-		JSONResource(const ResourceID& id);
-		JSONResource(const JSONResource&) = delete;
-		JSONResource(JSONResource&&) = delete;
-		JSONResource& operator=(const JSONResource&) = delete;
-		virtual ~JSONResource() = default;
+		TextFileResource(const ResourceID& id);
+		TextFileResource(const TextFileResource&) = delete;
+		TextFileResource(TextFileResource&&) = delete;
+		TextFileResource& operator=(const TextFileResource&) = delete;
+		virtual ~TextFileResource() = default;
 
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
 		virtual void Unload() final override {}

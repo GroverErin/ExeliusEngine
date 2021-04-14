@@ -45,7 +45,7 @@ namespace Exelius
 
 		if (IsFound(resourceID))
 		{
-			EXELOG_ENGINE_INFO("Resourse Entry for {} already exists.", resourceID.Get().c_str());
+			EXELOG_ENGINE_INFO("Resource Entry for {} already exists.", resourceID.Get().c_str());
 			return;
 		}
 

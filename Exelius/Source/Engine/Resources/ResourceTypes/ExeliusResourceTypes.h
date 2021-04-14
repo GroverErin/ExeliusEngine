@@ -7,7 +7,6 @@ namespace Exelius
 	{
 		static constexpr Type kTextFile = kInvalid + 1;
 		static constexpr Type kTexture = kTextFile + 1;
-		static constexpr Type kJSON = kTexture + 1;
 
 		static constexpr Type kLastEngineResourceTypeValue = kTexture;
 	}

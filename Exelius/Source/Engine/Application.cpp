@@ -2,9 +2,13 @@
 
 #include "Source/Engine/Application.h"
 #include "Source/OS/Events/ApplicationEvents.h"
-#include "Source/Engine/Resources/JSONResource.h"
-#include "Source/Engine/Game/GameObjects/GameObject.h"
+#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 
+#include "Source/Engine/Game/GameObjectSystem/GameObject.h"
+#include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
+
+#include "Source/Engine/Game/GameObjectSystem/Components/ComponentHandle.h"
+#include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
@@ -34,37 +38,49 @@ namespace Exelius
 
 	Application::~Application()
 	{
+		ResourceManager::DestroySingleton();
 		m_window.GetEventMessenger().RemoveObserver(*this);
 	}
 
 	bool Application::Initialize()
 	{
+		// Create Resource Manager Singleton.
+		ResourceManager::SetSingleton(new ResourceManager());
+		auto* pResourceManagerTester = ResourceManager::GetInstance();
+		pResourceManagerTester->Initialize(&m_resourceFactory, "EngineResources/",  true);
+
+		GameObjectSystem::SetSingleton(new GameObjectSystem());
+		auto* pGameObjectSystemTester = GameObjectSystem::GetInstance();
+		pGameObjectSystemTester->Initialize(&m_componentFactory);
+
 		EXELOG_ENGINE_ERROR("Resource Manager test code found in Application::Initialize().");
 
-		m_resourceManager.Initialize(&m_resourceFactory, "EngineResources/",  true);
 		eastl::string str = "../GameObjectTest.json";
 
-		auto id = m_resourceManager.QueueLoad(str, true);
+		auto& id = pResourceManagerTester->QueueLoad(str, true);
 
-		auto* pResource = static_cast<JSONResource*>(m_resourceManager.GetResource(id));
+		auto* pResource = static_cast<TextFileResource*>(pResourceManagerTester->GetResource(id));
 		while (!pResource)
 		{
 			EXELOG_ENGINE_FATAL("Failed to retrieve resource.");
-			pResource = static_cast<JSONResource*>(m_resourceManager.GetResource(id));
+			pResource = static_cast<TextFileResource*>(pResourceManagerTester->GetResource(id));
 		}
 
-		EXELOG_ENGINE_INFO("{}: {}", str.c_str(), pResource->GetRawText().c_str());
+		EXELOG_ENGINE_INFO("{}:\n{}", str.c_str(), pResource->GetRawText().c_str());
 
-		auto* pGameObject = m_gameObjectFactory.CreateGameObject(pResource);
+		auto objectID = pGameObjectSystemTester->CreateGameObject(pResource);
 
-		pGameObject->Destroy();
+		auto* pObject = pGameObjectSystemTester->GetGameObject(objectID);
 
-		delete pGameObject;
-		pGameObject = nullptr;
+		auto transformComp = pObject->GetComponent<TransformComponent>();
+		float y = transformComp->GetY();
 
-		m_resourceManager.ReleaseResource(id);
+		EXELOG_ENGINE_INFO("PRINTING pObject: {}, {}, ({}, {})", pObject->GetName().c_str(), pObject->GetId(), transformComp.Get().GetX(), y);
 
-		// App should close cleanly.
+		pGameObjectSystemTester->DestroyGameObject(objectID);
+		pObject = nullptr; // THIS IS NOT IDEAL
+		
+		pResourceManagerTester->ReleaseResource(id);
 
 		return true;
 	}

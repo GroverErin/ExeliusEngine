@@ -18,8 +18,39 @@ namespace Exelius
 		static_assert(eastl::is_integral_v<NumberType> || eastl::is_floating_point_v<NumberType>, "Type must be of integral number type.");
 
 	public:
-		NumberType x;
-		NumberType y;
+		#pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
+		union
+		{
+			struct
+			{
+				/// <summary>
+				/// Value in the first position of the 'pair'.
+				/// this->x == this->w
+				/// </summary>
+				NumberType x;
+
+				/// <summary>
+				/// Value in the second position of the 'pair'.
+				/// this->y == this->h
+				/// </summary>
+				NumberType y;
+			};
+
+			struct
+			{
+				/// <summary>
+				/// Value in the first position of the 'pair'.
+				/// this->x == this->w
+				/// </summary>
+				NumberType w;
+
+				/// <summary>
+				/// Value in the second position of the 'pair'.
+				/// this->y == this->h
+				/// </summary>
+				NumberType h;
+			};
+		};
 
 		/// <summary>
 		/// Multiplies vector by a one-dimensional scalar.

@@ -294,9 +294,13 @@ namespace Exelius
 
 			auto found = m_componentLists.find(componentType);
 
-			if (found != m_componentLists.end())
+			if (found == m_componentLists.end())
 			{
 				m_componentLists.try_emplace(componentType, new ComponentList<ComponentType>(isUpdated, isRendered));
+			}
+			else
+			{
+				EXELOG_ENGINE_WARN("ComponentList of type '{}' is already registered.", componentType.Get().c_str());
 			}
 		}
 	private:

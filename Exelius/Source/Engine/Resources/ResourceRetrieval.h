@@ -4,6 +4,12 @@
 
 namespace Exelius
 {
+	/// <summary>
+	/// Get a resource as the templated type.
+	/// 
+	/// Example (replace '{ }' with angle brackets):
+	///		GetResourceAs{TextFileResource}(resourceID};
+	/// </summary>
 	template <class ResourceType>
 	ResourceType* GetResourceAs(const ResourceID& resourceID, bool forceLoad = false)
 	{

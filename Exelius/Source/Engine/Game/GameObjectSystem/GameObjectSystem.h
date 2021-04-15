@@ -65,10 +65,13 @@ namespace Exelius
 		/// </summary>
 		GameObjectSystem();
 
+		// Not sure if I need to define a virtual destructor because
+		// this class inherets from Singleton.
+
 		/*GameObjectSystem(const GameObjectSystem&) = delete;
 		GameObjectSystem(GameObjectSystem&&) = delete;
 		GameObjectSystem& operator=(const GameObjectSystem&) = delete;
-		~GameObjectSystem() = default;*/
+		virtual ~GameObjectSystem() = default;*/
 
 		/// <summary>
 		/// Sets the component factory to use when creating components.
@@ -114,13 +117,13 @@ namespace Exelius
 
 		/// <summary>
 		/// Gets the GameObject with the given ID.
-		/// TODO: This may need to be revisited.
+		/// TODO: This may need to be revisited. EDIT: This may not be an issue, please test.
 		/// The handle system used by the Components should be used here, as there can be
 		/// some invalidation of GameObjectID's that would go unchecked otherwise.
 		/// </summary>
 		/// <param name="objectId">GameObjectID for an object to be retrieved.</param>
 		/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
-		GameObject* GetGameObject(GameObjectID objectId);
+		GameObject* GetGameObject(GameObjectID gameObjectID);
 
 		/// <summary>
 		/// Completely destroys a GameObject and 'detatches' any components.
@@ -129,16 +132,6 @@ namespace Exelius
 		/// </summary>
 		/// <param name="gameObjectID">GameObjectID for an object to be destroyed.</param>
 		void DestroyGameObject(GameObjectID gameObjectID);
-
-		/// <summary>
-		/// Updates all *Active* components that require updating.
-		/// </summary>
-		void Update();
-
-		/// <summary>
-		/// Renders all *Active* components that require rendering.
-		/// </summary>
-		void Render();
 
 		/// <summary>
 		/// Requests that the Component of the given type be created
@@ -163,6 +156,25 @@ namespace Exelius
 			GameObject* pOwningObject, const rapidjson::Value& componentData);
 
 		/// <summary>
+		/// Releases a component back into the pool.
+		/// This does NOT destroy the component NOR 
+		/// does the data within get reset.
+		/// </summary>
+		/// <param name="componentType">The type of component to be Released.</param>
+		/// <param name="handle">The handle to that component in the ComponentList of it's type.</param>
+		void ReleaseComponent(const Component::Type& componentType, Handle handle);
+
+		/// <summary>
+		/// Updates all *Active* components that require updating.
+		/// </summary>
+		void Update();
+
+		/// <summary>
+		/// Renders all *Active* components that require rendering.
+		/// </summary>
+		void Render();
+
+		/// <summary>
 		/// Templated CreateComponent.
 		/// This is the function that should be called by a Component Factory.
 		/// This function does the following:
@@ -178,16 +190,20 @@ namespace Exelius
 		template <class ComponentType>
 		Handle CreateComponent()
 		{
+			EXE_ASSERT(ComponentType::kType.IsValid());
+
 			// Check if the map contains this componenttype as a key value pair.
 			auto itr = m_componentLists.find(ComponentType::kType);
 
 			if (itr == m_componentLists.end())
 			{
 				EXELOG_ENGINE_WARN("Component '{}' creation failed: No ComponentList defined.", ComponentType::kType.Get().c_str());
-				return {};
+				return {}; // Invalid.
 			}
 
 			ComponentList<ComponentType>* pComponentList = static_cast<ComponentList<ComponentType>*>(itr->second);
+			EXE_ASSERT(pComponentList);
+
 			return pComponentList->EmplaceComponent(); // Should call emplace.
 		}
 
@@ -196,15 +212,23 @@ namespace Exelius
 		/// </summary>
 		/// <param name="internalHandle">
 		/// Handle of the component to retrieve.
+		/// User is responsible for verifying that the Handle is valid before passing it.
 		/// </param>
 		/// <returns>A reference to the Component.</returns>
 		template <class ComponentType>
 		ComponentType& GetComponent(Handle internalHandle)
 		{
+			EXE_ASSERT(ComponentType::kType.IsValid());
+			EXE_ASSERT(internalHandle.IsValid());
+
+			// Look for the component with the type specified.
+			auto found = m_componentLists.find(ComponentType::kType);
+			EXE_ASSERT(found == m_componentLists.end());
+
 			auto* pComponentList = m_componentLists[ComponentType::kType];
 			EXE_ASSERT(pComponentList);
 
-			// Cast to proper component type.
+			// Cast to proper component type and get.
 			return static_cast<ComponentList<ComponentType>*>(pComponentList)->GetComponent(internalHandle);
 		}
 
@@ -214,26 +238,25 @@ namespace Exelius
 		/// </summary>
 		/// <param name="internalHandle">
 		/// Handle of the component to check.
+		/// User is responsible for verifying that the Handle is valid before passing it.
 		/// </param>
 		/// <returns>True the Component is valid, false if not.</returns>
 		template <class ComponentType>
 		bool IsValidComponent(Handle internalHandle)
 		{
+			EXE_ASSERT(ComponentType::kType.IsValid());
+			EXE_ASSERT(internalHandle.IsValid());
+
+			// Look for the component with the type specified.
+			auto found = m_componentLists.find(ComponentType::kType);
+			EXE_ASSERT(found == m_componentLists.end());
+
 			auto* pComponentList = m_componentLists[ComponentType::kType];
 			EXE_ASSERT(pComponentList);
 
-			// Cast to proper component type.
+			// Cast to proper component type and check.
 			return static_cast<ComponentList<ComponentType>*>(pComponentList)->IsValidComponent(internalHandle);
 		}
-
-		/// <summary>
-		/// Releases a component back into the pool.
-		/// This does NOT destroy the component NOR 
-		/// does the data within get reset.
-		/// </summary>
-		/// <param name="componentType">The type of component to be Released.</param>
-		/// <param name="handle">The handle to that component in the ComponentList of it's type.</param>
-		void ReleaseComponent(const Component::Type& componentType, Handle handle);
 
 		/// <summary>
 		/// Registers the component to be creatable by the GameObjectSystem. Components that
@@ -247,6 +270,11 @@ namespace Exelius
 		/// TransformComponent Example:
 		///		// In an early Initialization function. (replace the '{' '}' with the template angle brackets, documentation issue...)
 		///		GameObjectSystem::GetInstance()->RegisterComponent{TransformComponent}(TransformComponent::kType, false, false);
+		/// 
+		/// NOTE:
+		///		componentType must equal the Component kType value. Users should verify that this is true when defining new components.
+		/// Example:
+		///		assert(TransformComponent::kType = "TransformComponent") == (componentType = "TransformComponent");
 		/// </summary>
 		/// <param name="componentType">The Registered component Type. This is the Key for component lookups.</param>
 		/// <param name="isUpdated">The type of component to be Released.</param>
@@ -254,6 +282,11 @@ namespace Exelius
 		template <class ComponentType>
 		void RegisterComponent(const Component::Type& componentType, bool isUpdated = false, bool isRendered = false)
 		{
+			// ALL of the MUST be true.
+			EXE_ASSERT(ComponentType::kType.IsValid());
+			EXE_ASSERT(componentType.IsValid());
+			EXE_ASSERT(componentType == ComponentType::kType);
+
 			auto found = m_componentLists.find(componentType);
 
 			if (found != m_componentLists.end())

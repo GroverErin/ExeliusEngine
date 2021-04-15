@@ -45,6 +45,8 @@ namespace Exelius
 	{
 		// Get a free ID. Add new object to the list.
 		GameObjectID id = GetNextObjectId();
+		EXE_ASSERT(id == kInvalidID);
+
 		m_gameObjects.try_emplace(id, new GameObject(id));
 
 		// Get newly created object.
@@ -78,6 +80,8 @@ namespace Exelius
 
 		// Get a free ID. Add new object to the list.
 		GameObjectID id = GetNextObjectId();
+		EXE_ASSERT(id == kInvalidID);
+
 		m_gameObjects.try_emplace(id, new GameObject(id));
 
 		// Get newly created object.
@@ -107,80 +111,178 @@ namespace Exelius
 	{
 		auto* pResourceManager = ResourceManager::GetInstance();
 		EXE_ASSERT(pResourceManager);
+		EXE_ASSERT(resourceID.IsValid());
 
-		if (!pResourceManager->IsResourceLoaded(resourceID))
+		bool isLoaded = pResourceManager->IsResourceLoaded(resourceID);
+
+		// If the resource is not loaded and we aren't forcing it to load, then bail.
+		if (!isLoaded && !forceLoad)
 			return kInvalidID;
-
-		return CreateGameObject(GetResourceAs<TextFileResource>(resourceID, false));
+		else
+			return CreateGameObject(GetResourceAs<TextFileResource>(resourceID, forceLoad));
 	}
 
-	GameObject* GameObjectSystem::GetGameObject(GameObjectID objectId)
+	/// <summary>
+	/// Gets the GameObject with the given ID.
+	/// TODO: This may need to be revisited. EDIT: This may not be an issue, please test.
+	/// The handle system used by the Components should be used here, as there can be
+	/// some invalidation of GameObjectID's that would go unchecked otherwise.
+	/// </summary>
+	/// <param name="objectId">GameObjectID for an object to be retrieved.</param>
+	/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
+	GameObject* GameObjectSystem::GetGameObject(GameObjectID gameObjectID)
 	{
-		auto* pGameObject = m_gameObjects[objectId];
+		if (gameObjectID == kInvalidID)
+		{
+			EXELOG_ENGINE_WARN("GameObjectID is invalid.");
+			return nullptr;
+		}
 
-		if (pGameObject)
-			return pGameObject;
+		// Look for GameObject in list with ID.
+		auto found = m_gameObjects.find(gameObjectID);
+		if (found == m_gameObjects.end())
+		{
+			EXELOG_ENGINE_WARN("GameObject with ID '{}' does not exist.", gameObjectID);
+			return nullptr;
+		}
 
-		EXELOG_ENGINE_WARN("GameObject with ID '{}' does not exist.", objectId);
-		return nullptr;
+		// This GameObject MUST exist.
+		auto* pGameObject = found->second;
+		EXE_ASSERT(pGameObject);
+		return pGameObject;
 	}
 
+	/// <summary>
+	/// Completely destroys a GameObject and 'detatches' any components.
+	/// Components are NOT Completely destroyed, but pooled for reuse.
+	/// Pooled components are reset when reused to create a new object.
+	/// </summary>
+	/// <param name="gameObjectID">GameObjectID for an object to be destroyed.</param>
+	void GameObjectSystem::DestroyGameObject(GameObjectID gameObjectID)
+	{
+		if (gameObjectID == kInvalidID)
+		{
+			EXELOG_ENGINE_WARN("GameObjectID is invalid.");
+			return;
+		}
+
+		// Look for gameobject with given ID.
+		auto found = m_gameObjects.find(gameObjectID);
+
+		if (found == m_gameObjects.end())
+		{
+			EXELOG_ENGINE_WARN("GameObject with ID '{}' does not exist.", gameObjectID);
+		}
+
+		// This GameObject MUST exist.
+		auto* pGameObject = found->second;
+		EXE_ASSERT(pGameObject);
+
+		pGameObject->RemoveComponents();
+
+		delete pGameObject;
+		pGameObject = nullptr;
+
+		m_gameObjects.erase(gameObjectID);
+		m_freeObjectIDs.push_back(gameObjectID);
+	}
+
+	/// <summary>
+	/// Requests that the Component of the given type be created
+	/// from the factory used by this GameObjectSystem.
+	/// Adds the component to the ComponentList of the matching type.
+	/// Attaches the GameObject as the owner of the Component.
+	/// Initializes the component using the JSON data.
+	/// </summary>
+	/// <param name="componentType">
+	/// Component Type to create.
+	/// This should be a Text value used by the Component Factory to determine type.
+	/// </param>
+	/// <param name="pOwningObject">
+	/// The GameObject that will be the 'Owner' of this component.
+	/// Used to retrieve the GameObject from the Component.
+	/// </param>
+	/// <param name="componentData">
+	/// The rapidjson value data retrieved from a .json file with Object/Component data for Initialization.
+	/// </param>
+	/// <returns>A Handle that refers to the Component in the ComponentList.</returns>
+	Handle GameObjectSystem::CreateComponentFromFactory(const Component::Type& componentType, GameObject* pOwningObject, const rapidjson::Value& componentData)
+	{
+		EXE_ASSERT(m_pComponentFactory);
+		EXE_ASSERT(componentType.IsValid());
+
+		if (!pOwningObject)
+		{
+			EXELOG_ENGINE_ERROR("Owning GameObject was nullptr.");
+			return {}; // Invalid.
+		}
+
+		// Defined component factory will create the desired component.
+		return m_pComponentFactory->CreateComponent(componentType, pOwningObject, componentData);
+	}
+
+	/// <summary>
+	/// Releases a component back into the pool.
+	/// This does NOT destroy the component NOR 
+	/// does the data within get reset.
+	/// </summary>
+	/// <param name="componentType">The type of component to be Released.</param>
+	/// <param name="handle">The handle to that component in the ComponentList of it's type.</param>
 	void GameObjectSystem::ReleaseComponent(const Component::Type& componentType, Handle handle)
 	{
+		EXE_ASSERT(componentType.IsValid());
+		EXE_ASSERT(handle.IsValid());
+
+		// Look for the component with the type specified.
 		auto found = m_componentLists.find(componentType);
 
 		if (found != m_componentLists.end())
 		{
-			found->second->DestroyComponent(handle);
+			// List must release the specific component by handle.
+			found->second->ReleaseComponent(handle);
 		}
 	}
 
-	GameObjectSystem::GameObjectID GameObjectSystem::GetNextObjectId()
-	{
-		if (m_freeObjectIDs.empty())
-			return m_nextObjectID++;
-
-		GameObjectID id = m_freeObjectIDs.front();
-		m_freeObjectIDs.pop_front();
-		return id;
-	}
-
-	void GameObjectSystem::DestroyGameObject(GameObjectID gameObjectID)
-	{
-		auto found = m_gameObjects.find(gameObjectID);
-
-		if (found != m_gameObjects.end())
-		{
-			found->second->RemoveComponents();
-
-			delete found->second;
-			found->second = nullptr;
-
-			m_gameObjects.erase(gameObjectID);
-			m_freeObjectIDs.push_back(gameObjectID);
-		}
-	}
-
+	/// <summary>
+	/// Updates all *Active* components that require updating.
+	/// </summary>
 	void GameObjectSystem::Update()
 	{
 		for (auto& componentPair : m_componentLists)
 		{
+			EXE_ASSERT(componentPair.second);
 			componentPair.second->UpdateComponents();
 		}
 	}
 
+	/// <summary>
+	/// Renders all *Active* components that require rendering.
+	/// </summary>
 	void GameObjectSystem::Render()
 	{
 		for (auto& componentPair : m_componentLists)
 		{
+			EXE_ASSERT(componentPair.second);
 			componentPair.second->RenderComponents();
 		}
 	}
 
-	Handle GameObjectSystem::CreateComponentFromFactory(const Component::Type& componentType, GameObject* pOwningObject, const rapidjson::Value& componentData)
+	/// <summary>
+	/// Checks for a free GameObjectID.
+	/// If one is not found, the m_nextObjectId is returned THEN incremented.
+	/// </summary>
+	/// <returns>The available GameObjectID for a new GameObject.</returns>
+	GameObjectSystem::GameObjectID GameObjectSystem::GetNextObjectId()
 	{
-		EXE_ASSERT(m_pComponentFactory);
+		// Make a new Id if not available in the free list.
+		if (m_freeObjectIDs.empty())
+			return m_nextObjectID++;
 
-		return m_pComponentFactory->CreateComponent(componentType, pOwningObject, componentData);
+		// Otherwise get the next free id.
+		GameObjectID id = m_freeObjectIDs.front();
+		m_freeObjectIDs.pop_front();
+
+		EXE_ASSERT(id == kInvalidID);
+		return id;
 	}
 }

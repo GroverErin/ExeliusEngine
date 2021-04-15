@@ -25,7 +25,7 @@ namespace Exelius
 		virtual void UpdateComponents() = 0;
 		virtual void RenderComponents() const = 0;
 
-		virtual void DestroyComponent(Handle handle) = 0;
+		virtual void ReleaseComponent(Handle handle) = 0;
 	};
 
 	template <class ComponentType>
@@ -117,7 +117,7 @@ namespace Exelius
 			}
 		}
 
-		virtual void DestroyComponent(Handle handle) final override
+		virtual void ReleaseComponent(Handle handle) final override
 		{
 			m_freeHandles.emplace_back(handle);
 			m_handles[handle].Invalidate();

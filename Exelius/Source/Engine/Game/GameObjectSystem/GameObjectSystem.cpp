@@ -45,7 +45,7 @@ namespace Exelius
 	{
 		// Get a free ID. Add new object to the list.
 		GameObjectID id = GetNextObjectId();
-		EXE_ASSERT(id == kInvalidID);
+		EXE_ASSERT(id != kInvalidID);
 
 		m_gameObjects.try_emplace(id, new GameObject(id));
 
@@ -80,7 +80,7 @@ namespace Exelius
 
 		// Get a free ID. Add new object to the list.
 		GameObjectID id = GetNextObjectId();
-		EXE_ASSERT(id == kInvalidID);
+		EXE_ASSERT(id != kInvalidID);
 
 		m_gameObjects.try_emplace(id, new GameObject(id));
 
@@ -282,7 +282,7 @@ namespace Exelius
 		GameObjectID id = m_freeObjectIDs.front();
 		m_freeObjectIDs.pop_front();
 
-		EXE_ASSERT(id == kInvalidID);
+		EXE_ASSERT(id != kInvalidID);
 		return id;
 	}
 }

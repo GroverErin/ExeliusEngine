@@ -36,6 +36,11 @@ namespace Exelius
 		{
 			newHandle = pGameObjectSystem->CreateComponent<TransformComponent>();
 
+			if (!newHandle.IsValid())
+			{
+				EXELOG_ENGINE_ERROR("{}: Component failed to be created.", componentName.Get().c_str());
+				return {}; // Invalid.
+			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<TransformComponent>(newHandle);
 			initSucceeded = newComponent.Initialize(pOwningObject, componentData);
@@ -44,6 +49,7 @@ namespace Exelius
 		if (!initSucceeded)
 		{
 			EXELOG_ENGINE_ERROR("{}: Component failed to initialize.", componentName.Get().c_str());
+			// Should I return invalid here?
 		}
 
 		return newHandle;

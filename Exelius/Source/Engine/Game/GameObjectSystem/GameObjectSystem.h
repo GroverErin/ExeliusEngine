@@ -245,14 +245,19 @@ namespace Exelius
 		bool IsValidComponent(Handle internalHandle)
 		{
 			EXE_ASSERT(ComponentType::kType.IsValid());
-			EXE_ASSERT(internalHandle.IsValid());
+
+			if (!internalHandle.IsValid())
+				return false;
 
 			// Look for the component with the type specified.
 			auto found = m_componentLists.find(ComponentType::kType);
-			EXE_ASSERT(found == m_componentLists.end());
+			if (found == m_componentLists.end())
+				return false;
 
 			auto* pComponentList = m_componentLists[ComponentType::kType];
-			EXE_ASSERT(pComponentList);
+
+			if (!pComponentList)
+				return false;
 
 			// Cast to proper component type and check.
 			return static_cast<ComponentList<ComponentType>*>(pComponentList)->IsValidComponent(internalHandle);

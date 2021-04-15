@@ -72,10 +72,12 @@ namespace Exelius
 
 		auto* pObject = pGameObjectSystemTester->GetGameObject(objectID);
 
-		auto transformComp = pObject->GetComponent<TransformComponent>();
-		float y = transformComp->GetY();
-
-		EXELOG_ENGINE_INFO("PRINTING pObject: {}, {}, ({}, {})", pObject->GetName().c_str(), pObject->GetId(), transformComp.Get().GetX(), y);
+		if (pObject->GetComponent<TransformComponent>())
+		{
+			auto transformComp = pObject->GetComponent<TransformComponent>();
+			float y = transformComp->GetY();
+			EXELOG_ENGINE_INFO("PRINTING pObject: {}, {}, ({}, {})", pObject->GetName().c_str(), pObject->GetId(), transformComp.Get().GetX(), y);
+		}
 
 		pGameObjectSystemTester->DestroyGameObject(objectID);
 		pObject = nullptr; // THIS IS NOT IDEAL

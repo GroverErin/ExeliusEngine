@@ -134,8 +134,8 @@ namespace eastl
 	struct hash<Exelius::StringIntern>
 	{
 	public:
-		// Used for storing as a key in eastl hash maps.
-		size_t operator()(const Exelius::StringIntern& key) const
+		// Used for storing a StringIntern as a key in EASTL hash maps.
+		size_t operator()(const Exelius::StringIntern& key) const noexcept
 		{
 			const char* stringPointer = key.Get().c_str();
 			const eastl::hash<const char8_t*> hashFunction;

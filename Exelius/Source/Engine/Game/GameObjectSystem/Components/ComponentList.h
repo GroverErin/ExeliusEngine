@@ -187,8 +187,10 @@ namespace Exelius
 
 		virtual void ReleaseComponent(Handle handle) final override
 		{
+			EXE_ASSERT(handle.IsValid());
+
 			m_freeHandles.emplace_back(handle);
-			m_handles[handle].Invalidate();
+			m_handles[handle.GetId()].Invalidate();
 		}
 	};
 }

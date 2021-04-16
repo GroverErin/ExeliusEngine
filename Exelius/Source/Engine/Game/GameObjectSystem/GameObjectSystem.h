@@ -223,7 +223,7 @@ namespace Exelius
 
 			// Look for the component with the type specified.
 			auto found = m_componentLists.find(ComponentType::kType);
-			EXE_ASSERT(found == m_componentLists.end());
+			EXE_ASSERT(found != m_componentLists.end());
 
 			auto* pComponentList = m_componentLists[ComponentType::kType];
 			EXE_ASSERT(pComponentList);

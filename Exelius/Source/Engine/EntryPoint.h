@@ -7,10 +7,10 @@ extern Exelius::Application* Exelius::CreateApplication();
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	Exelius::_Log::Initialize();
-
-	auto* pApp = Exelius::CreateApplication();
+	Exelius::Application::SetSingleton(Exelius::CreateApplication());
+	auto* pApp = Exelius::Application::GetInstance();
 	assert(pApp);
-	if (pApp->Initialize())
+	if (pApp->InitializeExelius())
 		pApp->Run();
 
 	delete pApp;

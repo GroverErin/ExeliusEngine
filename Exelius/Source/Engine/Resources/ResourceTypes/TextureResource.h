@@ -1,9 +1,13 @@
 #pragma once
 #include "Source/Resource/Resource.h"
+
+// THIS SHOULD NOT BE HERE
 #include "Source/Engine/Graphics/Texture.h"
 
 namespace Exelius
 {
+	//class Texture;
+
 	class TextureResource
 		: public Resource
 	{

@@ -46,7 +46,7 @@ namespace Exelius
 			FindOrAdd(::std::move(string));
 		}
 
-		const eastl::string& Get() const { return (*m_pString); }
+		const eastl::string& Get() const { EXE_ASSERT(IsValid()); return (*m_pString); }
 
 		bool IsValid() const { return m_pString != nullptr; }
 

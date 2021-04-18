@@ -14,9 +14,9 @@ namespace Exelius
 		ExeliusResourceFactory& operator=(ExeliusResourceFactory&&) = delete;
 		virtual ~ExeliusResourceFactory() = default;
 
-		virtual Resource* CreateResource(const ResourceID& resourceID) final override;
+		virtual Resource* CreateResource(const ResourceID& resourceID) override;
 
 	protected:
-		virtual ResourceType::Type GetResourceType(const ResourceID& resourceID) const final override;
+		virtual ResourceType::Type GetResourceType(const ResourceID& resourceID) const override;
 	};
 }

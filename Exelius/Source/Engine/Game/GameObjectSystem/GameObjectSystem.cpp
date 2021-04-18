@@ -17,6 +17,31 @@ namespace Exelius
 	}
 
 	/// <summary>
+	/// Destructor - Destroys all Components and Gameobjects.
+	/// </summary>
+	GameObjectSystem::~GameObjectSystem()
+	{
+		m_pComponentFactory = nullptr;
+
+		for (auto& gameObjectPair : m_gameObjects)
+		{
+			gameObjectPair.second->RemoveComponents();
+			delete gameObjectPair.second;
+			gameObjectPair.second = nullptr;
+		}
+
+		m_gameObjects.clear();
+
+		for (auto& componentListPair : m_componentLists)
+		{
+			delete componentListPair.second;
+			componentListPair.second = nullptr;
+		}
+
+		m_componentLists.clear();
+	}
+
+	/// <summary>
 	/// Sets the component factory to use when creating components.
 	/// The user defined component factory should be passed into this
 	/// function to allow the system to create user components.
@@ -172,6 +197,7 @@ namespace Exelius
 		if (found == m_gameObjects.end())
 		{
 			EXELOG_ENGINE_WARN("GameObject with ID '{}' does not exist.", gameObjectID);
+			return;
 		}
 
 		// This GameObject MUST exist.

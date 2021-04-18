@@ -4,8 +4,6 @@
 
 namespace Exelius
 {
-	class GameObject;
-
 	class TransformComponent
 		: public Component
 	{

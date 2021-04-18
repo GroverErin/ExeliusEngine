@@ -12,6 +12,9 @@ namespace sf
 	/// Forward declaration of an SFML class.
 	/// </summary>
 	class RenderWindow;
+	
+	class Texture;
+	class Sprite;
 }
 
 /// <summary>
@@ -36,6 +39,8 @@ namespace Exelius
 		unsigned int m_height;
 		bool m_isVSync;
 
+		sf::Sprite* m_testSprite;
+
 	public:
 		/// <summary>
 		/// The SFML window class that handles SFML specific events.
@@ -56,6 +61,11 @@ namespace Exelius
 		/// Retrieves and notifies of any SFML events.
 		/// </summary>
 		void OnUpdate();
+
+		// TEMP
+		void OnRender() const;
+		void Draw(sf::Texture* pTextureToDraw);
+		void Clear();
 
 		/// <summary>
 		/// Retrieves the current width of the window.

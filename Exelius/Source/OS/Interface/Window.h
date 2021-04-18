@@ -35,6 +35,11 @@ namespace Exelius
 		/// </summary>
 		void OnUpdate() { m_impl.OnUpdate(); }
 
+		// TEMP CODE!
+		void OnRender() const { m_impl.OnRender(); }
+
+		ImplWindow& GetNativeWindow() { return m_impl; }
+
 		/// <summary>
 		/// Calls the implementations get width method.
 		/// </summary>
@@ -49,7 +54,7 @@ namespace Exelius
 		/// Calls the implementations set VSync method.
 		/// </summary>
 		/// <param name="enabled">Set VSync on or off.</param>
-		void SetVSync(bool enabled) const { m_impl.SetVSync(enabled); }
+		void SetVSync(bool enabled) { m_impl.SetVSync(enabled); }
 
 		/// <summary>
 		/// Calls the implementations Is VSync method.

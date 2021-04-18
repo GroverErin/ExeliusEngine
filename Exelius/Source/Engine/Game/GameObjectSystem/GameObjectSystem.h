@@ -70,8 +70,12 @@ namespace Exelius
 
 		/*GameObjectSystem(const GameObjectSystem&) = delete;
 		GameObjectSystem(GameObjectSystem&&) = delete;
-		GameObjectSystem& operator=(const GameObjectSystem&) = delete;
-		virtual ~GameObjectSystem() = default;*/
+		GameObjectSystem& operator=(const GameObjectSystem&) = delete;*/
+
+		/// <summary>
+		/// Destructor - Destroys all Components and Gameobjects.
+		/// </summary>
+		~GameObjectSystem();
 
 		/// <summary>
 		/// Sets the component factory to use when creating components.

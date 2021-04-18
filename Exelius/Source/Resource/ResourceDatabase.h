@@ -38,7 +38,10 @@ namespace Exelius
 		{
 			if (m_refCount + m_lockCount > 0)
 			{
-				EXELOG_ENGINE_WARN("Destroying resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+				if (m_pResource)
+					EXELOG_ENGINE_WARN("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
+				else
+					EXELOG_ENGINE_WARN("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
 			}
 
 			delete m_pResource;

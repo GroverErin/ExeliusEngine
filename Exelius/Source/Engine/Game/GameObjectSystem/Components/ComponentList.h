@@ -41,7 +41,7 @@ namespace Exelius
 		/// <summary>
 		/// Virtual Destructor.
 		/// </summary>
-		~ComponentListBase() = default;
+		virtual ~ComponentListBase() = default;
 
 		/// <summary>
 		/// Update the components in this list if
@@ -96,6 +96,7 @@ namespace Exelius
 
 		virtual ~ComponentList()
 		{
+			EXELOG_ENGINE_TRACE("ComponentList<{}> Reached.", ComponentType::kType.Get().c_str());
 		}
 
 		Handle EmplaceComponent()

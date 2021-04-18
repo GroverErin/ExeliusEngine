@@ -1,9 +1,7 @@
 #pragma once
 
+#include "Source/Utility/Generic/Singleton.h"
 #include "Source/OS/Interface/Window.h"
-#include "Source/Resource/ResourceManager.h"
-#include "Source/Engine/Resources/ExeliusResourceFactory.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -12,17 +10,20 @@
 /// </summary>
 namespace Exelius
 {
+	class ResourceFactory;
+	class ComponentFactory;
+
 	/// <summary>
 	/// The application class is to be inhereted by the client,
 	/// it defines the running application and holds the main loop.
 	/// </summary>
 	class Application
-		: public OSEventObserver
+		: public Singleton<Application>, public OSEventObserver
 	{
-		inline static Application* s_pAppInstance = nullptr;
+		//inline static Application* s_pAppInstance = nullptr;
 		Window m_window;
-		ExeliusResourceFactory m_resourceFactory;
-		ExeliusComponentFactory m_componentFactory;
+		ResourceFactory* m_pResourceFactory;
+		ComponentFactory* m_pComponentFactory;
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;
@@ -48,7 +49,7 @@ namespace Exelius
 		/// Initialize the engine, this will pull data from a config and initialize important systems.
 		/// </summary>
 		/// <returns>True on success, false on failure.</returns>
-		bool Initialize();
+		bool InitializeExelius();
 
 		/// <summary>
 		/// Applications main loop.
@@ -57,8 +58,58 @@ namespace Exelius
 		void Run();
 
 		/// <summary>
+		/// Client Initialization Hook. Clients are required to define this function
+		/// to access the Initialization of their application.
+		/// 
+		/// NOTE:
+		///		This is called AFTER the engine has initialized.
+		/// 
+		/// TODO: This could be better... maybe?
+		/// </summary>
+		virtual bool Initialize() { return true; }
+
+		/// <summary>
+		/// Sets the component factory to use when creating GameObjects
+		/// and Components. 
+		/// 
+		/// NOTE:
+		///		This will override any engine specific components unless
+		///		the client's defined ComponentFactory inherets from
+		///		ExeliusComponentFactory and calls it's CreateComponent()
+		///		function.
+		/// 
+		///	Example:
+		///		case default:
+		///			return Exelius::ExeliusComponentFactory::CreateComponent(componentType, pOwningObject, componentData);
+		/// </summary>
+		virtual void SetComponentFactory();
+
+		/// <summary>
+		/// Sets the resource factory to use when creating resources.
+		/// 
+		/// NOTE:
+		///		This will override any engine specific components unless
+		///		the client's defined ResourceFactory inherets from
+		///		ExeliusResourceFactory and calls it's CreateResource()
+		///		function.
+		/// 
+		///	Example:
+		///		case default:
+		///			return Exelius::ExeliusResourceFactory::CreateResource(resourceID);
+		/// </summary>
+		virtual void SetResourceFactory();
+
+		/// <summary>
+		/// Client Update Loop Hook. Clients are required to define this function
+		/// to access the update loop of the engine.
+		/// 
+		/// TODO: This could be better... maybe?
+		/// </summary>
+		virtual void Update() {}
+
+		/// <summary>
 		/// OS event handler. Handles the events that the platform sends.
-		/// This function should not be inhereted, engine determins how OS events are handled.
+		/// This function should not be inhereted, engine determines how OS events are handled.
 		/// Example: SFML pollevent().
 		/// </summary>
 		/// <param name="evnt">The event to handle.</param>
@@ -74,7 +125,10 @@ namespace Exelius
 		/// Get the single instance of the running application.
 		/// </summary>
 		/// <returns> Application instance singleton.</returns>
-		static const Application& GetInstance() { return *s_pAppInstance; }
+		//static const Application& GetInstance() { return *s_pAppInstance; }
+
+		// TEMP
+		Window& GetWindow() { return m_window; }
 	};
 	
 	// Defined in Entrypoint.h and by the client.

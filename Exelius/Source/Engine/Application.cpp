@@ -2,13 +2,13 @@
 
 #include "Source/Engine/Application.h"
 #include "Source/OS/Events/ApplicationEvents.h"
-#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 
-#include "Source/Engine/Game/GameObjectSystem/GameObject.h"
+#include "Source/Resource/ResourceManager.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
 
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentHandle.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
+#include "Source/Engine/Resources/ExeliusResourceFactory.h"
+#include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
@@ -26,65 +26,56 @@ namespace Exelius
 	/// <param name="height">The height of the window to be opened. Default: 720</param>
 	Application::Application(const eastl::string& title, unsigned int width, unsigned int height)
 		: m_window(title, width, height)
+		, m_pResourceFactory(nullptr)
+		, m_pComponentFactory(nullptr)
 		, m_lastFrameTime(0.0f)
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
 	{
-		assert(!s_pAppInstance);
-		s_pAppInstance = this;
-
 		m_window.GetEventMessenger().AddObserver(*this);
 	}
 
 	Application::~Application()
 	{
+		GameObjectSystem::DestroySingleton();
+
+		delete m_pComponentFactory;
+		m_pComponentFactory = nullptr;
+
 		ResourceManager::DestroySingleton();
+
 		m_window.GetEventMessenger().RemoveObserver(*this);
 	}
 
-	bool Application::Initialize()
+	bool Application::InitializeExelius()
 	{
+		//m_window.SetVSync(false);
+
+		SetResourceFactory();
+		EXE_ASSERT(m_pResourceFactory);
+
 		// Create Resource Manager Singleton.
 		ResourceManager::SetSingleton(new ResourceManager());
-		auto* pResourceManagerTester = ResourceManager::GetInstance();
-		pResourceManagerTester->Initialize(&m_resourceFactory, "EngineResources/",  true);
+		EXE_ASSERT(ResourceManager::GetInstance());
+		if (!ResourceManager::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
+		{
+			EXELOG_ENGINE_FATAL("Exelius::ResourceManager failed to initialize.");
+			return false;
+		}
+
+		// This will call either the default (Exelius) version, or the client's if defined.
+		SetComponentFactory();
+		EXE_ASSERT(m_pComponentFactory);
 
 		GameObjectSystem::SetSingleton(new GameObjectSystem());
-		auto* pGameObjectSystemTester = GameObjectSystem::GetInstance();
-		pGameObjectSystemTester->Initialize(&m_componentFactory);
-
-		EXELOG_ENGINE_ERROR("Resource Manager test code found in Application::Initialize().");
-
-		eastl::string str = "../GameObjectTest.json";
-
-		auto& id = pResourceManagerTester->QueueLoad(str, true);
-
-		auto* pResource = static_cast<TextFileResource*>(pResourceManagerTester->GetResource(id));
-		while (!pResource)
+		EXE_ASSERT(GameObjectSystem::GetInstance());
+		if (!GameObjectSystem::GetInstance()->Initialize(m_pComponentFactory))
 		{
-			EXELOG_ENGINE_FATAL("Failed to retrieve resource.");
-			pResource = static_cast<TextFileResource*>(pResourceManagerTester->GetResource(id));
+			EXELOG_ENGINE_FATAL("Exelius::GameObjectSystem failed to initialize.");
+			return false;
 		}
 
-		EXELOG_ENGINE_INFO("{}:\n{}", str.c_str(), pResource->GetRawText().c_str());
-
-		auto objectID = pGameObjectSystemTester->CreateGameObject(pResource);
-
-		auto* pObject = pGameObjectSystemTester->GetGameObject(objectID);
-
-		if (pObject->GetComponent<TransformComponent>())
-		{
-			auto transformComp = pObject->GetComponent<TransformComponent>();
-			float y = transformComp->GetY();
-			EXELOG_ENGINE_INFO("PRINTING pObject: {}, {}, ({}, {})", pObject->GetName().c_str(), pObject->GetId(), transformComp.Get().GetX(), y);
-		}
-
-		pGameObjectSystemTester->DestroyGameObject(objectID);
-		pObject = nullptr; // THIS IS NOT IDEAL
-		
-		pResourceManagerTester->ReleaseResource(id);
-
-		return true;
+		return Initialize();
 	}
 
 	/// <summary>
@@ -98,8 +89,60 @@ namespace Exelius
 		{
 			auto time = eastl::chrono::high_resolution_clock::now();
 			eastl::chrono::duration<float> deltaTime = time - previousTime;
+			// EXELOG_ENGINE_TRACE("DeltaTime: {}", deltaTime.count());
+
+			// Poll Window Events.
 			m_window.OnUpdate();
+			
+			// Update Components.
+			GameObjectSystem::GetInstance()->Update();
+
+			// Client Update.
+			Update();
+
+			m_window.GetNativeWindow().Clear();
+			GameObjectSystem::GetInstance()->Render();
+			m_window.OnRender();
+
+			previousTime = time;
 		}
+	}
+
+	/// <summary>
+	/// Sets the component factory to use when creating GameObjects
+	/// and Components. 
+	/// 
+	/// NOTE:
+	///		This will override any engine specific components unless
+	///		the client's defined ComponentFactory inherets from
+	///		ExeliusComponentFactory and calls it's CreateComponent()
+	///		function.
+	/// 
+	///	Example:
+	///		case default:
+	///			return Exelius::ExeliusComponentFactory::CreateComponent(componentType, pOwningObject, componentData);
+	/// </summary>
+	void Application::SetComponentFactory()
+	{
+		m_pComponentFactory = new ExeliusComponentFactory();
+	}
+
+	/// <summary>
+	/// Sets the resource factory to use when creating resources.
+	/// 
+	/// NOTE:
+	///		This will override any engine specific resources unless
+	///		the client's defined ResourceFactory inherets from
+	///		ExeliusResourceFactory and calls it's CreateResource()
+	///		function.
+	/// 
+	///	Example:
+	///		case default:
+	///			return Exelius::ExeliusResourceFactory::CreateResource(resourceID);
+	/// </summary>
+	void Application::SetResourceFactory()
+	{
+		m_pResourceFactory = new ExeliusResourceFactory();
 	}
 
 	/// <summary>

@@ -5,6 +5,7 @@
 
 #include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 #include "Source/Engine/Resources/ResourceTypes/TextureResource.h"
+#include "Source/Engine/Resources/ResourceTypes/SpritesheetResource.h"
 
 namespace Exelius
 {
@@ -32,6 +33,11 @@ namespace Exelius
 				pNewResource = new TextureResource(resourceID);
 				break;
 			}
+		case ResourceType::kSpritesheet:
+			{
+				pNewResource = new SpritesheetResource(resourceID);
+				break;
+			}
 		}
 
 		return pNewResource;
@@ -56,6 +62,10 @@ namespace Exelius
 		else if (fileExtension == "png" || fileExtension == "jpg" || fileExtension == "bmp")
 		{
 			return ResourceType::kTexture;
+		}
+		else if (fileExtension == "spsh")
+		{
+			return ResourceType::kSpritesheet;
 		}
 
 		return ResourceType::kInvalid;

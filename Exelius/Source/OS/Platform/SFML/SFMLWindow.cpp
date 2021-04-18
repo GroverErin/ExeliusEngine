@@ -30,6 +30,7 @@ namespace Exelius
 		, m_title(title)
 		, m_width(width)
 		, m_height(height)
+		, m_testSprite(nullptr)
 	{
 		Initialize();
 	}
@@ -254,8 +255,27 @@ namespace Exelius
 			}
 			}
 		}
+	}
 
+	void SFMLWindow::OnRender() const
+	{
 		m_pWindow->display();
+	}
+
+	void SFMLWindow::Draw(sf::Texture* pTextureToDraw)
+	{
+		if (!m_testSprite)
+		{
+			m_testSprite = new sf::Sprite();
+			m_testSprite->setTexture(*pTextureToDraw);
+		}
+
+		m_pWindow->draw(*m_testSprite);
+	}
+
+	void SFMLWindow::Clear()
+	{
+		m_pWindow->clear();
 	}
 
 	/// <summary>

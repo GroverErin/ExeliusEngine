@@ -9,10 +9,10 @@
             "w" : 1.0,
             "h" : 1.0
         },
-        "TransformerComponent" : 
+        "SpriteComponent" : 
         {
-            "x" : 0.0,
-            "y" : 0.0
+            "Spritesheet" : "../Assets/Spritesheets/ExeliusLogo.spsh",
+            "Sprite" : "Exelius_Logo"
         }
     }
 }

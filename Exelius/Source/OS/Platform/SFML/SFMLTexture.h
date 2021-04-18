@@ -1,11 +1,19 @@
 #pragma once
 #include <cstddef>
 
+namespace sf
+{
+	class Texture;
+}
+
 namespace Exelius
 {
 	class SFMLTexture
 	{
+		sf::Texture* m_pSFMLTexture;
 	public:
-		bool LoadFromMemory([[maybe_unused]] const std::byte* pData, [[maybe_unused]] size_t dataSize) { return true; }
+		bool LoadFromMemory(const std::byte* pData, size_t dataSize);
+
+		void Render();
 	};
 }

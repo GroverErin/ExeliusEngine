@@ -1,6 +1,8 @@
 #pragma once
 #include "Source/Resource/ResourceManager.h"
 #include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
+#include "Source/Engine/Resources/ResourceTypes/SpritesheetResource.h"
+#include "Source/Engine/Resources/ResourceTypes/TextureResource.h"
 
 namespace Exelius
 {

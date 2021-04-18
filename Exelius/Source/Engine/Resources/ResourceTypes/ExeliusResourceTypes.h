@@ -7,7 +7,8 @@ namespace Exelius
 	{
 		static constexpr Type kTextFile = kInvalid + 1;
 		static constexpr Type kTexture = kTextFile + 1;
+		static constexpr Type kSpritesheet = kTexture + 1;
 
-		static constexpr Type kLastEngineResourceTypeValue = kTexture;
+		static constexpr Type kLastEngineResourceTypeValue = kSpritesheet;
 	}
 }

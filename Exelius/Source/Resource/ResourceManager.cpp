@@ -330,6 +330,7 @@ namespace Exelius
 		if (rawData.empty())
 		{
 			EXELOG_ENGINE_WARN("Raw file data was empty.");
+			m_resourceDatabase.Unload(resourceID);
 			return;
 		}
 
@@ -337,11 +338,19 @@ namespace Exelius
 		if (!pResource)
 		{
 			EXELOG_ENGINE_WARN("Failed to create resource from resource factory.");
+			m_resourceDatabase.Unload(resourceID);
+			return;
 		}
 
 		if (pResource->Load(std::move(rawData)) != Resource::LoadResult::kFailed)
 		{
 			m_resourceDatabase.GetEntry(resourceID)->SetResource(pResource);
+		}
+		else
+		{
+			EXELOG_ENGINE_WARN("Failed to load resource from raw data.");
+			m_resourceDatabase.Unload(resourceID);
+			return;
 		}
 
 		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoaded);

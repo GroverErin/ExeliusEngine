@@ -22,15 +22,19 @@ namespace Exelius
 		}
 
 		bool LoadFromMemory(const std::byte* pData, size_t dataSize) { return m_impl.LoadFromMemory(pData, dataSize); }
+
+		void Render() { m_impl.Render(); }
+
+		ImplTexture& GetNativeTexture() { return m_impl; }
 	};
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-#include "Source/OS/Platform/SFML/SFMLTexture.h"
-namespace Exelius
-{
-	using Texture = _Texture<SFMLTexture>;
-}
+	#include "Source/OS/Platform/SFML/SFMLTexture.h"
+	namespace Exelius
+	{
+		using Texture = _Texture<SFMLTexture>;
+	}
 #else
-#error "Unknown Render Skin Implementation."
+	#error "Unknown Render Skin Implementation."
 #endif

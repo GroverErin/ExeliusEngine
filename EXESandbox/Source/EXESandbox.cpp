@@ -1,5 +1,6 @@
 #include <Include/Exelius.h>
 #include <Include/Log.h>
+#include <Include/Input.h>
 
 class Sandbox final
 	: public Exelius::Application
@@ -68,7 +69,16 @@ public:
 		if (pObject->GetComponent<Exelius::TransformComponent>())
 		{
 			auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
-			transformComp->SetX(transformComp->GetX() + 1.0f);
+
+			if (Exelius::IsKeyDown(Exelius::KeyCode::W))
+				transformComp->SetY(transformComp->GetY() - 1.0f);
+			else if (Exelius::IsKeyDown(Exelius::KeyCode::S))
+				transformComp->SetY(transformComp->GetY() + 1.0f);
+
+			if (Exelius::IsKeyDown(Exelius::KeyCode::A))
+				transformComp->SetX(transformComp->GetX() - 1.0f);
+			else if (Exelius::IsKeyDown(Exelius::KeyCode::D))
+				transformComp->SetX(transformComp->GetX() + 1.0f);
 			//float y = transformComp->GetY();
 			//EXELOG_INFO("Transform X: {})", transformComp.Get().GetX());
 		}

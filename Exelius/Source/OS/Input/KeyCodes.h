@@ -10,10 +10,10 @@ namespace Exelius
 	/// <summary>
 	/// Key code used by Exelius. Default type is unsigned char.
 	/// </summary>
-	enum class KeyCode : unsigned char
+	enum class KeyCode : char
 	{
-		Unknown = 0,		// Unhandled key
-		Num0 = '0',
+		Unknown = -1,		// Unhandled key
+		Num0,
 		Num1,
 		Num2,
 		Num3,
@@ -24,7 +24,7 @@ namespace Exelius
 		Num8,
 		Num9,
 
-		A = 'a',
+		A,
 		B,
 		C,
 		D,
@@ -51,11 +51,11 @@ namespace Exelius
 		Y,
 		Z,
 
-		Escape = 27,
-		Space = 32,
-		Quote = '\'',		// The " key
-		LBracket = '[',		// The [ key
-		RBracket = ']',		// The ] key
+		Escape,
+		Space,
+		Quote,		// The " key
+		LBracket,		// The [ key
+		RBracket,		// The ] key
 
 		LControl,
 		LShift,
@@ -67,17 +67,17 @@ namespace Exelius
 		RSystem,			// The right OS specific key: window (Windows and Linux), apple (MacOS X), ...
 		Menu,
 
-		Tab = '\t',
-		Backspace = '\b',
-		Enter = '\n',		// The Enter/Return keys
-		Comma = ',',		// The , key
-		Period = '.',		// The . key
-		Slash = '/',		// The / key
-		Backslash = '\\',	// The \ key
-		Tilde = '~',		// The ~ key
-		Equal = '=',		// The = key
-		Hyphen = '-',		// The - key
-		Semicolon = ';',	// The ; key
+		Tab,
+		Backspace,
+		Enter,		// The Enter/Return keys
+		Comma,		// The , key
+		Period,		// The . key
+		Slash,		// The / key
+		Backslash,	// The \ key
+		Tilde,		// The ~ key
+		Equal,		// The = key
+		Hyphen,		// The - key
+		Semicolon,	// The ; key
 
 		PageUp,				// The Page up key
 		PageDown,			// The Page down key
@@ -85,12 +85,12 @@ namespace Exelius
 		End,				// The End key
 		Home,				// The Home key
 		Insert,				// The Insert key
-		Delete = 127,       // The Delete key
+		Delete,       // The Delete key
 
-		Divide = 37,		// The numpad / key
-		Multiply = '*',		// The numpad * key
-		Add = '+',          // The numpad + key
-		Subtract = '-',     // The numpad - key
+		Divide,		// The numpad / key
+		Multiply,		// The numpad * key
+		Add,          // The numpad + key
+		Subtract,     // The numpad - key
 
 		Left,				// Left arrow
 		Right,				// Right arrow
@@ -125,6 +125,6 @@ namespace Exelius
 		F15,
 		Pause,
 
-		kCount = 102
+		kCount
 	};
 }

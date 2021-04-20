@@ -26,6 +26,7 @@ namespace Exelius
 
 	bool InputManager::IsKeyDown(KeyCode key) const
 	{
+		EXE_ASSERT(static_cast<size_t>(key) < m_keyState.size());
 		return m_keyState[(size_t)key];
 	}
 

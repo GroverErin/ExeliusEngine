@@ -3,6 +3,8 @@
 #include "Source/Engine/Application.h"
 #include "Source/OS/Events/ApplicationEvents.h"
 
+#include "Source/OS/Input/InputManager.h"
+
 #include "Source/Resource/ResourceManager.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
 
@@ -33,6 +35,11 @@ namespace Exelius
 		, m_hasLostFocus(false)
 	{
 		m_window.GetEventMessenger().AddObserver(*this);
+
+		InputManager::SetSingleton(new InputManager());
+		EXE_ASSERT(InputManager::GetInstance());
+
+		m_window.GetEventMessenger().AddObserver(*InputManager::GetInstance());
 	}
 
 	Application::~Application()
@@ -44,12 +51,22 @@ namespace Exelius
 
 		ResourceManager::DestroySingleton();
 
+		m_window.GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
+
+		InputManager::DestroySingleton();
+
 		m_window.GetEventMessenger().RemoveObserver(*this);
 	}
 
 	bool Application::InitializeExelius()
 	{
 		//m_window.SetVSync(false);
+
+		if (!InputManager::GetInstance()->Initialize())
+		{
+			EXELOG_ENGINE_FATAL("Exelius::InputManager failed to initialize.");
+			return false;
+		}
 
 		SetResourceFactory();
 		EXE_ASSERT(m_pResourceFactory);

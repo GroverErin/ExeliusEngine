@@ -1,5 +1,6 @@
 #include "EXEPCH.h"
 #include "Source/OS/Platform/SFML/SFMLWindow.h"
+#include "Source/OS/Platform/SFML/SFMLInputConversions.h"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
@@ -86,19 +87,19 @@ namespace Exelius
 
 			case sf::Event::EventType::TextEntered:
 			{
-				KeyTypedEvent keyTypedEvent(evnt.key.code, evnt.text.unicode);
+				KeyTypedEvent keyTypedEvent(ConvertKeyCode(evnt.key.code), evnt.text.unicode);
 				m_messenger.NotifyObservers(keyTypedEvent);
 				break;
 			}
 			case sf::Event::EventType::KeyPressed:
 			{
-				KeyPressedEvent keyPressedEvent(evnt.key.code);
+				KeyPressedEvent keyPressedEvent(ConvertKeyCode(evnt.key.code));
 				m_messenger.NotifyObservers(keyPressedEvent);
 				break;
 			}
 			case sf::Event::EventType::KeyReleased:
 			{
-				KeyReleasedEvent keyReleasedEvent(evnt.key.code);
+				KeyReleasedEvent keyReleasedEvent(ConvertKeyCode(evnt.key.code));
 				m_messenger.NotifyObservers(keyReleasedEvent);
 				break;
 			}
@@ -115,13 +116,13 @@ namespace Exelius
 			}
 			case sf::Event::EventType::MouseButtonPressed:
 			{
-				MouseButtonPressedEvent mouseButtonPressed(evnt.mouseButton.button);
+				MouseButtonPressedEvent mouseButtonPressed(ConvertMouseCode(evnt.mouseButton.button));
 				m_messenger.NotifyObservers(mouseButtonPressed);
 				break;
 			}
 			case sf::Event::EventType::MouseButtonReleased:
 			{
-				MouseButtonReleasedEvent mouseButtonReleased(evnt.mouseButton.button);;
+				MouseButtonReleasedEvent mouseButtonReleased(ConvertMouseCode(evnt.mouseButton.button));
 				m_messenger.NotifyObservers(mouseButtonReleased);
 				break;
 			}

@@ -15,6 +15,18 @@ namespace Exelius
 		Invalid = 0,
 		Left,
 		Middle,
-		Right
+		Right,
+		kCount
+	};
+
+	/// <summary>
+	/// Mouse scroll wheel directions used by Exelius.
+	/// </summary>
+	enum class ScrollWheelDirection : unsigned char
+	{
+		WheelUp,
+		WheelDown,
+
+		WheelNone
 	};
 }

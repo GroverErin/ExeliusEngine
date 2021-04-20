@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Source/OS/Events/Event.h"
+#include "Source/OS/Input/MouseCodes.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -149,7 +150,7 @@ namespace Exelius
 	class MouseButtonEvent
 		: public Event
 	{
-		int m_button;
+		MouseCode m_button;
 	public:
 		MouseButtonEvent() = delete;
 		MouseButtonEvent(const MouseButtonEvent&) = delete;
@@ -162,7 +163,7 @@ namespace Exelius
 		/// Get the button data.
 		/// </summary>
 		/// <returns>Button data.</returns>
-		int GetMouseButton() const
+		MouseCode GetMouseButton() const
 		{
 			return m_button;
 		}
@@ -174,7 +175,7 @@ namespace Exelius
 		/// Event that occurs when a mouse button event is detected.
 		/// </summary>
 		/// <param name="button">Button data.</param>
-		MouseButtonEvent(const int button)
+		MouseButtonEvent(MouseCode button)
 			: m_button(button)
 		{
 			//
@@ -192,7 +193,7 @@ namespace Exelius
 		/// Event that occurs when a mouse button pressed event is detected.
 		/// </summary>
 		/// <param name="button">Button data.</param>
-		MouseButtonPressedEvent(const int button)
+		MouseButtonPressedEvent(MouseCode button)
 			: MouseButtonEvent(button)
 		{
 			//
@@ -219,7 +220,7 @@ namespace Exelius
 		/// Event that occurs when a mouse button released event is detected.
 		/// </summary>
 		/// <param name="button">Button data.</param>
-		MouseButtonReleasedEvent(const int button)
+		MouseButtonReleasedEvent(MouseCode button)
 			: MouseButtonEvent(button)
 		{
 			//

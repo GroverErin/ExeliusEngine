@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Source/OS/Events/Event.h"
+#include "Source/OS/Input/KeyCodes.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -15,7 +16,7 @@ namespace Exelius
 	class KeyEvent
 		: public Event
 	{
-		int m_keyCode;
+		KeyCode m_keyCode;
 	public:
 		KeyEvent() = delete;
 		KeyEvent(const KeyEvent&) = delete;
@@ -28,7 +29,7 @@ namespace Exelius
 		/// Get the input key code.
 		/// </summary>
 		/// <returns>Key code.</returns>
-		int GetKeyCode() const
+		KeyCode GetKeyCode() const
 		{
 			return m_keyCode;
 		}
@@ -40,7 +41,7 @@ namespace Exelius
 		/// Event that occurs when a keyboard key event is detected.
 		/// </summary>
 		/// <param name="keycode">Key data.</param>
-		KeyEvent(int keyCode)
+		KeyEvent(KeyCode keyCode)
 			: m_keyCode(keyCode)
 		{
 			//
@@ -59,7 +60,7 @@ namespace Exelius
 		/// Event that occurs when a keyboard keypressed event is detected.
 		/// </summary>
 		/// <param name="keycode">Key data.</param>
-		KeyPressedEvent(int keyCode)
+		KeyPressedEvent(KeyCode keyCode)
 			: KeyEvent(keyCode)
 		{
 			//
@@ -86,7 +87,7 @@ namespace Exelius
 		/// Event that occurs when a keyboard keyreleased event is detected.
 		/// </summary>
 		/// <param name="keycode">Key data.</param>
-		KeyReleasedEvent(int keyCode)
+		KeyReleasedEvent(KeyCode keyCode)
 			: KeyEvent(keyCode)
 		{
 			//
@@ -123,7 +124,7 @@ namespace Exelius
 		/// </summary>
 		/// <param name="keycode">Key data.</param>
 		/// <param name="characterTyped">Text character unicode.</param>
-		KeyTypedEvent(int keyCode, uint32_t characterTyped)
+		KeyTypedEvent(KeyCode keyCode, uint32_t characterTyped)
 			: KeyEvent(keyCode)
 			, m_character(characterTyped)
 		{

@@ -1,22 +1,14 @@
 #pragma once
 #include "Source/Resource/Resource.h"
-
-// THIS SHOULD NOT BE HERE
-#include "Source/Engine/Graphics/Texture.h"
+#include "Source/OS/Interface/Graphics/Sprite.h"
 
 namespace Exelius
 {
-	//class Texture;
 	class TextureResource;
 
 	class SpritesheetResource
 		: public Resource
 	{
-	public:
-		struct Sprite
-		{
-			StringIntern m_name;
-		};
 	private:
 		TextureResource* m_pTextureResource;
 
@@ -37,6 +29,11 @@ namespace Exelius
 		Sprite* GetSprite(const StringIntern& name)
 		{
 			EXE_ASSERT(name.IsValid());
+
+			auto found = m_sprites.find(name);
+
+			if (found == m_sprites.end())
+				return nullptr;
 
 			// TODO: Error check.
 			return &m_sprites[name];

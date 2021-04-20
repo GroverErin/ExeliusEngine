@@ -30,7 +30,6 @@ namespace Exelius
 		, m_title(title)
 		, m_width(width)
 		, m_height(height)
-		, m_testSprite(nullptr)
 	{
 		Initialize();
 	}
@@ -262,15 +261,9 @@ namespace Exelius
 		m_pWindow->display();
 	}
 
-	void SFMLWindow::Draw(sf::Texture* pTextureToDraw)
+	void SFMLWindow::Draw(sf::Drawable* pDrawable)
 	{
-		if (!m_testSprite)
-		{
-			m_testSprite = new sf::Sprite();
-			m_testSprite->setTexture(*pTextureToDraw);
-		}
-
-		m_pWindow->draw(*m_testSprite);
+		m_pWindow->draw(*pDrawable);
 	}
 
 	void SFMLWindow::Clear()

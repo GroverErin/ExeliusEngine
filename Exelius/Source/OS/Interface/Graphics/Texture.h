@@ -8,7 +8,7 @@
 namespace Exelius
 {
 	/// <summary>
-	/// Templated window class using CCRT.
+	/// Templated window class using CRTP.
 	/// https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 	/// </summary>
 	template <class ImplTexture>
@@ -22,8 +22,6 @@ namespace Exelius
 		}
 
 		bool LoadFromMemory(const std::byte* pData, size_t dataSize) { return m_impl.LoadFromMemory(pData, dataSize); }
-
-		void Render() { m_impl.Render(); }
 
 		ImplTexture& GetNativeTexture() { return m_impl; }
 	};

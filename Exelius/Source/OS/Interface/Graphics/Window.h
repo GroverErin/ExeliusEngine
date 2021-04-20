@@ -11,7 +11,7 @@
 namespace Exelius
 {
 	/// <summary>
-	/// Templated window class using CCRT.
+	/// Templated window class using CRTP.
 	/// https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
 	/// </summary>
 	template <class ImplWindow>

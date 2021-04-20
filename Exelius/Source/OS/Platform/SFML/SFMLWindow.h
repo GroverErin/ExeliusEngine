@@ -13,8 +13,7 @@ namespace sf
 	/// </summary>
 	class RenderWindow;
 	
-	class Texture;
-	class Sprite;
+	class Drawable;
 }
 
 /// <summary>
@@ -39,8 +38,6 @@ namespace Exelius
 		unsigned int m_height;
 		bool m_isVSync;
 
-		sf::Sprite* m_testSprite;
-
 	public:
 		/// <summary>
 		/// The SFML window class that handles SFML specific events.
@@ -64,7 +61,7 @@ namespace Exelius
 
 		// TEMP
 		void OnRender() const;
-		void Draw(sf::Texture* pTextureToDraw);
+		void Draw(sf::Drawable* pDrawable);
 		void Clear();
 
 		/// <summary>

@@ -1,8 +1,6 @@
 #include "EXEPCH.h"
 #include "Source/OS/Platform/SFML/SFMLTexture.h"
 
-#include "Source/Engine/Application.h"
-
 #include <SFML/Graphics/Texture.hpp>
 
 namespace Exelius
@@ -25,11 +23,5 @@ namespace Exelius
 		}
 
 		return true;
-	}
-
-	void SFMLTexture::Render()
-	{
-		EXE_ASSERT(m_pSFMLTexture);
-		Application::GetInstance()->GetWindow().GetNativeWindow().Draw(m_pSFMLTexture);
 	}
 }

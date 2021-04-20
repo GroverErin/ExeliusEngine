@@ -1,5 +1,6 @@
 #include "EXEPCH.h"
 #include "TextureResource.h"
+#include "Source/OS/Interface/Graphics/Texture.h"
 
 namespace Exelius
 {

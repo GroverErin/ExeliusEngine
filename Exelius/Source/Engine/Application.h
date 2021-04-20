@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Source/Utility/Generic/Singleton.h"
-#include "Source/OS/Interface/Window.h"
+#include "Source/OS/Interface/Graphics/Window.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

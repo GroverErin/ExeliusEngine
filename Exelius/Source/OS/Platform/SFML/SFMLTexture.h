@@ -14,6 +14,6 @@ namespace Exelius
 	public:
 		bool LoadFromMemory(const std::byte* pData, size_t dataSize);
 
-		void Render();
+		sf::Texture* GetSFMLTexture() { return m_pSFMLTexture; }
 	};
 }

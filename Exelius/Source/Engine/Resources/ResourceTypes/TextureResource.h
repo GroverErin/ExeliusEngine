@@ -1,12 +1,10 @@
 #pragma once
 #include "Source/Resource/Resource.h"
-
-// THIS SHOULD NOT BE HERE
-#include "Source/Engine/Graphics/Texture.h"
+#include "Source/OS/Platform/PlatformForwardDeclarations.h"
 
 namespace Exelius
 {
-	//class Texture;
+	FORWARD_DECLARE(Texture);
 
 	class TextureResource
 		: public Resource

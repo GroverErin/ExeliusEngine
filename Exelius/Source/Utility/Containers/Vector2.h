@@ -10,7 +10,11 @@
 namespace Exelius
 {
 	/// <summary>
-	/// Container used primarily for 2D position data.
+	/// Utility template class for manipulating
+	/// 2-dimensional vectors
+	/// 
+	/// IMPORTANT NOTE:
+	///		Operator overloads from SFML.
 	/// </summary>
 	template <class NumberType>
 	class Vector2
@@ -18,6 +22,10 @@ namespace Exelius
 		static_assert(eastl::is_integral_v<NumberType> || eastl::is_floating_point_v<NumberType>, "Type must be of integral number type.");
 
 	public:
+		/// <summary>
+		/// This slightly complex looking union allows vectors to use either x,y or w,h names
+		/// and they will have the same values.
+		/// </summary>
 		#pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
 		union
 		{
@@ -53,75 +61,43 @@ namespace Exelius
 		};
 
 		/// <summary>
-		/// Multiplies vector by a one-dimensional scalar.
+		/// Creates a Vector2(0, 0).
 		/// </summary>
-		template<class ScalarType>
-		Vector2 operator*(ScalarType right)
+		Vector2()
+			: x(0)
+			, y(0)
 		{
-			static_assert(eastl::is_integral_v<ScalarType> || eastl::is_floating_point_v<ScalarType>, "Type must be of integral number type.");
-			return Vector2{ x * right, y * right };
+			//
 		}
 
 		/// <summary>
-		/// Calculates a vector passing from A to B.
+		/// Construct the vector from its coordinates
 		/// </summary>
-		/// <param name="b">The other Vector2.</param>
-		/// <returns>Result.</returns>
-		Vector2 operator-(Vector2 b)
+		/// <param name="X">X coordinate</param>
+		/// <param name="Y">Y coordinate</param>
+		Vector2(NumberType X, NumberType Y)
+			: x(X)
+			, y(Y)
 		{
-			return Vector2{ this->x - b.x, this->y - b.y };
+
 		}
 
 		/// <summary>
-		/// Calculate the product.
+		/// Construct the vector from another type of vector
+		///
+		/// NOTE:
+		///		This constructor doesn't replace the copy constructor,
+		///		it's called only when VectorType != NumberType.
+		///		A call to this constructor will fail to compile if VectorType
+		///		is not convertible to NumberType.
 		/// </summary>
-		/// <param name="right">The other Vector2.</param>
-		/// <returns>Product.</returns>
-		Vector2<NumberType>& operator*=(const Vector2<NumberType>& right)
+		/// <param name="vector">Vector to convert</param>
+		template <typename VectorType>
+		explicit Vector2(const Vector2<VectorType>& vector)
+			: x(static_cast<NumberType>(vector.x))
+			, y(static_cast<NumberType>(vector.y))
 		{
-			x *= right.x;
-			y *= right.y;
-			return *this;
-		}
-
-		/// <summary>
-		/// Calculates the resultant of A and B.
-		/// </summary>
-		/// <param name="b">The other Vector2.</param>
-		/// <returns>Result.</returns>
-		Vector2 operator+(const Vector2& b)
-		{
-			return Vector2{ this->x + b.x, this->y + b.y };
-		}
-
-		/// <summary>
-		/// Calculates the resultant of A and B.
-		/// </summary>
-		/// <param name="b">The other Vector2.</param>
-		/// <returns>Result.</returns>
-		Vector2 operator/(float right)
-		{
-			return Vector2{ this->x / right, this->y / right };
-		}
-
-		/// <summary>
-		/// Check if this vector matches another.
-		/// </summary>
-		/// <param name="b">The other Vector2.</param>
-		/// <returns>Result.</returns>
-		bool operator==(const Vector2& right)
-		{
-			return (this->x == right.x && this->y == right.y);
-		}
-
-		/// <summary>
-		/// Check if this vector does not match another.
-		/// </summary>
-		/// <param name="b">The other Vector2.</param>
-		/// <returns>Result.</returns>
-		bool operator!=(const Vector2& right)
-		{
-			return !(this->x == right.x && this->y == right.y);
+			//
 		}
 
 		/// <summary>
@@ -176,6 +152,175 @@ namespace Exelius
 			return { x / length, y / length };
 		}
 	};
+	
+	/// <summary>
+	/// Overload of unary operator -
+	/// </summary>
+	/// <param name="right">Vector to negate</param>
+	/// <returns>Memberwise opposite of the vector</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType> operator -(const Vector2<NumberType>& right)
+	{
+		return Vector<NumberType>(-right.x, -right.y);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator +=
+	/// 
+	/// This operator performs a memberwise addition of both vectors,
+	/// and assigns the result to left.
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>Reference to left</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType>& operator +=(Vector2<NumberType>& left, const Vector2<NumberType>& right)
+	{
+		left.x += right.x;
+		left.y += right.y;
+		return left;
+	}
+	
+	/// <summary>
+	/// Overload of binary operator -=
+	///
+	/// This operator performs a memberwise subtraction of both vectors,
+	/// and assigns the result to left.
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>Reference to left</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType>& operator -=(Vector2<NumberType>& left, const Vector2<NumberType>& right)
+	{
+		left.x -= right.x;
+		left.y -= right.y;
+		return left;
+	}
+	
+	/// <summary>
+	/// Overload of binary operator +
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>Memberwise addition of both vectors</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType> operator +(const Vector2<NumberType>& left, const Vector2<NumberType>& right)
+	{
+		return Vector2<NumberType>(left.x + right.x, left.y + right.y);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator -
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>Memberwise subtraction of both vectors</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType> operator -(const Vector2<NumberType>& left, const Vector2<NumberType>& right)
+	{
+		return Vector2<NumberType>(left.x - right.x, left.y - right.y);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator *
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a scalar value)</param>
+	/// <returns>Memberwise multiplication by right</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType> operator *(const Vector2<NumberType>& left, NumberType right)
+	{
+		return Vector2<NumberType>(left.x * right, left.y * right);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator *
+	/// </summary>
+	/// <param name="left">Left operand (a scalar value)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>Memberwise multiplication by left</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType> operator *(NumberType left, const Vector2<NumberType>& right)
+	{
+		return Vector2<NumberType>(right.x * left, right.y * left);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator *=
+	///
+	/// This operator performs a memberwise multiplication by right,
+	/// and assigns the result to left.
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a scalar value)</param>
+	/// <returns>Reference to left</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType>& operator *=(Vector2<NumberType>& left, NumberType right)
+	{
+		left.x *= right;
+		left.y *= right;
+
+		return left;
+	}
+	
+	/// <summary>
+	/// Overload of binary operator /
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a scalar value)</param>
+	/// <returns>Memberwise division by right</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType> operator /(const Vector2<NumberType>& left, NumberType right)
+	{
+		return Vector2<NumberType>(left.x / right, left.y / right);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator /=
+	///
+	/// This operator performs a memberwise division by right,
+	/// and assigns the result to left.
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a scalar value)</param>
+	/// <returns>Reference to left</returns>
+	template <typename NumberType>
+	inline Vector2<NumberType>& operator /=(Vector2<NumberType>& left, NumberType right)
+	{
+		left.x /= right;
+		left.y /= right;
+
+		return left;
+	}
+	
+	/// <summary>
+	/// Overload of binary operator ==
+	///
+	/// This operator compares strict equality between two vectors.
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>True if left is equal to right</returns>
+	template <typename NumberType>
+	inline bool operator ==(const Vector2<NumberType>& left, const Vector2<NumberType>& right)
+	{
+		return (left.x == right.x) && (left.y == right.y);
+	}
+	
+	/// <summary>
+	/// Overload of binary operator !=
+	///
+	/// This operator compares strict difference between two vectors.
+	/// </summary>
+	/// <param name="left">Left operand (a vector)</param>
+	/// <param name="right">Right operand (a vector)</param>
+	/// <returns>True if left is not equal to right</returns>
+	template <typename NumberType>
+	inline bool operator !=(const Vector2<NumberType>& left, const Vector2<NumberType>& right)
+	{
+		return (left.x != right.x) || (left.y != right.y);
+	}
 
 	/// <summary>
 	/// Vector2 of float values.

@@ -13,8 +13,6 @@ namespace Exelius
 
     TextureResource::~TextureResource()
     {
-        delete m_pTexture;
-        m_pTexture = nullptr;
     }
 
     Resource::LoadResult TextureResource::Load(eastl::vector<std::byte>&& data)
@@ -25,5 +23,11 @@ namespace Exelius
         if (m_pTexture->LoadFromMemory(data.data(), data.size()))
             return LoadResult::kKeptRawData;
         return LoadResult::kFailed;
+    }
+
+    void TextureResource::Unload()
+    {
+        delete m_pTexture;
+        m_pTexture = nullptr;
     }
 }

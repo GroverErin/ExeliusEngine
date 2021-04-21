@@ -163,7 +163,7 @@ namespace Exelius
 
             // Compute the min and max of the first rectangle on both axes
             NumberType r1MinX = std::min(m_left, static_cast<NumberType>(m_left + m_width));
-            NumberType r1MaxX = std::max(m_left, static_cast<NumberType>(left + m_width));
+            NumberType r1MaxX = std::max(m_left, static_cast<NumberType>(m_left + m_width));
             NumberType r1MinY = std::min(m_top, static_cast<NumberType>(m_top + m_height));
             NumberType r1MaxY = std::max(m_top, static_cast<NumberType>(m_top + m_height));
 

@@ -157,7 +157,7 @@ namespace Exelius
 	void SFMLSprite::SetScale(float xFactor, float yFactor)
 	{
 		EXE_ASSERT(m_pSFMLSprite);
-		m_pSFMLSprite->setPosition(xFactor, yFactor);
+		m_pSFMLSprite->setScale(xFactor, yFactor);
 	}
 
 	void SFMLSprite::SetScale(const Vector2f& factors)
@@ -165,7 +165,7 @@ namespace Exelius
 		EXE_ASSERT(m_pSFMLSprite);
 		sf::Vector2f sfFactors(factors.x, factors.y);
 
-		m_pSFMLSprite->setPosition(sfFactors);
+		m_pSFMLSprite->setScale(sfFactors);
 	}
 
 	void SFMLSprite::Scale(float xFactorOffset, float yFactorOffset)

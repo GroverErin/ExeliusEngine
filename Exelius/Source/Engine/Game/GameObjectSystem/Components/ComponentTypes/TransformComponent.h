@@ -30,5 +30,11 @@ namespace Exelius
 		void SetW(float w) { m_dimensions.x = w; }
 		float GetH() const { return m_dimensions.y; }
 		void SetH(float h) { m_dimensions.y = h; }
+
+		void Move(float x, float y)
+		{
+			m_position.x = m_position.x + x;
+			m_position.y = m_position.y + y;
+		}
 	};
 }

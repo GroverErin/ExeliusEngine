@@ -1,0 +1,25 @@
+{
+    "Name": "player_paddle",
+    "Components" :
+    {
+        "TransformComponent" : 
+        {
+            "x" : 0.0,
+            "y" : 270.0,
+            "w" : 50.0,
+            "h" : 200.0
+        },
+        "SpriteComponent" : 
+        {
+            "Spritesheet" : "PongAssets/Spritesheets/Square.spsh",
+            "Sprite" : 
+            {
+                "name" : "player_paddle",
+                "xOffset" : 0.0,
+                "yOffset" : 0.0,
+                "xScale" : 0.5,
+                "yScale" : 2.0
+            }
+        }
+    }
+}

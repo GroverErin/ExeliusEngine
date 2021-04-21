@@ -24,7 +24,7 @@ namespace Exelius
 		virtual ~SpritesheetResource() final override;
 
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
-		virtual void Unload() final override {}
+		virtual void Unload() final override;
 
 		Sprite* GetSprite(const StringIntern& name)
 		{

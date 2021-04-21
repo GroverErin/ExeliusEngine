@@ -18,7 +18,7 @@ namespace Exelius
 		virtual ~TextureResource() final override;
 
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
-		virtual void Unload() final override {}
+		virtual void Unload() final override;
 
 		Texture* GetTexture() const { return m_pTexture; }
 	};

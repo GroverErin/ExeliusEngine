@@ -110,5 +110,10 @@ namespace Exelius
 			EXE_ASSERT(m_pOwner);
 			return m_pOwner;
 		}
+
+		/// <summary>
+		/// This function should be inhereted to release any resources before final destruction.
+		/// </summary>
+		virtual void Destroy() {}
 	};
 }

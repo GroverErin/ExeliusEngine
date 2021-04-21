@@ -36,6 +36,8 @@ namespace Exelius
 
 		virtual void Render() const final override;
 
+		virtual void Destroy() final override;
+
 	private:
 
 		bool ParseSpritesheet(const rapidjson::Value& spritesheetData);

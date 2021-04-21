@@ -118,6 +118,7 @@ namespace Exelius
 			EXELOG_ENGINE_ERROR("Failed to initialize GameObject from '{}'", pResource->GetResourceID().Get().c_str());
 			return kInvalidID;
 		}
+
 		return id;
 	}
 
@@ -144,7 +145,16 @@ namespace Exelius
 		if (!isLoaded && !forceLoad)
 			return kInvalidID;
 		else
-			return CreateGameObject(GetResourceAs<TextFileResource>(resourceID, forceLoad));
+		{
+			auto* pResource = GetResourceAs<TextFileResource>(resourceID, forceLoad);
+
+			auto id = CreateGameObject(pResource);
+
+			// Free the GameObject JSON file. It's not necessary to keep loaded.
+			pResourceManager->ReleaseResource(pResource->GetResourceID());
+
+			return id;
+		}
 	}
 
 	/// <summary>

@@ -12,10 +12,6 @@ namespace Exelius
 {
 	SpriteComponent::~SpriteComponent()
 	{
-		EXE_ASSERT(ResourceManager::GetInstance());
-		if (m_pSpritesheetResource)
-			ResourceManager::GetInstance()->ReleaseResource(m_pSpritesheetResource->GetResourceID());
-		m_pSpritesheetResource = nullptr;
 	}
 
 	bool SpriteComponent::Initialize(GameObject* pOwner)
@@ -59,7 +55,11 @@ namespace Exelius
 		EXE_ASSERT(spriteData->name.IsString());
 
 		if (!ParseSprite(spriteData->value))
+		{
+			//Release the spritesheet
+			Destroy();
 			return false;
+		}
 
 		return true;
 	}
@@ -72,6 +72,15 @@ namespace Exelius
 			m_pSprite->SetPosition(transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset);
 		}
 		m_pSprite->Render();
+	}
+
+	void SpriteComponent::Destroy()
+	{
+		EXE_ASSERT(ResourceManager::GetInstance());
+
+		if (m_pSpritesheetResource)
+			ResourceManager::GetInstance()->ReleaseResource(m_pSpritesheetResource->GetResourceID());
+		m_pSpritesheetResource = nullptr;
 	}
 
 	bool SpriteComponent::ParseSpritesheet(const rapidjson::Value& spritesheetData)

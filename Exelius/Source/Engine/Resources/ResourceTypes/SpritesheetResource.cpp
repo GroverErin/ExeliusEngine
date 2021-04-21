@@ -16,8 +16,7 @@ namespace Exelius
 
     SpritesheetResource::~SpritesheetResource()
     {
-        ResourceManager::GetInstance()->ReleaseResource(m_pTextureResource->GetResourceID());
-        m_pTextureResource = nullptr;
+        //
     }
 
     Resource::LoadResult SpritesheetResource::Load(eastl::vector<std::byte>&& data)
@@ -108,5 +107,12 @@ namespace Exelius
         }
 
         return LoadResult::kKeptRawData;
+    }
+
+    void SpritesheetResource::Unload()
+    {
+        EXE_ASSERT(ResourceManager::GetInstance());
+        ResourceManager::GetInstance()->ReleaseResource(m_pTextureResource->GetResourceID());
+        m_pTextureResource = nullptr;
     }
 }

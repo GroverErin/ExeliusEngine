@@ -97,6 +97,13 @@ namespace Exelius
 		virtual ~ComponentList()
 		{
 			EXELOG_ENGINE_TRACE("ComponentList<{}> Reached.", ComponentType::kType.Get().c_str());
+
+			// Need to explicitly shut components down.
+			// This is what will release the resources owned by the components.
+			for (auto& component : m_components)
+			{
+				component.Destroy();
+			}
 		}
 
 		Handle EmplaceComponent()

@@ -56,6 +56,12 @@ namespace Exelius
 				IncrementRefCount();
 				return m_pResource;
 			}
+			else if (m_status == ResourceLoadStatus::kUnloading)
+			{
+				// TODO: This may cause bugs?
+				// Do not increment as we are unloading this resource currently.
+				return m_pResource;
+			}
 			return nullptr;
 		}
 

@@ -7,13 +7,10 @@
 #include "Source/Engine/Application.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObject.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
+#include "Source/Resource/ResourceHandle.h"
 
 namespace Exelius
 {
-	SpriteComponent::~SpriteComponent()
-	{
-	}
-
 	bool SpriteComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
 	{
 		EXE_ASSERT(pOwner);
@@ -64,7 +61,9 @@ namespace Exelius
 		// Get the transform component sibling.
 		auto transformComponent = m_pOwner->GetComponent<TransformComponent>();
 
-		auto* pSheet = m_spriteSheet.GetAs<SpritesheetResource>();
+		ResourceHandle spriteSheet(m_spriteSheetID);
+
+		auto* pSheet = spriteSheet.GetAs<SpritesheetResource>();
 
 		if (!pSheet)
 			return;
@@ -80,19 +79,24 @@ namespace Exelius
 
 	void SpriteComponent::Destroy()
 	{
-		m_spriteSheet.Release();
+		ResourceHandle spriteSheet(m_spriteSheetID);
+		spriteSheet.UnlockResource();
 	}
 
 	bool SpriteComponent::ParseSpritesheet(const rapidjson::Value& spritesheetData)
 	{
 		EXE_ASSERT(spritesheetData.IsString());
 
-		// Must *NOT* hold a reference prior to this function call.
-		EXE_ASSERT(!m_spriteSheet.IsReferenceHeld());
-		m_spriteSheet.SetResourceID(spritesheetData.GetString());
-		EXE_ASSERT(m_spriteSheet.IsReferenceHeld());
+		m_spriteSheetID = spritesheetData.GetString();
+		ResourceHandle spriteSheet(m_spriteSheetID);
+		EXE_ASSERT(spriteSheet.IsReferenceHeld());
 
-		m_spriteSheet.QueueLoad(true);
+		spriteSheet.SetResourceID(m_spriteSheetID);
+
+		spriteSheet.QueueLoad(true);
+
+		// We lock here until this component is destroyed.
+		spriteSheet.LockResource();
 
 		return true;
 	}

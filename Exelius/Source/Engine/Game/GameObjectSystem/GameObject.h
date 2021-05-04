@@ -131,7 +131,7 @@ namespace Exelius
             // Component was not found, return invalid ComponentHandle.
             if (found == m_components.end())
             {
-                EXELOG_ENGINE_ERROR("Component of type '{}' was not found.", ComponentType::kType);
+                EXELOG_ENGINE_WARN("Component of type '{}' was not found.", ComponentType::kType);
                 return {}; // Invalid.
             }
 

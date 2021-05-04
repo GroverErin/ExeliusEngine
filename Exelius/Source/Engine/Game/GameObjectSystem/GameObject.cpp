@@ -91,6 +91,8 @@ namespace Exelius
 		EXE_ASSERT(pTextFileResource); // This is literally what we are being informed about!
 
 		Initialize(pTextFileResource);
+
+		ResourceManager::GetInstance()->ReleaseResource(resourceID);
 		return true;
 	}
 

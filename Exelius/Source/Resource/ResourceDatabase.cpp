@@ -66,6 +66,7 @@ namespace Exelius
 	void ResourceDatabase::Unload(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
+		EXELOG_ENGINE_TRACE("Unloading Resource: {}", resourceID.Get().c_str());
 
 		if (!IsFound(resourceID))
 			return;
@@ -80,10 +81,13 @@ namespace Exelius
 		}
 
 		m_resourceMap.erase(resourceID);
+		EXELOG_ENGINE_TRACE("Unloaded Resource.");
 }
 
 	void ResourceDatabase::UnloadAll()
 	{
+		EXELOG_ENGINE_TRACE("Unloading All Resources.");
+
 		for (auto& resourcePair : m_resourceMap)
 		{
 			resourcePair.second.SetStatus(ResourceLoadStatus::kUnloading);
@@ -96,5 +100,7 @@ namespace Exelius
 		}
 
 		m_resourceMap.clear();
+
+		EXELOG_ENGINE_TRACE("Unloaded All Resource.");
 	}
 }

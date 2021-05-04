@@ -73,15 +73,17 @@ namespace Exelius
 		bool DecrementRefCount()
 		{
 			--m_refCount;
-			if (m_refCount + m_lockCount <= 0)
-			{
-				return false;
-			}
 
-			return true;
+			if (m_refCount < 0)
+				m_refCount = 0;
+
+			if (m_lockCount < 0)
+				m_lockCount = 0;
+
+			return !(m_refCount + m_lockCount <= 0);
 		}
 
-		void IncrementLockCount() { ++m_refCount; }
+		void IncrementLockCount() { ++m_lockCount; }
 
 		void DecrementLockCount() { --m_lockCount; }
 

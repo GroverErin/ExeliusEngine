@@ -38,6 +38,11 @@ namespace Exelius
 		const ResourceID& GetID() const { return m_resourceID; }
 		bool IsReferenceHeld() const { return m_resourceHeld; }
 
+		void LockResource();
+
+		#undef UnlockResource // This is defined in WinBase.h
+		void UnlockResource();
+
 		bool operator==(const ResourceHandle& right) { return (m_resourceID == right.m_resourceID); }
 		bool operator!=(const ResourceHandle& right) { return (m_resourceID != right.m_resourceID); }
 	};

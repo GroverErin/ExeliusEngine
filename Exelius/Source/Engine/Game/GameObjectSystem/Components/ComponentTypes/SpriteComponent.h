@@ -1,6 +1,6 @@
 #pragma once
 #include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
-#include "Source/Resource/ResourceHandle.h"
+#include "Source/Resource/ResourceHelpers.h"
 
 namespace Exelius
 {
@@ -8,7 +8,7 @@ namespace Exelius
 	class SpriteComponent
 		: public Component
 	{
-		ResourceHandle m_spriteSheet;
+		ResourceID m_spriteSheetID;
 		StringIntern m_spriteID;
 
 		float m_xOffset;
@@ -28,7 +28,7 @@ namespace Exelius
 			//
 		}
 
-		virtual ~SpriteComponent();
+		virtual ~SpriteComponent() = default;
 
 		virtual bool Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData) final override;
 

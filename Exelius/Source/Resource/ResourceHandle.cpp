@@ -50,4 +50,14 @@ namespace Exelius
 		m_resourceID = idToSet;
 		m_resourceHeld = true;
 	}
+
+	void ResourceHandle::LockResource()
+	{
+		ResourceManager::GetInstance()->LockResource(m_resourceID);
+	}
+
+	void ResourceHandle::UnlockResource()
+	{
+		ResourceManager::GetInstance()->UnlockResource(m_resourceID);
+	}
 }

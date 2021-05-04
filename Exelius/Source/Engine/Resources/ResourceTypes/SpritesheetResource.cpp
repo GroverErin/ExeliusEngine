@@ -48,10 +48,9 @@ namespace Exelius
         }
 
         EXE_ASSERT(textureMember->value.IsString());
-        auto& id = ResourceManager::GetInstance()->LoadNow(textureMember->value.GetString());
-        EXE_ASSERT(id.IsValid());
+        ResourceManager::GetInstance()->LoadNow(textureMember->value.GetString());
 
-        m_pTextureResource = GetResourceAs<TextureResource>(id, false);
+        m_pTextureResource = GetResourceAs<TextureResource>(textureMember->value.GetString(), false);
 
         if (!m_pTextureResource)
         {

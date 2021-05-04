@@ -72,7 +72,6 @@ namespace Exelius
 		static constexpr ptrdiff_t kPtrDelta = -(static_cast<ptrdiff_t>(sizeof(ZipDirHeader)));
 	#pragma endregion
 
-
 	ResourceManager::ResourceManager()
 		: m_pResourceFactory(nullptr)
 		, m_quitThread(false)
@@ -88,13 +87,17 @@ namespace Exelius
 		m_deferredQueue.clear();
 		m_deferredQueueLock.unlock();
 
+		m_listenerMapLock.lock();
+		m_deferredResourceListenersMap.clear();
+		m_listenerMapLock.unlock();
+
 		// Tell the thread we are done.
 		m_quitThread = true;
 		SignalAndWaitForLoaderThread();
 		m_loaderThread.join();
 
 		// Don't delete, this lives on the Application/Engine.
-		// [QFR] Should this be the case? Can I make this more explicit?
+		// TODO: Should this be the case? Can I make this more explicit?
 		m_pResourceFactory = nullptr;
 	}
 
@@ -110,7 +113,13 @@ namespace Exelius
 		m_useRawAssets = useRawAssets;
 
 		// Should not contain data, but just in case.
+		m_deferredQueueLock.lock();
 		m_deferredQueue.clear();
+		m_deferredQueueLock.unlock();
+
+		m_listenerMapLock.lock();
+		m_deferredResourceListenersMap.clear();
+		m_listenerMapLock.unlock();
 
 		// Spin up the loader thread.
 		m_loaderThread = std::thread(&ResourceManager::ProcessResourceQueueThreaded, this);
@@ -118,9 +127,10 @@ namespace Exelius
 		return true;
 	}
 
-	const ResourceID& ResourceManager::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread)
+	void ResourceManager::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
+		EXE_ASSERT(m_loaderThread.joinable());
 		EXELOG_ENGINE_TRACE("Queueing Resource: {}", resourceID.Get().c_str());
 
 		// Check if the resource is already in the resource database.
@@ -128,15 +138,38 @@ namespace Exelius
 		{
 			EXELOG_ENGINE_TRACE("Creating new resource entry.");
 			m_resourceDatabase.CreateEntry(resourceID);
+
+			m_listenerMapLock.lock();
+			m_deferredResourceListenersMap[resourceID].emplace_back(pListener);
+			m_listenerMapLock.unlock();
 		}
 		else if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoaded || m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
 			EXELOG_ENGINE_TRACE("Resource already loaded or queued.");
-			return resourceID;
+
+			if (!pListener.expired()) // This may seem unnecessary, but it is a catch in case no listener was passed in.
+				pListener.lock()->OnResourceLoaded(resourceID);
+
+			return; // Bail here. We do NOT want to change the status of the resource.
+		}
+		else
+		{
+			EXELOG_ENGINE_WARN("Resource was unloaded or unloading. SEE TODO HERE.");
+			/// TODO:
+			///		It is possible that neither of the 2 branches were entered.
+			///		This means that the Resource exists in the database && its
+			///		LoadStatus is neither Loaded or Loading, possibly Unloading
+			///		or Unloaded. This could cause an issue in the future if not
+			///		carefully protected against. For example: The pListener will
+			///		not be called in this case, which is already a bug. Hack fix
+			///		is as follows.
+			m_listenerMapLock.lock();
+			m_deferredResourceListenersMap[resourceID].emplace_back(pListener);
+			m_listenerMapLock.unlock();
 		}
 
 		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoading);
-
+		
 		m_deferredQueueLock.lock();
 		m_deferredQueue.emplace_back(resourceID);
 		m_deferredQueueLock.unlock();
@@ -144,10 +177,10 @@ namespace Exelius
 		if (signalLoaderThread)
 			SignalLoaderThread();
 
-		return resourceID;
+		EXELOG_ENGINE_TRACE("QueueLoad Complete.");
 	}
 
-	const ResourceID& ResourceManager::LoadNow(const ResourceID& resourceID)
+	void ResourceManager::LoadNow(const ResourceID& resourceID, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
 		EXELOG_ENGINE_TRACE("Loading Resource On Main Thread: {}", resourceID.Get().c_str());
@@ -161,33 +194,43 @@ namespace Exelius
 		else if (m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoaded || m_resourceDatabase.GetLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
 			EXELOG_ENGINE_TRACE("Resource already loaded or queued.");
-			return resourceID;
+			return;
 		}
 
 		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoading);
 		LoadResource(resourceID);
 
-		return resourceID;
+		if (!pListener.expired()) // This may seem unnecessary, but it is a catch in case no listener was passed in.
+			pListener.lock()->OnResourceLoaded(resourceID);
+
+		EXELOG_ENGINE_TRACE("Load Complete.");
 	}
 
 	void ResourceManager::ReleaseResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		EXELOG_ENGINE_TRACE("Unloading Resource: {}", resourceID.Get().c_str());
+		EXELOG_ENGINE_TRACE("Releasing Resource: {}", resourceID.Get().c_str());
 
 		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
 		if (!pResourceEntry)
+		{
+			EXELOG_ENGINE_INFO("Resource did not exist.");
 			return;
+		}
 
 		// Decrement the reference count of this resource.
 		// If there is no longer any references to this resource, then unload it.
 		if (!pResourceEntry->DecrementRefCount())
 			m_resourceDatabase.Unload(resourceID);
+
+		EXELOG_ENGINE_TRACE("Release Complete.");
 	}
 
 	void ResourceManager::SignalLoaderThread()
 	{
-		EXELOG_ENGINE_TRACE("Signaling Loader Thread");
+		EXE_ASSERT(m_loaderThread.joinable());
+		EXELOG_ENGINE_TRACE("Signaling Loader Thread.");
+
 		m_signalThread.notify_one();
 	}
 
@@ -198,10 +241,11 @@ namespace Exelius
 		std::mutex waitMutex;
 		std::unique_lock<std::mutex> waitLock(waitMutex);
 
+		EXELOG_ENGINE_INFO("Waiting for response from LoaderThread.");
 		m_signalThread.wait(waitLock);
 	}
 
-	void ResourceManager::ReloadResource(const ResourceID& resourceID, bool forceLoad)
+	void ResourceManager::ReloadResource(const ResourceID& resourceID, bool forceLoad, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
 		EXELOG_ENGINE_TRACE("Reloading: {}", resourceID.Get().c_str());
@@ -209,18 +253,26 @@ namespace Exelius
 		// Check if the resource is not already loaded.
 		if (m_resourceDatabase.GetLoadStatus(resourceID) != ResourceLoadStatus::kLoaded)
 		{
-			EXELOG_ENGINE_TRACE("Attempted to Reload a Resource that is not loaded.");
+			EXELOG_ENGINE_WARN("Attempted to Reload Resource that is not loaded. Queueing/Loading now.");
+
 			if (forceLoad)
-				LoadNow(resourceID);
+				LoadNow(resourceID, pListener);
+			else
+				QueueLoad(resourceID, true, pListener);
 			return;
 		}
 
+		// TODO:
+		//	This may be unnecesary and could potentially lead to bugs.
+		//	This will heavily depend on the handling of resource lifetimes/accessors.
 		m_resourceDatabase.Unload(resourceID);
 
 		if (forceLoad)
-			LoadNow(resourceID);
+			LoadNow(resourceID, pListener);
 		else
-			QueueLoad(resourceID, false);
+			QueueLoad(resourceID, true, pListener);
+
+		EXELOG_ENGINE_TRACE("Reload Complete.");
 	}
 
 	Resource* ResourceManager::GetResource(const ResourceID& resourceID, bool forceLoad)
@@ -232,18 +284,24 @@ namespace Exelius
 
 		if (!pResourceEntry && forceLoad)
 		{
-			EXELOG_ENGINE_TRACE("Forcing Resource Creation and Retrieving.");
-			ResourceID id = LoadNow(resourceID);
-			return GetResource(id, false); // Should be guaranteed, but false will prevent infinite recursion.
+			EXELOG_ENGINE_INFO("Forcing Resource Creation and Retrieving.");
+			LoadNow(resourceID);
+			return GetResource(resourceID, false); // Should be guaranteed, but false will prevent infinite recursion.
 		}
 		else if (!pResourceEntry)
 		{
+			EXELOG_ENGINE_TRACE("ResourceEntry not found.");
 			return nullptr;
 		}
 
+		// TODO:
+		//	This needs error checking, though, with ResourceHandle implmentations, this may be fixed.
+		EXELOG_ENGINE_TRACE("Resource Retrieved.");
 		return pResourceEntry->GetResource();
 	}
 
+	// TODO:
+	// Currently incorrect. This returns true if the *ResourceEntry* exists.
 	bool ResourceManager::IsResourceLoaded(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
@@ -263,9 +321,13 @@ namespace Exelius
 		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
 
 		if (!pResourceEntry)
+		{
+			EXELOG_ENGINE_TRACE("Could not find resource to lock.");
 			return;
+		}
 
 		pResourceEntry->IncrementLockCount();
+		EXELOG_ENGINE_TRACE("Resource Locked.");
 	}
 
 	void ResourceManager::UnlockResource(const ResourceID& resourceID)
@@ -276,22 +338,38 @@ namespace Exelius
 		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
 
 		if (!pResourceEntry)
+		{
+			EXELOG_ENGINE_TRACE("Could not find resource to unlock.");
 			return;
+		}
 
 		pResourceEntry->DecrementLockCount();
+		EXELOG_ENGINE_TRACE("Resource Unlocked.");
 	}
 
 	void ResourceManager::ProcessResourceQueueThreaded()
 	{
+		EXELOG_ENGINE_INFO("Instantiating Resource Loader Thread.");
 		std::mutex waitMutex;
 		eastl::deque<ResourceID> processingQueue;
+		ListenersMap processingResourceListenersMap;
 		std::unique_lock<std::mutex> waitLock(waitMutex);
 
 		// While the thread is still active (Not shut down)
 		while (!m_quitThread)
 		{
 			// Wait until we are signaled to work.
-			m_signalThread.wait(waitLock);
+			m_signalThread.wait(waitLock, [this]()
+			{
+				bool empty = true;
+
+				m_deferredQueueLock.lock();
+				empty = m_deferredQueue.empty();
+				m_deferredQueueLock.unlock();
+
+				return m_quitThread || !empty;
+			});
+
 			EXELOG_ENGINE_TRACE("Loader Thread Recieved Signal");
 
 			// Don't do any work if we're exiting.
@@ -303,20 +381,37 @@ namespace Exelius
 			processingQueue.swap(m_deferredQueue);
 			m_deferredQueueLock.unlock();
 
+			m_listenerMapLock.lock();
+			processingResourceListenersMap.swap(m_deferredResourceListenersMap);
+			m_listenerMapLock.unlock();
+
 			// Process the queue
 			while (!processingQueue.empty())
 			{
+				EXELOG_ENGINE_TRACE("Loader Thread Loading: {}", processingQueue.front().Get().c_str());
 				LoadResource(processingQueue.front());
+
+				// Notify all the listeners that we are done loading.
+				for (auto& listener : processingResourceListenersMap[processingQueue.front()])
+				{
+					if (listener.expired())
+						continue;
+
+					listener.lock()->OnResourceLoaded(processingQueue.front());
+				}
+				processingResourceListenersMap[processingQueue.front()].clear();
+
+				EXELOG_ENGINE_TRACE("Loader Thread Loading Complete.");
 				processingQueue.pop_front();
 			}
 
 			// Done loading this pass, so signal the main thread in case it is waiting.
 			m_signalThread.notify_one();
-			EXELOG_ENGINE_TRACE("Signaled Main Thread for Queue Finished");
+			EXELOG_ENGINE_TRACE("Signaled Main Thread: Queue Finished");
 		}
 
 		// Let the main thread know we are fully exiting in case they are waiting.
-		EXELOG_ENGINE_TRACE("Signaled Main Thread for Thread Terminating.");
+		EXELOG_ENGINE_INFO("Signaled Main Thread: Thread Terminating.");
 		m_signalThread.notify_one();
 	}
 
@@ -325,11 +420,17 @@ namespace Exelius
 		EXE_ASSERT(resourceID.IsValid());
 		EXELOG_ENGINE_TRACE("Loading Resource Internally: {}", resourceID.Get().c_str());
 
+		// TODO:
+		//	Remove use of vector.
 		eastl::vector<std::byte> rawData = LoadRawData(resourceID);
 
 		if (rawData.empty())
 		{
 			EXELOG_ENGINE_WARN("Raw file data was empty.");
+
+			// TODO:
+			//	This may present an issue with this resource having references to it.
+
 			m_resourceDatabase.Unload(resourceID);
 			return;
 		}
@@ -354,6 +455,8 @@ namespace Exelius
 		}
 
 		m_resourceDatabase.SetLoadStatus(resourceID, ResourceLoadStatus::kLoaded);
+
+		EXELOG_ENGINE_TRACE("Completed Loading Internally.");
 	}
 
 	eastl::vector<std::byte> ResourceManager::LoadRawData(const ResourceID& resourceID)

@@ -2,6 +2,7 @@
 #include <EASTL/numeric_limits.h>
 #include <EASTL/deque.h>
 #include <EASTL/unordered_map.h>
+#include <EASTL/shared_ptr.h>
 
 #include "Source/Utility/Generic/Singleton.h"
 #include "Source/Resource/ResourceHelpers.h"
@@ -57,7 +58,7 @@ namespace Exelius
 		/// *shouldn't* need to be iterated over, but accessed by ID
 		/// is likely to be common.
 		/// </summary>
-		eastl::unordered_map<GameObjectID, GameObject*> m_gameObjects;
+		eastl::unordered_map<GameObjectID, eastl::shared_ptr<GameObject>> m_gameObjects;
 
 	public:
 		/// <summary>
@@ -87,26 +88,6 @@ namespace Exelius
 		bool Initialize(ComponentFactory* pComponentFactor);
 
 		/// <summary>
-		/// Creates an empty GameObject. This Object will be given a default name
-		/// and will have no components.
-		/// </summary>
-		/// <returns>
-		/// ID of the created object.
-		/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
-		/// </returns>
-		GameObjectID CreateGameObject();
-
-		/// <summary>
-		/// Creates a GameObject from a resource that has already been aquired by the ResourceManager.
-		/// </summary>
-		/// <param name="pResource">JSON File resource containing object data.</param>
-		/// <returns>
-		/// ID of the created object.
-		/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
-		/// </returns>
-		GameObjectID CreateGameObject(TextFileResource* pResource);
-
-		/// <summary>
 		/// Creates a GameObject from a ResourceID.
 		/// This resource may not yet be loaded. If not, then
 		/// forceLoad must be set to true in order to successfully
@@ -118,6 +99,16 @@ namespace Exelius
 		/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
 		/// </returns>
 		GameObjectID CreateGameObject(const ResourceID& resourceID, bool forceLoad = false);
+
+		/// <summary>
+		/// Creates a GameObject from a resource that has already been aquired by the ResourceManager.
+		/// </summary>
+		/// <param name="pResource">JSON File resource containing object data.</param>
+		/// <returns>
+		/// ID of the created object.
+		/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
+		/// </returns>
+		GameObjectID CreateGameObject(TextFileResource* pResource);
 
 		/// <summary>
 		/// Gets the GameObject with the given ID.

@@ -26,8 +26,6 @@ namespace Exelius
 		for (auto& gameObjectPair : m_gameObjects)
 		{
 			gameObjectPair.second->RemoveComponents();
-			delete gameObjectPair.second;
-			gameObjectPair.second = nullptr;
 		}
 
 		m_gameObjects.clear();
@@ -66,22 +64,27 @@ namespace Exelius
 	/// ID of the created object.
 	/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
 	/// </returns>
-	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject()
+	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject(const ResourceID& resourceID, bool forceLoad)
 	{
+		auto* pResourceManager = ResourceManager::GetInstance();
+		EXE_ASSERT(pResourceManager);
+		EXE_ASSERT(resourceID.IsValid());
+
 		// Get a free ID. Add new object to the list.
 		GameObjectID id = GetNextObjectId();
 		EXE_ASSERT(id != kInvalidID);
 
-		m_gameObjects.try_emplace(id, new GameObject(id));
+		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id));
 
 		// Get newly created object.
-		auto* pNewObject = m_gameObjects.at(id);
+		auto& pNewObject = m_gameObjects.at(id);
 		EXE_ASSERT(pNewObject);
 
-		// Empty intialize the object.
-		// This means that no JSON file was used to attach components to this object.
-		// This is hard coded not to fail, as it is empty.
-		EXE_ASSERT(pNewObject->Initialize());
+		// Queue or Load the resource.
+		if (forceLoad)
+			pResourceManager->LoadNow(resourceID, pNewObject);
+		else
+			pResourceManager->QueueLoad(resourceID, true, pNewObject);
 
 		return id;
 	}
@@ -107,10 +110,10 @@ namespace Exelius
 		GameObjectID id = GetNextObjectId();
 		EXE_ASSERT(id != kInvalidID);
 
-		m_gameObjects.try_emplace(id, new GameObject(id));
+		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id));
 
 		// Get newly created object.
-		auto* pNewObject = m_gameObjects.at(id);
+		auto& pNewObject = m_gameObjects.at(id);
 		EXE_ASSERT(pNewObject);
 
 		if (!pNewObject->Initialize(pResource))
@@ -120,41 +123,6 @@ namespace Exelius
 		}
 
 		return id;
-	}
-
-	/// <summary>
-	/// Creates a GameObject from a ResourceID.
-	/// This resource may not yet be loaded. If not, then
-	/// forceLoad must be set to true in order to successfully
-	/// create the GameObject.
-	/// </summary>
-	/// <param name="pResource">ResourceID referring to a JSON file containing object data.</param>
-	/// <returns>
-	/// ID of the created object.
-	/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
-	/// </returns>
-	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject(const ResourceID& resourceID, bool forceLoad)
-	{
-		auto* pResourceManager = ResourceManager::GetInstance();
-		EXE_ASSERT(pResourceManager);
-		EXE_ASSERT(resourceID.IsValid());
-
-		bool isLoaded = pResourceManager->IsResourceLoaded(resourceID);
-
-		// If the resource is not loaded and we aren't forcing it to load, then bail.
-		if (!isLoaded && !forceLoad)
-			return kInvalidID;
-		else
-		{
-			auto* pResource = GetResourceAs<TextFileResource>(resourceID, forceLoad);
-
-			auto id = CreateGameObject(pResource);
-
-			// Free the GameObject JSON file. It's not necessary to keep loaded.
-			pResourceManager->ReleaseResource(pResource->GetResourceID());
-
-			return id;
-		}
 	}
 
 	/// <summary>
@@ -182,9 +150,9 @@ namespace Exelius
 		}
 
 		// This GameObject MUST exist.
-		auto* pGameObject = found->second;
+		auto& pGameObject = found->second;
 		EXE_ASSERT(pGameObject);
-		return pGameObject;
+		return pGameObject.get();
 	}
 
 	/// <summary>
@@ -211,13 +179,10 @@ namespace Exelius
 		}
 
 		// This GameObject MUST exist.
-		auto* pGameObject = found->second;
+		auto& pGameObject = found->second;
 		EXE_ASSERT(pGameObject);
 
 		pGameObject->RemoveComponents();
-
-		delete pGameObject;
-		pGameObject = nullptr;
 
 		m_gameObjects.erase(gameObjectID);
 		m_freeObjectIDs.push_back(gameObjectID);

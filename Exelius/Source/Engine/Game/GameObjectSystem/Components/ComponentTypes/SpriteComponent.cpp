@@ -14,13 +14,6 @@ namespace Exelius
 	{
 	}
 
-	bool SpriteComponent::Initialize(GameObject* pOwner)
-	{
-		EXE_ASSERT(pOwner);
-		m_pOwner = pOwner;
-		return true;
-	}
-
 	bool SpriteComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
 	{
 		EXE_ASSERT(pOwner);
@@ -56,7 +49,7 @@ namespace Exelius
 
 		if (!ParseSprite(spriteData->value))
 		{
-			//Release the spritesheet
+			// Release the spritesheet
 			Destroy();
 			return false;
 		}
@@ -66,33 +59,40 @@ namespace Exelius
 
 	void SpriteComponent::Render() const
 	{
+		EXE_ASSERT(m_pOwner);
+
+		// Get the transform component sibling.
 		auto transformComponent = m_pOwner->GetComponent<TransformComponent>();
+
+		auto* pSheet = m_spriteSheet.GetAs<SpritesheetResource>();
+
+		if (!pSheet)
+			return;
+
 		if (transformComponent.IsValid())
 		{
-			m_pSprite->SetPosition(transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset);
+			pSheet->GetSprite(m_spriteID)->SetPosition(transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset);
+			pSheet->GetSprite(m_spriteID)->SetScale(m_xScale, m_yScale);
 		}
-		m_pSprite->Render();
+
+		pSheet->GetSprite(m_spriteID)->Render();
 	}
 
 	void SpriteComponent::Destroy()
 	{
-		EXE_ASSERT(ResourceManager::GetInstance());
-
-		if (m_pSpritesheetResource)
-			ResourceManager::GetInstance()->ReleaseResource(m_pSpritesheetResource->GetResourceID());
-		m_pSpritesheetResource = nullptr;
+		m_spriteSheet.Release();
 	}
 
 	bool SpriteComponent::ParseSpritesheet(const rapidjson::Value& spritesheetData)
 	{
 		EXE_ASSERT(spritesheetData.IsString());
-		m_pSpritesheetResource = GetResourceAs<SpritesheetResource>(spritesheetData.GetString(), true);
 
-		if (!m_pSpritesheetResource)
-		{
-			EXELOG_ENGINE_WARN("Initialization for SpriteComponent failed: Spritesheet '{}' returned nullptr.", spritesheetData.GetString());
-			return false;
-		}
+		// Must *NOT* hold a reference prior to this function call.
+		EXE_ASSERT(!m_spriteSheet.IsReferenceHeld());
+		m_spriteSheet.SetResourceID(spritesheetData.GetString());
+		EXE_ASSERT(m_spriteSheet.IsReferenceHeld());
+
+		m_spriteSheet.QueueLoad(true);
 
 		return true;
 	}
@@ -114,9 +114,11 @@ namespace Exelius
 
 		EXE_ASSERT(nameMember->value.IsString());
 
-		m_pSprite = m_pSpritesheetResource->GetSprite(nameMember->value.GetString());
+		//m_pSprite = m_pSpritesheetResource->GetSprite(nameMember->value.GetString());
 
-		if (!m_pSprite)
+		m_spriteID = nameMember->value.GetString();
+
+		if (!m_spriteID.IsValid())
 		{
 			EXELOG_ENGINE_WARN("Failed to obtain sprite with name '{}'.", nameMember->value.GetString());
 			return false;
@@ -128,9 +130,6 @@ namespace Exelius
 		auto yOffsetMember = spriteData.FindMember("yOffset");
 		auto xScaleMember = spriteData.FindMember("xScale");
 		auto yScaleMember = spriteData.FindMember("yScale");
-
-		float xScale = 1.0f;
-		float yScale = 1.0f;
 
 		// TODO: This could be better.
 		if (xOffsetMember != spriteData.MemberEnd())
@@ -146,15 +145,13 @@ namespace Exelius
 		if (xScaleMember != spriteData.MemberEnd())
 		{
 			EXE_ASSERT(xScaleMember->value.IsFloat());
-			xScale = xScaleMember->value.GetFloat();
+			m_xScale = xScaleMember->value.GetFloat();
 		}
 		if (yScaleMember != spriteData.MemberEnd())
 		{
 			EXE_ASSERT(yScaleMember->value.IsFloat());
-			yScale = yScaleMember->value.GetFloat();
+			m_yScale = yScaleMember->value.GetFloat();
 		}
-
-		m_pSprite->SetScale(xScale, yScale);
 
 		return true;
 	}

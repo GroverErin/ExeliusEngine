@@ -3,6 +3,7 @@
 #include <EASTL/unordered_map.h>
 #include <rapidjson/document.h>
 
+#include "Source/Resource/ResourceListener.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentHandle.h"
 
@@ -10,7 +11,8 @@ namespace Exelius
 {
     class TextFileResource;
 
-	class GameObject
+    class GameObject
+        : public ResourceListener
 	{
     private:
         /// <summary>
@@ -48,13 +50,6 @@ namespace Exelius
         GameObject& operator=(const GameObject&) = delete;
         GameObject& operator=(GameObject&&) = delete;
         ~GameObject() = default;*/
-
-        /// <summary>
-        /// Empty initialization will intialize the name of the object using the
-        /// unique ID. No components will be set.
-        /// </summary>
-        /// <returns>True on success, false on failure.</returns>
-        bool Initialize();
 
         /// <summary>
         /// Initialize this object using a JSON text file.
@@ -143,6 +138,8 @@ namespace Exelius
             // Create the ComponentHandle from the available handle.
             return ComponentHandle<ComponentType>(m_components[ComponentType::kType]);
         }
+
+        virtual bool OnResourceLoaded(const ResourceID& resourceID) final override;
 
     private:
         /// <summary>

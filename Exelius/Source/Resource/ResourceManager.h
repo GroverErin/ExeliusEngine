@@ -2,6 +2,7 @@
 
 #include "Source/Utility/Generic/Singleton.h"
 #include "Source/Resource/ResourceDatabase.h"
+#include "ResourceListener.h"
 
 #include <EASTL/deque.h>
 #include <EASTL/vector.h>
@@ -11,6 +12,11 @@
 #include <atomic>
 #include <mutex>
 
+// TODO:
+//	Add unordered map of resource listener queues,
+//	keyed by resourceID. Listeners are added on Cacheing
+//	and popped after calling OnResourceLoaded().
+
 namespace Exelius
 {
 	class ResourceFactory;
@@ -18,6 +24,12 @@ namespace Exelius
 	class ResourceManager
 		: public Singleton<ResourceManager>
 	{
+		using ResourceListeners = eastl::vector<ResourceListenerPtr>;
+		using ListenersMap = eastl::unordered_map<ResourceID, ResourceListeners>;
+
+		ListenersMap m_deferredResourceListenersMap;
+		std::mutex m_listenerMapLock;
+
 		ResourceFactory* m_pResourceFactory;
 
 		std::thread m_loaderThread;
@@ -43,22 +55,23 @@ namespace Exelius
 		~ResourceManager();
 
 		bool Initialize(ResourceFactory* pResourceFactory, const char* pEngineResourcePath = nullptr, bool useRawAssets = false);
-		const ResourceID& QueueLoad(const ResourceID& resourceID, bool signalLoaderThread);
-		const ResourceID& LoadNow(const ResourceID& resourceID);
+		void QueueLoad(const ResourceID& resourceID, bool signalLoaderThread = false, ResourceListenerPtr pListener = ResourceListenerPtr());
+		void LoadNow(const ResourceID& resourceID, ResourceListenerPtr pListener = ResourceListenerPtr());
 
 		void ReleaseResource(const ResourceID& resourceID);
 
 		void SignalLoaderThread();
 		void SignalAndWaitForLoaderThread();
 
-		void ReloadResource(const ResourceID& resourceID, bool forceLoad = false);
+		void ReloadResource(const ResourceID& resourceID, bool forceLoad = false, ResourceListenerPtr pListener = ResourceListenerPtr());
 
 		Resource* GetResource(const ResourceID& resourceID, bool forceLoad = false);
 
 		bool IsResourceLoaded(const ResourceID& resourceID);
 
 		void LockResource(const ResourceID& resourceID);
-#undef UnlockResource
+
+		#undef UnlockResource // This is defined in WinBase.h
 		void UnlockResource(const ResourceID& resourceID);
 
 		bool SetAssetPackageFile(const char* pAssetPackageFilePath) { m_clientAssetPackFile = pAssetPackageFilePath; }

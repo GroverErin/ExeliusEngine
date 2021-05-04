@@ -23,6 +23,7 @@ namespace Exelius
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
 		EXE_ASSERT(pGameObjectSystem);
 		EXE_ASSERT(componentName.IsValid());
+		EXELOG_ENGINE_TRACE("Attempting to create Component: {}", componentName.Get().c_str());
 
 		Handle newHandle;
 		bool initSucceeded = false;
@@ -63,6 +64,7 @@ namespace Exelius
 			return {}; // Invalid.
 		}
 
+		EXELOG_ENGINE_TRACE("Completed Component Creation.");
 		return newHandle;
 	}
 }

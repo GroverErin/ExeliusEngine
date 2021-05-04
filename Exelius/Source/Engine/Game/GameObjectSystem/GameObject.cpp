@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObject.h"
-#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
+#include "Source/Engine/Resources/ResourceRetrieval.h"
 
 namespace Exelius
 {
@@ -15,20 +15,6 @@ namespace Exelius
 		, m_name("Invalid")
 	{
 		EXE_ASSERT(m_id != GameObjectSystem::kInvalidID);
-	}
-
-	/// <summary>
-	/// Empty initialization will intialize the name of the object using the
-	/// unique ID. No components will be set.
-	/// </summary>
-	/// <returns>True on success, false on failure.</returns>
-	bool GameObject::Initialize()
-	{
-		// Name the object based on it's ID.
-		m_name = "New GameObject (";
-		//m_name += eastl::to_string(m_id);															<-- Why does this cause errors?!!
-		m_name += ")";
-		return true;
 	}
 
 	/// <summary>
@@ -95,6 +81,17 @@ namespace Exelius
 		}
 
 		m_components.clear();
+	}
+
+	bool GameObject::OnResourceLoaded(const ResourceID& resourceID)
+	{
+		EXE_ASSERT(resourceID.IsValid());
+		auto* pTextFileResource = GetResourceAs<TextFileResource>(resourceID);
+
+		EXE_ASSERT(pTextFileResource); // This is literally what we are being informed about!
+
+		Initialize(pTextFileResource);
+		return true;
 	}
 
 	/// <summary>

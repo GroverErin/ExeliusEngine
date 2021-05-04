@@ -16,11 +16,11 @@ bool PongGame::Initialize()
     eastl::string ball = "PongAssets/GameObjects/ball.json";
 
     // Create Paddles.
-    m_playerPaddleID = pGameObjectSystem->CreateGameObject(playerPaddle, true);
-    m_otherPaddleID = pGameObjectSystem->CreateGameObject(otherPaddle, true);
+    m_playerPaddleID = pGameObjectSystem->CreateGameObject(playerPaddle);
+    m_otherPaddleID = pGameObjectSystem->CreateGameObject(otherPaddle);
 
     // Create Ball.
-    m_ballID = pGameObjectSystem->CreateGameObject(ball, true);
+    m_ballID = pGameObjectSystem->CreateGameObject(ball);
     m_ballVelocity.x = 1.0f;
     m_ballVelocity.y = 1.0f;
     return true;

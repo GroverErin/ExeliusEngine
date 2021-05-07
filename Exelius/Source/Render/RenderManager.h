@@ -58,8 +58,8 @@ namespace Exelius
 	class RenderManager
 		: public Singleton<RenderManager>
 	{
-		eastl::vector<RenderCommand> m_advancedBuffer;
-		eastl::vector<RenderCommand> m_backBuffer;
+		eastl::vector<RenderCommand> m_advancedBuffer; // Main loop adds to this buffer.
+		eastl::vector<RenderCommand> m_backBuffer; // Main loop will swap this buffer with advancedbuffer at the end of a frame.
 		
 		std::thread m_renderThread;
 		std::mutex m_backBufferLock;
@@ -75,28 +75,37 @@ namespace Exelius
 		RenderManager& operator=(RenderManager&&) = delete;
 		~RenderManager();
 
+		// Spins up the thread and sets the screenshot output path (unused).
 		bool Initialize(const char* pScreenshotOutputPath = nullptr);
 
+		// My thoughts are that the RenderManager should own everything related to rendering.
+		// Including Views(Camera) and Windows(rendertarget). 
 		#undef CreateWindow // Defined in WinUser.h :(
 		void CreateWindow();
 		void GetWindow();
+		void CreateView();
+		void GetView();
 
-		void CreateCamera();
-		void GetCamera();
-
+		// Adds a command to the advanceBuffer (1 frame ahead of renderthread)
 		void PushRenderCommand(RenderCommand renderCommand);
 
 	private:
+		// This is essentially the thread::do_work() function.
 		void RenderThread();
 
+		// Swap the input buffer with the temp buffer.
 		void SwapRenderCommandBuffer(eastl::vector<RenderCommand>& bufferToSwap);
 		
+		// Sort the rendercommands by key. This uses a Radix Sort. See comments in .cpp
 		void SortRenderQueue(eastl::vector<RenderCommand>& bufferToSort);
 
+		// See: SortRenderQueue. This is the "internal" sort.
 		void SortRenderQueueByBit(eastl::vector<RenderCommand>& bufferToSort, int bit);
 
+		// Helper function for sort algorithm.
 		static int GetBitValue(uint64_t sortKey, int bit);
 		
+		// Used when this Manager is destroyed in order to stop the thread.
 		void SignalAndWaitForRenderThread();
 	};
 }

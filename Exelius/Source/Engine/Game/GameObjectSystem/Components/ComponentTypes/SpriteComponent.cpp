@@ -9,6 +9,8 @@
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 #include "Source/Resource/ResourceHandle.h"
 
+#include "Source/Render/RenderManager.h"
+
 namespace Exelius
 {
 	bool SpriteComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
@@ -73,6 +75,14 @@ namespace Exelius
 			pSheet->GetSprite(m_spriteID)->SetPosition(transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset);
 			pSheet->GetSprite(m_spriteID)->SetScale(m_xScale, m_yScale);
 		}
+
+		//RenderCommand command;
+		//command.SetRenderLayer();
+		//command.SetTexture();
+		//command.SetTextureFrame();
+		//command.SetWorldScale();
+		//command.SetShader();
+		//RenderManager::GetInstance()->PushRenderCommand();
 
 		pSheet->GetSprite(m_spriteID)->Render();
 	}

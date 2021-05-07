@@ -3,6 +3,8 @@
 #include "Source/Engine/Application.h"
 #include "Source/OS/Events/ApplicationEvents.h"
 
+#include "Source/Render/RenderManager.h"
+
 #include "Source/OS/Input/InputManager.h"
 
 #include "Source/Resource/ResourceManager.h"
@@ -55,11 +57,22 @@ namespace Exelius
 
 		InputManager::DestroySingleton();
 
+		RenderManager::DestroySingleton();
+
 		m_window.GetEventMessenger().RemoveObserver(*this);
 	}
 
 	bool Application::InitializeExelius()
 	{
+		RenderManager::SetSingleton(new RenderManager());
+		EXE_ASSERT(RenderManager::GetInstance());
+
+		if (!RenderManager::GetInstance()->Initialize())
+		{
+			EXELOG_ENGINE_FATAL("Exelius::RenderManager failed to initialize.");
+			return false;
+		}
+
 		//m_window.SetVSync(false);
 
 		if (!InputManager::GetInstance()->Initialize())

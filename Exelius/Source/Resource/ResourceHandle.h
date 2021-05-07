@@ -1,7 +1,6 @@
 #pragma once
 #include "ResourceHelpers.h"
 #include "ResourceListener.h"
-#include "Source/Utility/Generic/Handle.h"
 
 namespace Exelius
 {
@@ -10,7 +9,6 @@ namespace Exelius
 	class ResourceHandle
 	{
 		ResourceID m_resourceID;
-		Handle m_internalHandle;
 		bool m_resourceHeld;
 
 	public:
@@ -18,7 +16,7 @@ namespace Exelius
 		ResourceHandle(const ResourceID& resourceID, bool loadResource = false);
 		ResourceHandle(const ResourceHandle&) = default;
 		ResourceHandle(ResourceHandle&&) = delete;
-		ResourceHandle& operator=(const ResourceHandle&) = delete;
+		ResourceHandle& operator=(const ResourceHandle&) = default;
 		ResourceHandle& operator=(ResourceHandle&&) = delete;
 		~ResourceHandle();
 

@@ -13,6 +13,8 @@
 #include "Source/OS/Events/ApplicationEvents.h"
 #include "Source/OS/Interface/Graphics/Window.h"
 
+#include "Source/Utility/Generic/Time.h"
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
@@ -128,6 +130,8 @@ namespace Exelius
 			auto time = eastl::chrono::high_resolution_clock::now();
 			eastl::chrono::duration<float> deltaTime = time - previousTime;
 			// EXELOG_ENGINE_TRACE("DeltaTime: {}", deltaTime.count());
+
+			Time::DeltaTime.SetFromSeconds(deltaTime.count());
 
 			// Poll Window Events.
 			RenderManager::GetInstance()->Update();

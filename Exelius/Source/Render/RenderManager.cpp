@@ -13,6 +13,7 @@ namespace Exelius
 {
 	RenderManager::RenderManager()
 		: m_quitThread(false)
+		, m_framesBehind(0)
 		, m_pWindow(nullptr)
 	{
 		//
@@ -69,12 +70,18 @@ namespace Exelius
 
 	void RenderManager::EndRenderFrame()
 	{
+		if (m_framesBehind > s_kMaxFramesBehind)
+		{
+			// wait for render thread.
+			SignalAndWaitForRenderThread();
+		}
+
 		SwapRenderCommandBuffer(m_advancedBuffer);
+		++m_framesBehind;
 
 		m_advancedBuffer.clear();
 
 		EXE_ASSERT(m_renderThread.joinable());
-		EXELOG_ENGINE_FATAL("Signaling Render Thread.");
 
 		m_signalThread.notify_one();
 	}
@@ -119,9 +126,6 @@ namespace Exelius
 					empty = m_intermediateBuffer.empty();
 					m_intermediateBufferLock.unlock();
 
-					if (empty)
-						EXELOG_ENGINE_ERROR("Render Thread Found Queue Empty"); // Temporary
-
 					return m_quitThread || !empty;
 				});
 
@@ -133,8 +137,9 @@ namespace Exelius
 
 			/// Capture the deferred queue into the processing queue (swap buffers)
 			SwapRenderCommandBuffer(backBuffer);
+			m_framesBehind = 0;
 
-			SortRenderQueue(backBuffer);
+			//SortRenderQueue(backBuffer);
 
 			// Render Clear
 			m_pWindow->Clear();
@@ -151,6 +156,8 @@ namespace Exelius
 
 			// Render Display
 			m_pWindow->Render();
+
+			m_signalThread.notify_one();
 		}
 
 		m_pWindow->SetActive(false);

@@ -69,6 +69,8 @@ namespace Exelius
 		std::thread m_renderThread;
 		std::mutex m_intermediateBufferLock;
 		std::atomic_bool m_quitThread;
+		std::atomic_int m_framesBehind;
+		static constexpr int s_kMaxFramesBehind = 2;
 		std::condition_variable m_signalThread;
 
 		Window* m_pWindow;

@@ -7,8 +7,8 @@ class PongGame
 	Exelius::GameObjectSystem::GameObjectID m_otherPaddleID;
 	Exelius::GameObjectSystem::GameObjectID m_ballID;
 
-	static constexpr float kPaddleSpeed = 4.0f;
-	static constexpr float kBallSpeed = 4.0f;
+	static constexpr float kPaddleSpeed = 250.0f;
+	static constexpr float kBallSpeed = 300.0f;
 
 	Exelius::Vector2f m_ballVelocity;
 public:

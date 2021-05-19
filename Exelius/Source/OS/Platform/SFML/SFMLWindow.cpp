@@ -47,7 +47,10 @@ namespace Exelius
 		EXE_ASSERT(m_pWindow);
 
 		if (!m_pWindow->isOpen())
-			EXELOG_ENGINE_ERROR("Failed to create SFML RenderWindow."); // Temporary
+		{
+			EXELOG_ENGINE_ERROR("Failed to create SFML RenderWindow.");
+			return; // removes warning in release.
+		}
 	}
 
 	/// <summary>

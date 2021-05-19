@@ -55,9 +55,9 @@ void PongGame::UpdatePlayerPaddle()
         auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
 
         if (Exelius::IsKeyDown(Exelius::KeyCode::W))
-            transformComp->SetY(transformComp->GetY() - kPaddleSpeed);
+            transformComp->SetY(transformComp->GetY() - kPaddleSpeed * Exelius::Time::DeltaTime.GetAsSeconds());
         else if (Exelius::IsKeyDown(Exelius::KeyCode::S))
-            transformComp->SetY(transformComp->GetY() + kPaddleSpeed);
+            transformComp->SetY(transformComp->GetY() + kPaddleSpeed * Exelius::Time::DeltaTime.GetAsSeconds());
 
         if (transformComp->GetY() < 0.0f)
             transformComp->SetY(0.0f);
@@ -78,9 +78,9 @@ void PongGame::UpdateOtherPaddle()
         auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
 
         if (Exelius::IsKeyDown(Exelius::KeyCode::Up))
-            transformComp->SetY(transformComp->GetY() - kPaddleSpeed);
+            transformComp->SetY(transformComp->GetY() - kPaddleSpeed * Exelius::Time::DeltaTime.GetAsSeconds());
         else if (Exelius::IsKeyDown(Exelius::KeyCode::Down))
-            transformComp->SetY(transformComp->GetY() + kPaddleSpeed);
+            transformComp->SetY(transformComp->GetY() + kPaddleSpeed * Exelius::Time::DeltaTime.GetAsSeconds());
 
         if (transformComp->GetY() < 0.0f)
             transformComp->SetY(0.0f);
@@ -100,7 +100,7 @@ void PongGame::UpdateBall()
     {
         auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
         
-        transformComp->Move(m_ballVelocity.x * kBallSpeed, m_ballVelocity.y * kBallSpeed);
+        transformComp->Move(m_ballVelocity.x * kBallSpeed * Exelius::Time::DeltaTime.GetAsSeconds(), m_ballVelocity.y * kBallSpeed * Exelius::Time::DeltaTime.GetAsSeconds());
 
         if (transformComp->GetY() < -10.0f)
             m_ballVelocity.y = -m_ballVelocity.y;

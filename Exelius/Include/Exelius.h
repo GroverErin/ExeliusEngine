@@ -8,3 +8,4 @@
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/SpriteComponent.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObject.h"
 #include "Source/Utility/Math/Rectangle.h"
+#include "Source/Utility/Generic/Time.h"

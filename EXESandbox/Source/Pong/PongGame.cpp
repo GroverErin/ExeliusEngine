@@ -6,8 +6,6 @@
 
 bool PongGame::Initialize()
 {
-    auto* pResourceManager = Exelius::ResourceManager::GetInstance();
-    EXE_ASSERT(pResourceManager);
     auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
     EXE_ASSERT(pGameObjectSystem);
 

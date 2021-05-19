@@ -3,6 +3,8 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 
+
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
@@ -18,6 +20,7 @@ namespace Exelius
 	{
 		inline static std::shared_ptr<spdlog::logger> s_pEngineLogger;
 		inline static std::shared_ptr<spdlog::logger> s_pClientLogger;
+
 	public:
 		_Log() = default;
 		_Log(const _Log&) = delete;

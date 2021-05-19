@@ -1,7 +1,7 @@
 #include "EXEPCH.h"
 #include "SpritesheetResource.h"
 
-#include "Source/Engine/Resources/ResourceRetrieval.h"
+#include "Source/Resource/ResourceHandle.h"
 
 #include <rapidjson/document.h>
 
@@ -9,20 +9,13 @@ namespace Exelius
 {
     SpritesheetResource::SpritesheetResource(const ResourceID& id)
         : Resource(id)
-        , m_pTextureResource(nullptr)
-    {
-        //
-    }
-
-    SpritesheetResource::~SpritesheetResource()
     {
         //
     }
 
     Resource::LoadResult SpritesheetResource::Load(eastl::vector<std::byte>&& data)
     {
-        delete m_pTextureResource;
-
+        // Set the raw byte data to a string value.
         m_text = eastl::string((const char*)data.begin(), (const char*)data.end());
         if (m_text.empty())
         {
@@ -30,6 +23,7 @@ namespace Exelius
             return LoadResult::kFailed;
         }
 
+        // Parse the text as JSON data.
         rapidjson::Document jsonDoc;
         if (jsonDoc.Parse(m_text.c_str()).HasParseError())
         {
@@ -39,6 +33,7 @@ namespace Exelius
 
         EXE_ASSERT(jsonDoc.IsObject());
 
+        // Find and load the Texture linked to this spritesheet.
         auto textureMember = jsonDoc.FindMember("Texture");
 
         if (textureMember == jsonDoc.MemberEnd())
@@ -47,18 +42,22 @@ namespace Exelius
             return LoadResult::kFailed;
         }
 
+        // Set and queue the texture for loading.
         EXE_ASSERT(textureMember->value.IsString());
-        ResourceManager::GetInstance()->LoadNow(textureMember->value.GetString());
+        m_textureResourceID = textureMember->value.GetString();
+        EXE_ASSERT(m_textureResourceID.IsValid());
 
-        m_pTextureResource = GetResourceAs<TextureResource>(textureMember->value.GetString(), false);
+        ResourceHandle textureResource(m_textureResourceID);
+        EXE_ASSERT(textureResource.IsReferenceHeld());
 
-        if (!m_pTextureResource)
-        {
-            EXELOG_ENGINE_WARN("Failed to load Spritesheet Resource: Texture was nullptr.");
+        // TODO:
+        //  This might be more efficient if this is false, so that all loading can be queued together.
+        //  Although, this will need to be nicely managed by the user in some way... otherwise,
+        //  the resource thread will never know if the queue is ready to process. Something to think about...
+        textureResource.QueueLoad(true);
+        textureResource.LockResource();
 
-            return LoadResult::kFailed;
-        }
-
+        // Gather the data for all the sprites.
         auto spriteMember = jsonDoc.FindMember("Sprites");
 
         if (spriteMember == jsonDoc.MemberEnd())
@@ -86,7 +85,7 @@ namespace Exelius
             auto wMember = spriteItr->value.FindMember("sourceW");
             auto hMember = spriteItr->value.FindMember("sourceH");
 
-            //TODO: More error checking
+            // TODO: More error checking.
             if (xMember != spriteItr->value.MemberEnd())
                 builtRect.m_left = xMember->value.GetInt();
             if (yMember != spriteItr->value.MemberEnd())
@@ -96,7 +95,7 @@ namespace Exelius
             if (hMember != spriteItr->value.MemberEnd())
                 builtRect.m_height = hMember->value.GetInt();
 
-            m_sprites.try_emplace(spriteItr->name.GetString(), Sprite(*m_pTextureResource->GetTexture(), builtRect));
+            m_sprites.try_emplace(spriteItr->name.GetString(), builtRect);
         }
 
         if (!containsSpriteData)
@@ -110,8 +109,7 @@ namespace Exelius
 
     void SpritesheetResource::Unload()
     {
-        EXE_ASSERT(ResourceManager::GetInstance());
-        ResourceManager::GetInstance()->ReleaseResource(m_pTextureResource->GetResourceID());
-        m_pTextureResource = nullptr;
+        ResourceHandle textureResource(m_textureResourceID);
+        textureResource.UnlockResource();
     }
 }

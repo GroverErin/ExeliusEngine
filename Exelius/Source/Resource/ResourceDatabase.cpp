@@ -71,6 +71,8 @@ namespace Exelius
 		if (!IsFound(resourceID))
 			return;
 
+		EXELOG_ENGINE_TRACE("Resource State: {}", m_resourceMap.at(resourceID).GetStatus());
+
 		m_resourceMap.at(resourceID).SetStatus(ResourceLoadStatus::kUnloading);
 
 		Resource* pResource = m_resourceMap.at(resourceID).GetResource();

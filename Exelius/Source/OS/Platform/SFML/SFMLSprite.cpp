@@ -1,7 +1,9 @@
 #include "EXEPCH.h"
 #include "SFMLSprite.h"
 #include "Source/OS/Interface/Graphics/Texture.h"
-#include "Source/Engine/Application.h"
+
+#include "Source/Render/RenderManager.h"
+#include "Source/OS/Interface/Graphics/Window.h"
 
 #include "SFML/Graphics/Sprite.hpp"
 
@@ -29,7 +31,13 @@ namespace Exelius
 		EXE_ASSERT(m_pSFMLSprite);
 	}
 
-	IRectangle SFMLSprite::GetTextureRectangle()
+	SFMLSprite::~SFMLSprite()
+	{
+		delete m_pSFMLSprite;
+		m_pSFMLSprite = nullptr;
+	}
+
+	IRectangle SFMLSprite::GetTextureRectangle() const
 	{
 		EXE_ASSERT(m_pSFMLSprite);
 
@@ -225,6 +233,8 @@ namespace Exelius
 	void SFMLSprite::Render()
 	{
 		EXE_ASSERT(m_pSFMLSprite);
-		Application::GetInstance()->GetWindow().GetNativeWindow().Draw(m_pSFMLSprite);
+		EXE_ASSERT(RenderManager::GetInstance());
+
+		RenderManager::GetInstance()->GetWindow()->GetNativeWindow().Draw(m_pSFMLSprite);
 	}
 }

@@ -24,7 +24,7 @@ namespace Exelius
 		ResourceEntry()
 			: m_pResource(nullptr)
 			, m_status(ResourceLoadStatus::kInvalid)
-			, m_refCount(0)
+			, m_refCount(1)
 			, m_lockCount(0)
 		{
 
@@ -39,9 +39,9 @@ namespace Exelius
 			if (m_refCount + m_lockCount > 0)
 			{
 				if (m_pResource)
-					EXELOG_ENGINE_WARN("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
+					EXELOG_ENGINE_ERROR("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
 				else
-					EXELOG_ENGINE_WARN("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+					EXELOG_ENGINE_ERROR("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
 			}
 
 			delete m_pResource;
@@ -62,6 +62,24 @@ namespace Exelius
 				// Do not increment as we are unloading this resource currently.
 				return m_pResource;
 			}
+			else if (m_status == ResourceLoadStatus::kLoading)
+			{
+				// TODO: BUG: MAJOR SEVERITY
+				// Here we have tried to get a resource that isn't loaded yet.
+				// This is the FlushedWhileLoading case that Rez fought with.
+				// It is likely that a Get call was made by a ResourceHandle,
+				// which would decrement the RefCount on destruction, which
+				// would reduce the refcount to 0 while the resource is still
+				// loading. This can happen during a race condition (and is likely)
+				// and will break the loading process of a resource.
+				// In this specific case, Release was called by main thread during
+				// render call on sprite component right when loader thread had created
+				// the resource and was just about to call Lock. (thus, refcount = 0 and lockcount = 1)
+				// This is a temporary fix that only fixes this specific case (ResourceHandle)
+				// by incrementing the refcount, so that the refcount is not reduced to 0.
+				// A potential solution is: unknown.
+				IncrementRefCount();
+			}
 			return nullptr;
 		}
 
@@ -70,6 +88,10 @@ namespace Exelius
 
 		void IncrementRefCount() { ++m_refCount; }
 
+		/// <summary>
+		/// Returns true if there is no longer any references or locks on this object.
+		/// </summary>
+		/// <returns></returns>
 		bool DecrementRefCount()
 		{
 			--m_refCount;
@@ -80,7 +102,7 @@ namespace Exelius
 			if (m_lockCount < 0)
 				m_lockCount = 0;
 
-			return !(m_refCount + m_lockCount <= 0);
+			return (m_refCount + m_lockCount == 0);
 		}
 
 		void IncrementLockCount() { ++m_lockCount; }

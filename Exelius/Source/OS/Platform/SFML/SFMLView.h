@@ -17,6 +17,10 @@ namespace Exelius
 		SFMLView(const FRectangle& rectangle);
 		SFMLView(const Vector2f& center, const Vector2f& size);
 
+		// TODO:
+		// Rule of 5
+		~SFMLView();
+
 		void SetCenter(float x, float y);
 		void SetCenter(const Vector2f& center);
 
@@ -44,6 +48,6 @@ namespace Exelius
 
 		void Zoom(float factor);
 
-		sf::View* GetSFMLTexture() { return m_pSFMLView; }
+		sf::View& GetSFMLView() const { return *m_pSFMLView; }
 	};
 }

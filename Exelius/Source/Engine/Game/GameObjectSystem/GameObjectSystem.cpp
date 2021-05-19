@@ -1,8 +1,8 @@
 #include "EXEPCH.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObject.h"
-
-#include "Source/Engine/Resources/ResourceRetrieval.h"
+#include "Source/Resource/ResourceManager.h"
+#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 
 namespace Exelius
 {
@@ -116,7 +116,7 @@ namespace Exelius
 		auto& pNewObject = m_gameObjects.at(id);
 		EXE_ASSERT(pNewObject);
 
-		if (!pNewObject->Initialize(pResource))
+		if (!pNewObject->Initialize(pResource->GetRawText()))
 		{
 			EXELOG_ENGINE_ERROR("Failed to initialize GameObject from '{}'", pResource->GetResourceID().Get().c_str());
 			return kInvalidID;

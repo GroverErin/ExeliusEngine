@@ -12,6 +12,10 @@ namespace Exelius
 	{
 		sf::Texture* m_pSFMLTexture;
 	public:
+		// TODO:
+		// Rule of 5
+		~SFMLTexture();
+
 		bool LoadFromMemory(const std::byte* pData, size_t dataSize);
 
 		sf::Texture* GetSFMLTexture() { return m_pSFMLTexture; }

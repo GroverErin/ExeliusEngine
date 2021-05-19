@@ -39,6 +39,9 @@ namespace Exelius
 
 	void ResourceHandle::Release()
 	{
+		if (!m_resourceHeld)
+			return;
+
 		ResourceManager::GetInstance()->ReleaseResource(m_resourceID);
 	}
 

@@ -110,7 +110,7 @@ namespace Exelius
 			m_impl.Zoom(factor);
 		}
 
-		ImplView& GetNativeView() { return m_impl; }
+		const ImplView& GetNativeView() const { return m_impl; }
 	};
 }
 

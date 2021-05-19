@@ -40,6 +40,11 @@ namespace Exelius
 		EXE_ASSERT(m_pSFMLView);
 	}
 
+	SFMLView::~SFMLView()
+	{
+		SAFE_DELETE(m_pSFMLView);
+	}
+
 	void SFMLView::SetCenter(float x, float y)
 	{
 		EXE_ASSERT(m_pSFMLView);

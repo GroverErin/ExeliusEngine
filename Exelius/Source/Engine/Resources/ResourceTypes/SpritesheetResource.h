@@ -4,42 +4,44 @@
 
 namespace Exelius
 {
-	class TextureResource;
+	//class TextureResource;
 
 	class SpritesheetResource
 		: public Resource
 	{
-	private:
-		TextureResource* m_pTextureResource;
+		//TextureResource* m_pTextureResource;
+		ResourceID m_textureResourceID;
+
+
 
 		// TESTING ONLY
 		eastl::string m_text;
-		eastl::unordered_map<StringIntern, Sprite> m_sprites;
+		eastl::unordered_map<StringIntern, IRectangle> m_sprites;
 
 	public:
 		SpritesheetResource(const ResourceID& id);
 		SpritesheetResource(const SpritesheetResource&) = delete;
 		SpritesheetResource(SpritesheetResource&&) = delete;
 		SpritesheetResource& operator=(const SpritesheetResource&) = delete;
-		virtual ~SpritesheetResource() final override;
+		virtual ~SpritesheetResource() final override = default;
 
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
 		virtual void Unload() final override;
 
-		Sprite* GetSprite(const StringIntern& name)
+		IRectangle GetSprite(const StringIntern& name)
 		{
 			EXE_ASSERT(name.IsValid());
 
 			auto found = m_sprites.find(name);
 
 			if (found == m_sprites.end())
-				return nullptr;
+				return {};
 
-			// TODO: Error check.
-			return &m_sprites[name];
+			// TODO: Error check?
+			return m_sprites[name];
 		}
 
-		TextureResource* GetTextureResource() const { return m_pTextureResource; }
+		const ResourceID& GetTextureResource() const { return m_textureResourceID; }
 
 		// TESTING ONLY
 		const eastl::string& GetRawText() const { return m_text; }

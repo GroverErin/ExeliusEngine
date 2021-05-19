@@ -1,6 +1,8 @@
 #include "EXEPCH.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObject.h"
-#include "Source/Engine/Resources/ResourceRetrieval.h"
+
+#include "Source/Resource/ResourceHandle.h"
+#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 
 namespace Exelius
 {
@@ -25,11 +27,9 @@ namespace Exelius
 	/// </summary>
 	/// <param name="pResource">The JSON TextFile resource containing object data.</param>
 	/// <returns>True on success, false on failure.</returns>
-	bool GameObject::Initialize(TextFileResource* pResource)
-	{
-		EXE_ASSERT(pResource);
-		
-		const eastl::string& jsonText = pResource->GetRawText();
+	bool GameObject::Initialize(const eastl::string& pRawText)
+	{		
+		const eastl::string& jsonText = pRawText;
 
 		rapidjson::Document jsonDoc;
 		if (jsonDoc.Parse(jsonText.c_str()).HasParseError())
@@ -86,13 +86,21 @@ namespace Exelius
 	bool GameObject::OnResourceLoaded(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		auto* pTextFileResource = GetResourceAs<TextFileResource>(resourceID);
+		ResourceHandle textFileResource(resourceID);
 
-		EXE_ASSERT(pTextFileResource); // This is literally what we are being informed about!
+		EXE_ASSERT(textFileResource.IsReferenceHeld()); // This is literally what we are being informed about!
 
-		Initialize(pTextFileResource);
+		Initialize(textFileResource.GetAs<TextFileResource>()->GetRawText());
 
-		ResourceManager::GetInstance()->ReleaseResource(resourceID);
+
+		// TODO:
+		//	In MOST cases.. the ref count is currently 2 for the gameobject file.
+		//	This is due to the initial creation of the resource when CreateGameObject is called,
+		//	and the above GetAs call. (Both increment the refcount) So here there would need to
+		//	be a call to Release here (A second call is made when textFileResource falls out of scope).
+		//	The fix would be to change how GameObject creation happens (Maybe on gameobject file load?)
+		textFileResource.Release();
+
 		return true;
 	}
 

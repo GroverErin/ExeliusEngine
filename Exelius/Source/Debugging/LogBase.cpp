@@ -21,8 +21,8 @@ namespace Exelius
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>("Logs/Exelius.log", 1048576 * 5, 3, true));
 
-		logSinks[0]->set_pattern("%^[%T] %n: %v%$");
-		logSinks[1]->set_pattern("[%T] [%l] %n: %v");
+		logSinks[0]->set_pattern("%^[%T] [%n] [%t]: %v%$");
+		logSinks[1]->set_pattern("[%T] [%l] [%n] [%t]: %v");
 
 		s_pEngineLogger = std::make_shared<spdlog::logger>("EXELIUS", std::begin(logSinks), std::end(logSinks));
 		spdlog::register_logger(s_pEngineLogger);

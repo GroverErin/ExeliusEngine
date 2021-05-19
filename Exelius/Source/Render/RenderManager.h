@@ -1,10 +1,14 @@
 #pragma once
 #include "Source/Utility/Generic/Singleton.h"
+#include "Source/Utility/Math/Rectangle.h"
 #include "Source/Resource/ResourceHelpers.h"
 #include "Source/Resource/ResourceHandle.h"
-#include "Source/Utility/Math/Rectangle.h"
+#include "Source/OS/Platform/PlatformForwardDeclarations.h"
+
+#include "Source/OS/Interface/Graphics/View.h"
 
 #include <EASTL/vector.h>
+#include <EASTL/unordered_map.h>
 
 #include <thread>
 #include <condition_variable>
@@ -27,44 +31,50 @@ namespace Exelius
 
 		/// <summary>
 		/// MSB [ 00000000 00000000 00000000 00000000 ] LSB
-		///			^^^^^^^
-		///			|||||||
-		///			||||||
-		///			|||||- bits for shader resource.
-		///			||||- bits for the Texture Frame (rect on source texture).
-		///			|||- bits for the Z-Order or World Coordinates.
-		///			||- bits for the Texture.
+		///			^				  ^^^
+		///			|				  |||
+		///			|				  |||
+		///			|				  |||
+		///			|				  |||-16 bits for shader resource.
+		///			|				  ||-16 bits for the Z-Order or World Coordinates.
+		///			|				  |-16 bits for the Texture.
 		///			|-3 bits for the Renderlayer.
 		/// </summary>
 		uint32_t m_renderSortKey;
 
-		void SetRenderLayer(RenderLayer layer) {}
-		void SetTexture(const ResourceID& textureID) {}
-		void SetWorldPosition(const Vector2f& postion) {}
-		void SetTextureFrame(FRectangle rectangle) {}
-		void SetShader(const ResourceID& shaderID) {}
+		void SetRenderLayer(RenderLayer layer) { m_renderLayer = layer; }
+		void SetTexture(const ResourceID& textureID) { m_texture = textureID; }
+		void SetWorldPosition(const Vector2f& postion) { m_position = postion; }
+		void SetTextureFrame(IRectangle rectangle) { m_spriteFrame = rectangle; }
+		void SetShader(const ResourceID& shaderID) { m_shader = shaderID; }
 	
-		void SetWorldScale(float scaleFactor) {}
+		void SetWorldScale(const Vector2f& scaleFactor) { m_scaleFactor = scaleFactor; }
 
-	private:
 		RenderLayer m_renderLayer;
-		ResourceHandle m_shader;
-		ResourceHandle m_texture;
-		FRectangle m_spriteFrame;
+		ResourceID m_shader;
+		ResourceID m_texture;
+		IRectangle m_spriteFrame;
 		Vector2f m_position;
-		float m_scaleFactor;
+		Vector2f m_scaleFactor;
 	};
+
+	FORWARD_DECLARE(Window);
 
 	class RenderManager
 		: public Singleton<RenderManager>
 	{
 		eastl::vector<RenderCommand> m_advancedBuffer; // Main loop adds to this buffer.
-		eastl::vector<RenderCommand> m_backBuffer; // Main loop will swap this buffer with advancedbuffer at the end of a frame.
+		eastl::vector<RenderCommand> m_intermediateBuffer; // Main loop will swap this buffer with advancedbuffer at the end of a frame. Render Thread will swap with this buffer if it is not processing.
 		
 		std::thread m_renderThread;
-		std::mutex m_backBufferLock;
+		std::mutex m_intermediateBufferLock;
 		std::atomic_bool m_quitThread;
 		std::condition_variable m_signalThread;
+
+		Window* m_pWindow;
+
+		eastl::vector<eastl::pair<StringIntern, View>> m_views;
+		std::mutex m_viewListLock;
 
 		static constexpr int s_kBitCount = eastl::numeric_limits<decltype(RenderCommand::m_renderSortKey)>::digits;
 	public:
@@ -75,23 +85,27 @@ namespace Exelius
 		RenderManager& operator=(RenderManager&&) = delete;
 		~RenderManager();
 
-		// Spins up the thread and sets the screenshot output path (unused).
-		bool Initialize(const char* pScreenshotOutputPath = nullptr);
+		// Spins up the thread.
+		bool Initialize(const eastl::string& title, const Vector2u& windowSize);
 
-		// My thoughts are that the RenderManager should own everything related to rendering.
-		// Including Views(Camera) and Windows(rendertarget). 
-		#undef CreateWindow // Defined in WinUser.h :(
-		void CreateWindow();
-		void GetWindow();
-		void CreateView();
-		void GetView();
+		Window* GetWindow();
+
+		void AddView(const StringIntern& viewID, const View& view);
 
 		// Adds a command to the advanceBuffer (1 frame ahead of renderthread)
 		void PushRenderCommand(RenderCommand renderCommand);
 
+		void Update();
+
+		void EndRenderFrame();
+
 	private:
-		// This is essentially the thread::do_work() function.
+		// This is the thread::do_work() function.
 		void RenderThread();
+
+		void DrawToWindow(const eastl::vector<RenderCommand>& backBuffer);
+
+		void DrawToViews(const eastl::vector<RenderCommand>& backBuffer);
 
 		// Swap the input buffer with the temp buffer.
 		void SwapRenderCommandBuffer(eastl::vector<RenderCommand>& bufferToSwap);

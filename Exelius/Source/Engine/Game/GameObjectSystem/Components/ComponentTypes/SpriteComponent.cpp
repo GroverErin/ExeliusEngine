@@ -1,6 +1,5 @@
 #include "EXEPCH.h"
 #include "SpriteComponent.h"
-#include "Source/Engine/Resources/ResourceRetrieval.h"
 #include "Source/OS/Interface/Graphics/Texture.h"
 #include "Source/OS/Interface/Graphics/Sprite.h"
 
@@ -8,6 +7,7 @@
 #include "Source/Engine/Game/GameObjectSystem/GameObject.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 #include "Source/Resource/ResourceHandle.h"
+#include "Source/Engine/Resources/ResourceTypes/SpritesheetResource.h"
 
 #include "Source/Render/RenderManager.h"
 
@@ -70,21 +70,16 @@ namespace Exelius
 		if (!pSheet)
 			return;
 
-		if (transformComponent.IsValid())
-		{
-			pSheet->GetSprite(m_spriteID)->SetPosition(transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset);
-			pSheet->GetSprite(m_spriteID)->SetScale(m_xScale, m_yScale);
-		}
+		if (!transformComponent.IsValid())
+			return;
 
-		//RenderCommand command;
-		//command.SetRenderLayer();
-		//command.SetTexture();
-		//command.SetTextureFrame();
-		//command.SetWorldScale();
-		//command.SetShader();
-		//RenderManager::GetInstance()->PushRenderCommand();
-
-		pSheet->GetSprite(m_spriteID)->Render();
+		RenderCommand command;
+		command.SetRenderLayer(RenderCommand::RenderLayer::World);
+		command.SetTexture(pSheet->GetTextureResource());
+		command.SetTextureFrame(pSheet->GetSprite(m_spriteID));
+		command.SetWorldScale({ m_xScale, m_yScale });
+		command.SetWorldPosition({ transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset });
+		RenderManager::GetInstance()->PushRenderCommand(command);
 	}
 
 	void SpriteComponent::Destroy()
@@ -98,6 +93,8 @@ namespace Exelius
 		EXE_ASSERT(spritesheetData.IsString());
 
 		m_spriteSheetID = spritesheetData.GetString();
+		EXE_ASSERT(m_spriteSheetID.IsValid());
+
 		ResourceHandle spriteSheet(m_spriteSheetID);
 		EXE_ASSERT(spriteSheet.IsReferenceHeld());
 

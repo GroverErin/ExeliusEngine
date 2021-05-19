@@ -25,7 +25,11 @@ namespace Exelius
 		SFMLSprite(Texture& texture);
 		SFMLSprite(Texture& texture, const IRectangle& rectangle);
 
-		IRectangle GetTextureRectangle();
+		// TODO:
+		// Rule of 5
+		~SFMLSprite();
+
+		IRectangle GetTextureRectangle() const;
 		void SetTextureRect(const IRectangle& rectangle);
 		void SetTexture(Texture& texture, bool resetRectangle = false);
 

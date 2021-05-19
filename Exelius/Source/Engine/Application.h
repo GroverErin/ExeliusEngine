@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Source/Utility/Generic/Singleton.h"
-#include "Source/OS/Interface/Graphics/Window.h"
+#include "Source/OS/Events/EventManagement.h"
+#include "Source/Utility/Containers/Vector2.h"
+
+#include "EASTL/string.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -21,9 +24,10 @@ namespace Exelius
 		: public Singleton<Application>, public OSEventObserver
 	{
 		//inline static Application* s_pAppInstance = nullptr;
-		Window m_window;
 		ResourceFactory* m_pResourceFactory;
 		ComponentFactory* m_pComponentFactory;
+		eastl::string m_windowTitle;
+		Vector2u m_windowSize;
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;
@@ -34,10 +38,8 @@ namespace Exelius
 		/// This class contains the main loop and provides functions for the client
 		/// to inject into the main loop.
 		/// </summary>
-		/// <param name="title">The name of the window to be opened. Default: "Exelius Engine"</param>
-		/// <param name="width">The width of the window to be opened. Default: 1280</param>
-		/// <param name="height">The height of the window to be opened. Default: 720</param>
-		Application(const eastl::string& title = "Exelius Engine", unsigned int width = 1280, unsigned int height = 720);
+		Application(const eastl::string& title = "ExeliusEngine", unsigned int width = 1280, unsigned int height = 720);
+		Application(const eastl::string& title = "ExeliusEngine", const Vector2u& windowSize = { 1280, 720 });
 		Application() = delete;
 		Application(const Application&) = delete;
 		Application(Application&&) = delete;
@@ -128,7 +130,7 @@ namespace Exelius
 		//static const Application& GetInstance() { return *s_pAppInstance; }
 
 		// TEMP
-		Window& GetWindow() { return m_window; }
+		//Window& GetWindow() { return m_window; }
 	};
 	
 	// Defined in Entrypoint.h and by the client.

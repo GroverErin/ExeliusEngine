@@ -5,6 +5,12 @@
 
 namespace Exelius
 {
+	SFMLTexture::~SFMLTexture()
+	{
+		delete m_pSFMLTexture;
+		m_pSFMLTexture = nullptr;
+	}
+
 	bool SFMLTexture::LoadFromMemory(const std::byte* pData, size_t dataSize)
 	{
 		EXE_ASSERT(pData);

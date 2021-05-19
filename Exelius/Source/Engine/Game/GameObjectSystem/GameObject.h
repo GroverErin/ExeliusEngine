@@ -59,7 +59,7 @@ namespace Exelius
         /// </summary>
         /// <param name="pResource">The JSON TextFile resource containing object data.</param>
         /// <returns>True on success, false on failure.</returns>
-        bool Initialize(TextFileResource* pResource);
+        bool Initialize(const eastl::string& rawText);
 
         /// <summary>
         /// Removes all the components attached to this GameObject.

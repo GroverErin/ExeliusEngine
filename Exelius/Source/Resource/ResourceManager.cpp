@@ -220,7 +220,7 @@ namespace Exelius
 
 		// Decrement the reference count of this resource.
 		// If there is no longer any references to this resource, then unload it.
-		if (!pResourceEntry->DecrementRefCount())
+		if (pResourceEntry->DecrementRefCount())
 			m_resourceDatabase.Unload(resourceID);
 
 		EXELOG_ENGINE_TRACE("Release Complete.");
@@ -278,7 +278,7 @@ namespace Exelius
 	Resource* ResourceManager::GetResource(const ResourceID& resourceID, bool forceLoad)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		EXELOG_ENGINE_TRACE("Main Thread Attempting to Retrieve Resource: {}", resourceID.Get().c_str());
+		EXELOG_ENGINE_TRACE("Attempting to Retrieve Resource: {}", resourceID.Get().c_str());
 
 		ResourceEntry* pResourceEntry = m_resourceDatabase.GetEntry(resourceID);
 
@@ -290,7 +290,7 @@ namespace Exelius
 		}
 		else if (!pResourceEntry)
 		{
-			EXELOG_ENGINE_TRACE("ResourceEntry not found.");
+			EXELOG_ENGINE_INFO("ResourceEntry not found.");
 			return nullptr;
 		}
 

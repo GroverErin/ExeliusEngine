@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Source/Utility/Containers/Vector2.h"
-#include <string>
+#include "EASTL/string.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -72,14 +72,22 @@ namespace Exelius
 		return std::sqrtf(SquareDistance(pos1, pos2));
 	}
 
-	static inline unsigned int HashString(const std::string& pName)
+	// TODO:
+	//	These hashing functions need work:
+	//		Static error checking for invalid types.
+	//		Write FNV-1a Hash instead of eastl::hash. <- Important due to how std and eastl handles the prime number sizes.
+	//		Properly handle <32 bit sizes.
+
+	template <class ReturnType>
+	static inline ReturnType HashString(const eastl::string& pName)
 	{
-		std::hash<std::string> hasher;
-		return static_cast<unsigned int>(hasher(pName));
+		eastl::hash<eastl::string> hasher;
+		return static_cast<ReturnType>(hasher(pName));
 	}
 
-	static inline unsigned int HashString(const char* pName)
+	template <class ReturnType>
+	static inline ReturnType HashString(const char* pName)
 	{
-		return HashString(std::string(pName));
+		return HashString<ReturnType>(eastl::string(pName));
 	}
 }

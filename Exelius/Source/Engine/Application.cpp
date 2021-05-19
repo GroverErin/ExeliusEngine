@@ -1,17 +1,17 @@
 #include "EXEPCH.h"
 
 #include "Source/Engine/Application.h"
-#include "Source/OS/Events/ApplicationEvents.h"
+#include "Source/Engine/Resources/ExeliusResourceFactory.h"
+#include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
+#include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
 
 #include "Source/Render/RenderManager.h"
 
-#include "Source/OS/Input/InputManager.h"
-
 #include "Source/Resource/ResourceManager.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
 
-#include "Source/Engine/Resources/ExeliusResourceFactory.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
+#include "Source/OS/Input/InputManager.h"
+#include "Source/OS/Events/ApplicationEvents.h"
+#include "Source/OS/Interface/Graphics/Window.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -25,23 +25,28 @@ namespace Exelius
 	/// This class contains the main loop and provides functions for the client
 	/// to inject into the main loop.
 	/// </summary>
-	/// <param name="title">The name of the window to be opened. Default: "Exelius Engine"</param>
-	/// <param name="width">The width of the window to be opened. Default: 1280</param>
-	/// <param name="height">The height of the window to be opened. Default: 720</param>
 	Application::Application(const eastl::string& title, unsigned int width, unsigned int height)
-		: m_window(title, width, height)
-		, m_pResourceFactory(nullptr)
+		: m_pResourceFactory(nullptr)
 		, m_pComponentFactory(nullptr)
 		, m_lastFrameTime(0.0f)
+		, m_windowTitle(title)
+		, m_windowSize({ width, height })
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
 	{
-		m_window.GetEventMessenger().AddObserver(*this);
+		//
+	}
 
-		InputManager::SetSingleton(new InputManager());
-		EXE_ASSERT(InputManager::GetInstance());
-
-		m_window.GetEventMessenger().AddObserver(*InputManager::GetInstance());
+	Application::Application(const eastl::string& title, const Vector2u& windowSize)
+		: m_pResourceFactory(nullptr)
+		, m_pComponentFactory(nullptr)
+		, m_lastFrameTime(0.0f)
+		, m_windowTitle(title)
+		, m_windowSize(windowSize)
+		, m_isRunning(true)
+		, m_hasLostFocus(false)
+	{
+		//
 	}
 
 	Application::~Application()
@@ -53,33 +58,36 @@ namespace Exelius
 
 		ResourceManager::DestroySingleton();
 
-		m_window.GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
-
+		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
 		InputManager::DestroySingleton();
 
+		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*this);
 		RenderManager::DestroySingleton();
 
-		m_window.GetEventMessenger().RemoveObserver(*this);
 	}
 
 	bool Application::InitializeExelius()
 	{
 		RenderManager::SetSingleton(new RenderManager());
 		EXE_ASSERT(RenderManager::GetInstance());
-
-		if (!RenderManager::GetInstance()->Initialize())
+		if (!RenderManager::GetInstance()->Initialize(m_windowTitle, m_windowSize))
 		{
 			EXELOG_ENGINE_FATAL("Exelius::RenderManager failed to initialize.");
 			return false;
 		}
 
-		//m_window.SetVSync(false);
+		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*this);
+		//RenderManager::GetInstance()->GetWindow()->SetVSync(false);
 
+		InputManager::SetSingleton(new InputManager());
+		EXE_ASSERT(InputManager::GetInstance());
 		if (!InputManager::GetInstance()->Initialize())
 		{
 			EXELOG_ENGINE_FATAL("Exelius::InputManager failed to initialize.");
 			return false;
 		}
+
+		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*InputManager::GetInstance());
 
 		SetResourceFactory();
 		EXE_ASSERT(m_pResourceFactory);
@@ -122,17 +130,19 @@ namespace Exelius
 			// EXELOG_ENGINE_TRACE("DeltaTime: {}", deltaTime.count());
 
 			// Poll Window Events.
-			m_window.OnUpdate();
-			
+			RenderManager::GetInstance()->Update();
+
 			// Update Components.
 			GameObjectSystem::GetInstance()->Update();
 
 			// Client Update.
 			Update();
 
-			m_window.GetNativeWindow().Clear();
+			//RenderManager::GetInstance()->GetWindow()->GetNativeWindow().Clear();
 			GameObjectSystem::GetInstance()->Render();
-			m_window.OnRender();
+			//RenderManager::GetInstance()->GetWindow()->Render();
+
+			RenderManager::GetInstance()->EndRenderFrame();
 
 			previousTime = time;
 		}

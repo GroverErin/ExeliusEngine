@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Source/OS/Events/Event.h"
+//#include "Source/OS/Events/Event.h"
 #include <EASTL/list.h>
+
 // Events in Exelius are currently blocking, meaning when an event occurs it
 // immediately gets dispatched and must be dealt with right then an there.
 // For the future, a better strategy might be to buffer events in an event
 // bus and process them during the "event" part of the update stage.
-
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -15,6 +15,8 @@
 /// </summary>
 namespace Exelius
 {
+	class Event;
+
 	/// <summary>
 	/// Inheret from this class in order to Observe OS events.
 	/// </summary>

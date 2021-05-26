@@ -58,14 +58,13 @@ namespace Exelius
 		delete m_pComponentFactory;
 		m_pComponentFactory = nullptr;
 
-		ResourceManager::DestroySingleton();
-
 		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
 		InputManager::DestroySingleton();
 
 		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*this);
 		RenderManager::DestroySingleton();
 
+		ResourceManager::DestroySingleton();
 	}
 
 	bool Application::InitializeExelius()

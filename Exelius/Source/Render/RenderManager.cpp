@@ -23,9 +23,9 @@ namespace Exelius
 	{
 		m_advancedBuffer.clear();
 
-		m_intermediateBufferLock.lock();
+		m_intermediateBufferMutex.lock();
 		m_intermediateBuffer.clear();
-		m_intermediateBufferLock.unlock();
+		m_intermediateBufferMutex.unlock();
 
 		// Tell the thread we are done.
 		m_quitThread = true;
@@ -42,14 +42,14 @@ namespace Exelius
 	{
 		m_advancedBuffer.clear();
 
-		m_intermediateBufferLock.lock();
+		m_intermediateBufferMutex.lock();
 		m_intermediateBuffer.clear();
-		m_intermediateBufferLock.unlock();
+		m_intermediateBufferMutex.unlock();
 
 		EXE_ASSERT(!m_pWindow);
 		m_pWindow = new Window(title, windowSize);
 		EXE_ASSERT(m_pWindow);
-
+		m_pWindow->SetVSync(false);
 		m_pWindow->SetActive(false);
 
 		m_renderThread = std::thread(&RenderManager::RenderThread, this);
@@ -70,16 +70,15 @@ namespace Exelius
 
 	void RenderManager::EndRenderFrame()
 	{
+		SwapRenderCommandBuffer(m_advancedBuffer);
+		++m_framesBehind;
+		m_advancedBuffer.clear();
+
 		if (m_framesBehind > s_kMaxFramesBehind)
 		{
 			// wait for render thread.
 			SignalAndWaitForRenderThread();
 		}
-
-		SwapRenderCommandBuffer(m_advancedBuffer);
-		++m_framesBehind;
-
-		m_advancedBuffer.clear();
 
 		EXE_ASSERT(m_renderThread.joinable());
 
@@ -96,6 +95,7 @@ namespace Exelius
 	{
 		// TODO:
 		// Check if this view already exists?
+		// Maybe not necessary, as it should replace any existing view.
 		m_viewListLock.lock();
 		m_views.emplace_back(viewID, view);
 		m_viewListLock.unlock();
@@ -104,9 +104,8 @@ namespace Exelius
 	void RenderManager::RenderThread()
 	{
 		EXELOG_ENGINE_INFO("Instantiating Render Thread.");
-		std::mutex waitMutex;
 		eastl::vector<RenderCommand> backBuffer;
-		std::unique_lock<std::mutex> waitLock(waitMutex);
+		std::unique_lock<std::mutex> waitLock(m_signalMutex);
 
 		EXE_ASSERT(m_pWindow);
 		if (!m_pWindow->SetActive(true))
@@ -122,9 +121,9 @@ namespace Exelius
 				{
 					bool empty = true;
 
-					m_intermediateBufferLock.lock();
+					m_intermediateBufferMutex.lock();
 					empty = m_intermediateBuffer.empty();
-					m_intermediateBufferLock.unlock();
+					m_intermediateBufferMutex.unlock();
 
 					return m_quitThread || !empty;
 				});
@@ -133,7 +132,7 @@ namespace Exelius
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
-				continue;
+				break;
 
 			/// Capture the deferred queue into the processing queue (swap buffers)
 			SwapRenderCommandBuffer(backBuffer);
@@ -212,7 +211,7 @@ namespace Exelius
 			for (auto& command : backBuffer)
 			{
 				// TODO:
-			//	Crappy Conversion.
+				//	Crappy Conversion.
 				Vector2f tempVect;
 				tempVect.x = command.m_spriteFrame.GetSize().x * command.m_scaleFactor.x;
 				tempVect.y = command.m_spriteFrame.GetSize().y * command.m_scaleFactor.y;
@@ -234,9 +233,9 @@ namespace Exelius
 
 	void RenderManager::SwapRenderCommandBuffer(eastl::vector<RenderCommand>& bufferToSwap)
 	{
-		m_intermediateBufferLock.lock();
+		m_intermediateBufferMutex.lock();
 		bufferToSwap.swap(m_intermediateBuffer);
-		m_intermediateBufferLock.unlock();
+		m_intermediateBufferMutex.unlock();
 	}
 
 	void RenderManager::SortRenderQueue(eastl::vector<RenderCommand>& bufferToSort)
@@ -250,64 +249,25 @@ namespace Exelius
 		// TODO: Document this Radix Sort
 		//https://bitsquid.blogspot.com/2017/02/stingray-renderer-walkthrough-4-sorting.html
 		//https://www.interviewcake.com/concept/java/radix-sort
-
-		// For each bit in the RenderCommand sort key...
-		for (int bit = 0; bit <= s_kBitCount; ++bit)
-		{
-			// Sort the RenderCommand buffer by that bit.
-			SortRenderQueueByBit(bufferToSort, bit);
-		}
-	}
-
-	void RenderManager::SortRenderQueueByBit(eastl::vector<RenderCommand>& bufferToSort, int bit)
-	{
-		// Store the total count of 1's and 0's at this bit.
-		// bitCounts[0] is the number of 0's.
-		// bitCount[1] is the number of 1's.
-		eastl::vector<int> bitCounts(2, 0);
-
-		// For each rendercommand in the buffer.
-		for (auto& command : bufferToSort)
-		{
-			// Get the value at that bit and increment the count for it's respective value.
-			bitCounts[GetBitValue(command.m_renderSortKey, bit)] += 1;
-		}
-
-		eastl::vector<int> sortIndices{ 0, bitCounts[0] };
-
-		// Create a vector of the same size as the buffer to sort.
-		eastl::vector<RenderCommand> sortedBuffer(bufferToSort.size());
-
-		for (auto& command : bufferToSort)
-		{
-			int keyBitValue = GetBitValue(command.m_renderSortKey, bit);
-
-			sortedBuffer[sortIndices[keyBitValue]] = command;
-
-			sortIndices[keyBitValue] += 1;
-		}
-
-		bufferToSort.swap(sortedBuffer);
-	}
-
-	int RenderManager::GetBitValue(uint64_t sortKey, int bit)
-	{
-		int mask = 1 << bit;
-		if ((sortKey & mask) != 0)
-			return 1;
-		return 0;
 	}
 
 	void RenderManager::SignalAndWaitForRenderThread()
 	{
 		EXE_ASSERT(m_renderThread.joinable());
-		EXELOG_ENGINE_TRACE("Signaling Render Thread.");
+		EXELOG_ENGINE_INFO("Signaling Render Thread.");
 		m_signalThread.notify_one();
 
-		std::mutex waitMutex;
-		std::unique_lock<std::mutex> waitLock(waitMutex);
+		std::unique_lock<std::mutex> waitLock(m_signalMutex);
 
-		EXELOG_ENGINE_INFO("Waiting for response from Render Thread.");
-		m_signalThread.wait(waitLock);
+		m_signalThread.wait(waitLock, [this]()
+			{
+				bool empty = true;
+
+				m_intermediateBufferMutex.lock();
+				empty = m_intermediateBuffer.empty();
+				m_intermediateBufferMutex.unlock();
+
+				return m_quitThread || empty;
+			});
 	}
 }

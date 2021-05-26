@@ -374,7 +374,7 @@ namespace Exelius
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
-				continue;
+				break;
 
 			/// Capture the deferred queue into the processing queue (swap buffers)
 			m_deferredQueueLock.lock();

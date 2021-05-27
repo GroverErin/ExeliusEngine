@@ -11,6 +11,27 @@
 
 namespace Exelius
 {
+	bool RenderCommand::operator()(const RenderCommand& left, const RenderCommand& right)
+	{
+		// Sort By Z
+		if (left.m_zOrder != right.m_zOrder)
+			return (left.m_zOrder < right.m_zOrder);
+		
+		// Sort By Texture
+		if (left.m_texture != right.m_texture)
+			return (left.m_texture < right.m_texture);
+
+		float leftLowestY = left.m_position.y + (left.m_spriteFrame.m_width * left.m_scaleFactor.y);
+		float rightLowestY = right.m_position.y + (right.m_spriteFrame.m_width * right.m_scaleFactor.y);
+
+		// Sort By Bottom of Sprite y + h
+		if (leftLowestY != rightLowestY)
+			return (leftLowestY < rightLowestY);
+
+		// sort by x
+		return (left.m_position.x < right.m_position.x);
+	}
+
 	RenderManager::RenderManager()
 		: m_quitThread(false)
 		, m_framesBehind(0)
@@ -70,19 +91,26 @@ namespace Exelius
 
 	void RenderManager::EndRenderFrame()
 	{
-		SwapRenderCommandBuffer(m_advancedBuffer);
-		++m_framesBehind;
-		m_advancedBuffer.clear();
+		if (!m_advancedBuffer.empty())
+		{
+			SwapRenderCommandBuffer(m_advancedBuffer);
+			++m_framesBehind;
+			m_advancedBuffer.clear();
+		}
 
 		if (m_framesBehind > s_kMaxFramesBehind)
 		{
 			// wait for render thread.
 			SignalAndWaitForRenderThread();
 		}
+		else
+		{
+			EXELOG_ENGINE_INFO("Signaling Render Thread.");
+			m_signalThread.notify_one();
+		}
 
+		EXE_ASSERT(m_framesBehind <= s_kMaxFramesBehind);
 		EXE_ASSERT(m_renderThread.joinable());
-
-		m_signalThread.notify_one();
 	}
 
 	Window* RenderManager::GetWindow()
@@ -105,7 +133,6 @@ namespace Exelius
 	{
 		EXELOG_ENGINE_INFO("Instantiating Render Thread.");
 		eastl::vector<RenderCommand> backBuffer;
-		std::unique_lock<std::mutex> waitLock(m_signalMutex);
 
 		EXE_ASSERT(m_pWindow);
 		if (!m_pWindow->SetActive(true))
@@ -117,6 +144,7 @@ namespace Exelius
 		while (!m_quitThread)
 		{
 			// Wait until we are signaled to work.
+			std::unique_lock<std::mutex> waitLock(m_signalMutex);
 			m_signalThread.wait(waitLock, [this]()
 				{
 					bool empty = true;
@@ -138,7 +166,7 @@ namespace Exelius
 			SwapRenderCommandBuffer(backBuffer);
 			m_framesBehind = 0;
 
-			//SortRenderQueue(backBuffer);
+			eastl::stable_sort(backBuffer.begin(), backBuffer.end(), RenderCommand());
 
 			// Render Clear
 			m_pWindow->Clear();
@@ -156,6 +184,7 @@ namespace Exelius
 			// Render Display
 			m_pWindow->Render();
 
+			waitLock.unlock();
 			m_signalThread.notify_one();
 		}
 
@@ -238,19 +267,6 @@ namespace Exelius
 		m_intermediateBufferMutex.unlock();
 	}
 
-	void RenderManager::SortRenderQueue(eastl::vector<RenderCommand>& bufferToSort)
-	{
-		// First sort by Y axis
-		// TODO: Improve this!
-
-		eastl::stable_sort(bufferToSort.begin(), bufferToSort.end(),
-			[](const RenderCommand& a, const RenderCommand& b) { return a.m_position.y < b.m_position.y; });
-
-		// TODO: Document this Radix Sort
-		//https://bitsquid.blogspot.com/2017/02/stingray-renderer-walkthrough-4-sorting.html
-		//https://www.interviewcake.com/concept/java/radix-sort
-	}
-
 	void RenderManager::SignalAndWaitForRenderThread()
 	{
 		EXE_ASSERT(m_renderThread.joinable());
@@ -258,16 +274,11 @@ namespace Exelius
 		m_signalThread.notify_one();
 
 		std::unique_lock<std::mutex> waitLock(m_signalMutex);
-
 		m_signalThread.wait(waitLock, [this]()
 			{
-				bool empty = true;
-
-				m_intermediateBufferMutex.lock();
-				empty = m_intermediateBuffer.empty();
-				m_intermediateBufferMutex.unlock();
-
-				return m_quitThread || empty;
+				return (m_framesBehind == 0);
 			});
+
+		waitLock.unlock();
 	}
 }

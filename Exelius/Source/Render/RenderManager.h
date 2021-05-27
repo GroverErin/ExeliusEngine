@@ -29,20 +29,15 @@ namespace Exelius
 			World
 		};
 
-		void SetRenderLayer(RenderLayer layer) { m_renderLayer = layer; }
-		void SetTexture(const ResourceID& textureID) { m_texture = textureID; }
-		void SetWorldPosition(const Vector2f& postion) { m_position = postion; }
-		void SetTextureFrame(IRectangle rectangle) { m_spriteFrame = rectangle; }
-		void SetShader(const ResourceID& shaderID) { m_shader = shaderID; }
-	
-		void SetWorldScale(const Vector2f& scaleFactor) { m_scaleFactor = scaleFactor; }
-
 		RenderLayer m_renderLayer;
 		ResourceID m_shader;
 		ResourceID m_texture;
 		IRectangle m_spriteFrame;
 		Vector2f m_position;
 		Vector2f m_scaleFactor;
+		int m_zOrder;
+
+		bool operator() (const RenderCommand& left, const RenderCommand& right);
 	};
 
 	FORWARD_DECLARE(Window);
@@ -99,9 +94,6 @@ namespace Exelius
 
 		// Swap the input buffer with the temp buffer.
 		void SwapRenderCommandBuffer(eastl::vector<RenderCommand>& bufferToSwap);
-		
-		// Sort the rendercommands by key. See comments in .cpp
-		void SortRenderQueue(eastl::vector<RenderCommand>& bufferToSort);
 		
 		// Used when this Manager is destroyed in order to stop the thread.
 		void SignalAndWaitForRenderThread();

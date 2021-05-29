@@ -50,7 +50,7 @@ function eastl.Include(rootDir)
 	filter{"platforms:x86", "configurations:Release", "system:windows"}
 		libdirs
 		{
-			rootDir .. [[lib/Win32/MinSizeRel/]]
+			rootDir .. [[lib/Win32/Release/]]
 		}
 
 	filter{"platforms:x64", "configurations:Debug", "system:windows"}
@@ -68,7 +68,7 @@ function eastl.Include(rootDir)
 	filter{"platforms:x64", "configurations:Release", "system:windows"}
 		libdirs
 		{
-			rootDir .. [[lib/Win64/MinSizeRel/]]
+			rootDir .. [[lib/Win64/Release/]]
 		}
 		
 	--------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ function eastl.Include(rootDir)
 	filter{"platforms:x86", "configurations:Test", "system:linux"}
 		libdirs
 		{
-			rootDir .. [[lib/Lin32/Release/]]
+			rootDir .. [[lib/Lin32/RelWithDebInfo/]]
 		}
 
 	filter{"platforms:x86", "configurations:Release", "system:linux"}
@@ -102,7 +102,7 @@ function eastl.Include(rootDir)
 	filter{"platforms:x64", "configurations:Test", "system:linux"}
 		libdirs
 		{
-			rootDir .. [[lib/Lin64/Release/]]
+			rootDir .. [[lib/Lin64/RelWithDebInfo/]]
 		}
 
 	filter{"platforms:x64", "configurations:Release", "system:linux"}
@@ -124,7 +124,7 @@ function eastl.Include(rootDir)
 	filter{"platforms:rpi86", "configurations:Test", "system:linux"}
 		libdirs
 		{
-			rootDir .. [[lib/Rpi32/Release/]]
+			rootDir .. [[lib/Rpi32/RelWithDebInfo/]]
 		}
 
 	filter{"platforms:rpi86", "configurations:Release", "system:linux"}
@@ -142,7 +142,7 @@ function eastl.Include(rootDir)
 	filter{"platforms:rpi64", "configurations:Test", "system:linux"}
 		libdirs
 		{
-			rootDir .. [[lib/Rpi64/Release/]]
+			rootDir .. [[lib/Rpi64/RelWithDebInfo/]]
 		}
 
 	filter{"platforms:rpi64", "configurations:Release", "system:linux"}

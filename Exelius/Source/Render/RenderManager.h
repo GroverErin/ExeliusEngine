@@ -37,7 +37,7 @@ namespace Exelius
 		Vector2f m_scaleFactor;
 		int m_zOrder;
 
-		bool operator() (const RenderCommand& left, const RenderCommand& right);
+		bool operator<(const RenderCommand& command) const;
 	};
 
 	FORWARD_DECLARE(Window);

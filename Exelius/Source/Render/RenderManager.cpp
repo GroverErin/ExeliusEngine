@@ -11,25 +11,25 @@
 
 namespace Exelius
 {
-	bool RenderCommand::operator()(const RenderCommand& left, const RenderCommand& right)
+	bool RenderCommand::operator<(const RenderCommand& command) const
 	{
 		// Sort By Z
-		if (left.m_zOrder != right.m_zOrder)
-			return (left.m_zOrder < right.m_zOrder);
-		
-		// Sort By Texture
-		if (left.m_texture != right.m_texture)
-			return (left.m_texture < right.m_texture);
+		if (m_zOrder != command.m_zOrder)
+			return (m_zOrder < command.m_zOrder);
 
-		float leftLowestY = left.m_position.y + (left.m_spriteFrame.m_width * left.m_scaleFactor.y);
-		float rightLowestY = right.m_position.y + (right.m_spriteFrame.m_width * right.m_scaleFactor.y);
+		// Sort By Texture
+		if (m_texture != command.m_texture)
+			return (m_texture < command.m_texture);
+
+		float leftLowestY = m_position.y + (m_spriteFrame.m_width * m_scaleFactor.y);
+		float rightLowestY = command.m_position.y + (command.m_spriteFrame.m_width * command.m_scaleFactor.y);
 
 		// Sort By Bottom of Sprite y + h
 		if (leftLowestY != rightLowestY)
 			return (leftLowestY < rightLowestY);
 
 		// sort by x
-		return (left.m_position.x < right.m_position.x);
+		return (m_position.x < command.m_position.x);
 	}
 
 	RenderManager::RenderManager()
@@ -166,7 +166,9 @@ namespace Exelius
 			SwapRenderCommandBuffer(backBuffer);
 			m_framesBehind = 0;
 
-			eastl::stable_sort(backBuffer.begin(), backBuffer.end(), RenderCommand());
+			// TODO:
+			// Maybe eastl::stable_sort is what I want here?
+			eastl::sort(backBuffer.begin(), backBuffer.end());
 
 			// Render Clear
 			m_pWindow->Clear();

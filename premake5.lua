@@ -11,6 +11,33 @@
 	License along with this Engine.
 --]]
 ------------------------------------------------------------------------------------------------------
+
+-- Define available arguments for this script.
+newoption
+{
+	trigger = "configuration",
+	value = "Config",
+	description = "The configuration that Premake should generate.",
+	allowed = {
+		{"release", "Release"},
+		{"test", "Test"},
+		{"debug", "Debug"}
+	}
+}
+
+newoption
+{
+	trigger = "architecture",
+	value = "Arch",
+	description = "The architecture that Premake should generate for.",
+	allowed = {
+		{"rpi64", "Raspberry Pi x64"},
+		{"rpi86", "Raspberry Pi x86"},
+		{"x64", "Linux x64"},
+		{"x86", "Linux x86"}
+	}
+}
+
 term.setTextColor(term.white)
 printf("--------- Beginning Premake File Generation ---------")
 

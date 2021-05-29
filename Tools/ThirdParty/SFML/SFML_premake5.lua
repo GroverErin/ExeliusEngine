@@ -30,21 +30,21 @@ function sfml.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
+	filter{"platforms:x86", "configurations:Debug", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/Debug/]],
 			rootDir .. [[extlibs/libs-msvc/x86/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Test", "system:windows"}
+	filter{"platforms:x86", "configurations:Test", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/RelWithDebInfo/]],
 			rootDir .. [[extlibs/libs-msvc/x86/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Release", "system:windows"}
+	filter{"platforms:x86", "configurations:Release", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/MinSizeRel/]],
@@ -76,19 +76,19 @@ function sfml.Include(rootDir)
 	-- Linux Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:linux"}
+	filter{"platforms:x86", "configurations:Debug", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Debug/]],
 		}
 
-	filter{"platforms:Win32", "configurations:Test", "system:linux"}
+	filter{"platforms:x86", "configurations:Test", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Release/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Release", "system:linux"}
+	filter{"platforms:x86", "configurations:Release", "system:linux"}
 		libdirs
 		{
 			rootDir .. [[lib/Lin32/Release/]]
@@ -110,6 +110,46 @@ function sfml.Include(rootDir)
 		libdirs
 		{
 			rootDir .. [[lib/Lin64/Release/]]
+		}
+
+	--------------------------------------------------------------------------------------------------
+	-- Raspberry Pi Library Directories
+	--------------------------------------------------------------------------------------------------
+
+	filter{"platforms:rpi86", "configurations:Debug", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Rpi32/Debug/]],
+		}
+
+	filter{"platforms:rpi86", "configurations:Test", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Rpi32/Release/]]
+		}
+
+	filter{"platforms:rpi86", "configurations:Release", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Rpi32/Release/]]
+		}
+
+	filter{"platforms:rpi64", "configurations:Debug", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Rpi64/Debug/]],
+		}
+
+	filter{"platforms:rpi64", "configurations:Test", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Rpi64/Release/]]
+		}
+
+	filter{"platforms:rpi64", "configurations:Release", "system:linux"}
+		libdirs
+		{
+			rootDir .. [[lib/Rpi64/Release/]]
 		}
 
 	filter("system:windows")
@@ -194,11 +234,17 @@ function sfml.Link(rootdir, exeliusLibDir)
 	filter{"configurations:Debug", "system:linux"}
 		links
 		{
-			"sfml-audio-d",
-			"sfml-graphics-d",
-			"sfml-network-d",
-			"sfml-system-d",
-			"sfml-window-d"
+			"sfml-audio-s-d",
+			"sfml-graphics-s-d",
+			"sfml-network-s-d",
+			"sfml-window-s-d",
+			"sfml-system-s-d",
+			"pthread",
+			"X11",
+			"dl",
+			"Xrandr",
+			"Xcursor",
+			"udev"
 		}
 
 	filter{"configurations:Test", "system:linux"}
@@ -207,18 +253,30 @@ function sfml.Link(rootdir, exeliusLibDir)
 			"sfml-audio",
 			"sfml-graphics",
 			"sfml-network",
+			"sfml-window",
 			"sfml-system",
-			"sfml-window"
+			"pthread",
+			"X11",
+			"dl",
+			"Xrandr",
+			"Xcursor",
+			"udev"
 		}
 
 	filter{"configurations:Release", "system:linux"}
 		links 
 		{
-			"sfml-audio",
-			"sfml-graphics",
-			"sfml-network",
-			"sfml-system",
-			"sfml-window"
+			"sfml-audio-s",
+			"sfml-graphics-s",
+			"sfml-network-s",
+			"sfml-window-s",
+			"sfml-system-s",
+			"pthread",
+			"X11",
+			"dl",
+			"Xrandr",
+			"Xcursor",
+			"udev"
 		}
 
 	filter {}

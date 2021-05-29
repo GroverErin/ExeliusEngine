@@ -67,11 +67,11 @@ read -p 'Configuration: ' userConfig
 # Error Checking and/or Set Default Value
 
 if [ "$userConfig" == "-r" ] || [ "$userConfig" == "--release" ] || [ "$userConfig" == "" ]; then
-    userConfig="--configuration=release"
+    userConfig="--configuration=Release"
 elif [ "$userConfig" == "-t" ] || [ "$userConfig" == "--test" ]; then
-    userConfig="--configuration=test"
+    userConfig="--configuration=Test"
 elif [ "$userConfig" == "-d" ] || [ "$userConfig" == "--debug" ]; then
-    userConfig="--configuration=debug"
+    userConfig="--configuration=Debug"
 else
     echo "$userConfig is an invalid Configuration type."
     exit
@@ -83,8 +83,8 @@ fi
 
 if [ "$userArchitecture" == "--architecture=rpi64" ] || [ "$userArchitecture" == "--architecture=rpi86" ]; then
     echo Running Premake for Rapsberry Pi.
-    #cd ../
-    #./Tools/ThirdParty/premake-core/RaspberryPi/premake5 gmake $userArchitecture $userConfig
+    cd ../
+    ./Tools/ThirdParty/premake-core/RaspberryPi/premake5 gmake $userArchitecture $userConfig
 elif [ "$userArchitecture" == "--architecture=x64" ] || [ "$userArchitecture" == "--architecture=x86" ]; then
     echo Running Premake for Linux.
     #cd ../
@@ -101,13 +101,13 @@ fi
 # Run Built Executable
 # ---------------------------------------------------------------------------------------------------
 
-if [ "$userConfig" == "--configuration=release" ]; then
+if [ "$userConfig" == "--configuration=Release" ]; then
     echo Running Release Configuration.
     # export LD_LIBRARY_PATH=..\Tools\ThirdParty\SFML\lib\Linux\Release\ && ../Builds/Release_x86_64/EXESandbox/EXESandbox
-elif [ "$userConfig" == "--configuration=test" ]; then
+elif [ "$userConfig" == "--configuration=Test" ]; then
     echo Running Test Configuration.
     # export LD_LIBRARY_PATH=..\Tools\ThirdParty\SFML\lib\Linux\Release\ && ../Builds/Test_x86_64/EXESandbox/EXESandbox
-elif [ "$userConfig" == "--configuration=debug" ]; then
+elif [ "$userConfig" == "--configuration=Debug" ]; then
     echo Running Debug Configuration.
     # export LD_LIBRARY_PATH=..\Tools\ThirdParty\SFML\lib\Linux\Debug\ && ../Builds/Debug_x86_64/EXESandbox/EXESandbox
 fi

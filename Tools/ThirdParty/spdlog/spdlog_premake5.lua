@@ -31,19 +31,19 @@ function spdlog.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
+	filter{"platforms:x86", "configurations:Debug", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/Debug/]],
         }
 
-    filter{"platforms:Win32", "configurations:Test", "system:windows"}
+    filter{"platforms:x86", "configurations:Test", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/RelWithDebInfo/]]
         }
 
-    filter{"platforms:Win32", "configurations:Release", "system:windows"}
+    filter{"platforms:x86", "configurations:Release", "system:windows"}
         libdirs
         {
             rootDir .. [[lib/Win32/MinSizeRel/]]
@@ -68,22 +68,22 @@ function spdlog.Include(rootDir)
         }
         
     --------------------------------------------------------------------------------------------------
-    -- Linux Library Directories
-    --------------------------------------------------------------------------------------------------
+	-- Linux Library Directories
+	--------------------------------------------------------------------------------------------------
 
-    filter{"platforms:Win32", "configurations:Debug", "system:linux"}
+	filter{"platforms:x86", "configurations:Debug", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Debug/]],
         }
 
-    filter{"platforms:Win32", "configurations:Test", "system:linux"}
+    filter{"platforms:x86", "configurations:Test", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Release/]]
         }
 
-    filter{"platforms:Win32", "configurations:Release", "system:linux"}
+    filter{"platforms:x86", "configurations:Release", "system:linux"}
         libdirs
         {
             rootDir .. [[lib/Lin32/Release/]]
@@ -105,6 +105,46 @@ function spdlog.Include(rootDir)
         libdirs
         {
             rootDir .. [[lib/Lin64/Release/]]
+        }
+
+    --------------------------------------------------------------------------------------------------
+    -- Raspberry Pi Library Directories
+    --------------------------------------------------------------------------------------------------
+
+    filter{"platforms:rpi86", "configurations:Debug", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi32/Debug/]],
+        }
+
+    filter{"platforms:rpi86", "configurations:Test", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi32/Release/]]
+        }
+
+    filter{"platforms:rpi86", "configurations:Release", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi32/Release/]]
+        }
+
+    filter{"platforms:rpi64", "configurations:Debug", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi64/Debug/]],
+        }
+
+    filter{"platforms:rpi64", "configurations:Test", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi64/Release/]]
+        }
+
+    filter{"platforms:rpi64", "configurations:Release", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi64/Release/]]
         }
 
     filter{}

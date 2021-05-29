@@ -30,19 +30,19 @@ function zlib.Include(rootDir)
 	-- Windows Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:windows"}
+	filter{"platforms:x86", "configurations:Debug", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/Debug/]],
 		}
 
-	filter{"platforms:Win32", "configurations:Test", "system:windows"}
+	filter{"platforms:x86", "configurations:Test", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/RelWithDebInfo/]]
 		}
 
-	filter{"platforms:Win32", "configurations:Release", "system:windows"}
+	filter{"platforms:x86", "configurations:Release", "system:windows"}
 		libdirs
 		{
 			rootDir .. [[lib/Win32/MinSizeRel/]]
@@ -70,43 +70,83 @@ function zlib.Include(rootDir)
 	-- Linux Library Directories
 	--------------------------------------------------------------------------------------------------
 
-	filter{"platforms:Win32", "configurations:Debug", "system:linux"}
-		libdirs
-		{
-			rootDir .. [[lib/Lin32/Debug/]],
-		}
+	filter{"platforms:x86", "configurations:Debug", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Lin32/Debug/]],
+        }
 
-	filter{"platforms:Win32", "configurations:Test", "system:linux"}
-		libdirs
-		{
-			rootDir .. [[lib/Lin32/Release/]]
-		}
+    filter{"platforms:x86", "configurations:Test", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Lin32/Release/]]
+        }
 
-	filter{"platforms:Win32", "configurations:Release", "system:linux"}
-		libdirs
-		{
-			rootDir .. [[lib/Lin32/Release/]]
-		}
+    filter{"platforms:x86", "configurations:Release", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Lin32/Release/]]
+        }
 
-	filter{"platforms:x64", "configurations:Debug", "system:linux"}
-		libdirs
-		{
-			rootDir .. [[lib/Lin64/Debug/]],
-		}
+    filter{"platforms:x64", "configurations:Debug", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Lin64/Debug/]],
+        }
 
-	filter{"platforms:x64", "configurations:Test", "system:linux"}
-		libdirs
-		{
-			rootDir .. [[lib/Lin64/Release/]]
-		}
+    filter{"platforms:x64", "configurations:Test", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Lin64/Release/]]
+        }
 
-	filter{"platforms:x64", "configurations:Release", "system:linux"}
-		libdirs
-		{
-			rootDir .. [[lib/Lin64/Release/]]
-		}
+    filter{"platforms:x64", "configurations:Release", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Lin64/Release/]]
+        }
 
-	filter{}
+    --------------------------------------------------------------------------------------------------
+    -- Raspberry Pi Library Directories
+    --------------------------------------------------------------------------------------------------
+
+    filter{"platforms:rpi86", "configurations:Debug", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi32/Debug/]],
+        }
+
+    filter{"platforms:rpi86", "configurations:Test", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi32/Release/]]
+        }
+
+    filter{"platforms:rpi86", "configurations:Release", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi32/Release/]]
+        }
+
+    filter{"platforms:rpi64", "configurations:Debug", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi64/Debug/]],
+        }
+
+    filter{"platforms:rpi64", "configurations:Test", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi64/Release/]]
+        }
+
+    filter{"platforms:rpi64", "configurations:Release", "system:linux"}
+        libdirs
+        {
+            rootDir .. [[lib/Rpi64/Release/]]
+        }
+
+    filter{}
 end
 
 function zlib.Link(rootdir, exeliusLibDir)
@@ -129,22 +169,10 @@ function zlib.Link(rootdir, exeliusLibDir)
 			"zlibstatic",
 		}
 
-	filter{"configurations:Debug", "system:linux"}
+	filter{"system:linux"}
 		links
 		{
-			"zlibstaticd",
-		}
-
-	filter{"configurations:Test", "system:linux"}
-		links 
-		{
-			"zlibstatic",
-		}
-
-	filter{"configurations:Release", "system:linux"}
-		links 
-		{
-			"zlibstatic",
+			"z",
 		}
 
 	filter {}

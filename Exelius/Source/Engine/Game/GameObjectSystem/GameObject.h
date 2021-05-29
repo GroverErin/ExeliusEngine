@@ -105,7 +105,7 @@ namespace Exelius
         {
             EXE_ASSERT(ComponentType::kType.IsValid());
 
-            Handle newHandle = GameObjectSystem::GetInstance()->AddComponent<ComponentType>();
+            Handle newHandle = GameObjectSystem::GetInstance()->CreateComponent<ComponentType>();
             EXE_ASSERT(newHandle.IsValid());
 
             m_components[ComponentType::kType] = newHandle;

@@ -12,7 +12,7 @@ namespace Exelius
 	/// </summary>
 	enum class KeyCode : char
 	{
-		Unknown = -1,		// Unhandled key
+		Unknown = 0,		// Unhandled key
 		Num0,
 		Num1,
 		Num2,

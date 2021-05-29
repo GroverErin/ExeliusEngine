@@ -29,25 +29,40 @@ end
 -- Adds the default settings for Exelius workspaces.
 function exeliusDefaults.WorkspaceDefaults()
 
-	-- Calls a premake command to generate the different build configurations.
-	configurations
-	{
-		"Debug",	-- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
-		"Test",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
-		"Release"	-- Contains compiler optimized code and packaged assets. (Fast and Light)
-	}
+	filter {"system:windows"}
+		-- Calls a premake command to generate the different build configurations.
+		configurations
+		{
+			"Debug",	-- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
+			"Test",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
+			"Release"	-- Contains compiler optimized code and packaged assets. (Fast and Light)
+		}
 
-	platforms
-	{
-		"x64",
-		"Win32"
-	}
+		platforms
+		{
+			"x64",
+			"x86"
+		}
 
-	-- Set the compilation process to be multithreaded, this only effects MSVC... not sure how to speed up Linux.
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+		-- Set the compilation process to be multithreaded, this only effects MSVC... not sure how to speed up Linux.
+		flags
+		{
+			"MultiProcessorCompile"
+		}
+	
+	filter {"system:linux"}
+		configurations
+		{
+			_OPTIONS["configuration"]
+		}
+
+		platforms
+		{
+			_OPTIONS["architecture"]
+		}
+
+	-- Reset filters
+	filter {}
 end
 
 -- Adds the default settings for any Exelius project.
@@ -70,8 +85,14 @@ function exeliusDefaults.ProjectDefaults()
 	filter("platforms:x64")
 		architecture("x86_64")
 
-	filter("platforms:Win32")
+	filter("platforms:x86")
 		architecture("x86")
+
+	filter("platforms:rpi86", "system:linux")
+		architecture("ARM")
+
+	filter("platforms:rpi64", "system:linux")
+		architecture("ARM64")
 
 	filter("configurations:Debug")
 		symbols("full")

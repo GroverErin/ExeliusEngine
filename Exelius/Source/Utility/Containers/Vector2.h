@@ -135,7 +135,7 @@ namespace Exelius
 		/// <returns>Float length.</returns>
 		float Length()
 		{
-			return eastl::sqrt(GetSquareLength());
+			return std::sqrt(GetSquareLength());
 		}
 
 		/// <summary>
@@ -148,7 +148,7 @@ namespace Exelius
 			if (x == 0 && y == 0)
 				return { 0,0 };
 
-			float length = eastl::sqrt(GetSquareLength());
+			float length = std::sqrt(GetSquareLength());
 			return { x / length, y / length };
 		}
 	};
@@ -161,7 +161,7 @@ namespace Exelius
 	template <typename NumberType>
 	inline Vector2<NumberType> operator -(const Vector2<NumberType>& right)
 	{
-		return Vector<NumberType>(-right.x, -right.y);
+		return Vector2<NumberType>(-right.x, -right.y);
 	}
 	
 	/// <summary>

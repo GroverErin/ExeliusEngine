@@ -12,7 +12,7 @@ namespace Exelius
 		using StringInternSet = eastl::hash_set<eastl::string>;
 
 		// why does not inlining cause build error??
-		inline static StringInternSet s_stringSet;
+		inline static StringInternSet s_stringSet = StringInternSet();
 		const eastl::string* m_pString;
 
 	public:

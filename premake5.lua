@@ -19,9 +19,9 @@ newoption
 	value = "Config",
 	description = "The configuration that Premake should generate.",
 	allowed = {
-		{"release", "Release"},
-		{"test", "Test"},
-		{"debug", "Debug"}
+		{"Release", "Release (Lightweight, Fast - Optimized w/o Debug)"},
+		{"Test", "Test (Heavy, Fast - Optimized w/ Debug)"},
+		{"Debug", "Debug (Heavy, Slow - Unoptimized)"}
 	}
 }
 
@@ -121,8 +121,8 @@ project("Exelius")
 	}
 
 	-- Retrieve and set any additional settings for the engine.
-	-- exeliusDefaults.InitializeEngine(exeliusDepends)
-	exeliusDefaults.IncludeLibHeaders(exeliusDepends)
+	exeliusDefaults.InitializeEngine(exeliusDepends)
+	--exeliusDefaults.IncludeLibHeaders(exeliusDepends)
 
 ------------------------------------------------------------------------------------------------------
 -- Exelius Sandbox Application Creation

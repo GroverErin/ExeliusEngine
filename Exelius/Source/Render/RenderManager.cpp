@@ -272,32 +272,65 @@ namespace Exelius
 			viewRect.m_width = static_cast<int>(view.second.GetSize().w);
 			viewRect.m_height = static_cast<int>(view.second.GetSize().h);
 
+			// TODO:
+			//	Does this really need to be dynamic?
+			//	We could set this to the max possible size,
+			//	meaning we would only allocate memory once.
+			//	Further, we could get the highest number of
+			//	"Like" textures and use that as max size.		
+			VertexArray vertices;
+
+			ResourceID currentTexture = backBuffer.front().m_texture;
+
 			// For each rendercommand...
 			for (auto& command : backBuffer)
 			{
 				if (!IsInViewBounds(command, viewRect))
 					continue;
 
-				// If rendercommand can be batched
-					// Batch it
-					// continue	
-				// else
+				// If rendercommand can't be batched
+				if (command.m_texture != currentTexture)
+				{
+					ResourceHandle texture(currentTexture);
+					auto* pTextureResource = texture.GetAs<TextureResource>();
+
+					if (!pTextureResource)
+					{
+						EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+						continue;
+					}
+
 					// Render current vertex buffer
+					m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+
 					// Clear Vertex Buffer
-					// Add this command to the buffer
-					// continue
+					vertices.Clear();
 
-				ResourceHandle texture(command.m_texture);
+					// Set the new current texture.
+					currentTexture = command.m_texture;
+				}
 
+				// Batch it
+				AddVertexToArray(vertices, command);
+			}
+
+			// If we still have stuff to draw, then draw it.
+			if (vertices.GetVertexCount() > 0)
+			{
+				ResourceHandle texture(currentTexture);
 				auto* pTextureResource = texture.GetAs<TextureResource>();
 
 				if (!pTextureResource)
-					continue;
+				{
+					EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+					return;
+				}
 
-				Sprite newSprite(*pTextureResource->GetTexture(), command.m_spriteFrame);
-				newSprite.SetPosition(command.m_position);
-				newSprite.SetScale(command.m_scaleFactor);
-				newSprite.GetNativeSprite().Render();
+				// Render current vertex buffer
+				m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+
+				// Clear Vertex Buffer
+				vertices.Clear();
 			}
 		}
 	}

@@ -17,10 +17,6 @@ namespace Exelius
 		if (m_zOrder != command.m_zOrder)
 			return (m_zOrder < command.m_zOrder);
 
-		// Sort By Texture
-		if (m_texture != command.m_texture)
-			return (m_texture < command.m_texture);
-
 		float leftLowestY = m_position.y + (m_spriteFrame.m_width * m_scaleFactor.y);
 		float rightLowestY = command.m_position.y + (command.m_spriteFrame.m_width * command.m_scaleFactor.y);
 
@@ -166,9 +162,7 @@ namespace Exelius
 			SwapRenderCommandBuffer(backBuffer);
 			m_framesBehind = 0;
 
-			// TODO:
-			// Maybe eastl::stable_sort is what I want here?
-			eastl::sort(backBuffer.begin(), backBuffer.end());
+			SortRenderCommands(backBuffer);
 
 			// Render Clear
 			m_pWindow->Clear();
@@ -204,18 +198,17 @@ namespace Exelius
 		// For each rendercommand...
 		for (auto& command : backBuffer)
 		{
-			// TODO:
-			//	Crappy Conversion.
-			Vector2f tempVect;
-			tempVect.x = command.m_spriteFrame.GetSize().x * command.m_scaleFactor.x;
-			tempVect.y = command.m_spriteFrame.GetSize().y * command.m_scaleFactor.y;
-
-			IRectangle rectToDraw(static_cast<Vector2i>(command.m_position), static_cast<Vector2i>(tempVect));
-			if (!windowRect.Intersects(rectToDraw))
+			if (!IsInViewBounds(command, windowRect))
 				continue;
 
 			// If rendercommand can be batched
 				// Batch it
+				// continue	
+			// else
+				// Render current vertex buffer
+				// Clear Vertex Buffer
+				// Add this command to the buffer
+				// continue
 
 			ResourceHandle texture(command.m_texture);
 
@@ -236,27 +229,39 @@ namespace Exelius
 		for (auto& view : m_views)
 		{
 			m_pWindow->SetView(view.second);
-			IRectangle windowRect({ 0,0 }, static_cast<Vector2i>(m_pWindow->GetWindowSize()));
+
+			// Build the view rectangle.
+			IRectangle viewRect;
+			viewRect.m_top = static_cast<int>(view.second.GetCenter().y - (view.second.GetSize().h / 2.0f));
+			viewRect.m_left = static_cast<int>(view.second.GetCenter().x - (view.second.GetSize().w / 2.0f));
+			viewRect.m_width = view.second.GetSize().w;
+			viewRect.m_height = view.second.GetSize().h;
 
 			// For each rendercommand...
 			for (auto& command : backBuffer)
 			{
-				// TODO:
-				//	Crappy Conversion.
-				Vector2f tempVect;
-				tempVect.x = command.m_spriteFrame.GetSize().x * command.m_scaleFactor.x;
-				tempVect.y = command.m_spriteFrame.GetSize().y * command.m_scaleFactor.y;
-
-				IRectangle rectToDraw(static_cast<Vector2i>(command.m_position), static_cast<Vector2i>(tempVect));
-				if (!windowRect.Intersects(rectToDraw))
+				if (!IsInViewBounds(command, viewRect))
 					continue;
 
 				// If rendercommand can be batched
-						// Batch it
+					// Batch it
+					// continue	
+				// else
+					// Render current vertex buffer
+					// Clear Vertex Buffer
+					// Add this command to the buffer
+					// continue
+
 				ResourceHandle texture(command.m_texture);
 
-				Sprite newSprite(*texture.GetAs<TextureResource>()->GetTexture(), rectToDraw);
+				auto* pTextureResource = texture.GetAs<TextureResource>();
 
+				if (!pTextureResource)
+					continue;
+
+				Sprite newSprite(*pTextureResource->GetTexture(), command.m_spriteFrame);
+				newSprite.SetPosition(command.m_position);
+				newSprite.SetScale(command.m_scaleFactor);
 				newSprite.GetNativeSprite().Render();
 			}
 		}
@@ -267,6 +272,40 @@ namespace Exelius
 		m_intermediateBufferMutex.lock();
 		bufferToSwap.swap(m_intermediateBuffer);
 		m_intermediateBufferMutex.unlock();
+	}
+
+	void RenderManager::SortRenderCommands(eastl::vector<RenderCommand>& bufferToSort)
+	{
+		// TODO:
+			// Maybe eastl::stable_sort is what I want here?
+		// Sort based on the Z, Y, or X in that order.
+		eastl::sort(bufferToSort.begin(), bufferToSort.end());
+
+		// Without disturbing above sort, sort by texture.
+		eastl::stable_sort(bufferToSort.begin(), bufferToSort.end(), [](const RenderCommand& left, const RenderCommand& right)
+			{
+				// Sort By Texture
+				if (left.m_texture != right.m_texture)
+					return (left.m_texture < right.m_texture);
+
+				// Sort By Shader
+				return (left.m_shader < right.m_shader); // TODO: This may be a bug if m_shader is not set?
+			});
+	}
+
+	bool RenderManager::IsInViewBounds(const RenderCommand& command, const IRectangle& viewBounds) const
+	{
+		// TODO:
+			//	Crappy Conversion.
+		Vector2f tempVect;
+		tempVect.x = command.m_spriteFrame.GetSize().x * command.m_scaleFactor.x;
+		tempVect.y = command.m_spriteFrame.GetSize().y * command.m_scaleFactor.y;
+
+		IRectangle rectToDraw(static_cast<Vector2i>(command.m_position), static_cast<Vector2i>(tempVect));
+		if (!viewBounds.Intersects(rectToDraw))
+			return false;
+
+		return true;
 	}
 
 	void RenderManager::SignalAndWaitForRenderThread()

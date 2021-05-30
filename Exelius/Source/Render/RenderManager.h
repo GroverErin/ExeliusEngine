@@ -95,6 +95,11 @@ namespace Exelius
 		// Swap the input buffer with the temp buffer.
 		void SwapRenderCommandBuffer(eastl::vector<RenderCommand>& bufferToSwap);
 		
+		// Sort RenderCommands
+		void SortRenderCommands(eastl::vector<RenderCommand>& bufferToSort);
+
+		bool IsInViewBounds(const RenderCommand& command, const IRectangle& viewBounds) const;
+
 		// Used when this Manager is destroyed in order to stop the thread.
 		void SignalAndWaitForRenderThread();
 	};

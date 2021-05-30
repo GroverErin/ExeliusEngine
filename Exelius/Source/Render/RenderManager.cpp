@@ -2,6 +2,8 @@
 #include "Source/Render/RenderManager.h"
 #include "Source/OS/Interface/Graphics/Window.h"
 
+#include "Source/OS/Interface/Graphics/VertexArray.h"
+
 // TEMP
 #include "Source/OS/Interface/Graphics/Sprite.h"
 #include "Source/Engine/Resources/ResourceTypes/TextureResource.h"
@@ -195,32 +197,65 @@ namespace Exelius
 	{
 		IRectangle windowRect({ 0,0 }, static_cast<Vector2i>(m_pWindow->GetWindowSize()));
 
+		// TODO:
+		//	Does this really need to be dynamic?
+		//	We could set this to the max possible size,
+		//	meaning we would only allocate memory once.
+		//	Further, we could get the highest number of
+		//	"Like" textures and use that as max size.		
+		VertexArray vertices;
+
+		ResourceID currentTexture = backBuffer.front().m_texture;
+
 		// For each rendercommand...
 		for (auto& command : backBuffer)
 		{
 			if (!IsInViewBounds(command, windowRect))
 				continue;
 
-			// If rendercommand can be batched
-				// Batch it
-				// continue	
-			// else
+			// If rendercommand can't be batched
+			if (command.m_texture != currentTexture)
+			{
+				ResourceHandle texture(currentTexture);
+				auto* pTextureResource = texture.GetAs<TextureResource>();
+
+				if (!pTextureResource)
+				{
+					EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+					continue;
+				}
+
 				// Render current vertex buffer
+				m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+
 				// Clear Vertex Buffer
-				// Add this command to the buffer
-				// continue
+				vertices.Clear();
 
-			ResourceHandle texture(command.m_texture);
+				// Set the new current texture.
+				currentTexture = command.m_texture;
+			}
 
+			// Batch it
+			AddVertexToArray(vertices, command);
+		}
+
+		// If we still have stuff to draw, then draw it.
+		if (vertices.GetVertexCount() > 0)
+		{
+			ResourceHandle texture(currentTexture);
 			auto* pTextureResource = texture.GetAs<TextureResource>();
 
 			if (!pTextureResource)
-				continue;
+			{
+				EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+				return;
+			}
 
-			Sprite newSprite(*pTextureResource->GetTexture(), command.m_spriteFrame);
-			newSprite.SetPosition(command.m_position);
-			newSprite.SetScale(command.m_scaleFactor);
-			newSprite.GetNativeSprite().Render();
+			// Render current vertex buffer
+			m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+
+			// Clear Vertex Buffer
+			vertices.Clear();
 		}
 	}
 
@@ -234,8 +269,8 @@ namespace Exelius
 			IRectangle viewRect;
 			viewRect.m_top = static_cast<int>(view.second.GetCenter().y - (view.second.GetSize().h / 2.0f));
 			viewRect.m_left = static_cast<int>(view.second.GetCenter().x - (view.second.GetSize().w / 2.0f));
-			viewRect.m_width = view.second.GetSize().w;
-			viewRect.m_height = view.second.GetSize().h;
+			viewRect.m_width = static_cast<int>(view.second.GetSize().w);
+			viewRect.m_height = static_cast<int>(view.second.GetSize().h);
 
 			// For each rendercommand...
 			for (auto& command : backBuffer)
@@ -306,6 +341,49 @@ namespace Exelius
 			return false;
 
 		return true;
+	}
+
+	void RenderManager::AddVertexToArray(VertexArray& vertexArray, const RenderCommand& command) const
+	{
+		Vector2f posTopLeft(command.m_position);
+
+		Vector2f posTopRight;
+		posTopRight.x = command.m_position.x + (command.m_scaleFactor.x * command.m_spriteFrame.m_width);
+		posTopRight.y = command.m_position.y;
+
+		Vector2f posBottomRight;
+		posBottomRight.x = command.m_position.x + (command.m_scaleFactor.x * command.m_spriteFrame.m_width);
+		posBottomRight.y = command.m_position.y + (command.m_scaleFactor.y * command.m_spriteFrame.m_height);
+
+		Vector2f posBottomLeft;
+		posBottomLeft.x = command.m_position.x;
+		posBottomLeft.y = command.m_position.y + (command.m_scaleFactor.y * command.m_spriteFrame.m_height);
+
+		Vector2f uvTopLeft(static_cast<Vector2f>(command.m_spriteFrame.GetPosition()));
+
+		Vector2f uvTopRight;
+		uvTopRight.x = static_cast<float>(command.m_spriteFrame.m_left + command.m_spriteFrame.m_width);
+		uvTopRight.y = static_cast<float>(command.m_spriteFrame.m_top);
+
+		Vector2f uvBottomRight;
+		uvBottomRight.x = static_cast<float>(command.m_spriteFrame.m_left + command.m_spriteFrame.m_width);
+		uvBottomRight.y = static_cast<float>(command.m_spriteFrame.m_top + command.m_spriteFrame.m_height);
+
+		Vector2f uvBottomLeft;
+		uvBottomLeft.x = static_cast<float>(command.m_spriteFrame.m_left);
+		uvBottomLeft.y = static_cast<float>(command.m_spriteFrame.m_top + command.m_spriteFrame.m_height);
+
+		// TOP LEFT
+		vertexArray.Append(Vertex(posTopLeft, uvTopLeft));
+
+		// TOP RIGHT
+		vertexArray.Append(Vertex(posTopRight, uvTopRight));
+
+		// BOTTOM RIGHT
+		vertexArray.Append(Vertex(posBottomRight, uvBottomRight));
+
+		// BOTTOM LEFT
+		vertexArray.Append(Vertex(posBottomLeft, uvBottomLeft));
 	}
 
 	void RenderManager::SignalAndWaitForRenderThread()

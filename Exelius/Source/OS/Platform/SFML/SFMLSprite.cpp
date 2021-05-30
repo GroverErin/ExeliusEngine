@@ -235,6 +235,6 @@ namespace Exelius
 		EXE_ASSERT(m_pSFMLSprite);
 		EXE_ASSERT(RenderManager::GetInstance());
 
-		RenderManager::GetInstance()->GetWindow()->GetNativeWindow().Draw(m_pSFMLSprite);
+		// RenderManager::GetInstance()->GetWindow()->GetNativeWindow().Draw(m_pSFMLSprite);
 	}
 }

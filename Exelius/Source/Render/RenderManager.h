@@ -6,6 +6,7 @@
 #include "Source/OS/Platform/PlatformForwardDeclarations.h"
 
 #include "Source/OS/Interface/Graphics/View.h"
+#include "Source/OS/Interface/Graphics/Vertex.h"
 
 #include <EASTL/vector.h>
 #include <EASTL/unordered_map.h>
@@ -41,6 +42,7 @@ namespace Exelius
 	};
 
 	FORWARD_DECLARE(Window);
+	FORWARD_DECLARE(VertexArray);
 
 	class RenderManager
 		: public Singleton<RenderManager>
@@ -99,6 +101,8 @@ namespace Exelius
 		void SortRenderCommands(eastl::vector<RenderCommand>& bufferToSort);
 
 		bool IsInViewBounds(const RenderCommand& command, const IRectangle& viewBounds) const;
+
+		void AddVertexToArray(VertexArray& vertexArray, const RenderCommand& command) const;
 
 		// Used when this Manager is destroyed in order to stop the thread.
 		void SignalAndWaitForRenderThread();

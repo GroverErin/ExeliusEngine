@@ -14,6 +14,8 @@
 namespace Exelius
 {
 	FORWARD_DECLARE(View);
+	FORWARD_DECLARE(Texture);
+	FORWARD_DECLARE(VertexArray);
 
 	/// <summary>
 	/// Templated window class using CRTP.
@@ -35,6 +37,7 @@ namespace Exelius
 		_Window(const eastl::string& title, const Vector2u& windowSize)
 			: m_impl(title, windowSize)
 		{
+			//
 		}
 
 		/// <summary>
@@ -45,6 +48,8 @@ namespace Exelius
 		// TODO:
 		// This may need to change due to renderer changes.
 		void Render() const { m_impl.Render(); }
+
+		void Draw(const VertexArray& vertices, const Texture& texture) { m_impl.Draw(vertices, texture); }
 
 		ImplWindow& GetNativeWindow() { return m_impl; }
 

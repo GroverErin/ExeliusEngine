@@ -23,7 +23,7 @@ namespace Exelius
 
 		bool LoadFromMemory(const std::byte* pData, size_t dataSize) { return m_impl.LoadFromMemory(pData, dataSize); }
 
-		ImplTexture& GetNativeTexture() { return m_impl; }
+		const ImplTexture& GetNativeTexture() const { return m_impl; }
 	};
 }
 

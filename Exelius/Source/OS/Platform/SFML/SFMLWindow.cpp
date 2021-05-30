@@ -13,6 +13,8 @@
 #include "Source/OS/Events/MiscEvents.h"
 
 #include "Source/OS/Interface/Graphics/View.h"
+#include "Source/OS/Interface/Graphics/VertexArray.h"
+#include "Source/OS/Interface/Graphics/Texture.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -388,10 +390,10 @@ namespace Exelius
 		m_pWindow->display();
 	}
 
-	void SFMLWindow::Draw(sf::Drawable* pDrawable)
+	void SFMLWindow::Draw(const VertexArray& vertices, const Texture& texture)
 	{
 		EXE_ASSERT(m_pWindow);
-		m_pWindow->draw(*pDrawable);
+		m_pWindow->draw(vertices.GetNativeVertexArray().GetNativeVertexArray(), texture.GetNativeTexture().GetSFMLTexture());
 	}
 
 	void SFMLWindow::Clear()

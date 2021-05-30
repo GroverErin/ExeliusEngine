@@ -28,6 +28,8 @@ namespace sf
 namespace Exelius
 {
 	FORWARD_DECLARE(View);
+	FORWARD_DECLARE(Texture);
+	FORWARD_DECLARE(VertexArray);
 
 	/// <summary>
 	/// Window class that handles SFML specific function calls.
@@ -207,7 +209,7 @@ namespace Exelius
 
 		// TODO:
 		// This may need to change to not use sf::drawable?
-		void Draw(sf::Drawable* pDrawable);
+		void Draw(const VertexArray& vertices, const Texture& texture);
 
 		/// <summary>
 		/// 

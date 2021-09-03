@@ -6,10 +6,10 @@
 # Exelius Files
 [Pp]rojects/
 [Oo]utput/
-[Bb]uilds/
+[Bb]uild/
 [Tt]emp/
-[Tt]ools/[Tt]hird[Pp]arty/spdlog/
 [Ll]ogs/
+[Ee]XESandbox/engine_config.ini
 
 *.sln
 *.vcxproj*

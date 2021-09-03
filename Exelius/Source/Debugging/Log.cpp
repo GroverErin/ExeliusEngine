@@ -17,15 +17,18 @@ namespace Exelius
 	/// <param name="logName">- The optional name of the log to instantiate. Default is "Exelius".</param>
 	Log::Log(StringIntern logName)
 		: m_logName(logName)
+		, m_pLog(GetOrCreateLog())
 	{
+		// Do I really need to double up the assertions?
 		EXE_ASSERT(m_logName.IsValid());
+		EXE_ASSERT(m_pLog);
 	}
 
 	/// <summary>
 	/// Obtains the log from the LogManager.
 	/// If the log does not yet exist, it will create one.
 	/// </summary>
-	/// <returns>- A scoped pointer to the requested log.</returns>
+	/// <returns>- A scoped pointer to the requested log. This should NEVER return nullptr.</returns>
 	const std::shared_ptr<spdlog::logger> Log::GetOrCreateLog() const
 	{
 		EXE_ASSERT(m_logName.IsValid());

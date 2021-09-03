@@ -20,18 +20,18 @@ namespace Exelius
 	/// any other scope.
 	/// @todo Maybe limit logs or allow destruction?
 	/// 
-	/// Logs ARE thread safe, so the same logs can be used accross multiple
+	/// Logs ARE thread safe, so the same logs can be used across multiple
 	/// threads with no problems.
 	/// 
 	/// The default log category in "Exelius" and will be used if a name
 	/// is not provided via the Log constructor. This will use the settings
-	/// applied to the "Exelius" log, so if the engine_config.ini overwrote
+	/// applied to the "Exelius" log, so if the config file overwrote
 	/// these settings then they will be applied globally.
 	/// 
-	/// When a log is created using this interface the output will always
+	/// When a log is *created* using this interface the output will always
 	/// default to the Console only, with a logging level of Trace. This is
 	/// intentional, as it is expected that the client application will make
-	/// use of the engine_config.ini file to define logs that the client app
+	/// use of the configuration file to define logs that the client app
 	/// will make heavy use of. This allows the client to manage logging
 	/// performance costs and enable the ability to turn on or off different
 	/// categories of logging or change the various levels.
@@ -49,12 +49,13 @@ namespace Exelius
 	{
 		/// The name of the log or the "category".
 		StringIntern m_logName;
+		const std::shared_ptr<spdlog::logger> m_pLog;
 	public:
 		/// <summary>
 		/// Instantiate a log handle with an optional name.
-		/// This will NOT create a log with the given name, nor will it access
-		/// one. That is done only when a call to the logging functions provided
-		/// is made.
+		/// 
+		/// The log will be retrieved from the LogManager here, and if the
+		/// log does NOT exist, it will be created.
 		/// </summary>
 		/// <param name="logName">- The optional name of the log to instantiate. Default is "Exelius".</param>
 		Log(StringIntern logName = "Exelius");
@@ -72,9 +73,6 @@ namespace Exelius
 		/// <summary>
 		/// Log a given message at the Trace Level, the lowest level.
 		/// The color of the console output text is White.
-		/// 
-		/// The log will be retrieved from the LogManager here, and if the
-		/// log does NOT exist, it will be created.
 		/// 
 		/// Does nothing if the log has a logging level higher than this
 		/// category.
@@ -99,18 +97,13 @@ namespace Exelius
 		template<typename... Args>
 		void Trace(Args&&...args) const
 		{
-			const auto log = GetOrCreateLog();
-			EXE_ASSERT(log);
-
-			log->trace(std::forward<Args>(args)...);
+			EXE_ASSERT(m_pLog);
+			m_pLog->trace(std::forward<Args>(args)...);
 		}
 
 		/// <summary>
 		/// Log a given message at the Info Level, the second lowest level.
 		/// The color of the console output text is Green.
-		/// 
-		/// The log will be retrieved from the LogManager here, and if the
-		/// log does NOT exist, it will be created.
 		/// 
 		/// Does nothing if the log has a logging level higher than this
 		/// category.
@@ -132,18 +125,13 @@ namespace Exelius
 		template<typename... Args>
 		void Info(Args&&...args) const
 		{
-			const auto log = GetOrCreateLog();
-			EXE_ASSERT(log);
-
-			log->info(std::forward<Args>(args)...);
+			EXE_ASSERT(m_pLog);
+			m_pLog->info(std::forward<Args>(args)...);
 		}
 
 		/// <summary>
 		/// Log a given message at the Warning Level, the mid-level.
 		/// The color of the console output text is Yellow.
-		/// 
-		/// The log will be retrieved from the LogManager here, and if the
-		/// log does NOT exist, it will be created.
 		/// 
 		/// Does nothing if the log has a logging level higher than this
 		/// category.
@@ -166,18 +154,13 @@ namespace Exelius
 		template<typename... Args>
 		void Warn(Args&&...args) const
 		{
-			const auto log = GetOrCreateLog();
-			EXE_ASSERT(log);
-
-			log->warn(std::forward<Args>(args)...);
+			EXE_ASSERT(m_pLog);
+			m_pLog->warn(std::forward<Args>(args)...);
 		}
 
 		/// <summary>
 		/// Log a given message at the Fatal Level, the second-to-highest level.
 		/// The color of the console output text is Red.
-		/// 
-		/// The log will be retrieved from the LogManager here, and if the
-		/// log does NOT exist, it will be created.
 		/// 
 		/// Error Logs will always output and cannot be disabled.
 		/// 
@@ -197,18 +180,13 @@ namespace Exelius
 		template<typename... Args>
 		void Error(Args&&...args) const
 		{
-			const auto log = GetOrCreateLog();
-			EXE_ASSERT(log);
-
-			log->error(std::forward<Args>(args)...);
+			EXE_ASSERT(m_pLog);
+			m_pLog->error(std::forward<Args>(args)...);
 		}
 
 		/// <summary>
 		/// Log a given message at the Fatal Level, the highest level.
 		/// The color of the console output text is Highlighted-Red.
-		/// 
-		/// The log will be retrieved from the LogManager here, and if the
-		/// log does NOT exist, it will be created.
 		/// 
 		/// Fatal Logs will always output and cannot be disabled.
 		/// 
@@ -229,10 +207,8 @@ namespace Exelius
 		template<typename... Args>
 		void Fatal(Args&&...args) const
 		{
-			const auto log = GetOrCreateLog();
-			EXE_ASSERT(log);
-
-			log->critical(std::forward<Args>(args)...);
+			EXE_ASSERT(m_pLog);
+			m_pLog->critical(std::forward<Args>(args)...);
 		}
 
 	private:

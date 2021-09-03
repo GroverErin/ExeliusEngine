@@ -1,6 +1,9 @@
 #include "EXEPCH.h"
 #include "Source/Resource/ResourceDatabase.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	ResourceDatabase::~ResourceDatabase()
@@ -42,10 +45,11 @@ namespace Exelius
 	void ResourceDatabase::CreateEntry(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
+		Log log("ResourceManager");
 
 		if (IsFound(resourceID))
 		{
-			EXELOG_ENGINE_INFO("Resource Entry for {} already exists.", resourceID.Get().c_str());
+			log.Info("Resource Entry for {} already exists.", resourceID.Get().c_str());
 			return;
 		}
 
@@ -66,13 +70,15 @@ namespace Exelius
 	void ResourceDatabase::Unload(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		EXELOG_ENGINE_TRACE("Unloading Resource: {}", resourceID.Get().c_str());
+		Log log("ResourceManager");
+		log.Trace("Unloading Resource: {}", resourceID.Get().c_str());
 
 		if (!IsFound(resourceID))
 			return;
 
-		EXELOG_ENGINE_TRACE("Resource State: {}", m_resourceMap.at(resourceID).GetStatus());
+		log.Trace("Resource State: {}", m_resourceMap.at(resourceID).GetStatus());
 
+		// TODO: .at fails here if the resource is not in the map yet...
 		m_resourceMap.at(resourceID).SetStatus(ResourceLoadStatus::kUnloading);
 
 		Resource* pResource = m_resourceMap.at(resourceID).GetResource();
@@ -83,12 +89,13 @@ namespace Exelius
 		}
 
 		m_resourceMap.erase(resourceID);
-		EXELOG_ENGINE_TRACE("Unloaded Resource.");
+		log.Trace("Unloaded Resource.");
 }
 
 	void ResourceDatabase::UnloadAll()
 	{
-		EXELOG_ENGINE_TRACE("Unloading All Resources.");
+		Log log("ResourceManager");
+		log.Trace("Unloading All Resources.");
 
 		for (auto& resourcePair : m_resourceMap)
 		{
@@ -103,6 +110,6 @@ namespace Exelius
 
 		m_resourceMap.clear();
 
-		EXELOG_ENGINE_TRACE("Unloaded All Resource.");
+		log.Trace("Unloaded All Resource.");
 	}
 }

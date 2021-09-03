@@ -2,12 +2,13 @@
 
 #include "Source/Resource/Resource.h"
 
-#include "Source/Debugging/EngineLog.h"
-
 #include <EASTL/unordered_map.h>
 
 #include <mutex>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	// Contains the reference count of the resource, the load status of the resource, and the Raw data if it was kept.
@@ -36,12 +37,14 @@ namespace Exelius
 
 		~ResourceEntry()
 		{
+			Log log("ResourceManager");
+
 			if (m_refCount + m_lockCount > 0)
 			{
 				if (m_pResource)
-					EXELOG_ENGINE_ERROR("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
+					log.Error("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
 				else
-					EXELOG_ENGINE_ERROR("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+					log.Error("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
 			}
 
 			delete m_pResource;

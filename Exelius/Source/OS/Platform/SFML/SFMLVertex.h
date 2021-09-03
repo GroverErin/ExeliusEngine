@@ -2,11 +2,17 @@
 #include "Source/Utility/Containers/Vector2.h"
 #include "Source/Utility/Generic/Color.h"
 
+/// <summary>
+/// SFML namespace, used only in SFML specific code within Exelius.
+/// </summary>
 namespace sf
 {
 	class Vertex;
 }
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class SFMLVertex

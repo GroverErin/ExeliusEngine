@@ -32,9 +32,9 @@
 #include <EASTL/shared_ptr.h>
 #include <EASTL/unique_ptr.h>
 
-#include <Source/Debugging/EngineLog.h>
 #include <Source/Utility/Containers/Vector2.h>
 #include <Source/Utility/Generic/Macros.h>
+#include <Source/Debugging/Log.h>
 
 #ifdef EXE_PLATFORM_WINDOWS
 	#include <Windows.h>

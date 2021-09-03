@@ -5,6 +5,9 @@
 #include <EASTL/vector.h>
 #include <EASTL/deque.h>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	/// <summary>
@@ -96,7 +99,8 @@ namespace Exelius
 
 		virtual ~ComponentList()
 		{
-			EXELOG_ENGINE_TRACE("ComponentList<{}> Reached.", ComponentType::kType.Get().c_str());
+			Log log("GameObjectSystem");
+			log.Trace("ComponentList<{}> Reached.", ComponentType::kType.Get().c_str());
 
 			// Need to explicitly shut components down.
 			// This is what will release the resources owned by the components.

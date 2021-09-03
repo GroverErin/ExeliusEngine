@@ -11,6 +11,9 @@
 #include <EASTL/numeric_limits.h>
 #include <EASTL/sort.h>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	bool RenderCommand::operator<(const RenderCommand& command) const
@@ -57,7 +60,7 @@ namespace Exelius
 		m_pWindow = nullptr;
 	}
 
-	bool RenderManager::Initialize(const eastl::string& title, const Vector2u& windowSize)
+	bool RenderManager::Initialize(const eastl::string& title, const Vector2u& windowSize, bool isVsyncEnabled)
 	{
 		m_advancedBuffer.clear();
 
@@ -68,7 +71,7 @@ namespace Exelius
 		EXE_ASSERT(!m_pWindow);
 		m_pWindow = new Window(title, windowSize);
 		EXE_ASSERT(m_pWindow);
-		m_pWindow->SetVSync(false);
+		m_pWindow->SetVSync(isVsyncEnabled);
 		m_pWindow->SetActive(false);
 
 		m_renderThread = std::thread(&RenderManager::RenderThread, this);
@@ -89,6 +92,8 @@ namespace Exelius
 
 	void RenderManager::EndRenderFrame()
 	{
+		Log log("RenderManager");
+
 		if (!m_advancedBuffer.empty())
 		{
 			SwapRenderCommandBuffer(m_advancedBuffer);
@@ -103,7 +108,7 @@ namespace Exelius
 		}
 		else
 		{
-			EXELOG_ENGINE_INFO("Signaling Render Thread.");
+			log.Info("Signaling Render Thread.");
 			m_signalThread.notify_one();
 		}
 
@@ -129,13 +134,14 @@ namespace Exelius
 
 	void RenderManager::RenderThread()
 	{
-		EXELOG_ENGINE_INFO("Instantiating Render Thread.");
+		Log log("RenderManager");
+		log.Info("Instantiating Render Thread.");
 		eastl::vector<RenderCommand> backBuffer;
 
 		EXE_ASSERT(m_pWindow);
 		if (!m_pWindow->SetActive(true))
 		{
-			EXELOG_ENGINE_FATAL("Failed to activate Window on Render Thread. TODO: Bail Here");
+			log.Fatal("Failed to activate Window on Render Thread. TODO: Bail Here");
 		}
 
 		// While the thread is still active (Not shut down)
@@ -154,7 +160,7 @@ namespace Exelius
 					return m_quitThread || !empty;
 				});
 
-			EXELOG_ENGINE_ERROR("Render Thread Recieved Signal");
+			log.Error("Render Thread Recieved Signal");
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
@@ -189,12 +195,13 @@ namespace Exelius
 		m_pWindow->SetActive(false);
 
 		// Let the main thread know we are fully exiting in case they are waiting.
-		EXELOG_ENGINE_INFO("Signaled Main Thread: Render Thread Terminating.");
+		log.Info("Signaled Main Thread: Render Thread Terminating.");
 		m_signalThread.notify_one();
 	}
 
 	void RenderManager::DrawToWindow(const eastl::vector<RenderCommand>& backBuffer)
 	{
+		Log log("RenderManager");
 		IRectangle windowRect({ 0,0 }, static_cast<Vector2i>(m_pWindow->GetWindowSize()));
 
 		// TODO:
@@ -221,7 +228,7 @@ namespace Exelius
 
 				if (!pTextureResource)
 				{
-					EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+					log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 					continue;
 				}
 
@@ -247,7 +254,7 @@ namespace Exelius
 
 			if (!pTextureResource)
 			{
-				EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+				log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 				return;
 			}
 
@@ -261,6 +268,7 @@ namespace Exelius
 
 	void RenderManager::DrawToViews(const eastl::vector<RenderCommand>& backBuffer)
 	{
+		Log log("RenderManager");
 		for (auto& view : m_views)
 		{
 			m_pWindow->SetView(view.second);
@@ -296,7 +304,7 @@ namespace Exelius
 
 					if (!pTextureResource)
 					{
-						EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+						log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 						continue;
 					}
 
@@ -322,7 +330,7 @@ namespace Exelius
 
 				if (!pTextureResource)
 				{
-					EXELOG_ENGINE_WARN("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+					log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 					return;
 				}
 
@@ -422,7 +430,8 @@ namespace Exelius
 	void RenderManager::SignalAndWaitForRenderThread()
 	{
 		EXE_ASSERT(m_renderThread.joinable());
-		EXELOG_ENGINE_INFO("Signaling Render Thread.");
+		Log log("RenderManager");
+		log.Info("Signaling Render Thread.");
 		m_signalThread.notify_one();
 
 		std::unique_lock<std::mutex> waitLock(m_signalMutex);

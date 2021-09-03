@@ -4,6 +4,9 @@
 #include "Source/Resource/ResourceHandle.h"
 #include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	/// <summary>
@@ -28,13 +31,13 @@ namespace Exelius
 	/// <param name="pResource">The JSON TextFile resource containing object data.</param>
 	/// <returns>True on success, false on failure.</returns>
 	bool GameObject::Initialize(const eastl::string& pRawText)
-	{		
-		const eastl::string& jsonText = pRawText;
+	{
+		Log log("GameObjectSystem");
 
 		rapidjson::Document jsonDoc;
-		if (jsonDoc.Parse(jsonText.c_str()).HasParseError())
+		if (jsonDoc.Parse(pRawText.c_str()).HasParseError())
 		{
-			EXELOG_ENGINE_ERROR("Failed to Parse JSON.");
+			log.Error("Failed to Parse JSON.");
 			return false;
 		}
 
@@ -50,7 +53,7 @@ namespace Exelius
 		}
 		else
 		{
-			EXELOG_ENGINE_INFO("No 'Name' field found. Setting object name to a default value.");
+			log.Error("No 'Name' field found. Setting object name to a default value.");
 			// Name the object based on it's ID.
 			m_name = "New GameObject (";
 			//m_name += eastl::to_string(m_id);														<-- Why does this cause errors?!!
@@ -113,6 +116,7 @@ namespace Exelius
 	{
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
 		EXE_ASSERT(pGameObjectSystem);
+		Log log("GameObjectSystem");
 
 		// Find an Array with name 'Components'
 		auto componentArrayMember = jsonDoc.FindMember("Components");
@@ -120,7 +124,7 @@ namespace Exelius
 		// If the Array does not exist then bail.
 		if (componentArrayMember == jsonDoc.MemberEnd())
 		{
-			EXELOG_ENGINE_INFO("No 'Components' field found.");
+			log.Info("No 'Components' field found.");
 			return;
 		}
 

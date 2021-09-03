@@ -11,11 +11,15 @@
 
 #include "Source/Render/RenderManager.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	bool SpriteComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
 	{
 		EXE_ASSERT(pOwner);
+		Log log("GameObjectSystem");
 		m_pOwner = pOwner;
 
 		// Get the spritesheet associated with this sprite.
@@ -23,7 +27,7 @@ namespace Exelius
 
 		if (spritesheetData == jsonComponentData.MemberEnd())
 		{
-			EXELOG_ENGINE_WARN("Initialization for SpriteComponent failed: No Spritesheet data found.");
+			log.Warn("Initialization for SpriteComponent failed: No Spritesheet data found.");
 			return false;
 		}
 
@@ -39,7 +43,7 @@ namespace Exelius
 
 		if (spriteData == jsonComponentData.MemberEnd())
 		{
-			EXELOG_ENGINE_WARN("Initialization for SpriteComponent failed: No Sprite data found.");
+			log.Warn("Initialization for SpriteComponent failed: No Sprite data found.");
 			return false;
 		}
 
@@ -111,6 +115,7 @@ namespace Exelius
 	bool SpriteComponent::ParseSprite(const rapidjson::Value& spriteData)
 	{
 		EXE_ASSERT(spriteData.IsObject());
+		Log log("GameObjectSystem");
 
 		// We are inside of the "Sprite" value.
 		// Get the name of the sprite and get it.
@@ -119,7 +124,7 @@ namespace Exelius
 
 		if (nameMember == spriteData.MemberEnd())
 		{
-			EXELOG_ENGINE_WARN("Initialization for SpriteComponent failed: Sprite has no 'name' value.");
+			log.Warn("Initialization for SpriteComponent failed: Sprite has no 'name' value.");
 			return false;
 		}
 
@@ -131,7 +136,7 @@ namespace Exelius
 
 		if (!m_spriteID.IsValid())
 		{
-			EXELOG_ENGINE_WARN("Failed to obtain sprite with name '{}'.", nameMember->value.GetString());
+			log.Warn("Failed to obtain sprite with name '{}'.", nameMember->value.GetString());
 			return false;
 		}
 

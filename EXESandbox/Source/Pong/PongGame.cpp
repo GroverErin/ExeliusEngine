@@ -21,6 +21,7 @@ bool PongGame::Initialize()
     m_ballID = pGameObjectSystem->CreateGameObject(ball);
     m_ballVelocity.x = 1.0f;
     m_ballVelocity.y = 1.0f;
+
     return true;
 }
 

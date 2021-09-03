@@ -4,6 +4,9 @@
 
 #include <SFML/Graphics/VertexArray.hpp>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	SFMLVertexArray::SFMLVertexArray(size_t vertexCount)

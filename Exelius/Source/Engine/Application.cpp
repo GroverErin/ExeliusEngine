@@ -5,6 +5,10 @@
 #include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
 
+#include "Source/Engine/Settings/ConfigFile.h"
+
+#include "Source/Debugging/LogManager.h"
+
 #include "Source/Render/RenderManager.h"
 
 #include "Source/Resource/ResourceManager.h"
@@ -15,10 +19,12 @@
 
 #include "Source/Utility/Generic/Time.h"
 
+#include <iostream>
+
+//#include "Source/Utility/Containers/Vector2.h"
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
-/// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
-/// Example: _Log
 /// </summary>
 namespace Exelius
 {
@@ -27,24 +33,10 @@ namespace Exelius
 	/// This class contains the main loop and provides functions for the client
 	/// to inject into the main loop.
 	/// </summary>
-	Application::Application(const eastl::string& title, unsigned int width, unsigned int height)
+	Application::Application()
 		: m_pResourceFactory(nullptr)
 		, m_pComponentFactory(nullptr)
 		, m_lastFrameTime(0.0f)
-		, m_windowTitle(title)
-		, m_windowSize({ width, height })
-		, m_isRunning(true)
-		, m_hasLostFocus(false)
-	{
-		//
-	}
-
-	Application::Application(const eastl::string& title, const Vector2u& windowSize)
-		: m_pResourceFactory(nullptr)
-		, m_pComponentFactory(nullptr)
-		, m_lastFrameTime(0.0f)
-		, m_windowTitle(title)
-		, m_windowSize(windowSize)
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
 	{
@@ -65,54 +57,98 @@ namespace Exelius
 		RenderManager::DestroySingleton();
 
 		ResourceManager::DestroySingleton();
+
+		LogManager::DestroySingleton();
+	}
+
+	bool Application::PreInitializeExelius()
+	{
+		LogManager::SetSingleton(new LogManager());
+		EXE_ASSERT(LogManager::GetInstance());
+		if (!LogManager::GetInstance()->PreInitialize())
+		{
+			// This should ideally be the only use of std::cout in Exelius.
+			// TODO: I wouldn't really be upset if this was an assert instead...
+			std::cout << "Failed to pre-initialize LogManager\n";
+			return false;
+		}
+
+		return true;
 	}
 
 	bool Application::InitializeExelius()
 	{
-		RenderManager::SetSingleton(new RenderManager());
-		EXE_ASSERT(RenderManager::GetInstance());
-		if (!RenderManager::GetInstance()->Initialize(m_windowTitle, m_windowSize))
+		Log defaultLog;
+
+		//-----------------------------------------------
+		// Config File - Open & Parse
+		//-----------------------------------------------
+		
+		// Read in the config file. This uses the logging system,
+		// which is why the PreInit exists for the LoggingManager.
+		ConfigFile configFile;
+		if (!configFile.OpenConfigFile())
 		{
-			EXELOG_ENGINE_FATAL("Exelius::RenderManager failed to initialize.");
-			return false;
+			defaultLog.Warn("Failed to open config file. Exelius will initialize with default settings.");
 		}
 
+		//-----------------------------------------------
+		// Logging - Initialization
+		//-----------------------------------------------
+
+		if (!InitializeLogManager(configFile))
+			return false;
+
+		//-----------------------------------------------
+		// Rendering - Initialization
+		//-----------------------------------------------
+
+		if (!InitializeRenderManager(configFile))
+			return false;
+
+		// TODO: This SUCKS
 		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*this);
 		//RenderManager::GetInstance()->GetWindow()->SetVSync(false);
 
-		InputManager::SetSingleton(new InputManager());
-		EXE_ASSERT(InputManager::GetInstance());
-		if (!InputManager::GetInstance()->Initialize())
-		{
-			EXELOG_ENGINE_FATAL("Exelius::InputManager failed to initialize.");
+		//-----------------------------------------------
+		// Input - Initialization
+		//-----------------------------------------------
+
+		if (!InitializeInputManager(configFile))
 			return false;
-		}
 
-		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*InputManager::GetInstance());
-
+		//-----------------------------------------------
+		// Resource Factory - Initialization
+		//-----------------------------------------------
+		
 		SetResourceFactory();
 		EXE_ASSERT(m_pResourceFactory);
 
-		// Create Resource Manager Singleton.
-		ResourceManager::SetSingleton(new ResourceManager());
-		EXE_ASSERT(ResourceManager::GetInstance());
-		if (!ResourceManager::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
-		{
-			EXELOG_ENGINE_FATAL("Exelius::ResourceManager failed to initialize.");
-			return false;
-		}
+		//-----------------------------------------------
+		// Resource Management - Initialization
+		//-----------------------------------------------
 
+		if (!InitializeResourceManager(configFile))
+			return false;
+
+		//-----------------------------------------------
+		// Component Factory - Initialization
+		//-----------------------------------------------
+		
 		// This will call either the default (Exelius) version, or the client's if defined.
 		SetComponentFactory();
 		EXE_ASSERT(m_pComponentFactory);
 
-		GameObjectSystem::SetSingleton(new GameObjectSystem());
-		EXE_ASSERT(GameObjectSystem::GetInstance());
-		if (!GameObjectSystem::GetInstance()->Initialize(m_pComponentFactory))
-		{
-			EXELOG_ENGINE_FATAL("Exelius::GameObjectSystem failed to initialize.");
+		//-----------------------------------------------
+		// Gameobject & Component System - Initialization
+		//-----------------------------------------------
+
+		if (!InitializeGameObjectSystem(configFile))
 			return false;
-		}
+
+		//-----------------------------------------------
+		// Client Application - Initialization
+		//-----------------------------------------------
 
 		return Initialize();
 	}
@@ -123,12 +159,13 @@ namespace Exelius
 	/// </summary>
 	void Application::Run()
 	{
+		//Log log;
 		auto previousTime = eastl::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
 			auto time = eastl::chrono::high_resolution_clock::now();
 			eastl::chrono::duration<float> deltaTime = time - previousTime;
-			// EXELOG_ENGINE_TRACE("DeltaTime: {}", deltaTime.count());
+			// log.Trace("DeltaTime: {}", deltaTime.count());
 
 			Time::DeltaTime.SetFromSeconds(deltaTime.count());
 
@@ -141,10 +178,10 @@ namespace Exelius
 			// Client Update.
 			Update();
 
-			//RenderManager::GetInstance()->GetWindow()->GetNativeWindow().Clear();
+			// Queue all renderable Components.
 			GameObjectSystem::GetInstance()->Render();
-			//RenderManager::GetInstance()->GetWindow()->Render();
 
+			// Push render list to render thread.
 			RenderManager::GetInstance()->EndRenderFrame();
 
 			previousTime = time;
@@ -209,5 +246,126 @@ namespace Exelius
 	void Application::CloseApplication()
 	{
 		m_isRunning = false;
+	}
+
+	/// <summary>
+	/// Initialize the LogManager using the config file data if necessary.
+	/// </summary>
+	/// <param name="configFile">- The pre-parsed config file.</param>
+	/// <returns>True on success, false otherwise.</returns>
+	bool Application::InitializeLogManager(const ConfigFile& configFile) const
+	{
+		Log defaultLog;
+
+		FileLogDefinition fileDefinition;
+		ConsoleLogDefinition consoleDefinition;
+		eastl::vector<LogData> logData;
+
+		if (!configFile.PopulateLogData(fileDefinition, consoleDefinition, logData))
+		{
+			defaultLog.Warn("Failed to populate log data correctly. Please verify config file.");
+		}
+
+		if (!LogManager::GetInstance()->Initialize(fileDefinition, consoleDefinition, logData))
+		{
+			defaultLog.Fatal("Exelius::LogManager::Initialize Failed.");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Initialize the RenderManager using the config file data if necessary.
+	/// </summary>
+	/// <param name="configFile">- The pre-parsed config file.</param>
+	/// <returns>True on success, false otherwise.</returns>
+	bool Application::InitializeRenderManager(const ConfigFile& configFile) const
+	{
+		Log defaultLog;
+
+		eastl::string windowTitle("ExeliusApplication");
+		Vector2u windowSize({ 720, 640 });
+		bool isVSyncEnabled = false;
+
+		if (!configFile.PopulateWindowData(windowTitle, windowSize, isVSyncEnabled))
+		{
+			defaultLog.Warn("Failed to populate window data correctly. Please verify config file.");
+		}
+
+		RenderManager::SetSingleton(new RenderManager());
+		EXE_ASSERT(RenderManager::GetInstance());
+		if (!RenderManager::GetInstance()->Initialize(windowTitle, windowSize, isVSyncEnabled))
+		{
+			defaultLog.Fatal("Exelius::RenderManager failed to initialize.");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Initialize the InputManager using the config file data if necessary.
+	/// </summary>
+	/// <param name="configFile">- The pre-parsed config file.</param>
+	/// <returns>True on success, false otherwise.</returns>
+	bool Application::InitializeInputManager([[maybe_unused]] const ConfigFile& configFile) const
+	{
+		Log defaultLog;
+
+		InputManager::SetSingleton(new InputManager());
+		EXE_ASSERT(InputManager::GetInstance());
+		if (!InputManager::GetInstance()->Initialize())
+		{
+			defaultLog.Fatal("Exelius::InputManager failed to initialize.");
+			return false;
+		}
+
+		// Attach the event observer to the window to handle window events.
+		// TODO: I don't like this very much.
+		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*InputManager::GetInstance());
+
+		return true;
+	}
+
+	/// <summary>
+	/// Initialize the ResourceManager using the config file data if necessary.
+	/// </summary>
+	/// <param name="configFile">- The pre-parsed config file.</param>
+	/// <returns>True on success, false otherwise.</returns>
+	bool Application::InitializeResourceManager([[maybe_unused]] const ConfigFile& configFile) const
+	{
+		Log defaultLog;
+
+		// Create Resource Manager Singleton.
+		ResourceManager::SetSingleton(new ResourceManager());
+		EXE_ASSERT(ResourceManager::GetInstance());
+		if (!ResourceManager::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
+		{
+			defaultLog.Fatal("Exelius::ResourceManager failed to initialize.");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Initialize the GameObject System using the config file data if necessary.
+	/// </summary>
+	/// <param name="configFile">- The pre-parsed config file.</param>
+	/// <returns>True on success, false otherwise.</returns>
+	bool Application::InitializeGameObjectSystem([[maybe_unused]] const ConfigFile& configFile) const
+	{
+		Log defaultLog;
+
+		GameObjectSystem::SetSingleton(new GameObjectSystem());
+		EXE_ASSERT(GameObjectSystem::GetInstance());
+		if (!GameObjectSystem::GetInstance()->Initialize(m_pComponentFactory))
+		{
+			defaultLog.Fatal("Exelius::GameObjectSystem failed to initialize.");
+			return false;
+		}
+
+		return true;
 	}
 }

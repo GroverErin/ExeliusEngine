@@ -1,7 +1,11 @@
 #pragma once
+#include "Source/Utility/Generic/Macros.h"
 #include <EASTL/hash_set.h>
 #include <EASTL/string.h>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class StringIntern
@@ -53,7 +57,6 @@ namespace Exelius
 			if (m_pString != nullptr)
 				return m_pString != nullptr;
 			
-			EXELOG_ENGINE_FATAL("m_pString was nullptr!");
 			return m_pString != nullptr;
 		}
 
@@ -113,6 +116,7 @@ namespace Exelius
 
 		void FindOrAdd(eastl::string&& string)
 		{
+			// TODO: Access needs to be wrapping in a mutex
 			auto found = s_stringSet.find(string);
 			if (found != s_stringSet.end())
 			{

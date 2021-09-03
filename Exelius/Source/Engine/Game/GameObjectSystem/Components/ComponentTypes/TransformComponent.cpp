@@ -1,6 +1,9 @@
 #include "EXEPCH.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
     bool TransformComponent::Initialize(GameObject* pOwner)
@@ -12,6 +15,8 @@ namespace Exelius
 
     bool TransformComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
     {
+        Log log("GameObjectSystem");
+
         EXE_ASSERT(pOwner);
         m_pOwner = pOwner;
 
@@ -28,7 +33,7 @@ namespace Exelius
             else if (objectName == "h")
                 m_dimensions.h = componentDataObj->value.GetFloat();
             else
-                EXELOG_ENGINE_WARN("Unhandled Component Data Object: {}", componentDataObj->name.GetString());
+                log.Warn("Unhandled Component Data Object: {}", componentDataObj->name.GetString());
         }
 
         return true;

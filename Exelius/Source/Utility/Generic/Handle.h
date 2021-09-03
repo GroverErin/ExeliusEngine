@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <EASTL/functional.h>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	/// <summary>

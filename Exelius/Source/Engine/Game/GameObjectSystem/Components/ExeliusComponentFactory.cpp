@@ -5,6 +5,9 @@
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/SpriteComponent.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	bool ExeliusComponentFactory::Initialize()
@@ -23,7 +26,8 @@ namespace Exelius
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
 		EXE_ASSERT(pGameObjectSystem);
 		EXE_ASSERT(componentName.IsValid());
-		EXELOG_ENGINE_TRACE("Attempting to create Component: {}", componentName.Get().c_str());
+		Log log("GameObjectSystem");
+		log.Trace("Attempting to create Component: {}", componentName.Get().c_str());
 
 		Handle newHandle;
 		bool initSucceeded = false;
@@ -34,7 +38,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				EXELOG_ENGINE_ERROR("{}: Component failed to be created.", componentName.Get().c_str());
+				log.Error("{}: Component failed to be created.", componentName.Get().c_str());
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -48,7 +52,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				EXELOG_ENGINE_ERROR("{}: Component failed to be created.", componentName.Get().c_str());
+				log.Error("{}: Component failed to be created.", componentName.Get().c_str());
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -59,12 +63,12 @@ namespace Exelius
 
 		if (!initSucceeded)
 		{
-			EXELOG_ENGINE_ERROR("{}: Component failed to initialize.", componentName.Get().c_str());
+			log.Error("{}: Component failed to initialize.", componentName.Get().c_str());
 			pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 			return {}; // Invalid.
 		}
 
-		EXELOG_ENGINE_TRACE("Completed Component Creation.");
+		log.Trace("Completed Component Creation.");
 		return newHandle;
 	}
 }

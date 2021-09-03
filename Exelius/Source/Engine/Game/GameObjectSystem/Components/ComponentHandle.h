@@ -2,6 +2,9 @@
 #include "Source/Utility/Generic/Handle.h"
 #include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	/// <summary>

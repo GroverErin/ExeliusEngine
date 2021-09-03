@@ -5,6 +5,9 @@
 
 #include <rapidjson/document.h>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
     SpritesheetResource::SpritesheetResource(const ResourceID& id)
@@ -15,11 +18,13 @@ namespace Exelius
 
     Resource::LoadResult SpritesheetResource::Load(eastl::vector<std::byte>&& data)
     {
+        Log log("ResourceManager");
+
         // Set the raw byte data to a string value.
         m_text = eastl::string((const char*)data.begin(), (const char*)data.end());
         if (m_text.empty())
         {
-            EXELOG_ENGINE_WARN("Failed to read data in Spritesheet Resource.");
+            log.Warn("Failed to read data in Spritesheet Resource.");
             return LoadResult::kFailed;
         }
 
@@ -27,7 +32,7 @@ namespace Exelius
         rapidjson::Document jsonDoc;
         if (jsonDoc.Parse(m_text.c_str()).HasParseError())
         {
-            EXELOG_ENGINE_ERROR("Failed to Parse JSON.");
+            log.Error("Failed to Parse JSON.");
             return LoadResult::kFailed;
         }
 
@@ -38,7 +43,7 @@ namespace Exelius
 
         if (textureMember == jsonDoc.MemberEnd())
         {
-            EXELOG_ENGINE_WARN("No Texture field found. Spritesheets must have a texture.");
+            log.Warn("No Texture field found. Spritesheets must have a texture.");
             return LoadResult::kFailed;
         }
 
@@ -62,7 +67,7 @@ namespace Exelius
 
         if (spriteMember == jsonDoc.MemberEnd())
         {
-            EXELOG_ENGINE_WARN("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
+            log.Warn("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
             return LoadResult::kFailed;
         }
 
@@ -100,7 +105,7 @@ namespace Exelius
 
         if (!containsSpriteData)
         {
-            EXELOG_ENGINE_WARN("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
+            log.Warn("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
             return LoadResult::kFailed;
         }
 

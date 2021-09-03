@@ -2,6 +2,9 @@
 #include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
 #include "Source/Utility/Containers/Vector2.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class TransformComponent

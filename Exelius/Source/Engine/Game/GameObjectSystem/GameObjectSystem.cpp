@@ -4,6 +4,9 @@
 #include "Source/Resource/ResourceManager.h"
 #include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	/// <summary>
@@ -99,10 +102,12 @@ namespace Exelius
 	/// </returns>
 	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject(TextFileResource* pResource)
 	{
+		Log log("GameObjectSystem");
+
 		// If the resource passed in was null, then the resource is either not loaded or invalid.
 		if (!pResource)
 		{
-			EXELOG_ENGINE_ERROR("Failed to create GameObject: Resource was nullptr.");
+			log.Error("Failed to create GameObject: Resource was nullptr.");
 			return kInvalidID;
 		}
 
@@ -118,7 +123,7 @@ namespace Exelius
 
 		if (!pNewObject->Initialize(pResource->GetRawText()))
 		{
-			EXELOG_ENGINE_ERROR("Failed to initialize GameObject from '{}'", pResource->GetResourceID().Get().c_str());
+			log.Error("Failed to initialize GameObject from '{}'", pResource->GetResourceID().Get().c_str());
 			return kInvalidID;
 		}
 
@@ -135,9 +140,11 @@ namespace Exelius
 	/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
 	GameObject* GameObjectSystem::GetGameObject(GameObjectID gameObjectID)
 	{
+		Log log("GameObjectSystem");
+
 		if (gameObjectID == kInvalidID)
 		{
-			EXELOG_ENGINE_WARN("GameObjectID is invalid.");
+			log.Warn("GameObjectID is invalid.");
 			return nullptr;
 		}
 
@@ -145,7 +152,7 @@ namespace Exelius
 		auto found = m_gameObjects.find(gameObjectID);
 		if (found == m_gameObjects.end())
 		{
-			EXELOG_ENGINE_WARN("GameObject with ID '{}' does not exist.", gameObjectID);
+			log.Warn("GameObject with ID '{}' does not exist.", gameObjectID);
 			return nullptr;
 		}
 
@@ -163,9 +170,11 @@ namespace Exelius
 	/// <param name="gameObjectID">GameObjectID for an object to be destroyed.</param>
 	void GameObjectSystem::DestroyGameObject(GameObjectID gameObjectID)
 	{
+		Log log("GameObjectSystem");
+
 		if (gameObjectID == kInvalidID)
 		{
-			EXELOG_ENGINE_WARN("GameObjectID is invalid.");
+			log.Warn("GameObjectID is invalid.");
 			return;
 		}
 
@@ -174,7 +183,7 @@ namespace Exelius
 
 		if (found == m_gameObjects.end())
 		{
-			EXELOG_ENGINE_WARN("GameObject with ID '{}' does not exist.", gameObjectID);
+			log.Warn("GameObject with ID '{}' does not exist.", gameObjectID);
 			return;
 		}
 
@@ -211,10 +220,11 @@ namespace Exelius
 	{
 		EXE_ASSERT(m_pComponentFactory);
 		EXE_ASSERT(componentType.IsValid());
+		Log log("GameObjectSystem");
 
 		if (!pOwningObject)
 		{
-			EXELOG_ENGINE_ERROR("Owning GameObject was nullptr.");
+			log.Error("Owning GameObject was nullptr.");
 			return {}; // Invalid.
 		}
 

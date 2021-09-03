@@ -11,6 +11,9 @@
 #include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentFactory.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class TextFileResource;
@@ -186,13 +189,14 @@ namespace Exelius
 		Handle CreateComponent()
 		{
 			EXE_ASSERT(ComponentType::kType.IsValid());
+			Log log("GameObjectSystem");
 
 			// Check if the map contains this componenttype as a key value pair.
 			auto itr = m_componentLists.find(ComponentType::kType);
 
 			if (itr == m_componentLists.end())
 			{
-				EXELOG_ENGINE_WARN("Component '{}' creation failed: No ComponentList defined.", ComponentType::kType.Get().c_str());
+				log.Warn("Component '{}' creation failed: No ComponentList defined.", ComponentType::kType.Get().c_str());
 				return {}; // Invalid.
 			}
 
@@ -286,6 +290,7 @@ namespace Exelius
 			EXE_ASSERT(ComponentType::kType.IsValid());
 			EXE_ASSERT(componentType.IsValid());
 			EXE_ASSERT(componentType == ComponentType::kType);
+			Log log("GameObjectSystem");
 
 			auto found = m_componentLists.find(componentType);
 
@@ -295,7 +300,7 @@ namespace Exelius
 			}
 			else
 			{
-				EXELOG_ENGINE_WARN("ComponentList of type '{}' is already registered.", componentType.Get().c_str());
+				log.Warn("ComponentList of type '{}' is already registered.", componentType.Get().c_str());
 			}
 		}
 	private:

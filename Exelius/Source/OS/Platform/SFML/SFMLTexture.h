@@ -1,11 +1,17 @@
 #pragma once
 #include <cstddef>
 
+/// <summary>
+/// SFML namespace, used only in SFML specific code within Exelius.
+/// </summary>
 namespace sf
 {
 	class Texture;
 }
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class SFMLTexture

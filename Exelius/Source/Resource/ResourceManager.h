@@ -17,6 +17,9 @@
 //	keyed by resourceID. Listeners are added on Cacheing
 //	and popped after calling OnResourceLoaded().
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class ResourceFactory;

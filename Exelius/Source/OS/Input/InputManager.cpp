@@ -4,6 +4,9 @@
 #include "Source/OS/Events/KeyEvents.h"
 #include "Source/OS/Events/MouseEvents.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	bool InputManager::Initialize()

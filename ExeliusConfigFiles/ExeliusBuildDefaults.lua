@@ -49,7 +49,7 @@ function exeliusDefaults.WorkspaceDefaults()
 		{
 			"MultiProcessorCompile"
 		}
-	
+
 	filter {"system:linux"}
 		configurations
 		{
@@ -111,7 +111,17 @@ function exeliusDefaults.ProjectDefaults()
 		runtime("Release")
 		defines("EXE_RELEASE")
 		staticruntime("On")
-		
+
+	-- local infile = io.open("Tools/Templates/engine_config.ini", "r")
+	-- local indat = infile:read("a")
+	-- infile:close()
+
+	-- print("%{cfg.targetdir}")
+
+	-- local outfile = io.open("Build/engine_config.ini", "w")
+	-- outfile:write(indat)
+	-- outfile:close()
+
 	-- Reset filters
 	filter {}
 end
@@ -146,6 +156,21 @@ function exeliusDefaults.InitializeProject(engine_root)
 	local incldir = os.realpath(engine_root .. "Exelius/");
 	printf("Linking Engine: " .. incldir)
 	includedirs(incldir);
+
+	filter {"system:windows"}
+		postbuildcommands
+		{
+			[[copy "%{wks.location}Tools\Templates\engine_config.ini" "%{cfg.targetdir}\engine_config.ini" /y /a]], -- Copy the ini into the final build directory.
+			[[copy "%{wks.location}Tools\Templates\engine_config.ini" "engine_config.ini" /y /a]], -- Copy the ini into the debuggers directory.
+			[[xcopy "pongassets" "%{cfg.targetdir}\pongassets\" /y /q /e]] -- Copy assets into final build directory.
+		}
+
+	-- TODO: This will need work
+	filter {"system:linux"}
+		postbuildcommands
+		{
+			"cp -f Tools/Templates/engine_config.ini %{cfg.targetdir}/engine_config.ini"
+		}
 end
 
 -- Includes the header only libraries into the project.

@@ -3,6 +3,9 @@
 #include "Source/Utility/Containers/Vector2.h"
 #include "Source/Utility/Generic/Color.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	class DebugRenderer

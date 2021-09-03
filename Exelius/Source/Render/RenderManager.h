@@ -16,6 +16,9 @@
 #include <atomic>
 #include <mutex>
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	struct RenderCommand
@@ -73,7 +76,7 @@ namespace Exelius
 		~RenderManager();
 
 		// Spins up the thread.
-		bool Initialize(const eastl::string& title, const Vector2u& windowSize);
+		bool Initialize(const eastl::string& title, const Vector2u& windowSize, bool isVsyncEnabled);
 
 		// Adds a command to the advanceBuffer (1 frame ahead of renderthread)
 		void PushRenderCommand(RenderCommand renderCommand);

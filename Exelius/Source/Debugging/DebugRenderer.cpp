@@ -1,6 +1,9 @@
 #include "EXEPCH.h"
 #include "Source/Debugging/DebugRenderer.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	void DebugRenderer::AddLine([[maybe_unused]] const Vector2f& fromPosition, [[maybe_unused]] const Vector2f& toPosition, [[maybe_unused]] Color color, [[maybe_unused]] float lineWidth, [[maybe_unused]] float duration, [[maybe_unused]] bool depthEnabled)

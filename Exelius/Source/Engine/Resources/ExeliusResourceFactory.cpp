@@ -7,11 +7,15 @@
 #include "Source/Engine/Resources/ResourceTypes/TextureResource.h"
 #include "Source/Engine/Resources/ResourceTypes/SpritesheetResource.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	Resource* ExeliusResourceFactory::CreateResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
+		Log log("ResourceManager");
 
 		Resource* pNewResource = nullptr;
 		ResourceType::Type type = GetResourceType(resourceID);
@@ -20,7 +24,7 @@ namespace Exelius
 		{
 		case ResourceType::kInvalid:
 			{
-				EXELOG_ENGINE_WARN("Resource cannot be created: Invalid or Unsupported Resource Type.");
+				log.Warn("Resource cannot be created: Invalid or Unsupported Resource Type.");
 				break;
 			}
 		case ResourceType::kTextFile:
@@ -46,12 +50,13 @@ namespace Exelius
 	ResourceType::Type ExeliusResourceFactory::GetResourceType(const ResourceID& resourceID) const
 	{
 		EXE_ASSERT(resourceID.IsValid());
+		Log log("ResourceManager");
 
 		eastl::string fileExtension = resourceID.Get().substr(resourceID.Get().find_last_of('.') + 1);
 
 		if (fileExtension.empty())
 		{
-			EXELOG_ENGINE_WARN("Could not parse resource extention.");
+			log.Warn("Could not parse resource extention.");
 			return ResourceType::kInvalid;
 		}
 

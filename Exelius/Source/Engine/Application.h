@@ -2,19 +2,17 @@
 
 #include "Source/Utility/Generic/Singleton.h"
 #include "Source/OS/Events/EventManagement.h"
-#include "Source/Utility/Containers/Vector2.h"
 
-#include "EASTL/string.h"
+#include <EASTL/string.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
-/// Anything with a "_" prefixed is private to the engine and is not recommended for use by client applications.
-/// Example: _Log
 /// </summary>
 namespace Exelius
 {
 	class ResourceFactory;
 	class ComponentFactory;
+	class ConfigFile;
 
 	/// <summary>
 	/// The application class is to be inhereted by the client,
@@ -23,11 +21,8 @@ namespace Exelius
 	class Application
 		: public Singleton<Application>, public OSEventObserver
 	{
-		//inline static Application* s_pAppInstance = nullptr;
 		ResourceFactory* m_pResourceFactory;
 		ComponentFactory* m_pComponentFactory;
-		eastl::string m_windowTitle;
-		Vector2u m_windowSize;
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;
@@ -38,14 +33,18 @@ namespace Exelius
 		/// This class contains the main loop and provides functions for the client
 		/// to inject into the main loop.
 		/// </summary>
-		Application(const eastl::string& title = "ExeliusEngine", unsigned int width = 1280, unsigned int height = 720);
-		Application(const eastl::string& title = "ExeliusEngine", const Vector2u& windowSize = { 1280, 720 });
-		Application() = delete;
+		Application();
 		Application(const Application&) = delete;
 		Application(Application&&) = delete;
 		Application& operator=(const Application&) = delete;
 		Application& operator=(Application&&) = delete;
 		virtual ~Application();
+
+		/// <summary>
+		/// Pre-Initialize the engine, this will spin up the default logging system to be used during initialization.
+		/// </summary>
+		/// <returns>True on success, false on failure.</returns>
+		bool PreInitializeExelius();
 
 		/// <summary>
 		/// Initialize the engine, this will pull data from a config and initialize important systems.
@@ -123,14 +122,42 @@ namespace Exelius
 		/// </summary>
 		void CloseApplication();
 
+	private:
+		
 		/// <summary>
-		/// Get the single instance of the running application.
+		/// Initialize the LogManager using the config file data if necessary.
 		/// </summary>
-		/// <returns> Application instance singleton.</returns>
-		//static const Application& GetInstance() { return *s_pAppInstance; }
+		/// <param name="configFile">- The pre-parsed config file.</param>
+		/// <returns>True on success, false otherwise.</returns>
+		bool InitializeLogManager(const ConfigFile& configFile) const;
 
-		// TEMP
-		//Window& GetWindow() { return m_window; }
+		/// <summary>
+		/// Initialize the RenderManager using the config file data if necessary.
+		/// </summary>
+		/// <param name="configFile">- The pre-parsed config file.</param>
+		/// <returns>True on success, false otherwise.</returns>
+		bool InitializeRenderManager(const ConfigFile& configFile) const;
+
+		/// <summary>
+		/// Initialize the InputManager using the config file data if necessary.
+		/// </summary>
+		/// <param name="configFile">- The pre-parsed config file.</param>
+		/// <returns>True on success, false otherwise.</returns>
+		bool InitializeInputManager(const ConfigFile& configFile) const;
+
+		/// <summary>
+		/// Initialize the ResourceManager using the config file data if necessary.
+		/// </summary>
+		/// <param name="configFile">- The pre-parsed config file.</param>
+		/// <returns>True on success, false otherwise.</returns>
+		bool InitializeResourceManager(const ConfigFile& configFile) const;
+
+		/// <summary>
+		/// Initialize the GameObject System using the config file data if necessary.
+		/// </summary>
+		/// <param name="configFile">- The pre-parsed config file.</param>
+		/// <returns>True on success, false otherwise.</returns>
+		bool InitializeGameObjectSystem(const ConfigFile& configFile) const;
 	};
 	
 	// Defined in Entrypoint.h and by the client.

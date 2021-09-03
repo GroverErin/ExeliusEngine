@@ -7,6 +7,9 @@
 #include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
 #include "Source/Engine/Game/GameObjectSystem/Components/ComponentHandle.h"
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
     class TextFileResource;
@@ -125,13 +128,14 @@ namespace Exelius
         ComponentHandle<ComponentType> GetComponent()
         {
             EXE_ASSERT(ComponentType::kType.IsValid());
+            Log log("GameObjectSystem");
 
             auto found = m_components.find(ComponentType::kType);
 
             // Component was not found, return invalid ComponentHandle.
             if (found == m_components.end())
             {
-                EXELOG_ENGINE_WARN("Component of type '{}' was not found.", ComponentType::kType);
+                log.Warn("Component of type '{}' was not found.", ComponentType::kType);
                 return {}; // Invalid.
             }
 

@@ -2,11 +2,17 @@
 #include "Source/OS/Platform/PlatformForwardDeclarations.h"
 #include "Source/Utility/Generic/Macros.h"
 
+/// <summary>
+/// SFML namespace, used only in SFML specific code within Exelius.
+/// </summary>
 namespace sf
 {
 	class VertexArray;
 }
 
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
 namespace Exelius
 {
 	FORWARD_DECLARE(Vertex);

@@ -316,7 +316,6 @@ namespace Exelius
 		bool successResult = true;
 		for (rapidjson::SizeType i = 0; i < logCategoryMember->value.Size(); ++i)
 		{
-			// TODO: Not sure if the cast of 'i' to size_t is necessary.
 			if (!logCategoryMember->value[i].IsObject())
 			{
 				defaultLog.Warn("Member at index {} in '{}' is not an Object.", static_cast<size_t>(i), pCategoryName);

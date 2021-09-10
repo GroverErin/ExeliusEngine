@@ -2,8 +2,8 @@
 
 #include "Source/Engine/Application.h"
 #include "Source/Engine/Resources/ExeliusResourceFactory.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
+#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
+#include "Source/Engine/GameObjectSystem/Components/ExeliusComponentFactory.h"
 
 #include "Source/Engine/Settings/ConfigFile.h"
 
@@ -11,17 +11,13 @@
 
 #include "Source/Render/RenderManager.h"
 
-#include "Source/Resource/ResourceManager.h"
+#include "Source/Resource/ResourceLoader.h"
 
 #include "Source/OS/Input/InputManager.h"
 #include "Source/OS/Events/ApplicationEvents.h"
 #include "Source/OS/Interface/Graphics/Window.h"
 
 #include "Source/Utility/Generic/Time.h"
-
-#include <iostream>
-
-//#include "Source/Utility/Containers/Vector2.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -56,7 +52,7 @@ namespace Exelius
 		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*this);
 		RenderManager::DestroySingleton();
 
-		ResourceManager::DestroySingleton();
+		ResourceLoader::DestroySingleton();
 
 		LogManager::DestroySingleton();
 	}
@@ -67,9 +63,8 @@ namespace Exelius
 		EXE_ASSERT(LogManager::GetInstance());
 		if (!LogManager::GetInstance()->PreInitialize())
 		{
-			// This should ideally be the only use of std::cout in Exelius.
-			// TODO: I wouldn't really be upset if this was an assert instead...
-			std::cout << "Failed to pre-initialize LogManager\n";
+			// Failed to pre-initialize LogManager
+			EXE_ASSERT(false);
 			return false;
 		}
 
@@ -108,7 +103,6 @@ namespace Exelius
 
 		// TODO: This SUCKS
 		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*this);
-		//RenderManager::GetInstance()->GetWindow()->SetVSync(false);
 
 		//-----------------------------------------------
 		// Input - Initialization
@@ -128,14 +122,15 @@ namespace Exelius
 		// Resource Management - Initialization
 		//-----------------------------------------------
 
-		if (!InitializeResourceManager(configFile))
+		if (!InitializeResourceLoader(configFile))
 			return false;
 
 		//-----------------------------------------------
 		// Component Factory - Initialization
 		//-----------------------------------------------
 		
-		// This will call either the default (Exelius) version, or the client's if defined.
+		// This will call either the default (Exelius)
+		// version, or the client's if defined.
 		SetComponentFactory();
 		EXE_ASSERT(m_pComponentFactory);
 
@@ -183,6 +178,9 @@ namespace Exelius
 
 			// Push render list to render thread.
 			RenderManager::GetInstance()->EndRenderFrame();
+
+			// Deallocate any resources necessary.
+			ResourceLoader::GetInstance()->ProcessUnloadQueue();
 
 			previousTime = time;
 		}
@@ -329,20 +327,20 @@ namespace Exelius
 	}
 
 	/// <summary>
-	/// Initialize the ResourceManager using the config file data if necessary.
+	/// Initialize the ResourceLoader using the config file data if necessary.
 	/// </summary>
 	/// <param name="configFile">- The pre-parsed config file.</param>
 	/// <returns>True on success, false otherwise.</returns>
-	bool Application::InitializeResourceManager([[maybe_unused]] const ConfigFile& configFile) const
+	bool Application::InitializeResourceLoader([[maybe_unused]] const ConfigFile& configFile) const
 	{
 		Log defaultLog;
 
 		// Create Resource Manager Singleton.
-		ResourceManager::SetSingleton(new ResourceManager());
-		EXE_ASSERT(ResourceManager::GetInstance());
-		if (!ResourceManager::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
+		ResourceLoader::SetSingleton(new ResourceLoader());
+		EXE_ASSERT(ResourceLoader::GetInstance());
+		if (!ResourceLoader::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
 		{
-			defaultLog.Fatal("Exelius::ResourceManager failed to initialize.");
+			defaultLog.Fatal("Exelius::ResourceLoader failed to initialize.");
 			return false;
 		}
 

@@ -1,9 +1,9 @@
 #include "EXEPCH.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ExeliusComponentFactory.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
+#include "Source/Engine/GameObjectSystem/Components/ExeliusComponentFactory.h"
+#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
 
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/SpriteComponent.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/SpriteComponent.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

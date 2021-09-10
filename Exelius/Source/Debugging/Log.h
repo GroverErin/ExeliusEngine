@@ -47,8 +47,14 @@ namespace Exelius
 	/// </summary>
 	class Log
 	{
+		/// <summary>
 		/// The name of the log or the "category".
+		/// </summary>
 		StringIntern m_logName;
+
+		/// <summary>
+		/// The log retrieved on construction.
+		/// </summary>
 		const std::shared_ptr<spdlog::logger> m_pLog;
 	public:
 		/// <summary>

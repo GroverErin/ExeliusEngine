@@ -4,8 +4,8 @@
 #include "Source/OS/Interface/Graphics/Sprite.h"
 
 #include "Source/Engine/Application.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObject.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
+#include "Source/Engine/GameObjectSystem/GameObject.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 #include "Source/Resource/ResourceHandle.h"
 #include "Source/Engine/Resources/ResourceTypes/SpritesheetResource.h"
 
@@ -62,7 +62,13 @@ namespace Exelius
 
 	void SpriteComponent::Render() const
 	{
-		EXE_ASSERT(m_pOwner);
+		//EXE_ASSERT(m_pOwner);
+		Log log("GameObjectSystem");
+		if (!m_pOwner)
+		{
+			log.Fatal("Owner of SpriteComponent was nullptr. This should NEVER happen.");
+			return;
+		}
 
 		// Get the transform component sibling.
 		auto transformComponent = m_pOwner->GetComponent<TransformComponent>();
@@ -100,9 +106,9 @@ namespace Exelius
 		EXE_ASSERT(m_spriteSheetID.IsValid());
 
 		ResourceHandle spriteSheet(m_spriteSheetID);
-		EXE_ASSERT(spriteSheet.IsReferenceHeld());
+		//EXE_ASSERT(spriteSheet.IsReferenceHeld());
 
-		spriteSheet.SetResourceID(m_spriteSheetID);
+		//spriteSheet.SetResourceID(m_spriteSheetID);
 
 		spriteSheet.QueueLoad(true);
 

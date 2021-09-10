@@ -14,11 +14,11 @@ bool PongGame::Initialize()
     eastl::string ball = "PongAssets/GameObjects/ball.json";
 
     // Create Paddles.
-    m_playerPaddleID = pGameObjectSystem->CreateGameObject(playerPaddle);
-    m_otherPaddleID = pGameObjectSystem->CreateGameObject(otherPaddle);
+    m_playerPaddleID = pGameObjectSystem->CreateGameObject(playerPaddle, true);
+    m_otherPaddleID = pGameObjectSystem->CreateGameObject(otherPaddle, true);
 
     // Create Ball.
-    m_ballID = pGameObjectSystem->CreateGameObject(ball);
+    m_ballID = pGameObjectSystem->CreateGameObject(ball, true);
     m_ballVelocity.x = 1.0f;
     m_ballVelocity.y = 1.0f;
 
@@ -50,7 +50,7 @@ void PongGame::UpdatePlayerPaddle()
     auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
     EXE_ASSERT(pGameObjectSystem);
 
-    auto* pObject = pGameObjectSystem->GetGameObject(m_playerPaddleID);
+    const auto& pObject = pGameObjectSystem->GetGameObject(m_playerPaddleID);
     if (pObject->GetComponent<Exelius::TransformComponent>())
     {
         auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
@@ -73,7 +73,7 @@ void PongGame::UpdateOtherPaddle()
     auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
     EXE_ASSERT(pGameObjectSystem);
 
-    auto* pObject = pGameObjectSystem->GetGameObject(m_otherPaddleID);
+    const auto& pObject = pGameObjectSystem->GetGameObject(m_otherPaddleID);
     if (pObject->GetComponent<Exelius::TransformComponent>())
     {
         auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
@@ -96,7 +96,7 @@ void PongGame::UpdateBall()
     auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
     EXE_ASSERT(pGameObjectSystem);
 
-    auto* pObject = pGameObjectSystem->GetGameObject(m_ballID);
+    const auto& pObject = pGameObjectSystem->GetGameObject(m_ballID);
     if (pObject->GetComponent<Exelius::TransformComponent>())
     {
         auto transformComp = pObject->GetComponent<Exelius::TransformComponent>();
@@ -124,7 +124,7 @@ void PongGame::UpdateBall()
         ballRect.m_width = transformComp->GetW();
         ballRect.m_height = transformComp->GetH();
 
-        auto* pPPObject = pGameObjectSystem->GetGameObject(m_playerPaddleID);
+        const auto& pPPObject = pGameObjectSystem->GetGameObject(m_playerPaddleID);
         auto ppTransformComp = pPPObject->GetComponent<Exelius::TransformComponent>();
 
         Exelius::FRectangle playerPaddleRect;
@@ -133,7 +133,7 @@ void PongGame::UpdateBall()
         playerPaddleRect.m_width = ppTransformComp->GetW();
         playerPaddleRect.m_height = ppTransformComp->GetH();
 
-        auto* pOPObject = pGameObjectSystem->GetGameObject(m_otherPaddleID);
+        const auto& pOPObject = pGameObjectSystem->GetGameObject(m_otherPaddleID);
         auto opTransformComp = pOPObject->GetComponent<Exelius::TransformComponent>();
 
         Exelius::FRectangle otherPaddleRect;

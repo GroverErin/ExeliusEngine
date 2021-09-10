@@ -1,8 +1,11 @@
 #include "EXEPCH.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObjectSystem.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObject.h"
-#include "Source/Resource/ResourceManager.h"
+#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentFactory.h"
+#include "Source/Engine/GameObjectSystem/GameObject.h"
+#include "Source/Resource/ResourceLoader.h"
 #include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
+
+#include "Source/Resource/ResourceHandle.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -20,10 +23,14 @@ namespace Exelius
 	}
 
 	/// <summary>
-	/// Destructor - Destroys all Components and Gameobjects.
+	/// Destructor - Destroys all Components and GameObjects.
 	/// </summary>
 	GameObjectSystem::~GameObjectSystem()
 	{
+		// Don't delete, this lives on the Application/Engine.
+		// I have decided that the destruction of the factory
+		// makes more sense to happen in the same class that
+		// created it. TODO: Consider making it a smart ptr.
 		m_pComponentFactory = nullptr;
 
 		for (auto& gameObjectPair : m_gameObjects)
@@ -60,85 +67,89 @@ namespace Exelius
 	}
 
 	/// <summary>
-	/// Creates an empty GameObject. This Object will be given a default name
-	/// and will have no components.
+	/// Creates a GameObject from a ResourceID.
+	/// This resource may not yet be loaded. If not, then
+	/// forceLoad must be set to true in order to successfully
+	/// create the GameObject.
+	/// 
+	/// @todo
+	/// There is an issue presented here, if the given resource
+	/// is currently loading then it will fail this function.
+	/// Currently triggering an assertion.
 	/// </summary>
+	/// <param name="pResource">ResourceID referring to a JSON file containing object data.</param>
 	/// <returns>
 	/// ID of the created object.
 	/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
 	/// </returns>
 	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject(const ResourceID& resourceID, bool forceLoad)
 	{
-		auto* pResourceManager = ResourceManager::GetInstance();
-		EXE_ASSERT(pResourceManager);
 		EXE_ASSERT(resourceID.IsValid());
 
-		// Get a free ID. Add new object to the list.
 		GameObjectID id = GetNextObjectId();
 		EXE_ASSERT(id != kInvalidID);
 
+		// Create and Get the new object.
 		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id));
-
-		// Get newly created object.
 		auto& pNewObject = m_gameObjects.at(id);
 		EXE_ASSERT(pNewObject);
 
-		// Queue or Load the resource.
-		if (forceLoad)
-			pResourceManager->LoadNow(resourceID, pNewObject);
-		else
-			pResourceManager->QueueLoad(resourceID, true, pNewObject);
+		ResourceHandle gameObjectData(resourceID); // Increments Ref Count.
 
-		return id;
-	}
+		//NOTE:
+		// We don't queue the resource, but instead load
+		// on the main thread, because that
+		// is not the expected behavior. If the user
+		// would prefer to gain the performance benefit
+		// of queueing resources, then that should be
+		// done manually with a resource handle.
 
-	/// <summary>
-	/// Creates a GameObject from a resource that has already been aquired by the ResourceManager.
-	/// </summary>
-	/// <param name="pResource">JSON File resource containing object data.</param>
-	/// <returns>
-	/// ID of the created object.
-	/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
-	/// </returns>
-	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject(TextFileResource* pResource)
-	{
-		Log log("GameObjectSystem");
-
-		// If the resource passed in was null, then the resource is either not loaded or invalid.
-		if (!pResource)
+		if (gameObjectData.Get(forceLoad))
 		{
-			log.Error("Failed to create GameObject: Resource was nullptr.");
-			return kInvalidID;
+			// We're here because this handle will fall out of scope
+			// and that will leave the resource without any references
+			// while it is potentially queued to load. GameObject
+			// should unlock the resource in the OnResourceLoaded call.
+			gameObjectData.LockResource();
+
+			// The Object resource is already loaded.
+			// So, we need to return the new id and
+			// tell the new game object that it's
+			// resource has loaded. We can call
+			// OnResourceLoaded.
+			// We know it won't be unloaded here because
+			// we have incremented the ref count already.
+			pNewObject->OnResourceLoaded(resourceID);
+
+			// Due to the not above about locking the resource,
+			// at this point the resource will be unlocked again
+			// and the resource will fall out of scope, thus
+			// causing it to be unloaded, as expected.
+			return id;
 		}
 
-		// Get a free ID. Add new object to the list.
-		GameObjectID id = GetNextObjectId();
-		EXE_ASSERT(id != kInvalidID);
-
-		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id));
-
-		// Get newly created object.
-		auto& pNewObject = m_gameObjects.at(id);
-		EXE_ASSERT(pNewObject);
-
-		if (!pNewObject->Initialize(pResource->GetRawText()))
-		{
-			log.Error("Failed to initialize GameObject from '{}'", pResource->GetResourceID().Get().c_str());
-			return kInvalidID;
-		}
-
+		// The body of the if statement above will not get hit
+		// in the following cases:
+		//		Resource is not loaded and forceload is false.
+		//		Resource is currently loading. Forceload can be true or false here, it wouldn't matter.
+		//
+		// TODO: Decide how to handle this latter scenario.
+		// For the first scenario, we just need to destroy the new object and add the id to the pool.
+		// For now, we will assert here to get an idea of how often this occurs.
+		EXE_ASSERT(false);
 		return id;
 	}
 
 	/// <summary>
 	/// Gets the GameObject with the given ID.
-	/// TODO: This may need to be revisited. EDIT: This may not be an issue, please test.
+	/// 
+	/// TODO:
 	/// The handle system used by the Components should be used here, as there can be
 	/// some invalidation of GameObjectID's that would go unchecked otherwise.
 	/// </summary>
 	/// <param name="objectId">GameObjectID for an object to be retrieved.</param>
 	/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
-	GameObject* GameObjectSystem::GetGameObject(GameObjectID gameObjectID)
+	const eastl::shared_ptr<GameObject> GameObjectSystem::GetGameObject(GameObjectID gameObjectID) const
 	{
 		Log log("GameObjectSystem");
 
@@ -159,7 +170,7 @@ namespace Exelius
 		// This GameObject MUST exist.
 		auto& pGameObject = found->second;
 		EXE_ASSERT(pGameObject);
-		return pGameObject.get();
+		return pGameObject;
 	}
 
 	/// <summary>

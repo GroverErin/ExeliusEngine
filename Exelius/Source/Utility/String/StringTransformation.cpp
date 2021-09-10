@@ -21,7 +21,7 @@ namespace Exelius
 		
 		void ToUpper(eastl::string& stringToConvert)
 		{
-			eastl::transform(stringToConvert.begin(), stringToConvert.end(), stringToConvert.begin(), [](unsigned char c) -> unsigned char // TODO: Will this work without '[this]'?
+			eastl::transform(stringToConvert.begin(), stringToConvert.end(), stringToConvert.begin(), [](unsigned char c) -> unsigned char
 				{
 					return (unsigned char)std::toupper(c);
 				});

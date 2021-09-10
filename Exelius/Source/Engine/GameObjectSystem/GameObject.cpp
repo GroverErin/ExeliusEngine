@@ -1,5 +1,5 @@
 #include "EXEPCH.h"
-#include "Source/Engine/Game/GameObjectSystem/GameObject.h"
+#include "Source/Engine/GameObjectSystem/GameObject.h"
 
 #include "Source/Resource/ResourceHandle.h"
 #include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
@@ -86,23 +86,38 @@ namespace Exelius
 		m_components.clear();
 	}
 
+	/// <summary>
+	/// This function is called when a game object file has successfully loaded.
+	/// This means we should have the data we need to initialize the object,
+	/// so we pass the data to the intialize function.
+	/// </summary>
+	/// <param name="resourceID">- The ID of the loaded resource.</param>
+	/// <returns>True if the resource was flushed here, false if not.</returns>
 	bool GameObject::OnResourceLoaded(const ResourceID& resourceID)
 	{
+		Log log("GameObjectSystem");
+
 		EXE_ASSERT(resourceID.IsValid());
 		ResourceHandle textFileResource(resourceID);
 
-		EXE_ASSERT(textFileResource.IsReferenceHeld()); // This is literally what we are being informed about!
+		//EXE_ASSERT(textFileResource.IsReferenceHeld()); // This is literally what we are being informed about!
 
-		Initialize(textFileResource.GetAs<TextFileResource>()->GetRawText());
-
+		if (!Initialize(textFileResource.GetAs<TextFileResource>()->GetRawText()))
+		{
+			log.Error("GameObject failed to initialize.");
+		}
 
 		// TODO:
 		//	In MOST cases.. the ref count is currently 2 for the gameobject file.
 		//	This is due to the initial creation of the resource when CreateGameObject is called,
 		//	and the above GetAs call. (Both increment the refcount) So here there would need to
-		//	be a call to Release here (A second call is made when textFileResource falls out of scope).
+		//	be a call to Release (A second call is made when textFileResource falls out of scope).
 		//	The fix would be to change how GameObject creation happens (Maybe on gameobject file load?)
-		textFileResource.Release();
+		//textFileResource.Release();
+
+		// We unlock here because the resource was locked for the duration of the load.
+		// Now we no longer need it.
+		textFileResource.UnlockResource();
 
 		return true;
 	}

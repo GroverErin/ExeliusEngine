@@ -7,7 +7,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	Exelius::Application::SetSingleton(Exelius::CreateApplication());
 	auto* pApp = Exelius::Application::GetInstance();
-	assert(pApp);
+	EXE_ASSERT(pApp);
 
 	if (!pApp->PreInitializeExelius())
 		return 1;

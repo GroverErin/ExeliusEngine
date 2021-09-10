@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
+#include "Source/Engine/GameObjectSystem/Components/Component.h"
 #include "Source/Resource/ResourceHelpers.h"
 
 /// <summary>

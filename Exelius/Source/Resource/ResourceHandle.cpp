@@ -1,69 +1,235 @@
 #include "EXEPCH.h"
-#include "ResourceHandle.h"
-#include "ResourceManager.h"
+#include "Source/Resource/ResourceHandle.h"
+#include "Source/Resource/ResourceLoader.h"
+#include "Source/Resource/ResourceListener.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
+	/// <summary>
+	/// Default construct a resource handle. The default construction
+	/// does not set an ID to refer to, nor does it acquire a resource.
+	/// This needs to be done manually.
+	/// </summary>
 	ResourceHandle::ResourceHandle()
 		: m_resourceHeld(false)
 	{
+		//
 	}
 
+	/// <summary>
+	/// This constructor will refer to the given ID and will attempt to
+	/// "acquire" a the resource with the given ID. This means that it
+	/// will increment the reference count of the given resource if it
+	/// already exists. Otherwise it will fail to do so. If it does fail
+	/// it will reattempt to acquire it upon each Get or GetAs call.
+	/// 
+	/// Finally, the constructor can force a resource to be loaded if
+	/// it is not loaded, which will automatically acquire the resource.
+	/// The load will happen immediately on the main thread.
+	/// </summary>
+	/// <param name="resourceID">- The resource ID the handle is meant to refer to.</param>
+	/// <param name="loadResource">- If the resource should be loaded. Default is false.</param>
 	ResourceHandle::ResourceHandle(const ResourceID& resourceID, bool loadResource)
 		: m_resourceID(resourceID)
-		, m_resourceHeld(true)
+		, m_resourceHeld(false)
 	{
-		if (loadResource)
-			QueueLoad(true);
+		// Check if the resource is already loaded.
+		if (!TryToAcquireResource() && loadResource)
+		{
+			ResourceLoader::GetInstance()->LoadNow(resourceID);
+		}
 	}
 
+	/// <summary>
+	/// Destroying the ResourceHandle will automatically release the
+	/// resource if it has not already been done manually.
+	/// </summary>
 	ResourceHandle::~ResourceHandle()
 	{
 		Release();
 	}
 
-	Resource* ResourceHandle::Get(bool forceLoad) const
+	/// <summary>
+	/// Get the resource that is referred to by this handle.
+	/// If the resource has not yet been acquired, it will attempt to do so here.
+	/// </summary>
+	/// <param name="forceLoad">- True will load the resource immediately, on the main thread, if not already loaded. Default is false.</param>
+	/// <returns>The resource with the ID held by this ResourceHandle, or nullptr if the resource could not be retrieved.</returns>
+	Resource* ResourceHandle::Get(bool forceLoad)
 	{
-		return ResourceManager::GetInstance()->GetResource(m_resourceID, forceLoad);
+		if (!m_resourceHeld)
+		{
+			TryToAcquireResource();
+		}
+
+		Resource* pResource = ResourceLoader::GetInstance()->GetResource(m_resourceID, forceLoad);
+
+		if (pResource && !m_resourceHeld)
+			m_resourceHeld = true; // Prevents double acquisition.
+
+		return pResource;
 	}
 
+	/// <summary>
+	/// Queues the resource for the loader thread to load if
+	/// the resource has not already been loaded. This function
+	/// will acquire the resource automatically.
+	/// </summary>
+	/// <param name="signalLoaderThread">- Should signal the loader thread to begin. Default is false.</param>
+	/// <param name="pListener">- An object that inherets from ResourceListener to be notified of on load completion.</param>
 	void ResourceHandle::QueueLoad(bool signalLoaderThread, ResourceListenerPtr pListener)
 	{
-		ResourceManager::GetInstance()->QueueLoad(m_resourceID, signalLoaderThread, pListener);
+		Log log("ResourceLoader");
+
+		if (m_resourceHeld)
+		{
+			log.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			return;
+		}
+
+		if (!m_resourceID.IsValid())
+		{
+			log.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			return;
+		}
+
+		if (ResourceLoader::GetInstance()->IsResourceAcquirable(m_resourceID))
+		{
+			if (TryToAcquireResource())
+				return; // Return because we don't need to load.
+		}
+
+		ResourceLoader::GetInstance()->QueueLoad(m_resourceID, signalLoaderThread, pListener);
+		m_resourceHeld = true;
 	}
 
+	/// <summary>
+	/// Loads the resource immediate on the main thread. This is a blocking
+	/// function, and may be slow. Use with caution. This function
+	/// will acquire the resource automatically.
+	/// </summary>
+	/// <param name="pListener">- An object that inherets from ResourceListener to be notified of on load completion.</param>
 	void ResourceHandle::LoadNow(ResourceListenerPtr pListener)
 	{
-		ResourceManager::GetInstance()->LoadNow(m_resourceID);
+		Log log("ResourceLoader");
+
+		if (m_resourceHeld)
+		{
+			log.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			return;
+		}
+
+		if (!m_resourceID.IsValid())
+		{
+			log.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			return;
+		}
+
+		if (ResourceLoader::GetInstance()->IsResourceAcquirable(m_resourceID))
+		{
+			if (TryToAcquireResource())
+				return; // Return because we don't need to load.
+		}
+
+		ResourceLoader::GetInstance()->LoadNow(m_resourceID);
+		m_resourceHeld = true;
 	}
 
+	/// <summary>
+	/// Releases the resource if it has been acquired.
+	/// 'Release' in this case means to decrement the reference count
+	/// of a resource, and unload the resource in the case that there
+	/// is no longer any references to the resource.
+	/// 
+	/// This function is called by the destructor.
+	/// </summary>
 	void ResourceHandle::Release()
 	{
 		if (!m_resourceHeld)
 			return;
 
-		ResourceManager::GetInstance()->ReleaseResource(m_resourceID);
+		ResourceLoader::GetInstance()->ReleaseResource(m_resourceID);
+		m_resourceHeld = false;
 	}
 
+	/// <summary>
+	/// Sets an ID on a resource. Calling this function on a
+	/// handle that has already acquired, and not released, a
+	/// resource will do nothing.
+	/// 
+	/// A resource can only be set if and only if this handle
+	/// is not holding a reference to a resource already.
+	/// </summary>
+	/// <param name="idToSet">- The resource ID that will be set.</param>
 	void ResourceHandle::SetResourceID(const ResourceID& idToSet)
 	{
 		if (m_resourceHeld)
 			return;
 
 		m_resourceID = idToSet;
-		m_resourceHeld = true;
 	}
 
+	/// <summary>
+	/// Increments the lock count of the held resource, if possible.
+	/// This will prevent a resource from being unloaded, even if there
+	/// is no longer any references held to the resource. This handle
+	/// can be destroyed after calling Lock and the resource will not
+	/// deallocate, only calling Unlock with a handle that has the same
+	/// ID will allow a resource to deallocate.
+	/// @note
+	/// Do not forget to call unlock on the resource, as this does NOT
+	/// happen automatically.
+	/// </summary>
 	void ResourceHandle::LockResource()
 	{
-		ResourceManager::GetInstance()->LockResource(m_resourceID);
+		ResourceLoader::GetInstance()->LockResource(m_resourceID);
 	}
 
+	/// <summary>
+	/// Decrements the lock count of the held resource, if possible.
+	/// This allows a resource to deallocate once there are no longer
+	/// any held references to the resource, and there are no other
+	/// locks in place on the resource.
+	/// 
+	/// @note
+	/// Failing to unlock a resource may cause increased memory
+	/// usage.
+	/// </summary>
 	void ResourceHandle::UnlockResource()
 	{
-		ResourceManager::GetInstance()->UnlockResource(m_resourceID);
+		ResourceLoader::GetInstance()->UnlockResource(m_resourceID);
+	}
+
+	/// <summary>
+	/// Try to acquire the resource referenced by this handle.
+	/// </summary>
+	/// <returns>True if acquired, false otherwise.</returns>
+	bool ResourceHandle::TryToAcquireResource()
+	{
+		Log log("ResourceLoader");
+		if (m_resourceHeld)
+		{
+			log.Info("Resource with id '{}' cannot be acquired, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			return false;
+		}
+
+		if (!m_resourceID.IsValid())
+		{
+			log.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			return false;
+		}
+
+		if (!ResourceLoader::GetInstance()->IsResourceAcquirable(m_resourceID))
+		{
+			log.Trace("Resource cannot be acquired, resource not available.");
+			return false;
+		}
+
+		ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+		m_resourceHeld = true;
+		return true;
 	}
 }

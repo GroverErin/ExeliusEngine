@@ -4,23 +4,21 @@
 #include <rapidjson/document.h>
 
 #include "Source/Resource/ResourceListener.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentHandle.h"
+#include "Source/Engine/GameObjectSystem/Components/Component.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentHandle.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
-    class TextFileResource;
-
     class GameObject
         : public ResourceListener
 	{
     private:
         /// <summary>
         /// Unique ID of this game object.
-        /// Possibly consider combining this with name?
+        /// @todo Possibly consider combining this with name?
         /// </summary>
         uint32_t m_id;
 
@@ -31,7 +29,7 @@ namespace Exelius
 
         /// <summary>
         /// The user defined name of a GameObject.
-        /// Possibly consider combining this with ID?
+        /// @todo Possibly consider combining this with ID?
         /// </summary>
         eastl::string m_name;
 
@@ -143,6 +141,13 @@ namespace Exelius
             return ComponentHandle<ComponentType>(m_components[ComponentType::kType]);
         }
 
+        /// <summary>
+        /// This function is called when a game object file has successfully loaded.
+        /// This means we should have the data we need to initialize the object,
+        /// so we pass the data to the intialize function.
+        /// </summary>
+        /// <param name="resourceID">- The ID of the loaded resource.</param>
+        /// <returns>True if the resource was flushed here, false if not.</returns>
         virtual bool OnResourceLoaded(const ResourceID& resourceID) final override;
 
     private:

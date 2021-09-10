@@ -18,7 +18,7 @@ namespace Exelius
 
     Resource::LoadResult SpritesheetResource::Load(eastl::vector<std::byte>&& data)
     {
-        Log log("ResourceManager");
+        Log log("ResourceLoader");
 
         // Set the raw byte data to a string value.
         m_text = eastl::string((const char*)data.begin(), (const char*)data.end());
@@ -53,7 +53,7 @@ namespace Exelius
         EXE_ASSERT(m_textureResourceID.IsValid());
 
         ResourceHandle textureResource(m_textureResourceID);
-        EXE_ASSERT(textureResource.IsReferenceHeld());
+        //EXE_ASSERT(textureResource.IsReferenceHeld());
 
         // TODO:
         //  This might be more efficient if this is false, so that all loading can be queued together.

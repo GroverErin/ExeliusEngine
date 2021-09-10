@@ -64,8 +64,6 @@ namespace Exelius
 		/// 
 		/// NOTE:
 		///		This is called AFTER the engine has initialized.
-		/// 
-		/// TODO: This could be better... maybe?
 		/// </summary>
 		virtual bool Initialize() { return true; }
 
@@ -103,8 +101,6 @@ namespace Exelius
 		/// <summary>
 		/// Client Update Loop Hook. Clients are required to define this function
 		/// to access the update loop of the engine.
-		/// 
-		/// TODO: This could be better... maybe?
 		/// </summary>
 		virtual void Update() {}
 
@@ -146,11 +142,11 @@ namespace Exelius
 		bool InitializeInputManager(const ConfigFile& configFile) const;
 
 		/// <summary>
-		/// Initialize the ResourceManager using the config file data if necessary.
+		/// Initialize the ResourceLoader using the config file data if necessary.
 		/// </summary>
 		/// <param name="configFile">- The pre-parsed config file.</param>
 		/// <returns>True on success, false otherwise.</returns>
-		bool InitializeResourceManager(const ConfigFile& configFile) const;
+		bool InitializeResourceLoader(const ConfigFile& configFile) const;
 
 		/// <summary>
 		/// Initialize the GameObject System using the config file data if necessary.
@@ -159,7 +155,12 @@ namespace Exelius
 		/// <returns>True on success, false otherwise.</returns>
 		bool InitializeGameObjectSystem(const ConfigFile& configFile) const;
 	};
-	
-	// Defined in Entrypoint.h and by the client.
+
+	/// <summary>
+	/// Allocates the Application Subclass as defined by the client.
+	/// This should be defined in the client.
+	/// @see Entrypoint.h
+	/// </summary>
+	/// <returns>The Application Subclass as Defined by the client.</returns>
 	Application* CreateApplication();
 }

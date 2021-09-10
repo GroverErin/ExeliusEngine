@@ -63,13 +63,13 @@ namespace Exelius
 		Log defaultLog;
 		bool result = true;
 
-		if (!CreateConsoleDefinition(consoleDefinition))
+		if (!OverwriteConsoleDefinition(consoleDefinition))
 		{
 			defaultLog.Error("Failed to create console definition.");
 			result = false;
 		}
 
-		if (!CreateFileDefinition(fileDefinition))
+		if (!OverwriteFileDefinition(fileDefinition))
 		{
 			defaultLog.Error("Failed to create file definition.");
 			result = false;
@@ -262,7 +262,12 @@ namespace Exelius
 		return true;
 	}
 
-	bool LogManager::CreateConsoleDefinition(const ConsoleLogDefinition& consoleDefinition)
+	/// <summary>
+	/// Overwrites the default definition for the console log.
+	/// </summary>
+	/// <param name="consoleDefinition">- The data to overwrite.</param>
+	/// <returns>True if successful, false otherwise.</returns>
+	bool LogManager::OverwriteConsoleDefinition(const ConsoleLogDefinition& consoleDefinition)
 	{
 		auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 		m_logDefinitions[0] = std::move(consoleSink);
@@ -271,7 +276,12 @@ namespace Exelius
 		return true;
 	}
 
-	bool LogManager::CreateFileDefinition(const FileLogDefinition& fileDefinition)
+	/// <summary>
+	/// Overwrites the default definition for the file log.
+	/// </summary>
+	/// <param name="consoleDefinition">- The data to overwrite.</param>
+	/// <returns>True if successful, false otherwise.</returns>
+	bool LogManager::OverwriteFileDefinition(const FileLogDefinition& fileDefinition)
 	{
 		auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fileDefinition.m_outputDirectory.c_str(), fileDefinition.m_maxFileSize, fileDefinition.m_numFiles, fileDefinition.m_rotateOnOpen);
 		m_logDefinitions[1] = std::move(fileSink);

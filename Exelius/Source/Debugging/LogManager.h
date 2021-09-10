@@ -3,7 +3,6 @@
 #include "Source/Utility/Generic/Singleton.h"
 
 #include <spdlog/spdlog.h>
-//#include <spdlog/fmt/ostr.h> Not sure why this was defined. Maybe other OS?
 
 #include <EASTL/array.h>
 #include <EASTL/unordered_map.h>
@@ -52,11 +51,30 @@ namespace Exelius
 	/// </summary>
 	struct FileLogDefinition
 	{
-		eastl::string m_pattern;			/// The pattern or format that will be output to the file.
-		eastl::string m_outputDirectory;	/// The output directory and filename for the file log.
-		unsigned int m_maxFileSize;			/// The maximum file size of a log.
-		unsigned int m_numFiles;			/// The maximum number of rotating log files.
-		bool m_rotateOnOpen;				/// Should the log rotate on program startup.
+		/// <summary>
+		/// The pattern or format that will be output to the file.
+		/// </summary>
+		eastl::string m_pattern;
+
+		/// <summary>
+		/// The output directory and filename for the file log.
+		/// </summary>
+		eastl::string m_outputDirectory;
+
+		/// <summary>
+		/// The maximum file size of a log.
+		/// </summary>
+		unsigned int m_maxFileSize;
+
+		/// <summary>
+		/// The maximum number of rotating log files.
+		/// </summary>
+		unsigned int m_numFiles;
+
+		/// <summary>
+		/// Should the log rotate on program startup.
+		/// </summary>
+		bool m_rotateOnOpen;
 
 		/// <summary>
 		/// Construct the definition with reasonable default values.
@@ -80,7 +98,10 @@ namespace Exelius
 	/// </summary>
 	struct ConsoleLogDefinition
 	{
-		eastl::string m_pattern;			/// The pattern or format that will be output to the console.
+		/// <summary>
+		/// The pattern or format that will be output to the console.
+		/// </summary>
+		eastl::string m_pattern;
 
 		/// <summary>
 		/// Construct the definition with reasonable default values.
@@ -97,9 +118,20 @@ namespace Exelius
 	/// </summary>
 	struct LogData
 	{
-		StringIntern m_logName;				/// The name of the log, included in the output.
-		LogLocation m_logLocation;			/// The location that the log will output; File and/or Console.
-		LogLevel m_logLevel;				/// The level or priority of the minimum logged message.
+		/// <summary>
+		/// The name of the log, included in the output.
+		/// </summary>
+		StringIntern m_logName;
+
+		/// <summary>
+		/// The location that the log will output; File and/or Console.
+		/// </summary>
+		LogLocation m_logLocation;
+
+		/// <summary>
+		/// The level or priority of the minimum logged message.
+		/// </summary>
+		LogLevel m_logLevel;
 
 		/// <summary>
 		/// Construct the data with reasonable default values.
@@ -128,8 +160,19 @@ namespace Exelius
 	class LogManager
 		: public Singleton<LogManager>
 	{
-		eastl::array<spdlog::sink_ptr, 2> m_logDefinitions; /// Contains the File log and the Console Log definition.
-		eastl::unordered_map<StringIntern, std::shared_ptr<spdlog::logger>> m_logs; /// Map of log names to logs.
+		/// <summary>
+		/// Contains the File log and the Console Log definition.
+		/// </summary>
+		eastl::array<spdlog::sink_ptr, 2> m_logDefinitions;
+
+		/// <summary>
+		/// Map of log names to logs.
+		/// </summary>
+		eastl::unordered_map<StringIntern, std::shared_ptr<spdlog::logger>> m_logs;
+
+		/// <summary>
+		/// Lock for data the logs map.
+		/// </summary>
 		std::mutex m_logLock;
 	public:
 		LogManager() = default;
@@ -219,8 +262,18 @@ namespace Exelius
 		/// <returns>True if successfully set, false otherwise.</returns>
 		bool SetLogLevel(std::shared_ptr<spdlog::logger> pLogToSet, LogLevel level);
 
-		bool CreateConsoleDefinition(const ConsoleLogDefinition& consoleDefinition);
+		/// <summary>
+		/// Overwrites the default definition for the console log.
+		/// </summary>
+		/// <param name="consoleDefinition">- The data to overwrite.</param>
+		/// <returns>True if successful, false otherwise.</returns>
+		bool OverwriteConsoleDefinition(const ConsoleLogDefinition& consoleDefinition);
 
-		bool CreateFileDefinition(const FileLogDefinition& fileDefinition);
+		/// <summary>
+		/// Overwrites the default definition for the file log.
+		/// </summary>
+		/// <param name="consoleDefinition">- The data to overwrite.</param>
+		/// <returns>True if successful, false otherwise.</returns>
+		bool OverwriteFileDefinition(const FileLogDefinition& fileDefinition);
 	};
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentFactory.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentFactory.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

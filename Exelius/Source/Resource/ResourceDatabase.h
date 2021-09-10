@@ -1,8 +1,9 @@
 #pragma once
-
-#include "Source/Resource/Resource.h"
+#include "Source/Resource/ResourceHelpers.h"
+#include "Source/Resource/ResourceEntry.h"
 
 #include <EASTL/unordered_map.h>
+#include <EASTL/vector.h>
 
 #include <mutex>
 
@@ -11,129 +12,39 @@
 /// </summary>
 namespace Exelius
 {
-	// Contains the reference count of the resource, the load status of the resource, and the Raw data if it was kept.
-	class ResourceEntry
-	{
-		friend class ResourceDatabase;
-
-		Resource* m_pResource;
-		ResourceLoadStatus m_status;
-		int m_refCount;
-		int m_lockCount;
-
-	public:
-		ResourceEntry()
-			: m_pResource(nullptr)
-			, m_status(ResourceLoadStatus::kInvalid)
-			, m_refCount(1)
-			, m_lockCount(0)
-		{
-
-		}
-		ResourceEntry(const ResourceEntry&) = delete;
-		ResourceEntry(ResourceEntry&&) = delete;
-		ResourceEntry& operator=(const ResourceEntry&) = delete;
-		ResourceEntry& operator=(ResourceEntry&&) = delete;
-
-		~ResourceEntry()
-		{
-			Log log("ResourceManager");
-
-			if (m_refCount + m_lockCount > 0)
-			{
-				if (m_pResource)
-					log.Error("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
-				else
-					log.Error("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
-			}
-
-			delete m_pResource;
-			m_pResource = nullptr;
-		}
-
-		// Maybe I should check for valid load states and return null value if not loaded?
-		Resource* GetResource()
-		{
-			if (m_status == ResourceLoadStatus::kLoaded)
-			{
-				IncrementRefCount();
-				return m_pResource;
-			}
-			else if (m_status == ResourceLoadStatus::kUnloading)
-			{
-				// TODO: This may cause bugs?
-				// Do not increment as we are unloading this resource currently.
-				return m_pResource;
-			}
-			else if (m_status == ResourceLoadStatus::kLoading)
-			{
-				// TODO: BUG: MAJOR SEVERITY
-				// Here we have tried to get a resource that isn't loaded yet.
-				// This is the FlushedWhileLoading case that Rez fought with.
-				// It is likely that a Get call was made by a ResourceHandle,
-				// which would decrement the RefCount on destruction, which
-				// would reduce the refcount to 0 while the resource is still
-				// loading. This can happen during a race condition (and is likely)
-				// and will break the loading process of a resource.
-				// In this specific case, Release was called by main thread during
-				// render call on sprite component right when loader thread had created
-				// the resource and was just about to call Lock. (thus, refcount = 0 and lockcount = 1)
-				// This is a temporary fix that only fixes this specific case (ResourceHandle)
-				// by incrementing the refcount, so that the refcount is not reduced to 0.
-				// A potential solution is: unknown.
-				IncrementRefCount();
-			}
-			return nullptr;
-		}
-
-		// This should be better, probably set by some friend function?
-		void SetResource(Resource* pResource) { m_pResource = pResource; }
-
-		void IncrementRefCount() { ++m_refCount; }
-
-		/// <summary>
-		/// Returns true if there is no longer any references or locks on this object.
-		/// </summary>
-		/// <returns></returns>
-		bool DecrementRefCount()
-		{
-			--m_refCount;
-
-			if (m_refCount < 0)
-				m_refCount = 0;
-
-			if (m_lockCount < 0)
-				m_lockCount = 0;
-
-			return (m_refCount + m_lockCount == 0);
-		}
-
-		void IncrementLockCount() { ++m_lockCount; }
-
-		void DecrementLockCount() { --m_lockCount; }
-
-		bool IsLocked() const { return m_lockCount > 0; }
-
-		/// <summary>
-		/// Get the current loading status of this reource.
-		/// </summary>
-		/// <returns>Loading status.</returns>
-		ResourceLoadStatus GetStatus() const { return m_status; }
-
-		/// <summary>
-		/// Set the status of this resource. This should only be able to be set by the resource loading management... I should probably not allow the client to adjust this.
-		/// </summary>
-		/// <param name="status"></param>
-		void SetStatus(ResourceLoadStatus status) { m_status = status; }
-
-	};
-
-	// The database for the resources.
-	// This must be thread safe because the resource thread will be adding to this map and updating the status' of resources.
+	/// <summary>
+	/// The database containing all of the resource entries.
+	/// This class is the inteface between the resource manager and the resource entries
+	/// which house the resources.
+	/// 
+	/// These interactions between the resource manager and the database should
+	/// be thread safe, as the manipulation of the resource entries happens on
+	/// nearly all threads.
+	/// </summary>
 	class ResourceDatabase
 	{
+		/// <summary>
+		/// The map of the resource entries keyed by the resource ID.
+		/// </summary>
 		eastl::unordered_map<ResourceID, ResourceEntry> m_resourceMap;
+
+		/// <summary>
+		/// Queue of resources to be unloaded.
+		/// 
+		/// Unloading is a double buffered system,
+		/// to protect from resources that unload other resources.
+		/// </summary>
+		eastl::vector<ResourceID> m_unloadQueue;
+
+		/// <summary>
+		/// The mutex that guards the map from data race conditions.
+		/// </summary>
 		std::mutex m_mapLock;
+
+		/// <summary>
+		/// The mutex that guards the unload queue from data race conditions.
+		/// </summary>
+		std::mutex m_unloaderLock;
 		
 	public:
 		ResourceDatabase() = default;
@@ -141,14 +52,151 @@ namespace Exelius
 		ResourceDatabase(ResourceDatabase&&) = delete;
 		ResourceDatabase& operator=(const ResourceDatabase&) = delete;
 		ResourceDatabase& operator=(ResourceDatabase&&) = delete;
+
+		/// <summary>
+		/// Thread Safe.
+		/// Destructor will safely unload all the resources in the database.
+		/// </summary>
 		~ResourceDatabase();
 
-		ResourceEntry* GetEntry(const ResourceID& resourceID);
-		ResourceLoadStatus GetLoadStatus(const ResourceID& resourceID);
-		void SetLoadStatus(const ResourceID& resourceID, ResourceLoadStatus newStatus);
-		void CreateEntry(const ResourceID& resourceID);
+		/// <summary>
+		/// Deallocate any resourced currently in the unload queue.
+		/// This happens once per frame.
+		/// Resources can unload more resources, so this acts as a
+		/// double buffered queue.
+		/// </summary>
+		void ProcessUnloadQueue();
+
+		/// <summary>
+		/// Thread Safe.
+		/// Increments the reference count of the entry with the given ResourceID.
+		/// </summary>
+		/// <param name="resourceID">- The ID of the resource to increment.</param>
+		void IncrementEntryRefCount(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Decrements the reference count of the entry with the given ResourceID.
+		/// </summary>
+		/// <param name="resourceID">- The ID of the resource to decrement.</param>
+		/// <returns>True if the ref count + lock count == 0, otherwise false.</returns>
+		bool DecrementEntryRefCount(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Increments the lock count of the entry with the given ResourceID.
+		/// </summary>
+		/// <param name="resourceID">- The ID of the resource to increment.</param>
+		void IncrementEntryLockCount(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Decrements the lock count of the entry with the given ResourceID.
+		/// </summary>
+		/// <param name="resourceID">- The ID of the resource to decrement.</param>
+		/// <returns>True if the ref count + lock count == 0, otherwise false.</returns>
+		bool DecrementEntryLockCount(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Sets the given resource onto the resource entry.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID to set the resource onto.</param>
+		/// <param name="pResource">- The resource to set.</param>
+		void SetEntryResource(const ResourceID& resourceID, Resource* pResource);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Gets the resource from a resource entry if it exists.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID to get a resource from.</param>
+		/// <returns>The resource from the given ID, nullptr if it did not exist.</returns>
+		Resource* GetEntryResource(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Gets the current load status of the resource entry with the given ID.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID for the ResourceEntry to check.</param>
+		/// <returns>The current load status of the resource entry. Returns ResourceLoadStatus::kInvalid if the ResourceEntry does not exist.</returns>
+		ResourceLoadStatus GetEntryLoadStatus(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Sets the current load status of the resource entry with the given ID.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID for the ResourceEntry to set.</param>
+		/// <param name="newStatus">- The load status to set.</param>
+		void SetEntryLoadStatus(const ResourceID& resourceID, ResourceLoadStatus newStatus);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Creates an empty resource entry if it doesn't already exist.
+		/// </summary>
+		/// <param name="resourceID">- The resource to create.</param>
+		/// <returns>True if the ResourceEntry was created, false if it already existed.</returns>
+		bool CreateEntry(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Thread Safe.
+		/// Unloads a resource with the given ID.
+		/// </summary>
+		/// <param name="resourceID">- The resource to unload.</param>
+		void UnloadEntry(const ResourceID& resourceID);
+
+	private:
+		/// <summary>
+		/// Deallocate any resourced currently in the unload queue.
+		/// This happens once per frame.
+		/// Resources can unload more resources, so this acts as a
+		/// double buffered queue.
+		/// </summary>
+		void InternalProcessUnloadQueue();
+
+		/// <summary>
+		/// Non-Thread-Safe.
+		/// Gets the current load status of the resource entry with the given ID.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID for the ResourceEntry to check.</param>
+		/// <returns>The current load status of the resource entry. Returns ResourceLoadStatus::kInvalid if the ResourceEntry does not exist.</returns>
+		ResourceLoadStatus InternalGetLoadStatus(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Non-Thread-Safe.
+		/// Sets the current load status of the resource entry with the given ID.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID for the ResourceEntry to set.</param>
+		/// <param name="newStatus">- The load status to set.</param>
+		void InternalSetLoadStatus(const ResourceID& resourceID, ResourceLoadStatus newStatus);
+
+		/// <summary>
+		/// Non-Thread-Safe.
+		/// Gets the resource from a resource entry if it exists.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID to get a resource from.</param>
+		/// <returns>The resource from the given ID, nullptr if it did not exist.</returns>
+		Resource* InternalGetEntryResource(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Non-Thread-Safe.
+		/// Checks if a ResourceEntry with the given ID exists in the database.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID for the ResourceEntry to check.</param>
+		/// <returns>True if found, false otherwise.</returns>
 		bool IsFound(const ResourceID& resourceID);
-		void Unload(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Non-Thread-Safe.
+		/// Gets a resource entry with the given ID if it exists.
+		/// </summary>
+		/// <param name="resourceID">- The resource ID for the ResourceEntry to get.</param>
+		/// <returns>The resource entry with the given ID, nullptr if not found.</returns>
+		ResourceEntry* GetEntry(const ResourceID& resourceID);
+
+		/// <summary>
+		/// Non-Thread-Safe.
+		/// Unloads all the resources in the resource database.
+		/// </summary>
 		void UnloadAll();
 	};
 }

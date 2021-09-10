@@ -1,15 +1,14 @@
 #pragma once
+#include "Source/Utility/Generic/Singleton.h"
+#include "Source/Resource/ResourceHelpers.h"
+
+#include "Source/Engine/GameObjectSystem/Components/ComponentList.h"
+#include "Source/Engine/GameObjectSystem/Components/Component.h"
+
 #include <EASTL/numeric_limits.h>
 #include <EASTL/deque.h>
 #include <EASTL/unordered_map.h>
 #include <EASTL/shared_ptr.h>
-
-#include "Source/Utility/Generic/Singleton.h"
-#include "Source/Resource/ResourceHelpers.h"
-
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentList.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/Component.h"
-#include "Source/Engine/Game/GameObjectSystem/Components/ComponentFactory.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -18,18 +17,39 @@ namespace Exelius
 {
 	class TextFileResource;
 	class GameObject;
+	class ComponentFactory;
 
+	/// <summary>
+	/// The Game Object System manages the lifetime,
+	/// identification, retrieval, and components of
+	/// any instantiated GameObjects.
+	/// 
+	/// This systems is designed to be an inheretence-ECS
+	/// hybrid, where the components are stored and updated
+	/// in "systems" allowing for cache friendly updating
+	/// and/or rendering. GameObjects retain a list of
+	/// their components, so retrieval of components is
+	/// straightforward.
+	/// 
+	/// @todo
+	/// Consider what the real benfits are of this system when
+	/// compared to traditional ECS or inheretence models.
+	/// </summary>
 	class GameObjectSystem
 		: public Singleton<GameObjectSystem>
 	{
 	public:
 		/// <summary>
 		/// Unique identifier for GameObject Entities.
+		/// @todo
+		/// This probably doesn't need to be public.
 		/// </summary>
 		using GameObjectID = uint32_t;
 
 		/// <summary>
 		/// Value of an invalid identifier. This is used for error state setting/evaluation.
+		/// @todo
+		/// This probably doesn't need to be public.
 		/// </summary>
 		static constexpr GameObjectID kInvalidID = eastl::numeric_limits<uint32_t>::max();
 
@@ -41,11 +61,14 @@ namespace Exelius
 
 		/// <summary>
 		/// List of all the free object ID's. ID's are recycled.
+		/// @todo
+		/// Consider if this is the best container here.
 		/// </summary>
 		eastl::deque<GameObjectID> m_freeObjectIDs;
 
 		/// <summary>
-		/// Factory for creating components.
+		/// The component factory as defined by either the Engine or the Client.
+		/// @see Application
 		/// </summary>
 		ComponentFactory* m_pComponentFactory;
 
@@ -68,26 +91,25 @@ namespace Exelius
 		/// Constructor - initializes member values.
 		/// </summary>
 		GameObjectSystem();
-
-		// Not sure if I need to define a virtual destructor because
-		// this class inherets from Singleton.
-
-		/*GameObjectSystem(const GameObjectSystem&) = delete;
+		GameObjectSystem(const GameObjectSystem&) = delete;
 		GameObjectSystem(GameObjectSystem&&) = delete;
-		GameObjectSystem& operator=(const GameObjectSystem&) = delete;*/
+		GameObjectSystem& operator=(const GameObjectSystem&) = delete;
 
 		/// <summary>
 		/// Destructor - Destroys all Components and Gameobjects.
 		/// </summary>
-		~GameObjectSystem();
+		virtual ~GameObjectSystem();
 
 		/// <summary>
 		/// Sets the component factory to use when creating components.
 		/// The user defined component factory should be passed into this
 		/// function to allow the system to create user components.
+		/// 
+		/// Calls the ComponentFactory Initialize function, defined by either
+		/// the engine or the client.
 		/// </summary>
 		/// <param name="pComponentFactor">Component factory to use. A factory MUST be set.</param>
-		/// <returns>True if Initialization succeeded, false if failed.</returns>
+		/// <returns>True if initialization succeeded, false otherwise.</returns>
 		bool Initialize(ComponentFactory* pComponentFactor);
 
 		/// <summary>
@@ -95,6 +117,11 @@ namespace Exelius
 		/// This resource may not yet be loaded. If not, then
 		/// forceLoad must be set to true in order to successfully
 		/// create the GameObject.
+		/// 
+		/// @todo
+		/// There is an issue presented here, if the given resource
+		/// is currently loading then it will fail this function.
+		/// Currently triggering an assertion.
 		/// </summary>
 		/// <param name="pResource">ResourceID referring to a JSON file containing object data.</param>
 		/// <returns>
@@ -104,24 +131,15 @@ namespace Exelius
 		GameObjectID CreateGameObject(const ResourceID& resourceID, bool forceLoad = false);
 
 		/// <summary>
-		/// Creates a GameObject from a resource that has already been aquired by the ResourceManager.
-		/// </summary>
-		/// <param name="pResource">JSON File resource containing object data.</param>
-		/// <returns>
-		/// ID of the created object.
-		/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
-		/// </returns>
-		GameObjectID CreateGameObject(TextFileResource* pResource);
-
-		/// <summary>
 		/// Gets the GameObject with the given ID.
-		/// TODO: This may need to be revisited. EDIT: This may not be an issue, please test.
+		/// 
+		/// TODO:
 		/// The handle system used by the Components should be used here, as there can be
 		/// some invalidation of GameObjectID's that would go unchecked otherwise.
 		/// </summary>
 		/// <param name="objectId">GameObjectID for an object to be retrieved.</param>
 		/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
-		GameObject* GetGameObject(GameObjectID gameObjectID);
+		const eastl::shared_ptr<GameObject> GetGameObject(GameObjectID gameObjectID) const;
 
 		/// <summary>
 		/// Completely destroys a GameObject and 'detatches' any components.

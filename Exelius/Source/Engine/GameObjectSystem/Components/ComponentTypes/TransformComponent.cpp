@@ -6,19 +6,17 @@
 /// </summary>
 namespace Exelius
 {
-    bool TransformComponent::Initialize(GameObject* pOwner)
+    bool TransformComponent::Initialize()
     {
-        EXE_ASSERT(pOwner);
-        m_pOwner = pOwner;
+        EXE_ASSERT(m_pOwner);
         return true;
     }
 
-    bool TransformComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
+    bool TransformComponent::Initialize(const rapidjson::Value& jsonComponentData)
     {
         Log log("GameObjectSystem");
 
-        EXE_ASSERT(pOwner);
-        m_pOwner = pOwner;
+        EXE_ASSERT(m_pOwner);
 
         for (auto componentDataObj = jsonComponentData.MemberBegin(); componentDataObj != jsonComponentData.MemberEnd(); ++componentDataObj)
         {

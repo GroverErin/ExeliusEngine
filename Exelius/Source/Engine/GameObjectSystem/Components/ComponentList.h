@@ -68,6 +68,8 @@ namespace Exelius
 		virtual void ReleaseComponent(Handle handle) = 0;
 	};
 
+	class GameObject;
+
 	/// <summary>
 	/// Templated ComponentListBase subclass.
 	/// This is a List of template specified component types.
@@ -110,7 +112,7 @@ namespace Exelius
 			}
 		}
 
-		Handle EmplaceComponent()
+		Handle EmplaceComponent(GameObject* pOwningObject)
 		{
 			// If there are free handles available..
 			if (m_freeHandles.size() > 0)
@@ -130,7 +132,7 @@ namespace Exelius
 			size_t index = m_components.size();
 
 			// Create a new component (at the above index).
-			m_components.emplace_back();
+			m_components.emplace_back(pOwningObject);
 
 			// Create a new handle for that component.
 			// This handle will refer to the component in the component list (regardless of vector resizing).
@@ -172,7 +174,7 @@ namespace Exelius
 				// Maybe this could be a check that happens per-component? (In each components update...)
 				// Another idea might be to invalidate component handles when a gameobject is disabled?
 				//if (component.GetOwner()->IsEnabled())
-				component.Update();
+					component.Update();
 			}
 		}
 
@@ -193,7 +195,7 @@ namespace Exelius
 				// Maybe this could be a check that happens per-component? (In each components render...)
 				// Another idea might be to invalidate component handles when a gameobject is disabled?
 				//if (component.GetOwner()->IsEnabled())
-				component.Render();
+					component.Render();
 			}
 		}
 

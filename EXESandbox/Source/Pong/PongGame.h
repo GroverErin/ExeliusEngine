@@ -4,9 +4,9 @@
 
 class PongGame
 {
-	Exelius::GameObjectSystem::GameObjectID m_playerPaddleID;
-	Exelius::GameObjectSystem::GameObjectID m_otherPaddleID;
-	Exelius::GameObjectSystem::GameObjectID m_ballID;
+	Exelius::GameObjectID m_playerPaddleID;
+	Exelius::GameObjectID m_otherPaddleID;
+	Exelius::GameObjectID m_ballID;
 
 	static constexpr float kPaddleSpeed = 250.0f;
 	static constexpr float kBallSpeed = 300.0f;

@@ -80,63 +80,85 @@ namespace Exelius
 	/// <param name="pResource">ResourceID referring to a JSON file containing object data.</param>
 	/// <returns>
 	/// ID of the created object.
-	/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
+	/// ID will be equal to kInvalidGameObjectID upon failure.
 	/// </returns>
-	GameObjectSystem::GameObjectID GameObjectSystem::CreateGameObject(const ResourceID& resourceID, bool forceLoad)
+	GameObjectID GameObjectSystem::CreateGameObject(const ResourceID& resourceID, CreationMode createMode)
 	{
+		Log log("GameObjectSystem");
 		EXE_ASSERT(resourceID.IsValid());
 
+		// Increments reference count *if* resource exists.
+		// Note: The resource could be currently Loading.
+		ResourceHandle gameObjectData(resourceID);
+
+		// If the resource is not loaded and we opted not to do so, then bail.
+		if (!gameObjectData.IsReferenceHeld() && (createMode == CreationMode::kDoNotLoad))
+		{
+			log.Warn("GameObject from '{}' did not exist and will not be created.");
+			return kInvalidGameObjectID;
+		}
+
 		GameObjectID id = GetNextObjectId();
-		EXE_ASSERT(id != kInvalidID);
+		EXE_ASSERT(id != kInvalidGameObjectID);
+
+		log.Info("Creating GameObject from '{}' with ID: {}", resourceID.Get().c_str(), id);
 
 		// Create and Get the new object.
-		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id));
+		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id, createMode));
 		auto& pNewObject = m_gameObjects.at(id);
 		EXE_ASSERT(pNewObject);
 
-		ResourceHandle gameObjectData(resourceID); // Increments Ref Count.
-
-		//NOTE:
-		// We don't queue the resource, but instead load
-		// on the main thread, because that
-		// is not the expected behavior. If the user
-		// would prefer to gain the performance benefit
-		// of queueing resources, then that should be
-		// done manually with a resource handle.
-
-		if (gameObjectData.Get(forceLoad))
+		// If the resource was already loaded, then notify the gameobject.
+		if (gameObjectData.IsReferenceHeld())
 		{
-			// We're here because this handle will fall out of scope
-			// and that will leave the resource without any references
-			// while it is potentially queued to load. GameObject
-			// should unlock the resource in the OnResourceLoaded call.
-			gameObjectData.LockResource();
-
-			// The Object resource is already loaded.
-			// So, we need to return the new id and
-			// tell the new game object that it's
-			// resource has loaded. We can call
-			// OnResourceLoaded.
-			// We know it won't be unloaded here because
+			log.Info("GameObject resource has been loaded.");
+			// The Object resource is already loaded. So, we need to return the new id and
+			// tell the new game object that it's resource has loaded. We can call
+			// OnResourceLoaded. We know it won't be unloaded here because
 			// we have incremented the ref count already.
 			pNewObject->OnResourceLoaded(resourceID);
-
-			// Due to the not above about locking the resource,
-			// at this point the resource will be unlocked again
-			// and the resource will fall out of scope, thus
-			// causing it to be unloaded, as expected.
 			return id;
 		}
 
-		// The body of the if statement above will not get hit
-		// in the following cases:
-		//		Resource is not loaded and forceload is false.
-		//		Resource is currently loading. Forceload can be true or false here, it wouldn't matter.
-		//
-		// TODO: Decide how to handle this latter scenario.
-		// For the first scenario, we just need to destroy the new object and add the id to the pool.
-		// For now, we will assert here to get an idea of how often this occurs.
-		EXE_ASSERT(false);
+		switch (createMode)
+		{
+		case CreationMode::kLoadImmediate:
+			log.Info("GameObject resource loading on Main thread.");
+			gameObjectData.LoadNow(pNewObject);
+			break;
+		case CreationMode::kQueueAndSignal:
+			log.Info("GameObject resource queueing on resource thread. Thread signaled.");
+			gameObjectData.QueueLoad(true, pNewObject);
+			break;
+		case CreationMode::kQueueNoSignal:
+			log.Info("GameObject resource queueing on resource thread.");
+			gameObjectData.QueueLoad(false, pNewObject);
+			break;
+		default:
+			log.Fatal("GameObject creation failed.");
+			EXE_ASSERT(false);
+			break;
+		}
+
+		// We lock here because this handle will fall out of scope
+		// and that will leave the resource without any references
+		// while it is potentially queued to load. GameObject
+		// should unlock the resource in the OnResourceLoaded call.
+		gameObjectData.LockResource();
+
+		// Here, if this object does not hold a reference
+		// then that means that the resource was currently
+		// loading, thus failing to acquire the resource,
+		// but also failing to call OnResourceLoaded for
+		// this particular GameObject.
+		// TODO: I am not yet sure how to handle this case.
+		EXE_ASSERT(gameObjectData.IsReferenceHeld());
+
+		// Due to the note above about locking the resource,
+		// at this point the resource will be unlocked again
+		// and the resource will fall out of scope, thus
+		// causing it to be unloaded, as expected after
+		// the gameobject has recieved its notification.
 		return id;
 	}
 
@@ -153,7 +175,7 @@ namespace Exelius
 	{
 		Log log("GameObjectSystem");
 
-		if (gameObjectID == kInvalidID)
+		if (gameObjectID == kInvalidGameObjectID)
 		{
 			log.Warn("GameObjectID is invalid.");
 			return nullptr;
@@ -183,7 +205,7 @@ namespace Exelius
 	{
 		Log log("GameObjectSystem");
 
-		if (gameObjectID == kInvalidID)
+		if (gameObjectID == kInvalidGameObjectID)
 		{
 			log.Warn("GameObjectID is invalid.");
 			return;
@@ -294,7 +316,7 @@ namespace Exelius
 	/// If one is not found, the m_nextObjectId is returned THEN incremented.
 	/// </summary>
 	/// <returns>The available GameObjectID for a new GameObject.</returns>
-	GameObjectSystem::GameObjectID GameObjectSystem::GetNextObjectId()
+	GameObjectID GameObjectSystem::GetNextObjectId()
 	{
 		// Make a new Id if not available in the free list.
 		if (m_freeObjectIDs.empty())
@@ -304,7 +326,7 @@ namespace Exelius
 		GameObjectID id = m_freeObjectIDs.front();
 		m_freeObjectIDs.pop_front();
 
-		EXE_ASSERT(id != kInvalidID);
+		EXE_ASSERT(id != kInvalidGameObjectID);
 		return id;
 	}
 }

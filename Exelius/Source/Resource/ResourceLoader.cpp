@@ -165,6 +165,7 @@ namespace Exelius
 		else if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
 			log.Trace("Resource already queued.");
+			m_resourceDatabase.IncrementEntryRefCount(resourceID);
 			return; // Bail here. We do NOT want to change the status of the resource.
 		}
 		else
@@ -278,7 +279,7 @@ namespace Exelius
 		auto status = m_resourceDatabase.GetEntryLoadStatus(resourceID);
 
 		if (status == ResourceLoadStatus::kLoading)
-			return true;
+			return false;
 		else if (status == ResourceLoadStatus::kLoaded)
 			return true;
 

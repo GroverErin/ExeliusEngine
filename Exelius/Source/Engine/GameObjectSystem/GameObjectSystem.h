@@ -1,11 +1,11 @@
 #pragma once
 #include "Source/Utility/Generic/Singleton.h"
 #include "Source/Resource/ResourceHelpers.h"
+#include "Source/Engine/GameObjectSystem/GameObjectHelpers.h"
 
 #include "Source/Engine/GameObjectSystem/Components/ComponentList.h"
 #include "Source/Engine/GameObjectSystem/Components/Component.h"
 
-#include <EASTL/numeric_limits.h>
 #include <EASTL/deque.h>
 #include <EASTL/unordered_map.h>
 #include <EASTL/shared_ptr.h>
@@ -15,7 +15,6 @@
 /// </summary>
 namespace Exelius
 {
-	class TextFileResource;
 	class GameObject;
 	class ComponentFactory;
 
@@ -38,22 +37,6 @@ namespace Exelius
 	class GameObjectSystem
 		: public Singleton<GameObjectSystem>
 	{
-	public:
-		/// <summary>
-		/// Unique identifier for GameObject Entities.
-		/// @todo
-		/// This probably doesn't need to be public.
-		/// </summary>
-		using GameObjectID = uint32_t;
-
-		/// <summary>
-		/// Value of an invalid identifier. This is used for error state setting/evaluation.
-		/// @todo
-		/// This probably doesn't need to be public.
-		/// </summary>
-		static constexpr GameObjectID kInvalidID = eastl::numeric_limits<uint32_t>::max();
-
-	private:
 		/// <summary>
 		/// This value contains the ID for the next object to be created.
 		/// </summary>
@@ -114,21 +97,28 @@ namespace Exelius
 
 		/// <summary>
 		/// Creates a GameObject from a ResourceID.
-		/// This resource may not yet be loaded. If not, then
-		/// forceLoad must be set to true in order to successfully
-		/// create the GameObject.
+		/// The resources used to create a GameObject
+		/// may or may not be loaded currently, and
+		/// the method for loading not/un-loaded
+		/// resources is determined by the given
+		/// CreationMode.
+		/// 
+		/// By default, if the resources for a GameObject
+		/// is not loaded, then the resources will be
+		/// queued and the loading thread will be signaled. 
 		/// 
 		/// @todo
 		/// There is an issue presented here, if the given resource
 		/// is currently loading then it will fail this function.
 		/// Currently triggering an assertion.
 		/// </summary>
-		/// <param name="pResource">ResourceID referring to a JSON file containing object data.</param>
+		/// <param name="pResource">- The ResourceID referring to a JSON file containing object data.</param>
+		/// <param name="createMode">- How the GameObjectSystem should handle object creation if the resource isn't loaded.</param>
 		/// <returns>
 		/// ID of the created object.
-		/// ID will be equal to 'eastl::numeric_limits(uint32_t)::max()' upon failure.
+		/// ID will be equal to kInvalidGameObjectID upon failure.
 		/// </returns>
-		GameObjectID CreateGameObject(const ResourceID& resourceID, bool forceLoad = false);
+		GameObjectID CreateGameObject(const ResourceID& resourceID, CreationMode createMode = CreationMode::kQueueAndSignal);
 
 		/// <summary>
 		/// Gets the GameObject with the given ID.
@@ -204,7 +194,7 @@ namespace Exelius
 		/// </summary>
 		/// <returns>A Handle that refers to the Component in the ComponentList.</returns>
 		template <class ComponentType>
-		Handle CreateComponent()
+		Handle CreateComponent(GameObject* pOwningObject)
 		{
 			EXE_ASSERT(ComponentType::kType.IsValid());
 			Log log("GameObjectSystem");
@@ -221,7 +211,7 @@ namespace Exelius
 			ComponentList<ComponentType>* pComponentList = static_cast<ComponentList<ComponentType>*>(itr->second);
 			EXE_ASSERT(pComponentList);
 
-			return pComponentList->EmplaceComponent(); // Should call emplace.
+			return pComponentList->EmplaceComponent(pOwningObject); // Should call emplace.
 		}
 
 		/// <summary>

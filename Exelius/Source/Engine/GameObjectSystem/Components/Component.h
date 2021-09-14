@@ -52,9 +52,10 @@ namespace Exelius
 		/// <summary>
 		/// Constructor - Initializes member variables.
 		/// </summary>
-		Component()
-			: m_pOwner(nullptr)
+		Component(GameObject* pOwner)
+			: m_pOwner(pOwner)
 		{
+			EXE_ASSERT(pOwner);
 		}
 
 		/// <summary>
@@ -68,10 +69,8 @@ namespace Exelius
 		/// </summary>
 		/// <param name="pOwner">The GameObject that 'owns' this component.</param>
 		/// <returns>True on success, false on failure.</returns>
-		virtual bool Initialize(GameObject* pOwner)
+		virtual bool Initialize()
 		{
-			EXE_ASSERT(pOwner);
-			m_pOwner = pOwner;
 			return true;
 		}
 
@@ -86,10 +85,9 @@ namespace Exelius
 		/// <param name="pOwner">The GameObject that 'owns' this component.</param>
 		/// <param name="jsonComponentData">The GameObject that 'owns' this component.</param>
 		/// <returns>True on success, false on failure.</returns>
-		virtual bool Initialize(GameObject* pOwner, [[maybe_unused]] const rapidjson::Value& jsonComponentData)
+		virtual bool Initialize([[maybe_unused]] const rapidjson::Value& jsonComponentData)
 		{
-			EXE_ASSERT(pOwner);
-			m_pOwner = pOwner;
+			EXE_ASSERT(m_pOwner);
 			return true;
 		}
 

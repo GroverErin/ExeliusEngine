@@ -16,11 +16,10 @@
 /// </summary>
 namespace Exelius
 {
-	bool SpriteComponent::Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData)
+	bool SpriteComponent::Initialize(const rapidjson::Value& jsonComponentData)
 	{
-		EXE_ASSERT(pOwner);
+		EXE_ASSERT(m_pOwner);
 		Log log("GameObjectSystem");
-		m_pOwner = pOwner;
 
 		// Get the spritesheet associated with this sprite.
 		auto spritesheetData = jsonComponentData.FindMember("Spritesheet");
@@ -67,6 +66,12 @@ namespace Exelius
 		if (!m_pOwner)
 		{
 			log.Fatal("Owner of SpriteComponent was nullptr. This should NEVER happen.");
+			return;
+		}
+
+		if (!m_spriteID.IsValid())
+		{
+			log.Error("Bailing render because sprite ID was invalid.");
 			return;
 		}
 

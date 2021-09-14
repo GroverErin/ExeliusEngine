@@ -15,15 +15,16 @@ namespace Exelius
 	public:
 		DEFINE_COMPONENT(TransformComponent);
 
-		TransformComponent()
-			: m_position({ 0.0f, 0.0f })
+		TransformComponent(GameObject* pOwner)
+			: Component(pOwner)
+			, m_position({ 0.0f, 0.0f })
 			, m_dimensions({ 0.0f, 0.0f })
 		{
 			//
 		}
 
-		virtual bool Initialize(GameObject* pOwner) final override;
-		virtual bool Initialize(GameObject* pOwner, const rapidjson::Value& jsonComponentData) final override;
+		virtual bool Initialize() final override;
+		virtual bool Initialize(const rapidjson::Value& jsonComponentData) final override;
 
 		float GetX() const { return m_position.x; }
 		void SetX(float x) { m_position.x = x; }

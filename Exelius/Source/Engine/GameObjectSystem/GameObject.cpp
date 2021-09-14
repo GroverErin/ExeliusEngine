@@ -14,12 +14,17 @@ namespace Exelius
 	/// TODO: This should not be publicly accessable!
 	/// </summary>
 	/// <param name="id">The unique object ID given by the GameObjectSystem.</param>
-	GameObject::GameObject(uint32_t id)
-		: m_id(id)
+	GameObject::GameObject(uint32_t id, CreationMode createMode)
+		: m_name("Invalid")
+		, m_id(id)
+		, m_createMode(createMode)
 		, m_enabled(true)
-		, m_name("Invalid")
 	{
-		EXE_ASSERT(m_id != GameObjectSystem::kInvalidID);
+		EXE_ASSERT(m_id != kInvalidGameObjectID);
+
+		// TODO: Test to see if this is a valid state first.
+		/*if (m_createMode == CreationMode::kDoNotLoad)
+			m_createMode = CreationMode::kQueueAndSignal;*/
 	}
 
 	/// <summary>
@@ -63,6 +68,8 @@ namespace Exelius
 		// Create and Initialize any Components.
 		ParseComponentArray(jsonDoc);
 
+		log.Info("GameObject '{}' : '{}' has completed loading.", m_name.c_str(), m_id);
+
 		return true;
 	}
 
@@ -96,6 +103,8 @@ namespace Exelius
 	bool GameObject::OnResourceLoaded(const ResourceID& resourceID)
 	{
 		Log log("GameObjectSystem");
+
+		log.Info("GameObject resource '{}' finished loading.");
 
 		EXE_ASSERT(resourceID.IsValid());
 		ResourceHandle textFileResource(resourceID);

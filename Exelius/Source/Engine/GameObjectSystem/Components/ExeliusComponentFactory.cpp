@@ -34,7 +34,7 @@ namespace Exelius
 
 		if (componentName == TransformComponent::kType)
 		{
-			newHandle = pGameObjectSystem->CreateComponent<TransformComponent>();
+			newHandle = pGameObjectSystem->CreateComponent<TransformComponent>(pOwningObject);
 
 			if (!newHandle.IsValid())
 			{
@@ -44,11 +44,11 @@ namespace Exelius
 			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<TransformComponent>(newHandle);
-			initSucceeded = newComponent.Initialize(pOwningObject, componentData);
+			initSucceeded = newComponent.Initialize(componentData);
 		}
 		else if (componentName == SpriteComponent::kType)
 		{
-			newHandle = pGameObjectSystem->CreateComponent<SpriteComponent>();
+			newHandle = pGameObjectSystem->CreateComponent<SpriteComponent>(pOwningObject);
 
 			if (!newHandle.IsValid())
 			{
@@ -58,7 +58,7 @@ namespace Exelius
 			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<SpriteComponent>(newHandle);
-			initSucceeded = newComponent.Initialize(pOwningObject, componentData);
+			initSucceeded = newComponent.Initialize(componentData);
 		}
 
 		if (!initSucceeded)

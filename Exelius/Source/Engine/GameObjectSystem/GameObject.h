@@ -17,15 +17,9 @@ namespace Exelius
 	{
     private:
         /// <summary>
-        /// Unique ID of this game object.
-        /// @todo Possibly consider combining this with name?
+        /// List of the components (Handles to) by component type.
         /// </summary>
-        uint32_t m_id;
-
-        /// <summary>
-        /// Is this game object enabled?
-        /// </summary>
-        bool m_enabled;
+        eastl::unordered_map<Component::Type, Handle> m_components;
 
         /// <summary>
         /// The user defined name of a GameObject.
@@ -34,9 +28,21 @@ namespace Exelius
         eastl::string m_name;
 
         /// <summary>
-        /// List of the components (Handles to) by component type.
+        /// Unique ID of this game object.
+        /// @todo Possibly consider combining this with name?
         /// </summary>
-        eastl::unordered_map<Component::Type, Handle> m_components;
+        uint32_t m_id;
+
+        /// <summary>
+        /// The mode determining how this GameObject should
+        /// create itself.
+        /// </summary>
+        CreationMode m_createMode;
+
+        /// <summary>
+        /// Is this game object enabled?
+        /// </summary>
+        bool m_enabled;
 
     public:
         /// <summary>
@@ -44,7 +50,7 @@ namespace Exelius
         /// TODO: This should not be publicly accessable!
         /// </summary>
         /// <param name="id">The unique object ID given by the GameObjectSystem.</param>
-        GameObject(uint32_t id);
+        GameObject(uint32_t id, CreationMode createMode = CreationMode::kQueueAndSignal);
         
         /*GameObject(const GameObject&) = delete;
         GameObject(GameObject&&) = delete;

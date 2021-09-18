@@ -59,6 +59,8 @@ namespace Exelius
 
 	bool Application::PreInitializeExelius()
 	{
+		ExeliusAllocator::SetSingleton(new TraceAllocator());
+
 		LogManager::SetSingleton(new LogManager());
 		EXE_ASSERT(LogManager::GetInstance());
 		if (!LogManager::GetInstance()->PreInitialize())
@@ -93,6 +95,14 @@ namespace Exelius
 
 		if (!InitializeLogManager(configFile))
 			return false;
+
+		//auto* pMem = ExeliusAllocator::GetInstance()->Allocate(256);
+		//ExeliusAllocator::GetInstance()->Free(pMem, 256);
+
+		eastl::vector<int> testAllocationForEASTL;
+
+		for (int i = 0; i < 256; ++i)
+			testAllocationForEASTL.emplace_back(i);
 
 		//-----------------------------------------------
 		// Rendering - Initialization

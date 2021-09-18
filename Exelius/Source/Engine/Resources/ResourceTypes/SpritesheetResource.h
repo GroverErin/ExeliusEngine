@@ -15,8 +15,6 @@ namespace Exelius
 		//TextureResource* m_pTextureResource;
 		ResourceID m_textureResourceID;
 
-
-
 		// TESTING ONLY
 		eastl::string m_text;
 		eastl::unordered_map<StringIntern, IRectangle> m_sprites;

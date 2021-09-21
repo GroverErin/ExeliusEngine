@@ -1,0 +1,4 @@
+left = 31px
+right = 198px
+top = 31px
+bottom = 198px

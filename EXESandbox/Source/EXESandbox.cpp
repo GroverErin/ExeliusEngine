@@ -1,16 +1,19 @@
 #include <Include/ExeliusMain.h>
 #include <Include/Log.h>
 
-#include "Pong/PongGame.h"
+//#include "Pong/PongGame.h"
+#include "UIResize/UIResizeApp.h"
 
-EXELIUS_MAIN(Sandbox, PongGame m_pongGame);
+//EXELIUS_MAIN(Sandbox, PongGame m_app);
+
+EXELIUS_MAIN(Sandbox, UIResizeApp m_app);
 
 bool Sandbox::Initialize()
 {
-	if (!m_pongGame.Initialize())
+	if (!m_app.Initialize())
 	{
 		Exelius::Log log;
-		log.Fatal("Pong failed to Initialize.");
+		log.Fatal("App failed to Initialize.");
 		return false;
 	}
 	return true;
@@ -18,10 +21,10 @@ bool Sandbox::Initialize()
 
 void Sandbox::Update()
 {
-	m_pongGame.Update();
+	m_app.Update();
 }
 
 void Sandbox::Shutdown()
 {
-	m_pongGame.ShutDown();
+	m_app.ShutDown();
 }

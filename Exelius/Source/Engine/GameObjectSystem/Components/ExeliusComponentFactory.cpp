@@ -4,6 +4,7 @@
 
 #include "Source/Engine/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
 #include "Source/Engine/GameObjectSystem/Components/ComponentTypes/SpriteComponent.h"
+#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/UIComponent.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -17,6 +18,7 @@ namespace Exelius
 		// Register the Engine component types.
 		pGameObjectSystem->RegisterComponent<TransformComponent>(TransformComponent::kType, false, false);
 		pGameObjectSystem->RegisterComponent<SpriteComponent>(SpriteComponent::kType, false, true);
+		pGameObjectSystem->RegisterComponent<UIComponent>(UIComponent::kType, false, true);
 
 		return true;
 	}
@@ -58,6 +60,20 @@ namespace Exelius
 			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<SpriteComponent>(newHandle);
+			initSucceeded = newComponent.Initialize(componentData);
+		}
+		else if (componentName == UIComponent::kType)
+		{
+			newHandle = pGameObjectSystem->CreateComponent<UIComponent>(pOwningObject);
+
+			if (!newHandle.IsValid())
+			{
+				log.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
+				return {}; // Invalid.
+			}
+
+			auto& newComponent = pGameObjectSystem->GetComponent<UIComponent>(newHandle);
 			initSucceeded = newComponent.Initialize(componentData);
 		}
 

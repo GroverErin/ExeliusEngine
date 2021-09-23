@@ -73,6 +73,9 @@ function exeliusGenerator.GenerateEngineWorkspace()
     workspace(defaultSettings.workspaceName)
         startproject(defaultSettings.startProjectName)
 
+        local workspacePath = os.realpath("../")
+        location(workspacePath)
+
         GenerateWindowsWorkspace()
         GenerateLinuxWorkspace()
 end
@@ -81,10 +84,10 @@ function exeliusGenerator.GenerateEngineProject()
     project(defaultSettings.engineProjectName)
         defaultSettings.SetGlobalProjectDefaultSettings()
 
-        local enginePath = os.realpath(defaultSettings.engineProjectName)
+        local enginePath = os.realpath("../" .. defaultSettings.engineProjectName)
         log.Log("[Premake] Generating Engine at Path: " .. enginePath)
 
-        location(defaultSettings.engineProjectName)
+        location(enginePath)
         kind(defaultSettings.defaultkind)
 
         pchheader(defaultSettings.precompiledHeader)
@@ -92,14 +95,14 @@ function exeliusGenerator.GenerateEngineProject()
 
         files
         {
-            "%{prj.name}/**.h",
-            "%{prj.name}/**.cpp"
+            "%{wks.location}/%{prj.name}/**.h",
+            "%{wks.location}/%{prj.name}/**.cpp"
         }
 
         includedirs
         {
-            "%{prj.name}/",
-            "%{prj.name}/Source/Precompilation/"
+            "%{wks.location}/%{prj.name}/",
+            "%{wks.location}/%{prj.name}/Source/Precompilation/"
         }
 end
 
@@ -107,26 +110,26 @@ function exeliusGenerator.GenerateEditorProject()
     project(defaultSettings.exeliusEditorName)
         defaultSettings.SetGlobalProjectDefaultSettings()
 
-        local editorPath = os.realpath(defaultSettings.exeliusEditorName)
+        local editorPath = os.realpath("../" .. defaultSettings.exeliusEditorName)
         log.Log("[Premake] Generating Engine at Path: " .. editorPath)
 
-        location(defaultSettings.exeliusEditorName)
+        location(editorPath)
         kind("ConsoleApp")
 
         files
         {
-            "%{prj.name}/Source/**.h",
-            "%{prj.name}/Source/**.cpp"
+            "%{wks.location}/%{prj.name}/Source/**.h",
+            "%{wks.location}/%{prj.name}/Source/**.cpp"
         }
 
         includedirs
         {
-            "%{prj.name}/Source/"
+            "%{wks.location}/%{prj.name}/Source/"
         }
 end
 
 function exeliusGenerator.LinkEngineToProject()
-    local engineIncludePath = os.realpath(defaultSettings.engineProjectName)
+    local engineIncludePath = os.realpath("../" .. defaultSettings.engineProjectName)
     log.Log("[Premake] Linking Engine From Path: " .. engineIncludePath)
 
     links

@@ -16,7 +16,7 @@
 newoption
 {
 	trigger = "configuration",
-	value = "Config",
+	value = "config",
 	description = "The configuration that Premake should generate.",
 	allowed = {
 		{"Release", "Release (Lightweight, Fast - Optimized w/o Debug)"},
@@ -28,7 +28,7 @@ newoption
 newoption
 {
 	trigger = "architecture",
-	value = "Arch",
+	value = "arch",
 	description = "The architecture that Premake should generate for.",
 	allowed = {
 		{"rpi64", "Raspberry Pi x64"},

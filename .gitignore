@@ -10,6 +10,7 @@
 [Tt]emp/
 [Ll]ogs/
 [Ee]XESandbox/engine_config.ini
+[Tt]ools/[Tt]hird[Pp]arty/[Pp]remake
 
 *.sln
 *.vcxproj*

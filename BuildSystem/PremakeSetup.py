@@ -58,7 +58,7 @@ class PremakeSetup:
 
         Log.Log("[Python] Downloading {0:s} to {1:s}".format(premakeZipUrl, premakePath))
         Utilities.DownloadFile(premakeZipUrl, premakePath)
-        Log.Log("[Python] Extracting", premakePath)
+        Log.Log(f"[Python] Extracting {premakePath}")
         Utilities.UnzipFile(premakePath, deleteZipFile=True)
         Log.Log(f"[Python] Premake {self.premakeVersion} Downloaded to '{self.premakeDirectory}'")
 

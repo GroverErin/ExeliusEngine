@@ -83,26 +83,29 @@ end
 function exeliusGenerator.GenerateEngineProject()
     project(defaultSettings.engineProjectName)
         defaultSettings.SetGlobalProjectDefaultSettings()
+        local enginePath = os.realpath("%{wks.location}/" .. defaultSettings.engineProjectName)
 
-        local enginePath = os.realpath("../" .. defaultSettings.engineProjectName)
-        log.Log("[Premake] Generating Engine at Path: " .. enginePath)
+        -- Use a relative path here only because it logs nicer. Totally unnessesary.
+        local pathToLog = os.realpath("../" .. defaultSettings.engineProjectName)
+        log.Log("[Premake] Generating Engine at Path: " .. pathToLog)
 
         location(enginePath)
         kind(defaultSettings.defaultkind)
 
-        pchheader(defaultSettings.precompiledHeader)
-        pchsource(defaultSettings.precompiledHeaderSource)
+        pchheader("EXEPCH.h")
+        pchsource("../%{prj.name}/Source/Precompilation/EXEPCH.cpp")
+        --pchsource("%{prj.location}/Source/Precompilation/EXEPCH.cpp") -- Doesn't work. %{prj.location} or %{wks.location} will not correctly expand when used in pchsource.
 
         files
         {
-            "%{wks.location}/%{prj.name}/**.h",
-            "%{wks.location}/%{prj.name}/**.cpp"
+            "%{prj.location}/**.h",
+            "%{prj.location}/**.cpp"
         }
 
         includedirs
         {
-            "%{wks.location}/%{prj.name}/",
-            "%{wks.location}/%{prj.name}/Source/Precompilation/"
+            "%{prj.location}/",
+            "%{prj.location}/Source/Precompilation/"
         }
 end
 
@@ -110,8 +113,11 @@ function exeliusGenerator.GenerateEditorProject()
     project(defaultSettings.exeliusEditorName)
         defaultSettings.SetGlobalProjectDefaultSettings()
 
-        local editorPath = os.realpath("../" .. defaultSettings.exeliusEditorName)
-        log.Log("[Premake] Generating Engine at Path: " .. editorPath)
+        local editorPath = os.realpath("%{wks.location}/" .. defaultSettings.exeliusEditorName)
+
+        -- Use a relative path here only because it logs nicer. Totally unnessesary.
+        local pathToLog = os.realpath("../" .. defaultSettings.exeliusEditorName)
+        log.Log("[Premake] Generating Editor at Path: " .. pathToLog)
 
         location(editorPath)
         kind("ConsoleApp")
@@ -129,8 +135,11 @@ function exeliusGenerator.GenerateEditorProject()
 end
 
 function exeliusGenerator.LinkEngineToProject()
-    local engineIncludePath = os.realpath("../" .. defaultSettings.engineProjectName)
-    log.Log("[Premake] Linking Engine From Path: " .. engineIncludePath)
+    local engineIncludePath = os.realpath("%{wks.location}/" .. defaultSettings.engineProjectName)
+
+    -- Use a relative path here only because it logs nicer. Totally unnessesary.
+    local pathToLog = os.realpath("../" .. defaultSettings.engineProjectName)
+    log.Log("[Premake] Linking Engine From Path: " .. pathToLog)
 
     links
     {

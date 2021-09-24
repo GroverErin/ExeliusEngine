@@ -6,7 +6,7 @@
 #include "Source/Utility/IO/File.h"
 #include "Source/Utility/IO/ZLIBStructs.h"
 
-#include <zlib/zlib.h>
+#include <zlib.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

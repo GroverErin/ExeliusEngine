@@ -8,11 +8,11 @@ exeliusDefaultSettings.exeliusEditorName = "EXESandbox" -- Eventually this will 
 exeliusDefaultSettings.startProjectName = exeliusDefaultSettings.exeliusEditorName
 
 exeliusDefaultSettings.precompiledHeader = "EXEPCH.h"
-exeliusDefaultSettings.precompiledHeaderSource = "%{prj.name}/Source/Precompilation/EXEPCH.cpp"
+exeliusDefaultSettings.precompiledHeaderSource = "%{wks.location}/%{prj.name}/Source/Precompilation/EXEPCH.cpp"
 
 exeliusDefaultSettings.OutputPathConstructor = "%{cfg.buildcfg}_%{cfg.architecture}/%{prj.name}"
-exeliusDefaultSettings.BuildOutputDirectory = "bin/" .. exeliusDefaultSettings.OutputPathConstructor
-exeliusDefaultSettings.TempOutputDirectory = "obj/" .. exeliusDefaultSettings.OutputPathConstructor
+exeliusDefaultSettings.BuildOutputDirectory = "%{wks.location}/bin/" .. exeliusDefaultSettings.OutputPathConstructor
+exeliusDefaultSettings.TempOutputDirectory = "%{wks.location}/obj/" .. exeliusDefaultSettings.OutputPathConstructor
 
 exeliusDefaultSettings.DependencyScriptLocation = path.getabsolute("../tools/thirdparty/")
 exeliusDefaultSettings.DependencyBuildOutputDirectory = exeliusDefaultSettings.BuildOutputDirectory

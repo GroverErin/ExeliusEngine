@@ -10,6 +10,10 @@ exeliusDependencyGenerator.dependencies = {}
 
 -- Load all dependencies in the dependency folder using the lua scripts.
 function LoadDependencyScripts()
+    -- Use a relative path here only because it logs nicer. Totally unnessesary.
+    local pathToLog = os.realpath(defaultSettings.DependencyScriptLocation)
+    log.Log("[Premake] Checking for Premake Scripts at Path: " .. pathToLog)
+
     local matches = os.matchfiles(defaultSettings.DependencyScriptLocation .. "/*_premake5.lua")
     for _, match in pairs(matches) do
         log.Log("[Premake] Including Premake File '" .. match .."'.")
@@ -24,6 +28,8 @@ function GenerateDependencyProjects()
 
         if dependency.GenerateDependencyProject ~= nil then
             dependency.GenerateDependencyProject(dependencyRootFolder)
+        else
+            log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no GenerateDependencyProject function defined.")
         end
     end
 end
@@ -42,7 +48,15 @@ end
 
 function exeliusDependencyGenerator.GenerateDependencies()
     LoadDependencyScripts()
+
+    if next(exeliusDependencyGenerator.dependencies) == nil then
+        log.Error("[Premake] Dependencies Not Found.")
+        return false
+    end
+
     GenerateDependencyProjects()
+
+    return true
 end
 
 function exeliusDependencyGenerator.IncludeDependencies()
@@ -54,7 +68,7 @@ function exeliusDependencyGenerator.IncludeDependencies()
             log.Log("[Premake] Including '" .. dependency.location .. "'.")
             dependency.IncludeDependency(dependencyRootFolder)
         else
-            log.Error("[Premake] Dependency '" .. dependency.location .. "' Include Failed.")
+            log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no IncludeDependency function defined.")
         end
     end
 end
@@ -64,11 +78,11 @@ function exeliusDependencyGenerator.LinkDependencies()
         local dependencyRootFolder = defaultSettings.DependencyScriptLocation .. "/" .. dependency.location .. "/"
         log.Log("[Premake] Linking Dependancy Project '" .. dependency.location .. "' from: " .. dependencyRootFolder)
 
-        if dependency.IncludeDependency ~= nil then
+        if dependency.LinkDependency ~= nil then
             log.Log("[Premake] Linking '" .. dependency.location .. "'.")
             dependency.LinkDependency(dependencyRootFolder)
         else
-            log.Error("[Premake] Dependency '" .. dependency.location .. "' Link Failed.")
+            log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no LinkDependency function defined.")
         end
     end
 end

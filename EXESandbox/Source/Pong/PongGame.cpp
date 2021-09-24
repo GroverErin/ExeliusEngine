@@ -9,9 +9,9 @@ bool PongGame::Initialize()
     auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
     EXE_ASSERT(pGameObjectSystem);
 
-    eastl::string playerPaddle = "PongAssets/GameObjects/player_paddle.json";
-    eastl::string otherPaddle = "PongAssets/GameObjects/other_paddle.json";
-    eastl::string ball = "PongAssets/GameObjects/ball.json";
+    eastl::string playerPaddle = "assets/GameObjects/player_paddle.json";
+    eastl::string otherPaddle = "assets/GameObjects/other_paddle.json";
+    eastl::string ball = "assets/GameObjects/ball.json";
 
     // Create Paddles.
     m_playerPaddleID = pGameObjectSystem->CreateGameObject(playerPaddle, Exelius::CreationMode::kQueueAndSignal);

@@ -11,7 +11,7 @@
         },
         "UIComponent" : 
         {
-            "Texture" : "PongAssets/ui/Textures/image2.png"
+            "Texture" : "assets/ui/Textures/image2.png"
         }
     }
 }

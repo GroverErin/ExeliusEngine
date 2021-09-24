@@ -44,8 +44,11 @@ engineGenerator.GenerateEngineWorkspace()
 log.Info("[Premake] ExeliusEngine Solution/Workspace Created.")
 
 log.Log("[Premake] Creating ExeliusEngine Dependencies.")
-dependencyGenerator.GenerateDependencies()
-log.Info("[Premake] ExeliusEngine Dependencies Created.")
+if dependencyGenerator.GenerateDependencies() then
+    log.Info("[Premake] ExeliusEngine Dependencies Created.")
+else
+    return -1
+end
 
 log.Log("[Premake] Creating ExeliusEngine Project.")
 engineGenerator.GenerateEngineProject()

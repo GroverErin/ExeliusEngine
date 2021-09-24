@@ -1,5 +1,5 @@
 {
-    "Texture": "PongAssets/Textures/Square.png",
+    "Texture": "assets/Textures/Square.png",
     "Sprites" :
     {
         "player_paddle" : 

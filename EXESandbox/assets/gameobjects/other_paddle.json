@@ -11,7 +11,7 @@
         },
         "SpriteComponent" : 
         {
-            "Spritesheet" : "PongAssets/Spritesheets/Square.spsh",
+            "Spritesheet" : "assets/Spritesheets/Square.spsh",
             "Sprite" : 
             {
                 "name" : "other_paddle",

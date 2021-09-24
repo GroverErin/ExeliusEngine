@@ -22,6 +22,7 @@ function LoadDependencyScripts()
 end
 
 function GenerateDependencyProjects()
+    group("Dependencies")
     for _, dependency in pairs(exeliusDependencyGenerator.dependencies) do
         local dependencyRootFolder = defaultSettings.DependencyScriptLocation .. "/" .. dependency.location .. "/"
         log.Log("[Premake] Generating Dependancy Project '" .. dependency.location .. "' at: " .. dependencyRootFolder)
@@ -32,6 +33,7 @@ function GenerateDependencyProjects()
             log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no GenerateDependencyProject function defined.")
         end
     end
+    group("")
 end
 
 -- Adds a given dependency to the table of dependencies.

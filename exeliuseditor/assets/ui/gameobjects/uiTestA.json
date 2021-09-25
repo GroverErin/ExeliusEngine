@@ -1,0 +1,17 @@
+{
+    "Name": "TestUIA",
+    "Components" :
+    {
+        "TransformComponent" : 
+        {
+            "x" : 0.0,
+            "y" : 0.0,
+            "w" : 30.0,
+            "h" : 30.0
+        },
+        "UIComponent" : 
+        {
+            "Texture" : "assets/ui/Textures/image1.png"
+        }
+    }
+}

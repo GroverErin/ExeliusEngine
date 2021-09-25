@@ -1,0 +1,25 @@
+{
+    "Name": "ball",
+    "Components" :
+    {
+        "TransformComponent" : 
+        {
+            "x" : 360.0,
+            "y" : 300.0,
+            "w" : 30.0,
+            "h" : 30.0
+        },
+        "SpriteComponent" : 
+        {
+            "Spritesheet" : "assets/Spritesheets/Square.spsh",
+            "Sprite" : 
+            {
+                "name" : "ball",
+                "xOffset" : 0.0,
+                "yOffset" : 0.0,
+                "xScale" : 0.3,
+                "yScale" : 0.3
+            }
+        }
+    }
+}

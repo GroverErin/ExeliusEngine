@@ -4,11 +4,6 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Exelius Files
-[Pp]rojects/
-[Oo]utput/
-[Bb]uild/
-[Tt]emp/
-[Ll]ogs/
 [Ee]XESandbox/engine_config.ini
 [Tt]ools/[Tt]hird[Pp]arty/[Pp]remake
 
@@ -26,7 +21,7 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
+./[Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/

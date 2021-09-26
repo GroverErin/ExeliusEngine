@@ -5,6 +5,22 @@ import sys
 
 from buildsystem.PythonConsoleLog import Log as log
 
+# Check if we have the submodules.
+    # If not, then always get them.
+    # Else, Check if we want to update the submodules.
+            # If we want to ONLY update submodules, then do so and bail.
+            # Else, Update the submodules and continue the operation.
+
+
+
+
+
+
+
+
+
+
+
 if sys.argv.__len__() > 1:
     if sys.argv[1] == "-f":
         log.Log("[Python] Running in Full Mode: Updating Submodules.")

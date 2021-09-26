@@ -7,7 +7,7 @@ from zipfile import ZipFile
 # This package should have been installed by PythonSetup.py
 import requests
 
-from BuildSystem.PythonConsoleLog import Log as Log
+from buildsystem.PythonConsoleLog import Log as log
 
 def DownloadFile(url, filepath):
     path = os.path.abspath(filepath)
@@ -15,20 +15,20 @@ def DownloadFile(url, filepath):
 
     if (type(url) is list):
         for url_option in url:
-            Log.Log("[Python] Downloading", url_option)
+            log.Log("[Python] Downloading", url_option)
             try:
                 DownloadFile(url_option, path)
                 return
             except urllib.error.URLError as e:
-                Log.Error(f"[Python] URL Error encountered: {e.reason}. Proceeding with backup...\n\n")
+                log.Error(f"[Python] URL Error encountered: {e.reason}. Proceeding with backup...\n\n")
                 os.remove(path)
                 pass
             except urllib.error.HTTPError as e:
-                Log.Error(f"[Python] HTTP Error encountered: {e.code}. Proceeding with backup...\n\n")
+                log.Error(f"[Python] HTTP Error encountered: {e.code}. Proceeding with backup...\n\n")
                 os.remove(path)
                 pass
             except:
-                Log.Error(f"[Python] Something went wrong. Proceeding with backup...\n\n")
+                log.Error(f"[Python] Something went wrong. Proceeding with backup...\n\n")
                 os.remove(path)
                 pass
         raise ValueError(f"[Python] Failed to download {path}")

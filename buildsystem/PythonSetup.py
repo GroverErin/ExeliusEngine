@@ -2,7 +2,7 @@ import importlib.util as importlib_util
 import subprocess
 import sys
 
-from BuildSystem.PythonConsoleLog import Log as Log
+from buildsystem.PythonConsoleLog import Log as log
 
 class PythonSetup:
     packages = ["requests"]
@@ -21,19 +21,19 @@ class PythonSetup:
     @classmethod
     def __ValidatePython(self, versionMajor = 3, versionMinor = 3):
         if sys.version is not None:
-            Log.Log("[Python] Version {0:d}.{1:d}.{2:d} Detected.".format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
+            log.Log("[Python] Version {0:d}.{1:d}.{2:d} Detected.".format(sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
             if sys.version_info.major < versionMajor or (sys.version_info.major == versionMajor and sys.version_info.minor < versionMinor):
-                Log.Error("[Python] Version Too Low. Expected Version {0:d}.{1:d} or Higher.".format(versionMajor, versionMinor))
+                log.Error("[Python] Version Too Low. Expected Version {0:d}.{1:d} or Higher.".format(versionMajor, versionMinor))
                 return False
             return True
         else:
-            Log.Error("[Python] System Version is None.")
+            log.Error("[Python] System Version is None.")
             return False
 
     @classmethod
     def __ValidatePackage(self, packageName):
         if importlib_util.find_spec(packageName) is None:
-            Log.Error(f"[Python] Package '{packageName}' Not Found.")
+            log.Error(f"[Python] Package '{packageName}' Not Found.")
             return self.__InstallPackage(packageName)
         return True
 
@@ -47,7 +47,7 @@ class PythonSetup:
                 return False
             permissionGranted = (reply == 'y')
         
-        Log.Log(f"[Python] Installing '{packageName}' Package.")
+        log.Log(f"[Python] Installing '{packageName}' Package.")
 
         # When debugging, ensure you have the packages installed, otherwise this
         # can result in an infinite loop. This is likely due to VSCode possibly

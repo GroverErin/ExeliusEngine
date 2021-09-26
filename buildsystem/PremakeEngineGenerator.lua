@@ -54,8 +54,8 @@ function SetWindowsPostBuildCommands()
     filter {"system:windows"}
         postbuildcommands
         {
-            [[copy "%{wks.location}Tools\Templates\engine_config.ini" "%{cfg.targetdir}\engine_config.ini" /y /a]], -- Copy the ini into the final build directory.
-            [[copy "%{wks.location}Tools\Templates\engine_config.ini" "engine_config.ini" /y /a]], -- Copy the ini into the debuggers directory.
+            [[copy "%{wks.location}tools\templates\engine_config.ini" "%{cfg.targetdir}\engine_config.ini" /y /a]], -- Copy the ini into the final build directory.
+            [[copy "%{wks.location}tools\templates\engine_config.ini" "engine_config.ini" /y /a]], -- Copy the ini into the debuggers directory.
             [[xcopy "assets" "%{cfg.targetdir}\assets\" /y /q /e]] -- Copy assets into final build directory.
         }
 end
@@ -65,7 +65,7 @@ function SetLinuxPostBuildCommands()
     filter {"system:linux"}
         postbuildcommands
         {
-            [[cp -f Tools/Templates/engine_config.ini %{cfg.targetdir}/engine_config.ini]]
+            [[cp -f tools/templates/engine_config.ini %{cfg.targetdir}/engine_config.ini]]
         }
 end
 
@@ -93,7 +93,7 @@ function exeliusGenerator.GenerateEngineProject()
         kind(defaultSettings.defaultkind)
 
         pchheader("EXEPCH.h")
-        pchsource("../%{prj.name}/Source/Precompilation/EXEPCH.cpp")
+        pchsource("../%{prj.name}/source/precompilation/EXEPCH.cpp")
         --pchsource("%{prj.location}/Source/Precompilation/EXEPCH.cpp") -- Doesn't work. %{prj.location} or %{wks.location} will not correctly expand when used in pchsource.
 
         files
@@ -105,7 +105,7 @@ function exeliusGenerator.GenerateEngineProject()
         includedirs
         {
             "%{prj.location}/",
-            "%{prj.location}/Source/Precompilation/"
+            "%{prj.location}/source/precompilation/"
         }
 end
 
@@ -124,13 +124,13 @@ function exeliusGenerator.GenerateEditorProject()
 
         files
         {
-            "%{wks.location}/%{prj.name}/Source/**.h",
-            "%{wks.location}/%{prj.name}/Source/**.cpp"
+            "%{wks.location}/%{prj.name}/source/**.h",
+            "%{wks.location}/%{prj.name}/source/**.cpp"
         }
 
         includedirs
         {
-            "%{wks.location}/%{prj.name}/Source/"
+            "%{wks.location}/%{prj.name}/source/"
         }
 end
 

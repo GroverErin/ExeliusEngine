@@ -2,13 +2,13 @@
 premake.modules.exeliusDefaultSettingsClass = {}
 local exeliusDefaultSettings = premake.modules.exeliusDefaultSettingsClass
 
-exeliusDefaultSettings.workspaceName = "ExeliusEngine"
-exeliusDefaultSettings.engineProjectName = "Exelius"
-exeliusDefaultSettings.exeliusEditorName = "EXESandbox" -- Eventually this will be replaced with the Editor name.
+exeliusDefaultSettings.workspaceName = "exeliusengine"
+exeliusDefaultSettings.engineProjectName = "exelius"
+exeliusDefaultSettings.exeliusEditorName = "exeliuseditor"
 exeliusDefaultSettings.startProjectName = exeliusDefaultSettings.exeliusEditorName
 
 exeliusDefaultSettings.precompiledHeader = "EXEPCH.h"
-exeliusDefaultSettings.precompiledHeaderSource = "%{wks.location}/%{prj.name}/Source/Precompilation/EXEPCH.cpp"
+exeliusDefaultSettings.precompiledHeaderSource = "%{wks.location}/%{prj.name}/source/precompilation/EXEPCH.cpp"
 
 exeliusDefaultSettings.OutputPathConstructor = "%{cfg.buildcfg}_%{cfg.architecture}/%{prj.name}"
 exeliusDefaultSettings.BuildOutputDirectory = "%{wks.location}/bin/" .. exeliusDefaultSettings.OutputPathConstructor

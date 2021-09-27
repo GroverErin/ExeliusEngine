@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import time
@@ -33,8 +34,10 @@ class Utilities:
             extractedContentSize = 0
             startTime = time.time()
             for zippedFileName, zippedFileSize in zipFileContent.items():
-                UnzippedFilePath = os.path.abspath(f"{zipFileLocation}/{zippedFileName}")
-                os.makedirs(os.path.dirname(UnzippedFilePath), exist_ok=True)
+                UnzippedFilePath = os.path.abspath("{0:s}/{1:s}".format(zipFileLocation, zippedFileName))
+                
+                if not os.path.isdir(zipFileLocation):
+                    os.makedirs(os.path.dirname(UnzippedFilePath))
                 if os.path.isfile(UnzippedFilePath):
                     zipFileContentSize -= zippedFileSize
                 else:
@@ -63,7 +66,7 @@ class Utilities:
     def __UnpackFile(self, packedFilePath, unpackFilePath):
         tarFilePath = packedFilePath # get full path of files
         tarFileLocation = unpackFilePath
-
+        
         tarFileContent = dict()
         tarFileContentSize = 0
         tarFileFolder = TarFile.open(tarFilePath, 'r')
@@ -73,8 +76,10 @@ class Utilities:
         extractedContentSize = 0
         startTime = time.time()
         for tarFileName, tarFileSize in tarFileContent.items():
-            UnpackedFilePath = os.path.abspath(f"{tarFileLocation}/{tarFileName}")
-            os.makedirs(os.path.dirname(UnpackedFilePath), exist_ok=True)
+            UnpackedFilePath = os.path.abspath("{0:s}/{1:s}".format(tarFileLocation, tarFileName))
+            
+            if not os.path.isdir(tarFileLocation):
+                os.makedirs(os.path.dirname(UnpackedFilePath))
             if os.path.isfile(UnpackedFilePath):
                 tarFileContentSize -= tarFileSize
             else:

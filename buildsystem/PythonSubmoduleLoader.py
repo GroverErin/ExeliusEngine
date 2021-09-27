@@ -1,7 +1,6 @@
 import os
 import platform
 import subprocess
-from pathlib import Path, PosixPath
 from buildsystem.PythonConsoleLog import Log as log
 import buildsystem.PythonConfig as constants
 
@@ -22,15 +21,7 @@ class SubmoduleLoader:
 
         shouldUpdateSubmodules = forceSubmoduleUpdate
         for path in moduleList:
-            if platform.system() == "Windows":
-                modulePath = Path(path)
-            elif platform.system() == "Linux":
-                modulePath = PosixPath(path)
-            else:
-                log.Error("OS '{0:s}' Not Supported.".format(platform.system()))
-                return
-
-            if (modulePath.exists()):
+            if (os.path.isdir(path)):
                 log.Log("Submodule Found at Location: {0:s}".format(path))
             else:
                 log.Log("Submodule Not Found at Location: {0:s}".format(path))

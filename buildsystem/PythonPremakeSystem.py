@@ -1,9 +1,7 @@
 import os
 import platform
 import subprocess
-from pathlib import Path, PosixPath
 
-# Blah, stupid pathing crap.
 from buildsystem.PythonUtilities import Utilities as utilities
 from buildsystem.PythonConsoleLog import Log as log
 import buildsystem.PythonConfig as const
@@ -27,7 +25,7 @@ class PremakeSystem:
             subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5.exe"), "vs2019", "--file=./buildsystem/PremakeMain.lua", "nopause"])
         elif platform.system() == "Linux":
             log.Info("Linux.")
-            #subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake2", "--file=./buildsystem/PremakeMain.lua", "nopause"])
+            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake2", "--file=./buildsystem/PremakeMain.lua", "nopause"])
         else:
             log.Error("OS '{0:s}' Not Supported.".format(platform.system()))
             exit() # Cannot complete setup.
@@ -37,13 +35,13 @@ class PremakeSystem:
     @classmethod
     def __ValidatePremake(self):
         if platform.system() == "Windows":
-            premakeExecutablePath = Path("{0:s}premake5.exe".format(const.PREMAKE_UNPACK_PATH))
+            premakeExecutablePath = os.path.abspath(const.PREMAKE_UNPACK_PATH + 'premake5.exe')
         elif platform.system() == "Linux":
-            premakeExecutablePath = PosixPath("{0:s}premake5".format(const.PREMAKE_UNPACK_PATH))
+            premakeExecutablePath = os.path.abspath(const.PREMAKE_UNPACK_PATH + 'premake5')
         else:
             log.Error("OS '{0:s}' Not Supported.".format(platform.system()))
 
-        if (not premakeExecutablePath.exists()):
+        if (not os.path.isfile(premakeExecutablePath)):
             log.Warn("Premake Not Found at Location: {0:s}".format(os.path.abspath(const.PREMAKE_UNPACK_PATH)))
             return self.__UnpackPremake()
 

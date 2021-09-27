@@ -1,41 +1,43 @@
-# TODO: Escape characters don't seem to work on Windows CMD.
-#       I could install colorama or termcolor...
+import platform
+
 class Log:
-    Default_FG = '\033[39m'
-    Default_BG = '\033[49m'
-    Grey_FG    = '\033[90m'
-    Grey_BG    = '\033[100m'
-    Red_FG     = '\033[91m'
-    Red_BG     = '\033[101m'
-    Green_FG   = '\033[92m'
-    Green_BG   = '\033[102m'
-    Yellow_FG  = '\033[93m'
-    Yellow_BG  = '\033[103m'
-    Blue_FG    = '\033[94m'
-    Blue_BG    = '\033[104m'
-    Pink_FG    = '\033[95m'
-    Pink_BG    = '\033[105m'
-    Cyan_FG    = '\033[96m'
-    Cyan_BG    = '\033[106m'
-    White_FG   = '\033[97m'
-    White_BG   = '\033[107m'
-    Normal     = '\033[0m'
-    Bold       = '\033[1m'
-    Italic     = '\033[3m'
-    Underline  = '\033[4m'
+    _verbose = False
+    RED_FG     = '\033[91m'
+    GREEN_FG   = '\033[92m'
+    YELLOW_FG  = '\033[93m'
+    WHITE_FG   = '\033[97m'
+    NORMAL     = '\033[0m'
+
+    @classmethod
+    def SetVerbose(self, isVerbose):
+        self._verbose = isVerbose
 
     @classmethod
     def Log(self, text):
-        print(self.White_FG + text + self.Normal)
+        if not self._verbose:
+            return
+        if (platform.system() == "Linux"):
+            print(self.WHITE_FG + "[Python] " + text + self.NORMAL)
+        else:
+            print("[Python] " + text)
 
     @classmethod
     def Info(self, text):
-        print(self.Green_FG + text + self.Normal)
+        if (platform.system() == "Linux"):
+            print(self.GREEN_FG + "[Python] " + text + self.NORMAL)
+        else:
+            print("[Python] " + text)
 
     @classmethod
     def Warn(self, text):
-        print(self.Yellow_FG + text + self.Normal)
+        if (platform.system() == "Linux"):
+            print(self.YELLOW_FG + "[Python] " + text + self.NORMAL)
+        else:
+            print("[Python] " + text)
 
     @classmethod
     def Error(self, text):
-        print(self.Red_FG + text + self.Normal)
+        if (platform.system() == "Linux"):
+            print(self.RED_FG + "[Python] " + text + self.NORMAL)
+        else:
+            print("[Python] " + text)

@@ -65,7 +65,8 @@ function SetLinuxPostBuildCommands()
     filter {"system:linux"}
         postbuildcommands
         {
-            [[cp -f tools/templates/engine_config.ini %{cfg.targetdir}/engine_config.ini]]
+            [[cp -f %{wks.location}/tools/templates/engine_config.ini %{cfg.targetdir}/engine_config.ini]],
+            [[cp -r assets %{cfg.targetdir}/assets]]
         }
 end
 
@@ -83,7 +84,7 @@ end
 function exeliusGenerator.GenerateEngineProject()
     project(defaultSettings.engineProjectName)
         defaultSettings.SetGlobalProjectDefaultSettings()
-        local enginePath = os.realpath("%{wks.location}/" .. defaultSettings.engineProjectName)
+        local enginePath = os.realpath("../" .. defaultSettings.engineProjectName)
 
         -- Use a relative path here only because it logs nicer. Totally unnessesary.
         local pathToLog = os.realpath("../" .. defaultSettings.engineProjectName)
@@ -98,14 +99,14 @@ function exeliusGenerator.GenerateEngineProject()
 
         files
         {
-            "%{prj.location}/**.h",
-            "%{prj.location}/**.cpp"
+            "../%{prj.name}/**.h",
+            "../%{prj.name}/**.cpp"
         }
 
         includedirs
         {
-            "%{prj.location}/",
-            "%{prj.location}/source/precompilation/"
+            "../%{prj.name}/",
+            "../%{prj.name}/source/precompilation/"
         }
 end
 
@@ -113,7 +114,7 @@ function exeliusGenerator.GenerateEditorProject()
     project(defaultSettings.exeliusEditorName)
         defaultSettings.SetGlobalProjectDefaultSettings()
 
-        local editorPath = os.realpath("%{wks.location}/" .. defaultSettings.exeliusEditorName)
+        local editorPath = os.realpath("../" .. defaultSettings.exeliusEditorName)
 
         -- Use a relative path here only because it logs nicer. Totally unnessesary.
         local pathToLog = os.realpath("../" .. defaultSettings.exeliusEditorName)
@@ -124,18 +125,18 @@ function exeliusGenerator.GenerateEditorProject()
 
         files
         {
-            "%{wks.location}/%{prj.name}/source/**.h",
-            "%{wks.location}/%{prj.name}/source/**.cpp"
+            "../%{prj.name}/source/**.h",
+            "../%{prj.name}/source/**.cpp"
         }
 
         includedirs
         {
-            "%{wks.location}/%{prj.name}/source/"
+            "../%{prj.name}/source/"
         }
 end
 
 function exeliusGenerator.LinkEngineToProject()
-    local engineIncludePath = os.realpath("%{wks.location}/" .. defaultSettings.engineProjectName)
+    local engineIncludePath = os.realpath("../" .. defaultSettings.engineProjectName)
 
     -- Use a relative path here only because it logs nicer. Totally unnessesary.
     local pathToLog = os.realpath("../" .. defaultSettings.engineProjectName)

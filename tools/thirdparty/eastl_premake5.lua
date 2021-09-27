@@ -64,6 +64,13 @@ function eastl.LinkDependency(dependencyRootFolder, exeliusLibDir)
     {
         "eastl"
     }
+
+    filter {"system:linux"}
+        links
+        {
+            "stdc++fs"
+        }
+    filter {}
 end
 
 dependencies.AddDependency("eastl", eastl)

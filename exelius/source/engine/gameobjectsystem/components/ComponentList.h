@@ -1,6 +1,7 @@
 #pragma once
 #include "source/utility/generic/Handle.h"
 #include "source/utility/generic/Macros.h"
+#include "source/debug/Log.h"
 
 #include <EASTL/vector.h>
 #include <EASTL/deque.h>

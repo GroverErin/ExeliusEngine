@@ -1,13 +1,11 @@
 #pragma once
+#include <cstddef>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
-	class EASTLAllocatorWrapper;
-
-
 	class EASTLAllocatorWrapper
 	{
 		const char* m_pName;

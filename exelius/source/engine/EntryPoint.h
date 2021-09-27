@@ -1,5 +1,5 @@
 #pragma once
-#include "source/engine/application.h"
+#include "source/engine/Application.h"
 
 extern Exelius::Application* Exelius::CreateApplication();
 

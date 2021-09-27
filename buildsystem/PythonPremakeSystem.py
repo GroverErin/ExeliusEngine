@@ -20,11 +20,12 @@ class PremakeSystem:
     @classmethod
     def Run(self):
         log.Info("Executing Premake.")
-
-        if platform.system() == "Windows":
+        
+        if 'armv' in platform.machine():
+            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake", "--file=./buildsystem/PremakeMain.lua", "--architecture=ARM64", "--configuration=Release", "nopause"])
+        elif platform.system() == "Windows":
             subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5.exe"), "vs2019", "--file=./buildsystem/PremakeMain.lua", "nopause"])
         elif platform.system() == "Linux":
-            log.Info("Linux.")
             subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake2", "--file=./buildsystem/PremakeMain.lua", "nopause"])
         else:
             log.Error("OS '{0:s}' Not Supported.".format(platform.system()))

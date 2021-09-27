@@ -1,5 +1,5 @@
 #pragma once
-#include "source/utility/math/rectangle.h"
+#include "source/utility/math/Rectangle.h"
 
 #include <cstddef>
 

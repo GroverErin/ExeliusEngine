@@ -10,7 +10,7 @@
 #define EXELIUS_USE_EASTL_ALLOCATOR
 
 #ifndef EXELIUS_USE_EASTL_ALLOCATOR
-	#define EASTL_USER_CONFIG_HEADER <Source/Utility/ThirdParty/CustomEASTLConfig.h>
+	#define EASTL_USER_CONFIG_HEADER <source/utility/thirdparty/CustomEASTLConfig.h>
 #endif
 
 #include <EASTL/memory.h>

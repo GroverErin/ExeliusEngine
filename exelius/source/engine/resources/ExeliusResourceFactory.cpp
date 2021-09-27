@@ -1,11 +1,11 @@
 #include "EXEPCH.h"
 #include "source/engine/resources/ExeliusResourceFactory.h"
 
-#include "source/engine/resources/resourceTypes/ExeliusResourceTypes.h"
+#include "source/engine/resources/resourcetypes/ExeliusResourceTypes.h"
 
-#include "source/engine/resources/resourceTypes/TextFileResource.h"
-#include "source/engine/resources/resourceTypes/TextureResource.h"
-#include "source/engine/resources/resourceTypes/SpritesheetResource.h"
+#include "source/engine/resources/resourcetypes/TextFileResource.h"
+#include "source/engine/resources/resourcetypes/TextureResource.h"
+#include "source/engine/resources/resourcetypes/SpritesheetResource.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

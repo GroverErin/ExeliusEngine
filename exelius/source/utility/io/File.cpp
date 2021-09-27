@@ -177,7 +177,10 @@ namespace Exelius
 			case CreationType::kOpenFile:
 			{
 				if (!FileExists(filePath))
+				{
+					log.Error("File Not Found: '{}'", filePath.c_str());
 					return false;
+				}
 				break;
 			}
 			case CreationType::kOpenOrCreateFile:

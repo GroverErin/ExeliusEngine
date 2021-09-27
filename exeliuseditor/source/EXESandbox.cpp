@@ -1,12 +1,12 @@
 #include <include/ExeliusMain.h>
 #include <include/Log.h>
 
-//#include "pong/PongGame.h"
-#include "uiresize/UIResizeApp.h"
+#include "pong/PongGame.h"
+//#include "uiresize/UIResizeApp.h"
 
-//EXELIUS_MAIN(Sandbox, PongGame m_app);
+EXELIUS_MAIN(Sandbox, PongGame m_app);
 
-EXELIUS_MAIN(Sandbox, UIResizeApp m_app);
+//EXELIUS_MAIN(Sandbox, UIResizeApp m_app);
 
 bool Sandbox::Initialize()
 {

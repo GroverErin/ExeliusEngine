@@ -1,5 +1,5 @@
 #pragma once
-#include "source/engine/gameObjectSystem/components/Component.h"
+#include "source/engine/gameobjectsystem/components/Component.h"
 #include "source/utility/generic/Handle.h"
 
 #include <rapidjson/document.h>

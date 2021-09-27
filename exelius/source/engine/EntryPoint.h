@@ -1,10 +1,17 @@
 #pragma once
 #include "source/engine/Application.h"
 
+#ifdef LINUX
+	#include <X11/Xlib.h>
+#endif
+
 extern Exelius::Application* Exelius::CreateApplication();
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
+#ifdef LINUX
+	XInitThreads();
+#endif
 	Exelius::Application::SetSingleton(Exelius::CreateApplication());
 	auto* pApp = Exelius::Application::GetInstance();
 	EXE_ASSERT(pApp);

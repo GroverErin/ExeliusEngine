@@ -30,7 +30,7 @@ newoption
         { "Win32",      "Same as x86" },
         { "x64",        "Same as x86_64" },
     },
-    default =           "x86"
+    default =           "x64"
 }
 
 log.Log("[Premake] Beginning Premake File Generation.")

@@ -3,9 +3,9 @@
 
 // TODO: ALL OF THESE NEED TO BE REWORKED TO REMOVE AS MUCH AS POSSIBLE.
 //		 THIS FILE SHOULD BE TOTALLY EMPTY IF POSSIBLE.
-#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
-#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
-#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/SpriteComponent.h"
-#include "Source/Engine/GameObjectSystem/GameObject.h"
-#include "Source/Utility/Math/Rectangle.h"
-#include "Source/Utility/Generic/Time.h"
+#include "source/engine/gameobjectsystem/GameObjectSystem.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/TransformComponent.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/SpriteComponent.h"
+#include "source/engine/gameobjectsystem/GameObject.h"
+#include "source/utility/math/Rectangle.h"
+#include "source/utility/generic/Time.h"

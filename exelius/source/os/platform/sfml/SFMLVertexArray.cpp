@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 #include "SFMLVertexArray.h"
-#include "Source/OS/Interface/Graphics/Vertex.h"
+#include "source/os/interface/graphics/Vertex.h"
 
 #include <SFML/Graphics/VertexArray.hpp>
 

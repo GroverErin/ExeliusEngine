@@ -1,8 +1,8 @@
 #include "EXEPCH.h"
 
-#include "Source/Utility/IO/File.h"
-#include "Source/Utility/String/StringIntern.h"
-#include "Source/Utility/String/StringTransformation.h"
+#include "source/utility/io/File.h"
+#include "source/utility/string/StringIntern.h"
+#include "source/utility/string/StringTransformation.h"
 
 #include<filesystem>
 

@@ -1,10 +1,10 @@
 #pragma once
-#include "Source/Utility/Generic/Singleton.h"
-#include "Source/Resource/ResourceHelpers.h"
-#include "Source/Engine/GameObjectSystem/GameObjectHelpers.h"
+#include "source/utility/generic/Singleton.h"
+#include "source/resource/ResourceHelpers.h"
+#include "source/engine/gameobjectsystem/GameObjectHelpers.h"
 
-#include "Source/Engine/GameObjectSystem/Components/ComponentList.h"
-#include "Source/Engine/GameObjectSystem/Components/Component.h"
+#include "source/engine/gameobjectsystem/components/ComponentList.h"
+#include "source/engine/gameobjectsystem/components/Component.h"
 
 #include <EASTL/deque.h>
 #include <EASTL/unordered_map.h>

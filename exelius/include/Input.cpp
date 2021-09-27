@@ -1,7 +1,7 @@
 #include "EXEPCH.h"
-#include "Include/Input.h"
+#include "include/Input.h"
 
-#include "Source/OS/Input/InputManager.h"
+#include "source/os/input/InputManager.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

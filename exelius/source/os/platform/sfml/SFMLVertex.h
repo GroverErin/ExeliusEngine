@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/Containers/Vector2.h"
-#include "Source/Utility/Generic/Color.h"
+#include "source/utility/containers/Vector2.h"
+#include "source/utility/generic/Color.h"
 
 /// <summary>
 /// SFML namespace, used only in SFML specific code within Exelius.

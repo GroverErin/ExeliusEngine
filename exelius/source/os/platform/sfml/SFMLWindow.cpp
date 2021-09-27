@@ -1,20 +1,18 @@
 #include "EXEPCH.h"
-#include "Source/OS/Platform/SFML/SFMLWindow.h"
-#include "Source/OS/Platform/SFML/SFMLInputConversions.h"
+#include "source/os/platform/sfml/SFMLWindow.h"
+#include "source/os/platform/sfml/SFMLInputConversions.h"
+#include "source/os/events/ApplicationEvents.h"
+#include "source/os/events/KeyEvents.h"
+#include "source/os/events/MouseEvents.h"
+#include "source/os/events/JoystickEvents.h"
+#include "source/os/events/TouchEvents.h"
+#include "source/os/events/MiscEvents.h"
+#include "source/os/interface/graphics/View.h"
+#include "source/os/interface/graphics/VertexArray.h"
+#include "source/os/interface/graphics/Texture.h"
 
-#include "SFML/Graphics.hpp"
-#include "SFML/Window.hpp"
-
-#include "Source/OS/Events/ApplicationEvents.h"
-#include "Source/OS/Events/KeyEvents.h"
-#include "Source/OS/Events/MouseEvents.h"
-#include "Source/OS/Events/JoystickEvents.h"
-#include "Source/OS/Events/TouchEvents.h"
-#include "Source/OS/Events/MiscEvents.h"
-
-#include "Source/OS/Interface/Graphics/View.h"
-#include "Source/OS/Interface/Graphics/VertexArray.h"
-#include "Source/OS/Interface/Graphics/Texture.h"
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

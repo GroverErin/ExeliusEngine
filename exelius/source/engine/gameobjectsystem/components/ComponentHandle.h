@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/Generic/Handle.h"
-#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
+#include "source/utility/generic/Handle.h"
+#include "source/engine/gameobjectsystem/GameObjectSystem.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

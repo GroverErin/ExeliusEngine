@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Utility/Generic/Singleton.h"
+#include "source/utility/generic/Singleton.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

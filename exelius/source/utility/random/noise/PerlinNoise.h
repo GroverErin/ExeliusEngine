@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/Math/Math.h"
-#include "Source/Utility/Random/Noise/SquirrelNoise.h"
+#include "source/utility/math/Math.h"
+#include "source/utility/random/noise/SquirrelNoise.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

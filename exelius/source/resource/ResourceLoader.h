@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/Generic/Singleton.h"
-#include "Source/Resource/ResourceDatabase.h"
+#include "source/utility/generic/Singleton.h"
+#include "source/resource/ResourceDatabase.h"
 
 #include <EASTL/deque.h>
 #include <EASTL/vector.h>

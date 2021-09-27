@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
-#include "Source/Utility/Generic/Macros.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
+#include "source/utility/generic/Macros.h"
 
 /// <summary>
 /// SFML namespace, used only in SFML specific code within Exelius.

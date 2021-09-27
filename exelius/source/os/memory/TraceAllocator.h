@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/OS/Memory/ExeliusAllocator.h"
-#include "Source/Debugging/Log.h"
+#include "source/os/memory/ExeliusAllocator.h"
+#include "source/debug/Log.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

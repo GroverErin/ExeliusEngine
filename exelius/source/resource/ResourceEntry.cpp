@@ -1,7 +1,7 @@
 #include "EXEPCH.h"
 
-#include "Source/Resource/ResourceEntry.h"
-#include "Source/Resource/Resource.h"
+#include "source/resource/ResourceEntry.h"
+#include "source/resource/Resource.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

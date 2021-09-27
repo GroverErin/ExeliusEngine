@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Utility/String/StringIntern.h"
+#include "source/utility/string/StringIntern.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

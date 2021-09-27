@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 #include "TextureResource.h"
-#include "Source/OS/Interface/Graphics/Texture.h"
+#include "source/os/interface/graphics/Texture.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

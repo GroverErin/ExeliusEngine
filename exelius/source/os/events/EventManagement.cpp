@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
-#include "Source/OS/Events/EventManagement.h"
-#include "Source/OS/Events/Event.h"
+#include "source/os/events/EventManagement.h"
+#include "source/os/events/Event.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

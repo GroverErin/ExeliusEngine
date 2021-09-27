@@ -1,8 +1,8 @@
-#include <Include/ExeliusMain.h>
-#include <Include/Log.h>
+#include <include/ExeliusMain.h>
+#include <include/Log.h>
 
-//#include "Pong/PongGame.h"
-#include "UIResize/UIResizeApp.h"
+//#include "pong/PongGame.h"
+#include "uiresize/UIResizeApp.h"
 
 //EXELIUS_MAIN(Sandbox, PongGame m_app);
 

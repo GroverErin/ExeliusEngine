@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/Containers/Vector2.h"
-#include "Source/Utility/Generic/Color.h"
+#include "source/utility/containers/Vector2.h"
+#include "source/utility/generic/Color.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -51,7 +51,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Source/OS/Platform/SFML/SFMLVertex.h"
+	#include "source/os/platform/sfml/SFMLVertex.h"
 	namespace Exelius
 	{
 		using Vertex = _Vertex<SFMLVertex>;

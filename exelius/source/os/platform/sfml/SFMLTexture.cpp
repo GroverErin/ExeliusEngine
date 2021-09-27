@@ -1,5 +1,5 @@
 #include "EXEPCH.h"
-#include "Source/OS/Platform/SFML/SFMLTexture.h"
+#include "source/os/platform/sfml/SFMLTexture.h"
 
 #include <SFML/Graphics/Texture.hpp>
 

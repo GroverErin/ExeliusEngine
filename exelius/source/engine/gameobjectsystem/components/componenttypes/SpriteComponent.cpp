@@ -1,15 +1,13 @@
 #include "EXEPCH.h"
 #include "SpriteComponent.h"
-#include "Source/OS/Interface/Graphics/Texture.h"
-#include "Source/OS/Interface/Graphics/Sprite.h"
-
-#include "Source/Engine/Application.h"
-#include "Source/Engine/GameObjectSystem/GameObject.h"
-#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
-#include "Source/Resource/ResourceHandle.h"
-#include "Source/Engine/Resources/ResourceTypes/SpritesheetResource.h"
-
-#include "Source/Render/RenderManager.h"
+#include "source/os/interface/graphics/Texture.h"
+#include "source/os/interface/graphics/Sprite.h"
+#include "source/engine/Application.h"
+#include "source/engine/gameobjectsystem/GameObject.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/TransformComponent.h"
+#include "source/resource/ResourceHandle.h"
+#include "source/engine/resources/resourcetypes/SpritesheetResource.h"
+#include "source/render/RenderManager.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

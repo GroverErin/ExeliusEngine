@@ -1,8 +1,8 @@
 #include "EXEPCH.h"
-#include "Source/OS/Input/InputManager.h"
+#include "source/os/input/InputManager.h"
 
-#include "Source/OS/Events/KeyEvents.h"
-#include "Source/OS/Events/MouseEvents.h"
+#include "source/os/events/KeyEvents.h"
+#include "source/os/events/MouseEvents.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

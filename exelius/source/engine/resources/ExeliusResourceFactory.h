@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Resource/ResourceFactory.h"
+#include "source/resource/ResourceFactory.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

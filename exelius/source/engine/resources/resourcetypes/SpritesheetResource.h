@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Resource/Resource.h"
-#include "Source/OS/Interface/Graphics/Sprite.h"
+#include "source/resource/Resource.h"
+#include "source/os/interface/graphics/Sprite.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

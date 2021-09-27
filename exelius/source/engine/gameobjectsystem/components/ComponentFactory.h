@@ -1,8 +1,8 @@
 #pragma once
-#include <rapidjson/document.h>
+#include "source/engine/gameObjectSystem/components/Component.h"
+#include "source/utility/generic/Handle.h"
 
-#include "Source/Engine/GameObjectSystem/Components/Component.h"
-#include "Source/Utility/Generic/Handle.h"
+#include <rapidjson/document.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

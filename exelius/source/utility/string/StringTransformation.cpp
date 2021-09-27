@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 
-#include "Source/Utility/String/StringTransformation.h"
+#include "source/utility/string/StringTransformation.h"
 
 #include <locale>
 

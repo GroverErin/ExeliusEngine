@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Source/OS/Events/Event.h"
-#include "Source/OS/Input/KeyCodes.h"
+#include "source/os/events/Event.h"
+#include "source/os/input/KeyCodes.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

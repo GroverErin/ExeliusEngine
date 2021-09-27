@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Resource/ResourceHelpers.h"
+#include "source/resource/ResourceHelpers.h"
 
 #include <EASTL/vector.h>
 

@@ -26,7 +26,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Source/OS/Platform/SFML/SFMLTexture.h"
+	#include "source/os/platform/sfml/SFMLTexture.h"
 	namespace Exelius
 	{
 		using Texture = _Texture<SFMLTexture>;

@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/String/StringIntern.h"
-#include "Source/Utility/Generic/Singleton.h"
+#include "source/utility/string/StringIntern.h"
+#include "source/utility/generic/Singleton.h"
 
 #include <spdlog/spdlog.h>
 

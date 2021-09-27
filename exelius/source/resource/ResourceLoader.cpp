@@ -1,10 +1,10 @@
 #include "EXEPCH.h"
-#include "Source/Resource/ResourceLoader.h"
-#include "Source/Resource/ResourceListener.h"
-#include "Source/Resource/ResourceFactory.h"
-#include "Source/Resource/Resource.h"
-#include "Source/Utility/IO/File.h"
-#include "Source/Utility/IO/ZLIBStructs.h"
+#include "source/resource/ResourceLoader.h"
+#include "source/resource/ResourceListener.h"
+#include "source/resource/ResourceFactory.h"
+#include "source/resource/Resource.h"
+#include "source/utility/io/File.h"
+#include "source/utility/io/ZLIBStructs.h"
 
 #include <zlib.h>
 

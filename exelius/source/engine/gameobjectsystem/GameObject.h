@@ -1,11 +1,11 @@
 #pragma once
+#include "source/resource/ResourceListener.h"
+#include "source/engine/gameobjectsystem/components/Component.h"
+#include "source/engine/gameobjectsystem/components/ComponentHandle.h"
+
 #include <EASTL/string.h>
 #include <EASTL/unordered_map.h>
 #include <rapidjson/document.h>
-
-#include "Source/Resource/ResourceListener.h"
-#include "Source/Engine/GameObjectSystem/Components/Component.h"
-#include "Source/Engine/GameObjectSystem/Components/ComponentHandle.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

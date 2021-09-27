@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "Source/OS/Events/Event.h"
 #include <EASTL/list.h>
 
 // Events in Exelius are currently blocking, meaning when an event occurs it

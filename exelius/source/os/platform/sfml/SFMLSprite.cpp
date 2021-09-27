@@ -1,11 +1,10 @@
 #include "EXEPCH.h"
 #include "SFMLSprite.h"
-#include "Source/OS/Interface/Graphics/Texture.h"
+#include "source/os/interface/graphics/Texture.h"
+#include "source/render/RenderManager.h"
+#include "source/os/interface/graphics/Window.h"
 
-#include "Source/Render/RenderManager.h"
-#include "Source/OS/Interface/Graphics/Window.h"
-
-#include "SFML/Graphics/Sprite.hpp"
+#include <SFML/Graphics/Sprite.hpp>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

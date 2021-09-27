@@ -13,24 +13,15 @@
 	#define EASTL_USER_CONFIG_HEADER <Source/Utility/ThirdParty/CustomEASTLConfig.h>
 #endif
 
-//#include <memory>
 #include <EASTL/memory.h>
-//#include <utility>
 #include <EASTL/utility.h>
-//#include <algorithm>
 #include <EASTL/algorithm.h>
-//#include <functional>
 #include <EASTL/functional.h>
 
-//#include <string>
 #include <EASTL/string.h>
-//#include <array>
 #include <EASTL/array.h>
-//#include <vector>
 #include <EASTL/vector.h>
-//#include <unordered_map>
 #include <EASTL/unordered_map.h>
-//#include <unordered_set>
 #include <EASTL/unordered_set.h>
 #include <EASTL/list.h>
 #include <EASTL/chrono.h>
@@ -38,10 +29,10 @@
 #include <EASTL/shared_ptr.h>
 #include <EASTL/unique_ptr.h>
 
-#include <Source/Utility/Containers/Vector2.h>
-#include <Source/Utility/Generic/Macros.h>
-#include <Source/Debugging/Log.h>
-#include <Source/OS/Memory/TraceAllocator.h>
+#include <source/utility/containers/Vector2.h>
+#include <source/utility/generic/Macros.h>
+#include <source/debug/Log.h>
+#include <source/os/memory/TraceAllocator.h>
 
 #ifdef EXE_PLATFORM_WINDOWS
 	#include <Windows.h>

@@ -1,7 +1,7 @@
 #include "EXEPCH.h"
 
-#include "Source/Debugging/LogManager.h"
-#include "Source/Utility/String/StringTransformation.h"
+#include "source/debug/LogManager.h"
+#include "source/utility/string/StringTransformation.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/sinks/rotating_file_sink.h"

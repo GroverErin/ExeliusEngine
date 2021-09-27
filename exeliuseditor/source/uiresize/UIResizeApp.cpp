@@ -1,7 +1,7 @@
 #include "UIResizeApp.h"
 
-#include <Include/Exelius.h>
-#include <Include/Log.h>
+#include <include/Exelius.h>
+#include <include/Log.h>
 
 bool UIResizeApp::Initialize()
 {

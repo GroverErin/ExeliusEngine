@@ -1,5 +1,5 @@
 #pragma once
-#include <Source/Utility/Generic/Macros.h>
+#include <source/utility/generic/Macros.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

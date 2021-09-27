@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/OS/Input/KeyCodes.h"
-#include "Source/OS/Input/MouseCodes.h"
+#include "source/os/input/KeyCodes.h"
+#include "source/os/input/MouseCodes.h"
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>

@@ -1,8 +1,9 @@
 #pragma once
+#include "source/os/platform/PlatformForwardDeclarations.h"
+#include "source/utility/math/Rectangle.h"
+#include "source/utility/generic/Color.h"
+
 #include <cstddef>
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
-#include "Source/Utility/Math/Rectangle.h"
-#include "Source/Utility/Generic/Color.h"
 
 /// <summary>
 /// SFML namespace, used only in SFML specific code within Exelius.

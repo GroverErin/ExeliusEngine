@@ -1,6 +1,6 @@
 #pragma once
-#include <Include/Exelius.h>
-#include <Include/Vector2.h>
+#include <include/Exelius.h>
+#include <include/Vector2.h>
 
 class PongGame
 {

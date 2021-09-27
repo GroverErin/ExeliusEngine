@@ -1,6 +1,7 @@
 #pragma once
+#include "source/utility/string/StringIntern.h"
+
 #include <rapidjson/document.h>
-#include "Source/Utility/String/StringIntern.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

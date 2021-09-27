@@ -1,7 +1,7 @@
 #include "EXEPCH.h"
 #include "SpritesheetResource.h"
 
-#include "Source/Resource/ResourceHandle.h"
+#include "source/resource/ResourceHandle.h"
 
 #include <rapidjson/document.h>
 

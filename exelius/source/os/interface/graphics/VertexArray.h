@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -37,7 +37,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Source/OS/Platform/SFML/SFMLVertexArray.h"
+	#include "source/os/platform/sfml/SFMLVertexArray.h"
 	namespace Exelius
 	{
 		using VertexArray = _VertexArray<SFMLVertexArray>;

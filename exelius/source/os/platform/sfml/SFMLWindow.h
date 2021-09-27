@@ -1,9 +1,9 @@
 #pragma once
-#include "Source/OS/Events/EventManagement.h"
-#include "Source/Utility/Containers/Vector2.h"
-#include "Source/Utility/Math/Rectangle.h"
+#include "source/os/events/EventManagement.h"
+#include "source/utility/containers/Vector2.h"
+#include "source/utility/math/Rectangle.h"
 
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
 
 #include <EASTL/string.h>
 

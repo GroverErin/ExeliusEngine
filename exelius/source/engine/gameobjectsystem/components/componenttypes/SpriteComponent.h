@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Engine/GameObjectSystem/Components/Component.h"
-#include "Source/Resource/ResourceHelpers.h"
+#include "source/engine/gameobjectsystem/components/Component.h"
+#include "source/resource/ResourceHelpers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

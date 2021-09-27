@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Resource/ResourceHelpers.h"
-#include "Source/Resource/ResourceEntry.h"
+#include "source/resource/ResourceHelpers.h"
+#include "source/resource/ResourceEntry.h"
 
 #include <EASTL/unordered_map.h>
 #include <EASTL/vector.h>

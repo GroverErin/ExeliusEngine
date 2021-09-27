@@ -1,2 +1,2 @@
 #pragma once
-#include "Source/Debugging/Log.h"
+#include "source/debug/Log.h"

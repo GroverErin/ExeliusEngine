@@ -1,6 +1,7 @@
 #pragma once
+#include "source/utility/math/rectangle.h"
+
 #include <cstddef>
-#include "Source/Utility/Math/Rectangle.h"
 
 /// <summary>
 /// SFML namespace, used only in SFML specific code within Exelius.

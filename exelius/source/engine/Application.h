@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Source/Utility/Generic/Singleton.h"
-#include "Source/OS/Events/EventManagement.h"
+#include "source/utility/generic/Singleton.h"
+#include "source/os/events/EventManagement.h"
 
 #include <EASTL/string.h>
 

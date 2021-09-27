@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Resource/ResourceHelpers.h"
+#include "source/resource/ResourceHelpers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

@@ -1,8 +1,8 @@
 #include "EXEPCH.h"
 
-#include "Source/Engine/Settings/ConfigFile.h"
-#include "Source/Debugging/LogManager.h"
-#include "Source/Utility/IO/File.h"
+#include "source/engine/settings/ConfigFile.h"
+#include "source/debug/LogManager.h"
+#include "source/utility/io/File.h"
 
 #include <EASTL/vector.h>
 

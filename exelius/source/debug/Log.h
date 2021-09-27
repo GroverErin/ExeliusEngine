@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Utility/Generic/Macros.h"
-#include "Source/Utility/String/StringIntern.h"
+#include "source/utility/generic/Macros.h"
+#include "source/utility/string/StringIntern.h"
 
 #include <spdlog/spdlog.h> // TODO: Figure out a way to remove this as this will likely become a public facing header.
 

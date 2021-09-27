@@ -1,23 +1,23 @@
 #include "EXEPCH.h"
 
-#include "Source/Engine/Application.h"
-#include "Source/Engine/Resources/ExeliusResourceFactory.h"
-#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
-#include "Source/Engine/GameObjectSystem/Components/ExeliusComponentFactory.h"
+#include "source/engine/Application.h"
+#include "source/engine/resources/ExeliusResourceFactory.h"
+#include "source/engine/gameobjectsystem/GameObjectSystem.h"
+#include "source/engine/gameobjectsystem/components/ExeliusComponentFactory.h"
 
-#include "Source/Engine/Settings/ConfigFile.h"
+#include "source/engine/settings/ConfigFile.h"
 
-#include "Source/Debugging/LogManager.h"
+#include "source/debug/LogManager.h"
 
-#include "Source/Render/RenderManager.h"
+#include "source/render/RenderManager.h"
 
-#include "Source/Resource/ResourceLoader.h"
+#include "source/resource/ResourceLoader.h"
 
-#include "Source/OS/Input/InputManager.h"
-#include "Source/OS/Events/ApplicationEvents.h"
-#include "Source/OS/Interface/Graphics/Window.h"
+#include "source/os/input/InputManager.h"
+#include "source/os/events/ApplicationEvents.h"
+#include "source/os/interface/graphics/Window.h"
 
-#include "Source/Utility/Generic/Time.h"
+#include "source/utility/generic/Time.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

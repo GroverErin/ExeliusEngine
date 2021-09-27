@@ -1,5 +1,5 @@
 #include "EXEPCH.h"
-#include "Source/Engine/GameObjectSystem/Components/ComponentTypes/TransformComponent.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/TransformComponent.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

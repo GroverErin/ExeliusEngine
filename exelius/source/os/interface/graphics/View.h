@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Utility/Math/Rectangle.h"
+#include "source/utility/math/Rectangle.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -113,7 +113,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Source/OS/Platform/SFML/SFMLView.h"
+	#include "source/os/platform/sfml/SFMLView.h"
 	namespace Exelius
 	{
 		using View = _View<SFMLView>;

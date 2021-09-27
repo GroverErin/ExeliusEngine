@@ -1,6 +1,6 @@
 #pragma once
-#include "Source/Resource/Resource.h"
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
+#include "source/resource/Resource.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

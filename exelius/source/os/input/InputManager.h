@@ -1,8 +1,8 @@
 #pragma once
-#include "Source/Utility/Generic/Singleton.h"
-#include "Source/OS/Events/EventManagement.h"
-#include "Source/OS/Input/MouseCodes.h"
-#include "Source/OS/Input/KeyCodes.h"
+#include "source/utility/generic/Singleton.h"
+#include "source/os/events/EventManagement.h"
+#include "source/os/input/MouseCodes.h"
+#include "source/os/input/KeyCodes.h"
 
 #include <EASTL/array.h>
 

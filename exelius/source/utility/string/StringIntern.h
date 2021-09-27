@@ -1,5 +1,5 @@
 #pragma once
-#include "Source/Utility/Generic/Macros.h"
+#include "source/utility/generic/Macros.h"
 #include <EASTL/hash_set.h>
 #include <EASTL/string.h>
 

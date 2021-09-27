@@ -1,11 +1,11 @@
 #include "EXEPCH.h"
-#include "Source/Engine/GameObjectSystem/GameObjectSystem.h"
-#include "Source/Engine/GameObjectSystem/Components/ComponentFactory.h"
-#include "Source/Engine/GameObjectSystem/GameObject.h"
-#include "Source/Resource/ResourceLoader.h"
-#include "Source/Engine/Resources/ResourceTypes/TextFileResource.h"
+#include "source/engine/gameobjectsystem/GameObjectSystem.h"
+#include "source/engine/gameobjectsystem/components/ComponentFactory.h"
+#include "source/engine/gameobjectsystem/GameObject.h"
+#include "source/resource/ResourceLoader.h"
+#include "source/engine/resources/resourcetypes/TextFileResource.h"
 
-#include "Source/Resource/ResourceHandle.h"
+#include "source/resource/ResourceHandle.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

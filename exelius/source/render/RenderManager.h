@@ -1,12 +1,12 @@
 #pragma once
-#include "Source/Utility/Generic/Singleton.h"
-#include "Source/Utility/Math/Rectangle.h"
-#include "Source/Resource/ResourceHelpers.h"
-#include "Source/Resource/ResourceHandle.h"
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
+#include "source/utility/generic/Singleton.h"
+#include "source/utility/math/Rectangle.h"
+#include "source/resource/ResourceHelpers.h"
+#include "source/resource/ResourceHandle.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
 
-#include "Source/OS/Interface/Graphics/View.h"
-#include "Source/OS/Interface/Graphics/Vertex.h"
+#include "source/os/interface/graphics/View.h"
+#include "source/os/interface/graphics/Vertex.h"
 
 #include <EASTL/vector.h>
 #include <EASTL/unordered_map.h>

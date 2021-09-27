@@ -1,8 +1,8 @@
 #pragma once
-#include "Source/Utility/Containers/Vector2.h"
-#include "Source/OS/Events/EventManagement.h"
+#include "source/utility/containers/Vector2.h"
+#include "source/os/events/EventManagement.h"
 
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
 
 #include <EASTL/string.h>
 
@@ -224,7 +224,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Source/OS/Platform/SFML/SFMLWindow.h"
+	#include "source/os/platform/sfml/SFMLWindow.h"
 	namespace Exelius
 	{
 		using Window = _Window<SFMLWindow>;

@@ -1,7 +1,7 @@
 #pragma once
-#include "Source/OS/Platform/PlatformForwardDeclarations.h"
-#include "Source/Utility/Math/Rectangle.h"
-#include "Source/Utility/Generic/Color.h"
+#include "source/os/platform/PlatformForwardDeclarations.h"
+#include "source/utility/math/Rectangle.h"
+#include "source/utility/generic/Color.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -159,7 +159,7 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-	#include "Source/OS/Platform/SFML/SFMLSprite.h"
+	#include "source/os/platform/sfml/SFMLSprite.h"
 	namespace Exelius
 	{
 		using Sprite = _Sprite<SFMLSprite>;

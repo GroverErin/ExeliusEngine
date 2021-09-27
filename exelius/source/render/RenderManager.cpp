@@ -1,12 +1,12 @@
 #include "EXEPCH.h"
-#include "Source/Render/RenderManager.h"
-#include "Source/OS/Interface/Graphics/Window.h"
+#include "source/render/RenderManager.h"
+#include "source/os/interface/graphics/Window.h"
 
-#include "Source/OS/Interface/Graphics/VertexArray.h"
+#include "source/os/interface/graphics/VertexArray.h"
 
 // TEMP
-#include "Source/OS/Interface/Graphics/Sprite.h"
-#include "Source/Engine/Resources/ResourceTypes/TextureResource.h"
+#include "source/os/interface/graphics/Sprite.h"
+#include "source/engine/resources/resourcetypes/TextureResource.h"
 
 #include <EASTL/numeric_limits.h>
 #include <EASTL/sort.h>

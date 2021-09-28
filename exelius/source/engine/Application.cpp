@@ -183,6 +183,9 @@ namespace Exelius
 			// Client Update.
 			Update();
 
+			// Refresh Input State.
+			InputManager::GetInstance()->NextFrame();
+
 			// Queue all renderable Components.
 			GameObjectSystem::GetInstance()->Render();
 

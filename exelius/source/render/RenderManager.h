@@ -1,7 +1,6 @@
 #pragma once
 #include "source/utility/generic/Singleton.h"
-#include "source/utility/math/Rectangle.h"
-#include "source/resource/ResourceHelpers.h"
+#include "source/render/RenderCommand.h"
 #include "source/resource/ResourceHandle.h"
 #include "source/os/platform/PlatformForwardDeclarations.h"
 
@@ -21,29 +20,6 @@
 /// </summary>
 namespace Exelius
 {
-	struct RenderCommand
-	{
-		enum class RenderLayer
-		{
-			UIDebug,
-			UI,
-			WorldEffectDebug,
-			WorldEffect,
-			WorldDebug,
-			World
-		};
-
-		RenderLayer m_renderLayer;
-		ResourceID m_shader;
-		ResourceID m_texture;
-		IRectangle m_spriteFrame;
-		Vector2f m_position;
-		Vector2f m_scaleFactor;
-		int m_zOrder;
-
-		bool operator<(const RenderCommand& command) const;
-	};
-
 	FORWARD_DECLARE(Window);
 	FORWARD_DECLARE(VertexArray);
 

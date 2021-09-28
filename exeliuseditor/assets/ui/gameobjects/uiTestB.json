@@ -4,14 +4,15 @@
     {
         "TransformComponent" : 
         {
-            "x" : 256.0,
-            "y" : 256.0,
-            "w" : 30.0,
-            "h" : 30.0
+            "x" : 0.0,
+            "y" : 0.0,
+            "w" : 256.0,
+            "h" : 256.0
         },
         "UIComponent" : 
         {
-            "Texture" : "assets/ui/Textures/image2.png"
+            "Texture" : "assets/ui/Textures/image2.png",
+            "SliceData" : [20, 222, 65, 222, 256, 256]
         }
     }
 }

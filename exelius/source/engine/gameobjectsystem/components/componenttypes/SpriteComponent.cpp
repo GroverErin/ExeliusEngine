@@ -67,6 +67,9 @@ namespace Exelius
 			return;
 		}
 
+		if (!m_pOwner->IsEnabled())
+			return;
+
 		if (!m_spriteID.IsValid())
 		{
 			log.Error("Bailing render because sprite ID was invalid.");

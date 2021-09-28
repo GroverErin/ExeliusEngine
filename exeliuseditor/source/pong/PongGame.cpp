@@ -1,6 +1,5 @@
 #include "PongGame.h"
 
-//#include <include/Exelius.h>
 #include <include/Log.h>
 #include <include/Input.h>
 

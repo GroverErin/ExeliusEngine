@@ -23,6 +23,9 @@ namespace Exelius
 	{
 		EXE_ASSERT(key != KeyCode::kCount);
 
+		Log log("InputManager");
+		log.Info("Key '{}' State Changed to '{}'", static_cast<unsigned char>(key), isDown);
+
 		//Set it's state.
 		m_keyState[(size_t)key] = isDown;
 	}

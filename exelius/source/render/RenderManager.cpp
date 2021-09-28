@@ -217,8 +217,8 @@ namespace Exelius
 		// For each rendercommand...
 		for (auto& command : backBuffer)
 		{
-			if (!IsInViewBounds(command, windowRect))
-				continue;
+			//if (!IsInViewBounds(command, windowRect))
+				//continue;
 
 			// If rendercommand can't be batched
 			if (command.m_texture != currentTexture)
@@ -386,7 +386,7 @@ namespace Exelius
 
 	void RenderManager::AddVertexToArray(VertexArray& vertexArray, const RenderCommand& command) const
 	{
-		Vector2f posTopLeft(command.m_position);
+		/*Vector2f posTopLeft(command.m_position);
 
 		Vector2f posTopRight;
 		posTopRight.x = command.m_position.x + (command.m_scaleFactor.x * command.m_spriteFrame.m_width);
@@ -412,7 +412,17 @@ namespace Exelius
 
 		Vector2f uvBottomLeft;
 		uvBottomLeft.x = static_cast<float>(command.m_spriteFrame.m_left);
-		uvBottomLeft.y = static_cast<float>(command.m_spriteFrame.m_top + command.m_spriteFrame.m_height);
+		uvBottomLeft.y = static_cast<float>(command.m_spriteFrame.m_top + command.m_spriteFrame.m_height);*/
+
+		Vector2f posTopLeft(command.m_destinationFrame.m_left, command.m_destinationFrame.m_top);
+		Vector2f posTopRight(command.m_destinationFrame.m_left + command.m_destinationFrame.m_width, command.m_destinationFrame.m_top);
+		Vector2f posBottomRight(command.m_destinationFrame.m_left + command.m_destinationFrame.m_width, command.m_destinationFrame.m_top + command.m_destinationFrame.m_height);
+		Vector2f posBottomLeft(command.m_destinationFrame.m_left, command.m_destinationFrame.m_top + command.m_destinationFrame.m_height);
+
+		Vector2f uvTopLeft(command.m_sourceFrame.m_left, command.m_sourceFrame.m_top);
+		Vector2f uvTopRight(command.m_sourceFrame.m_left + command.m_sourceFrame.m_width, command.m_sourceFrame.m_top);
+		Vector2f uvBottomRight(command.m_sourceFrame.m_left + command.m_sourceFrame.m_width, command.m_sourceFrame.m_top + command.m_sourceFrame.m_height);
+		Vector2f uvBottomLeft(command.m_sourceFrame.m_left, command.m_sourceFrame.m_top + command.m_sourceFrame.m_height);
 
 		// TOP LEFT
 		vertexArray.Append(Vertex(posTopLeft, uvTopLeft));

@@ -1,0 +1,18 @@
+{
+    "Name": "TestUIB",
+    "Components" :
+    {
+        "TransformComponent" : 
+        {
+            "x" : 0.0,
+            "y" : 0.0,
+            "w" : 256.0,
+            "h" : 256.0
+        },
+        "UIComponent" : 
+        {
+            "Texture" : "assets/ui/Textures/image3.png",
+            "SliceData" : [22, 243, 71, 418, 276, 441]
+        }
+    }
+}

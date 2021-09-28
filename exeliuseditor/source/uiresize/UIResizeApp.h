@@ -5,6 +5,7 @@ class UIResizeApp
 {
 	Exelius::GameObjectID m_activeImage;
 	Exelius::GameObjectID m_inactiveImage;
+	Exelius::GameObjectID m_inactiveImage2;
 
 	static constexpr float kPictureSpeed = 300.0f;
 public:

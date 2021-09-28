@@ -10,16 +10,19 @@ bool UIResizeApp::Initialize()
 
 	eastl::string uiImage = "assets/ui/gameobjects/uitesta.json";
 	eastl::string uiImageB = "assets/ui/gameobjects/uitestb.json";
+	eastl::string uiImageC = "assets/ui/gameobjects/uitestc.json";
 
 	m_activeImage = pGameObjectSystem->CreateGameObject(uiImage, Exelius::CreationMode::kQueueAndSignal);
 	m_inactiveImage = pGameObjectSystem->CreateGameObject(uiImageB, Exelius::CreationMode::kQueueAndSignal);
+	m_inactiveImage2 = pGameObjectSystem->CreateGameObject(uiImageC, Exelius::CreationMode::kQueueAndSignal);
 
+	const auto& pInactiveObject2 = pGameObjectSystem->GetGameObject(m_inactiveImage2);
 	const auto& pInactiveObject = pGameObjectSystem->GetGameObject(m_inactiveImage);
 	const auto& pActiveObject = pGameObjectSystem->GetGameObject(m_activeImage);
 
 	pActiveObject->SetEnabled(true);
 	pInactiveObject->SetEnabled(false);
-
+	pInactiveObject2->SetEnabled(false);
 	return true;
 }
 
@@ -50,7 +53,8 @@ void UIResizeApp::SwapImagesAndReset()
 
 	// Swap the images.
 	Exelius::GameObjectID tempID = m_activeImage;
-	m_activeImage = m_inactiveImage;
+	m_activeImage = m_inactiveImage2;
+	m_inactiveImage2 = m_inactiveImage;
 	m_inactiveImage = tempID;
 
 	const auto& pInactiveObject = pGameObjectSystem->GetGameObject(m_inactiveImage);

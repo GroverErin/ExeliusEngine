@@ -15,7 +15,8 @@ namespace Exelius
 	/// </summary>
 	/// <param name="id">The unique object ID given by the GameObjectSystem.</param>
 	GameObject::GameObject(uint32_t id, CreationMode createMode)
-		: m_name("Invalid")
+		: m_gameObjectSystemLog("GameObjectSystem")
+		, m_name("Invalid")
 		, m_id(id)
 		, m_createMode(createMode)
 		, m_enabled(true)
@@ -37,12 +38,10 @@ namespace Exelius
 	/// <returns>True on success, false on failure.</returns>
 	bool GameObject::Initialize(const eastl::string& pRawText)
 	{
-		Log log("GameObjectSystem");
-
 		rapidjson::Document jsonDoc;
 		if (jsonDoc.Parse(pRawText.c_str()).HasParseError())
 		{
-			log.Error("Failed to Parse JSON.");
+			m_gameObjectSystemLog.Error("Failed to Parse JSON.");
 			return false;
 		}
 
@@ -58,7 +57,7 @@ namespace Exelius
 		}
 		else
 		{
-			log.Error("No 'Name' field found. Setting object name to a default value.");
+			m_gameObjectSystemLog.Error("No 'Name' field found. Setting object name to a default value.");
 			// Name the object based on it's ID.
 			m_name = "New GameObject (";
 			//m_name += eastl::to_string(m_id);														<-- Why does this cause errors?!!
@@ -68,7 +67,7 @@ namespace Exelius
 		// Create and Initialize any Components.
 		ParseComponentArray(jsonDoc);
 
-		log.Info("GameObject '{}' : '{}' has completed loading.", m_name.c_str(), m_id);
+		m_gameObjectSystemLog.Info("GameObject '{}' : '{}' has completed loading.", m_name.c_str(), m_id);
 
 		return true;
 	}
@@ -102,9 +101,7 @@ namespace Exelius
 	/// <returns>True if the resource was flushed here, false if not.</returns>
 	bool GameObject::OnResourceLoaded(const ResourceID& resourceID)
 	{
-		Log log("GameObjectSystem");
-
-		log.Info("GameObject resource '{}' finished loading.");
+		m_gameObjectSystemLog.Info("GameObject resource '{}' finished loading.");
 
 		EXE_ASSERT(resourceID.IsValid());
 		ResourceHandle textFileResource(resourceID);
@@ -113,7 +110,7 @@ namespace Exelius
 
 		if (!Initialize(textFileResource.GetAs<TextFileResource>()->GetRawText()))
 		{
-			log.Error("GameObject failed to initialize.");
+			m_gameObjectSystemLog.Error("GameObject failed to initialize.");
 		}
 
 		// TODO:
@@ -140,7 +137,6 @@ namespace Exelius
 	{
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
 		EXE_ASSERT(pGameObjectSystem);
-		Log log("GameObjectSystem");
 
 		// Find an Array with name 'Components'
 		auto componentArrayMember = jsonDoc.FindMember("Components");
@@ -148,7 +144,7 @@ namespace Exelius
 		// If the Array does not exist then bail.
 		if (componentArrayMember == jsonDoc.MemberEnd())
 		{
-			log.Info("No 'Components' field found.");
+			m_gameObjectSystemLog.Info("No 'Components' field found.");
 			return;
 		}
 

@@ -23,7 +23,8 @@ namespace Exelius
 	/// 
 	/// </summary>
 	SFMLWindow::SFMLWindow()
-		: m_pWindow(nullptr)
+		: m_graphicsInterfaceLog("GraphicsInterface")
+		, m_pWindow(nullptr)
 		, m_isVSync(false)
 	{
 		m_pWindow = new sf::RenderWindow();
@@ -38,16 +39,16 @@ namespace Exelius
 	/// <param name="width">The width of the window to be opened. Default: 1280</param>
 	/// <param name="height">The height of the window to be opened. Default: 720</param>
 	SFMLWindow::SFMLWindow(const eastl::string& title, const Vector2u& windowSize)
-		: m_pWindow(nullptr)
+		: m_graphicsInterfaceLog("GraphicsInterface")
+		, m_pWindow(nullptr)
 		, m_isVSync(false)
 	{
 		m_pWindow = new sf::RenderWindow(sf::VideoMode(windowSize.w, windowSize.h), title.c_str());
 		EXE_ASSERT(m_pWindow);
-		Log log("GraphicsInterface");
 
 		if (!m_pWindow->isOpen())
 		{
-			log.Error("Failed to create SFML RenderWindow.");
+			m_graphicsInterfaceLog.Error("Failed to create SFML RenderWindow.");
 			return; // removes warning in release.
 		}
 	}
@@ -68,14 +69,13 @@ namespace Exelius
 	bool SFMLWindow::CreateWindow(const eastl::string& title, const Vector2u& windowSize)
 	{
 		EXE_ASSERT(m_pWindow);
-		Log log("GraphicsInterface");
-		log.Info("Creating SFML Window: {0} ({1}, {2})", title.c_str(), windowSize.w, windowSize.h);
+		m_graphicsInterfaceLog.Info("Creating SFML Window: {0} ({1}, {2})", title.c_str(), windowSize.w, windowSize.h);
 
 		m_pWindow->create(sf::VideoMode(windowSize.w, windowSize.h), title.c_str());
 
 		if (!m_pWindow->isOpen())
 		{
-			log.Error("Failed to create SFML RenderWindow.");
+			m_graphicsInterfaceLog.Error("Failed to create SFML RenderWindow.");
 			return false;
 		}
 
@@ -99,7 +99,6 @@ namespace Exelius
 	void SFMLWindow::Update()
 	{
 		EXE_ASSERT(m_pWindow);
-		Log log("GraphicsInterface");
 
 		sf::Event evnt;
 		while (m_pWindow->pollEvent(evnt))
@@ -304,7 +303,7 @@ namespace Exelius
 
 				default:
 				{
-					log.Error("This event is unidentified by SFML");
+					m_graphicsInterfaceLog.Error("This event is unidentified by SFML");
 					break;
 				}
 			}

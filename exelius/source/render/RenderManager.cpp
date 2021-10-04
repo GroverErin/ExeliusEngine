@@ -34,7 +34,8 @@ namespace Exelius
 	}
 
 	RenderManager::RenderManager()
-		: m_quitThread(false)
+		: m_renderManagerLog("RenderManager")
+		, m_quitThread(false)
 		, m_framesBehind(0)
 		, m_pWindow(nullptr)
 	{
@@ -92,8 +93,6 @@ namespace Exelius
 
 	void RenderManager::EndRenderFrame()
 	{
-		Log log("RenderManager");
-
 		if (!m_advancedBuffer.empty())
 		{
 			SwapRenderCommandBuffer(m_advancedBuffer);
@@ -108,7 +107,6 @@ namespace Exelius
 		}
 		else
 		{
-			log.Info("Signaling Render Thread.");
 			m_signalThread.notify_one();
 		}
 
@@ -134,14 +132,13 @@ namespace Exelius
 
 	void RenderManager::RenderThread()
 	{
-		Log log("RenderManager");
-		log.Info("Instantiating Render Thread.");
+		m_renderManagerLog.Info("Instantiating Render Thread.");
 		eastl::vector<RenderCommand> backBuffer;
 
 		EXE_ASSERT(m_pWindow);
 		if (!m_pWindow->SetActive(true))
 		{
-			log.Fatal("Failed to activate Window on Render Thread. TODO: Bail Here");
+			m_renderManagerLog.Fatal("Failed to activate Window on Render Thread. TODO: Bail Here");
 		}
 
 		// While the thread is still active (Not shut down)
@@ -159,8 +156,6 @@ namespace Exelius
 
 					return m_quitThread || !empty;
 				});
-
-			log.Error("Render Thread Recieved Signal");
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
@@ -195,13 +190,12 @@ namespace Exelius
 		m_pWindow->SetActive(false);
 
 		// Let the main thread know we are fully exiting in case they are waiting.
-		log.Info("Signaled Main Thread: Render Thread Terminating.");
+		m_renderManagerLog.Info("Signaled Main Thread: Render Thread Terminating.");
 		m_signalThread.notify_one();
 	}
 
 	void RenderManager::DrawToWindow(const eastl::vector<RenderCommand>& backBuffer)
 	{
-		Log log("RenderManager");
 		IRectangle windowRect({ 0,0 }, static_cast<Vector2i>(m_pWindow->GetWindowSize()));
 
 		// TODO:
@@ -228,7 +222,7 @@ namespace Exelius
 
 				if (!pTextureResource)
 				{
-					log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+					m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 					continue;
 				}
 
@@ -240,6 +234,9 @@ namespace Exelius
 
 				// Set the new current texture.
 				currentTexture = command.m_texture;
+
+				if (!currentTexture.IsValid())
+					continue;
 			}
 
 			// Batch it
@@ -254,7 +251,10 @@ namespace Exelius
 
 			if (!pTextureResource)
 			{
-				log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+				if (!currentTexture.IsValid())
+					return;
+
+				m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 				return;
 			}
 
@@ -268,7 +268,6 @@ namespace Exelius
 
 	void RenderManager::DrawToViews(const eastl::vector<RenderCommand>& backBuffer)
 	{
-		Log log("RenderManager");
 		for (auto& view : m_views)
 		{
 			m_pWindow->SetView(view.second);
@@ -304,7 +303,7 @@ namespace Exelius
 
 					if (!pTextureResource)
 					{
-						log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+						m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 						continue;
 					}
 
@@ -330,7 +329,7 @@ namespace Exelius
 
 				if (!pTextureResource)
 				{
-					log.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
+					m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
 					return;
 				}
 
@@ -440,8 +439,6 @@ namespace Exelius
 	void RenderManager::SignalAndWaitForRenderThread()
 	{
 		EXE_ASSERT(m_renderThread.joinable());
-		Log log("RenderManager");
-		log.Info("Signaling Render Thread.");
 		m_signalThread.notify_one();
 
 		std::unique_lock<std::mutex> waitLock(m_signalMutex);

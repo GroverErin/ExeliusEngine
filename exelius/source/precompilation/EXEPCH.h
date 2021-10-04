@@ -8,6 +8,7 @@
 #endif
 
 #define EXELIUS_USE_EASTL_ALLOCATOR
+#include <source/os/memory/MemoryOverloads.h>
 
 #ifndef EXELIUS_USE_EASTL_ALLOCATOR
 	#define EASTL_USER_CONFIG_HEADER <source/utility/thirdparty/CustomEASTLConfig.h>
@@ -32,7 +33,7 @@
 #include <source/utility/containers/Vector2.h>
 #include <source/utility/generic/Macros.h>
 #include <source/debug/Log.h>
-#include <source/os/memory/TraceAllocator.h>
+#include <source/os/memory/MemoryManager.h>
 
 #ifdef EXE_PLATFORM_WINDOWS
 	#include <Windows.h>

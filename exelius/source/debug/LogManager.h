@@ -154,28 +154,21 @@ namespace Exelius
 	/// be preferable to create a log via the .ini file.
 	/// 
 	/// @note Not intended for use by client applications.
-	/// 
-	/// @todo It may be possible that the GetLog and CreateLog functions need to be wrapped in a mutex.
 	/// </summary>
 	class LogManager
 		: public Singleton<LogManager>
 	{
 		/// <summary>
+		/// The default log. Always accessible, and adjustable via the config file.
+		/// </summary>
+		spdlog::logger m_defaultLog;
+
+		/// <summary>
 		/// Contains the File log and the Console Log definition.
 		/// </summary>
 		eastl::array<spdlog::sink_ptr, 2> m_logDefinitions;
-
-		/// <summary>
-		/// Map of log names to logs.
-		/// </summary>
-		eastl::unordered_map<StringIntern, std::shared_ptr<spdlog::logger>> m_logs;
-
-		/// <summary>
-		/// Lock for data the logs map.
-		/// </summary>
-		std::mutex m_logLock;
 	public:
-		LogManager() = default;
+		LogManager();
 		LogManager(const LogManager&) = delete;
 		LogManager(LogManager&&) = delete;
 		LogManager& operator=(const LogManager&) = delete;
@@ -220,13 +213,18 @@ namespace Exelius
 
 		/// <summary>
 		/// Retrieve the log with the given name if it exists.
+		/// 
+		/// @note
+		/// Calling get can be expensive as it locks a mutex, so use with caution.
+		/// It is advisable to save the shared_ptr<spdlog::logger> returned and use it directly, at least in hot code paths.
+		/// @see https://github.com/gabime/spdlog/wiki/2.-Creating-loggers
 		/// </summary>
 		/// <param name="logName">- The name of the log to retrieve. Example: "Exelius" will retrieve the default log.</param>
 		/// <returns>The log with the given name if found, nullptr if not found.</returns>
 		std::shared_ptr<spdlog::logger> GetLog(StringIntern logName);
 
 	private:
-		/// <summary>
+		///100 <summary>
 		/// Create the default log definitions; the Console and File logs.
 		/// Will define the attributes that are applied to each logged message.
 		/// These definitions can be changed via the engine_config.ini file
@@ -236,20 +234,22 @@ namespace Exelius
 		/// </summary>
 		void CreateDefaultLogDefinitions();
 
+		void InitializedDefaultLog();
+
 		/// <summary>
-		/// Register a log. This is purely for spdlog, and is likely an unnecessary step.
+		/// Register a log.
 		/// </summary>
 		/// <param name="pLogToRegister">- The log to register with spdlog.</param>
 		void RegisterLog(std::shared_ptr<spdlog::logger> pLogToRegister);
 
 		/// <summary>
-		/// Unregister a log. This is purely for spdlog, and is likely an unnecessary step.
+		/// Unregister a log.
 		/// </summary>
 		/// <param name="pLogToRegister">- The log to unregister with spdlog.</param>
 		void UnregisterLog(StringIntern logName);
 
 		/// <summary>
-		/// Unregister all logs. This is purely for spdlog, and is likely an unnecessary step.
+		/// Unregister all logs.
 		/// </summary>
 		void UnregisterAllLogs();
 

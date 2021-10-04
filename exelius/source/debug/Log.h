@@ -41,7 +41,7 @@ namespace Exelius
 	/// in release builds.
 	/// 
 	/// Logs can output messages in a Python-like API from the library 'fmt'
-	/// For formatting see: https://fmt.dev/latest/syntax.html
+	/// For formatting @see: https://fmt.dev/latest/syntax.html
 	/// 
 	/// @see Logging to understand how to add/change logs via engine_config.
 	/// </summary>
@@ -59,16 +59,17 @@ namespace Exelius
 	public:
 		/// <summary>
 		/// Instantiate a log handle with an optional name.
+		/// If no name is given, the default log will be retrieved.
 		/// 
 		/// The log will be retrieved from the LogManager here, and if the
-		/// log does NOT exist, it will be created.
+		/// log does not exist, it will be created.
 		/// </summary>
 		/// <param name="logName">- The optional name of the log to instantiate. Default is "Exelius".</param>
 		Log(StringIntern logName = "Exelius");
 		Log(const Log&) = delete;
-		Log(Log&&) = delete;
+		Log(Log&&) = default;
 		Log& operator=(const Log&) = delete;
-		Log& operator=(Log&&) = delete;
+		Log& operator=(Log&&) = default;
 
 		/// <summary>
 		/// The actual logs are not destroyed when this destructor is called,

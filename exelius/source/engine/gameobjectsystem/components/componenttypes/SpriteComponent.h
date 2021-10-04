@@ -32,7 +32,7 @@ namespace Exelius
 			//
 		}
 
-		virtual ~SpriteComponent() = default;
+		//virtual ~SpriteComponent() = default;
 
 		virtual bool Initialize(const rapidjson::Value& jsonComponentData) final override;
 

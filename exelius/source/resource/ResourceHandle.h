@@ -1,5 +1,6 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
+#include "source/debug/Log.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -29,6 +30,10 @@ namespace Exelius
 		/// </summary>
 		bool m_resourceHeld;
 
+		/// <summary>
+		/// ResourceLoader Log.
+		/// </summary>
+		Log m_resourceLoaderLog;
 	public:
 		/// <summary>
 		/// Default construct a resource handle. The default construction

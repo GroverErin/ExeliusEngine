@@ -32,6 +32,6 @@ namespace Exelius
 		return false;
 	}
 
-	inline static EASTLAllocatorWrapper s_pEASTLAllocatorWrapper;
-	inline static constexpr EASTLAllocatorWrapper* GetEASTLAllocatorWrapper() { return &s_pEASTLAllocatorWrapper; }
+	inline static EASTLAllocatorWrapper s_EASTLAllocatorWrapper;
+	inline static constexpr EASTLAllocatorWrapper* GetEASTLAllocatorWrapper() { return &s_EASTLAllocatorWrapper; }
 }

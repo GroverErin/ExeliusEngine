@@ -1,5 +1,6 @@
 #pragma once
 #include "source/utility/string/StringIntern.h"
+#include "source/debug/Log.h"
 
 #include <rapidjson/document.h>
 
@@ -49,15 +50,28 @@ namespace Exelius
 		/// </summary>
 		GameObject* m_pOwner;
 
+		/// <summary>
+		/// Log for the GameObjectSystem.
+		/// </summary>
+		Log m_gameObjectSystemLog;
+
 	public:
 		/// <summary>
 		/// Constructor - Initializes member variables.
 		/// </summary>
 		Component(GameObject* pOwner)
 			: m_pOwner(pOwner)
+			, m_gameObjectSystemLog("GameObjectSystem")
 		{
 			EXE_ASSERT(pOwner);
 		}
+
+		Component(const Component&) = delete;
+
+		Component(Component&& component) = default;
+
+		Component& operator=(const Component&) = delete;
+		Component& operator=(Component&&) = default;
 
 		/// <summary>
 		/// Virtual Destructor
@@ -101,6 +115,11 @@ namespace Exelius
 		/// Renders this component.
 		/// </summary>
 		virtual void Render() const {}
+
+		/// <summary>
+		/// Non-const Renders this component.
+		/// </summary>
+		virtual void Render() {}
 
 		/// <summary>
 		/// Get the GameObject that 'owns' this component.

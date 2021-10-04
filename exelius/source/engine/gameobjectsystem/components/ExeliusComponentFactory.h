@@ -10,7 +10,10 @@ namespace Exelius
 		: public ComponentFactory
 	{
 	public:
-		ExeliusComponentFactory() = default;
+		/// <summary>
+		/// Constructor initialized the log.
+		/// </summary>
+		ExeliusComponentFactory();
 		ExeliusComponentFactory(const ExeliusComponentFactory&) = delete;
 		ExeliusComponentFactory(ExeliusComponentFactory&&) = delete;
 		ExeliusComponentFactory& operator=(const ExeliusComponentFactory&) = delete;

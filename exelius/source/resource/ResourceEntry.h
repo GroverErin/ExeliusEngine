@@ -1,5 +1,6 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
+#include "source/debug/Log.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -36,6 +37,11 @@ namespace Exelius
 		/// The total number of locks placed on this entry.
 		/// </summary>
 		int m_lockCount;
+
+		/// <summary>
+		/// ResourceDatabase Log.
+		/// </summary>
+		Log m_resourceDatabaseLog;
 
 	public:
 		/// <summary>

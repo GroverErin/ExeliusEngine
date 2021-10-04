@@ -1,5 +1,4 @@
 #pragma once
-#include "source/utility/generic/Singleton.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -7,10 +6,11 @@
 namespace Exelius
 {
 	class ExeliusAllocator
-		: public Singleton<ExeliusAllocator>
 	{
 	public:
-		virtual void* Allocate(size_t sizeToAllocate) = 0;
-		virtual void Free(void* memoryToFree, size_t sizeToFree = 0) = 0;
+		virtual void* Allocate(size_t sizeToAllocate, const char* pFileName, int lineNum) = 0;
+		virtual void Free(void* pMemoryToFree, size_t sizeToFree = 0) = 0;
+
+		virtual void DumpMemoryData() {};
 	};
 }

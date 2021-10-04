@@ -10,16 +10,16 @@ namespace Exelius
 {
 	/// <summary>
 	/// Instantiate a log handle with an optional name.
-	/// This will NOT create a log with the given name, nor will it access
-	/// one. That is done only when a call to the logging functions provided
-	/// is made.
+	/// If no name is given, the default log will be retrieved.
+	/// 
+	/// The log will be retrieved from the LogManager here, and if the
+	/// log does not exist, it will be created.
 	/// </summary>
 	/// <param name="logName">- The optional name of the log to instantiate. Default is "Exelius".</param>
-	Log::Log(StringIntern logName)
+	Log::Log(StringIntern logName /* = "Exelius" */)
 		: m_logName(logName)
 		, m_pLog(GetOrCreateLog())
 	{
-		// Do I really need to double up the assertions?
 		EXE_ASSERT(m_logName.IsValid());
 		EXE_ASSERT(m_pLog);
 	}

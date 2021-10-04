@@ -6,6 +6,8 @@
 #include <EASTL/vector.h>
 #include <EASTL/deque.h>
 
+#include <mutex>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -19,6 +21,11 @@ namespace Exelius
 	class ComponentListBase
 	{
 	protected:
+		/// <summary>
+		/// Log for the GameObjectSystem.
+		/// </summary>
+		Log m_gameObjectSystemLog;
+
 		/// <summary>
 		/// Are the Components in this ComponentList updated every frame?
 		/// </summary>
@@ -36,7 +43,8 @@ namespace Exelius
 		/// <param name="isUpdated">True if updated, false if not.</param>
 		/// <param name="isRendered">True if rendered, false if not.param>
 		ComponentListBase(bool isUpdated = false, bool isRendered = false)
-			: m_isUpdated(isUpdated)
+			: m_gameObjectSystemLog("GameObjectSystem")
+			, m_isUpdated(isUpdated)
 			, m_isRendered(isRendered)
 		{
 			//
@@ -57,7 +65,7 @@ namespace Exelius
 		/// Render the components in this list if
 		/// this list is set to render them.
 		/// </summary>
-		virtual void RenderComponents() const = 0;
+		virtual void RenderComponents() = 0;
 
 		/// <summary>
 		/// Releases a component into the component pool.
@@ -92,6 +100,8 @@ namespace Exelius
 		eastl::vector<Handle> m_handles;
 		eastl::deque<Handle> m_freeHandles;
 
+		std::mutex m_componentLock;
+
 	public:
 
 		ComponentList(bool isUpdated = false, bool isRendered = false)
@@ -102,19 +112,20 @@ namespace Exelius
 
 		virtual ~ComponentList()
 		{
-			Log log("GameObjectSystem");
-			log.Trace("ComponentList<{}> Reached.", ComponentType::kType.Get().c_str());
-
+			m_componentLock.lock();
 			// Need to explicitly shut components down.
 			// This is what will release the resources owned by the components.
 			for (auto& component : m_components)
 			{
 				component.Destroy();
 			}
+			m_componentLock.unlock();
 		}
 
 		Handle EmplaceComponent(GameObject* pOwningObject)
 		{
+			m_componentLock.lock();
+
 			// If there are free handles available..
 			if (m_freeHandles.size() > 0)
 			{
@@ -126,6 +137,7 @@ namespace Exelius
 				m_handles[handle.GetId()] = handle;
 				EXE_ASSERT(IsValidComponent(handle));
 
+				m_componentLock.unlock();
 				return handle;
 			}
 
@@ -140,6 +152,8 @@ namespace Exelius
 			Handle& handle = m_handles.emplace_back(index);
 
 			handle.SetVersion(1);
+			m_componentLock.unlock();
+
 			return handle;
 		}
 
@@ -160,8 +174,13 @@ namespace Exelius
 
 		virtual void UpdateComponents() final override
 		{
+			m_componentLock.lock();
+
 			if (!m_isUpdated)
+			{
+				m_componentLock.unlock();
 				return;
+			}
 
 			for (size_t i = 0; i < m_handles.size(); ++i)
 			{
@@ -177,12 +196,19 @@ namespace Exelius
 				//if (component.GetOwner()->IsEnabled())
 					component.Update();
 			}
+
+			m_componentLock.unlock();
 		}
 
-		virtual void RenderComponents() const final override
+		virtual void RenderComponents() final override
 		{
+			m_componentLock.lock();
+
 			if (!m_isRendered)
+			{
+				m_componentLock.unlock();
 				return;
+			}
 
 			for (size_t i = 0; i < m_handles.size(); ++i)
 			{
@@ -198,14 +224,20 @@ namespace Exelius
 				//if (component.GetOwner()->IsEnabled())
 					component.Render();
 			}
+
+			m_componentLock.unlock();
 		}
 
 		virtual void ReleaseComponent(Handle handle) final override
 		{
+			m_componentLock.lock();
+
 			EXE_ASSERT(handle.IsValid());
 
 			m_freeHandles.emplace_back(handle);
 			m_handles[handle.GetId()].Invalidate();
+
+			m_componentLock.unlock();
 		}
 	};
 }

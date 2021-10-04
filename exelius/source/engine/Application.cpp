@@ -30,7 +30,8 @@ namespace Exelius
 	/// to inject into the main loop.
 	/// </summary>
 	Application::Application()
-		: m_pResourceFactory(nullptr)
+		: m_pApplicationLog(nullptr)
+		, m_pResourceFactory(nullptr)
 		, m_pComponentFactory(nullptr)
 		, m_lastFrameTime(0.0f)
 		, m_isRunning(true)
@@ -54,12 +55,20 @@ namespace Exelius
 
 		ResourceLoader::DestroySingleton();
 
+		MemoryManager::GetInstance()->GetGlobalAllocator()->DumpMemoryData();
+
 		LogManager::DestroySingleton();
+
+		// TODO: How bad is this?
+		// NOTE: we never destroy the memory manager, we let the program do that.
 	}
 
 	bool Application::PreInitializeExelius()
 	{
-		ExeliusAllocator::SetSingleton(new TraceAllocator());
+		// Should be the only call to "new" inside any Exelius code.
+		MemoryManager::SetSingleton(new MemoryManager());
+		EXE_ASSERT(MemoryManager::GetInstance());
+		MemoryManager::GetInstance()->Initialize(false); // Should be set by the config file.
 
 		LogManager::SetSingleton(new LogManager());
 		EXE_ASSERT(LogManager::GetInstance());
@@ -75,7 +84,9 @@ namespace Exelius
 
 	bool Application::InitializeExelius()
 	{
-		Log defaultLog;
+		// We instantiate this log here so that the config file warn messege will appear if needed.
+		m_pApplicationLog = EXELIUS_NEW(Log("Application"));
+		EXE_ASSERT(m_pApplicationLog);
 
 		//-----------------------------------------------
 		// Config File - Open & Parse
@@ -86,7 +97,7 @@ namespace Exelius
 		ConfigFile configFile;
 		if (!configFile.OpenConfigFile())
 		{
-			defaultLog.Warn("Failed to open config file. Exelius will initialize with default settings.");
+			m_pApplicationLog->Warn("Failed to open config file. Exelius will initialize with default settings.");
 		}
 
 		//-----------------------------------------------
@@ -95,9 +106,6 @@ namespace Exelius
 
 		if (!InitializeLogManager(configFile))
 			return false;
-
-		//auto* pMem = ExeliusAllocator::GetInstance()->Allocate(256);
-		//ExeliusAllocator::GetInstance()->Free(pMem, 256);
 
 		eastl::vector<int> testAllocationForEASTL;
 
@@ -164,13 +172,15 @@ namespace Exelius
 	/// </summary>
 	void Application::Run()
 	{
+		EXE_ASSERT(m_pApplicationLog);
+
 		//Log log;
 		auto previousTime = eastl::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
 			auto time = eastl::chrono::high_resolution_clock::now();
 			eastl::chrono::duration<float> deltaTime = time - previousTime;
-			// log.Trace("DeltaTime: {}", deltaTime.count());
+			m_pApplicationLog->Trace("DeltaTime: {}", deltaTime.count());
 
 			Time::DeltaTime.SetFromSeconds(deltaTime.count());
 
@@ -266,7 +276,7 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeLogManager(const ConfigFile& configFile) const
 	{
-		Log defaultLog;
+		EXE_ASSERT(m_pApplicationLog);
 
 		FileLogDefinition fileDefinition;
 		ConsoleLogDefinition consoleDefinition;
@@ -274,12 +284,12 @@ namespace Exelius
 
 		if (!configFile.PopulateLogData(fileDefinition, consoleDefinition, logData))
 		{
-			defaultLog.Warn("Failed to populate log data correctly. Please verify config file.");
+			m_pApplicationLog->Warn("Failed to populate log data correctly. Please verify config file.");
 		}
 
 		if (!LogManager::GetInstance()->Initialize(fileDefinition, consoleDefinition, logData))
 		{
-			defaultLog.Fatal("Exelius::LogManager::Initialize Failed.");
+			m_pApplicationLog->Fatal("Exelius::LogManager::Initialize Failed.");
 			return false;
 		}
 
@@ -293,7 +303,7 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeRenderManager(const ConfigFile& configFile) const
 	{
-		Log defaultLog;
+		EXE_ASSERT(m_pApplicationLog);
 
 		eastl::string windowTitle("ExeliusApplication");
 		Vector2u windowSize({ 720, 640 });
@@ -301,14 +311,14 @@ namespace Exelius
 
 		if (!configFile.PopulateWindowData(windowTitle, windowSize, isVSyncEnabled))
 		{
-			defaultLog.Warn("Failed to populate window data correctly. Please verify config file.");
+			m_pApplicationLog->Warn("Failed to populate window data correctly. Please verify config file.");
 		}
 
 		RenderManager::SetSingleton(new RenderManager());
 		EXE_ASSERT(RenderManager::GetInstance());
 		if (!RenderManager::GetInstance()->Initialize(windowTitle, windowSize, isVSyncEnabled))
 		{
-			defaultLog.Fatal("Exelius::RenderManager failed to initialize.");
+			m_pApplicationLog->Fatal("Exelius::RenderManager failed to initialize.");
 			return false;
 		}
 
@@ -322,13 +332,13 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeInputManager([[maybe_unused]] const ConfigFile& configFile) const
 	{
-		Log defaultLog;
+		EXE_ASSERT(m_pApplicationLog);
 
 		InputManager::SetSingleton(new InputManager());
 		EXE_ASSERT(InputManager::GetInstance());
 		if (!InputManager::GetInstance()->Initialize())
 		{
-			defaultLog.Fatal("Exelius::InputManager failed to initialize.");
+			m_pApplicationLog->Fatal("Exelius::InputManager failed to initialize.");
 			return false;
 		}
 
@@ -346,14 +356,14 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeResourceLoader([[maybe_unused]] const ConfigFile& configFile) const
 	{
-		Log defaultLog;
+		EXE_ASSERT(m_pApplicationLog);
 
 		// Create Resource Manager Singleton.
 		ResourceLoader::SetSingleton(new ResourceLoader());
 		EXE_ASSERT(ResourceLoader::GetInstance());
 		if (!ResourceLoader::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
 		{
-			defaultLog.Fatal("Exelius::ResourceLoader failed to initialize.");
+			m_pApplicationLog->Fatal("Exelius::ResourceLoader failed to initialize.");
 			return false;
 		}
 
@@ -367,13 +377,13 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeGameObjectSystem([[maybe_unused]] const ConfigFile& configFile) const
 	{
-		Log defaultLog;
+		EXE_ASSERT(m_pApplicationLog);
 
 		GameObjectSystem::SetSingleton(new GameObjectSystem());
 		EXE_ASSERT(GameObjectSystem::GetInstance());
 		if (!GameObjectSystem::GetInstance()->Initialize(m_pComponentFactory))
 		{
-			defaultLog.Fatal("Exelius::GameObjectSystem failed to initialize.");
+			m_pApplicationLog->Fatal("Exelius::GameObjectSystem failed to initialize.");
 			return false;
 		}
 

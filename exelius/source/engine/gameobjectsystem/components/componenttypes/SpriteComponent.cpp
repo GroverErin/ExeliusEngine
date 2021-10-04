@@ -17,14 +17,13 @@ namespace Exelius
 	bool SpriteComponent::Initialize(const rapidjson::Value& jsonComponentData)
 	{
 		EXE_ASSERT(m_pOwner);
-		Log log("GameObjectSystem");
 
 		// Get the spritesheet associated with this sprite.
 		auto spritesheetData = jsonComponentData.FindMember("Spritesheet");
 
 		if (spritesheetData == jsonComponentData.MemberEnd())
 		{
-			log.Warn("Initialization for SpriteComponent failed: No Spritesheet data found.");
+			m_gameObjectSystemLog.Warn("Initialization for SpriteComponent failed: No Spritesheet data found.");
 			return false;
 		}
 
@@ -40,7 +39,7 @@ namespace Exelius
 
 		if (spriteData == jsonComponentData.MemberEnd())
 		{
-			log.Warn("Initialization for SpriteComponent failed: No Sprite data found.");
+			m_gameObjectSystemLog.Warn("Initialization for SpriteComponent failed: No Sprite data found.");
 			return false;
 		}
 
@@ -60,10 +59,9 @@ namespace Exelius
 	void SpriteComponent::Render() const
 	{
 		//EXE_ASSERT(m_pOwner);
-		Log log("GameObjectSystem");
 		if (!m_pOwner)
 		{
-			log.Fatal("Owner of SpriteComponent was nullptr. This should NEVER happen.");
+			m_gameObjectSystemLog.Fatal("Owner of SpriteComponent was nullptr. This should NEVER happen.");
 			return;
 		}
 
@@ -72,7 +70,7 @@ namespace Exelius
 
 		if (!m_spriteID.IsValid())
 		{
-			log.Error("Bailing render because sprite ID was invalid.");
+			m_gameObjectSystemLog.Error("Bailing render because sprite ID was invalid.");
 			return;
 		}
 
@@ -127,7 +125,6 @@ namespace Exelius
 	bool SpriteComponent::ParseSprite(const rapidjson::Value& spriteData)
 	{
 		EXE_ASSERT(spriteData.IsObject());
-		Log log("GameObjectSystem");
 
 		// We are inside of the "Sprite" value.
 		// Get the name of the sprite and get it.
@@ -136,7 +133,7 @@ namespace Exelius
 
 		if (nameMember == spriteData.MemberEnd())
 		{
-			log.Warn("Initialization for SpriteComponent failed: Sprite has no 'name' value.");
+			m_gameObjectSystemLog.Warn("Initialization for SpriteComponent failed: Sprite has no 'name' value.");
 			return false;
 		}
 
@@ -148,7 +145,7 @@ namespace Exelius
 
 		if (!m_spriteID.IsValid())
 		{
-			log.Warn("Failed to obtain sprite with name '{}'.", nameMember->value.GetString());
+			m_gameObjectSystemLog.Warn("Failed to obtain sprite with name '{}'.", nameMember->value.GetString());
 			return false;
 		}
 

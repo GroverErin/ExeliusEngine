@@ -30,7 +30,7 @@ namespace Exelius
 		virtual bool Initialize() final override;
 		virtual bool Initialize(const rapidjson::Value& jsonComponentData) final override;
 
-		virtual void Render() const final override;
+		virtual void Render() final override;
 
 		virtual void Destroy() final override;
 

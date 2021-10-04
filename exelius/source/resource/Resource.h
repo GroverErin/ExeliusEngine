@@ -1,5 +1,6 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
+#include "source/debug/Log.h"
 
 #include <EASTL/vector.h>
 
@@ -28,6 +29,12 @@ namespace Exelius
 		/// The ResourceID referred to by this resource.
 		/// </summary>
 		ResourceID m_id;
+
+	protected:
+		/// <summary>
+		/// Log for the ResourceManager.
+		/// </summary>
+		Log m_resourceManagerLog;
 	public:
 		Resource() = delete; // TODO: Does delete matter here?
 		Resource(const Resource&) = delete;
@@ -79,6 +86,7 @@ namespace Exelius
 		/// <param name="id">ResourceID to assign to this resource.</param>
 		Resource(const ResourceID& id)
 			: m_id(id)
+			, m_resourceManagerLog("ResourceManager")
 		{
 			EXE_ASSERT(id.IsValid());
 		}

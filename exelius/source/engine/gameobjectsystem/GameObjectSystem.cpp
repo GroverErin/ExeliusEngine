@@ -16,7 +16,8 @@ namespace Exelius
 	/// Constructor - initializes member values.
 	/// </summary>
 	GameObjectSystem::GameObjectSystem()
-		: m_nextObjectID(0)
+		: m_gameObjectSystemLog("GameObjectSystem")
+		, m_nextObjectID(0)
 		, m_pComponentFactory(nullptr)
 	{
 		//
@@ -84,7 +85,6 @@ namespace Exelius
 	/// </returns>
 	GameObjectID GameObjectSystem::CreateGameObject(const ResourceID& resourceID, CreationMode createMode)
 	{
-		Log log("GameObjectSystem");
 		EXE_ASSERT(resourceID.IsValid());
 
 		// Increments reference count *if* resource exists.
@@ -94,14 +94,14 @@ namespace Exelius
 		// If the resource is not loaded and we opted not to do so, then bail.
 		if (!gameObjectData.IsReferenceHeld() && (createMode == CreationMode::kDoNotLoad))
 		{
-			log.Warn("GameObject from '{}' did not exist and will not be created.");
+			m_gameObjectSystemLog.Warn("GameObject from '{}' did not exist and will not be created.");
 			return kInvalidGameObjectID;
 		}
 
 		GameObjectID id = GetNextObjectId();
 		EXE_ASSERT(id != kInvalidGameObjectID);
 
-		log.Info("Creating GameObject from '{}' with ID: {}", resourceID.Get().c_str(), id);
+		m_gameObjectSystemLog.Info("Creating GameObject from '{}' with ID: {}", resourceID.Get().c_str(), id);
 
 		// Create and Get the new object.
 		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id, createMode));
@@ -111,7 +111,7 @@ namespace Exelius
 		// If the resource was already loaded, then notify the gameobject.
 		if (gameObjectData.IsReferenceHeld())
 		{
-			log.Info("GameObject resource has been loaded.");
+			m_gameObjectSystemLog.Info("GameObject resource has been loaded.");
 			// The Object resource is already loaded. So, we need to return the new id and
 			// tell the new game object that it's resource has loaded. We can call
 			// OnResourceLoaded. We know it won't be unloaded here because
@@ -123,19 +123,19 @@ namespace Exelius
 		switch (createMode)
 		{
 		case CreationMode::kLoadImmediate:
-			log.Info("GameObject resource loading on Main thread.");
+			m_gameObjectSystemLog.Info("GameObject resource loading on Main thread.");
 			gameObjectData.LoadNow(pNewObject);
 			break;
 		case CreationMode::kQueueAndSignal:
-			log.Info("GameObject resource queueing on resource thread. Thread signaled.");
+			m_gameObjectSystemLog.Info("GameObject resource queueing on resource thread. Thread signaled.");
 			gameObjectData.QueueLoad(true, pNewObject);
 			break;
 		case CreationMode::kQueueNoSignal:
-			log.Info("GameObject resource queueing on resource thread.");
+			m_gameObjectSystemLog.Info("GameObject resource queueing on resource thread.");
 			gameObjectData.QueueLoad(false, pNewObject);
 			break;
 		default:
-			log.Fatal("GameObject creation failed.");
+			m_gameObjectSystemLog.Fatal("GameObject creation failed.");
 			EXE_ASSERT(false);
 			break;
 		}
@@ -173,11 +173,9 @@ namespace Exelius
 	/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
 	const eastl::shared_ptr<GameObject> GameObjectSystem::GetGameObject(GameObjectID gameObjectID) const
 	{
-		Log log("GameObjectSystem");
-
 		if (gameObjectID == kInvalidGameObjectID)
 		{
-			log.Warn("GameObjectID is invalid.");
+			m_gameObjectSystemLog.Warn("GameObjectID is invalid.");
 			return nullptr;
 		}
 
@@ -185,7 +183,7 @@ namespace Exelius
 		auto found = m_gameObjects.find(gameObjectID);
 		if (found == m_gameObjects.end())
 		{
-			log.Warn("GameObject with ID '{}' does not exist.", gameObjectID);
+			m_gameObjectSystemLog.Warn("GameObject with ID '{}' does not exist.", gameObjectID);
 			return nullptr;
 		}
 
@@ -203,11 +201,9 @@ namespace Exelius
 	/// <param name="gameObjectID">GameObjectID for an object to be destroyed.</param>
 	void GameObjectSystem::DestroyGameObject(GameObjectID gameObjectID)
 	{
-		Log log("GameObjectSystem");
-
 		if (gameObjectID == kInvalidGameObjectID)
 		{
-			log.Warn("GameObjectID is invalid.");
+			m_gameObjectSystemLog.Warn("GameObjectID is invalid.");
 			return;
 		}
 
@@ -216,7 +212,7 @@ namespace Exelius
 
 		if (found == m_gameObjects.end())
 		{
-			log.Warn("GameObject with ID '{}' does not exist.", gameObjectID);
+			m_gameObjectSystemLog.Warn("GameObject with ID '{}' does not exist.", gameObjectID);
 			return;
 		}
 
@@ -253,11 +249,10 @@ namespace Exelius
 	{
 		EXE_ASSERT(m_pComponentFactory);
 		EXE_ASSERT(componentType.IsValid());
-		Log log("GameObjectSystem");
 
 		if (!pOwningObject)
 		{
-			log.Error("Owning GameObject was nullptr.");
+			m_gameObjectSystemLog.Error("Owning GameObject was nullptr.");
 			return {}; // Invalid.
 		}
 

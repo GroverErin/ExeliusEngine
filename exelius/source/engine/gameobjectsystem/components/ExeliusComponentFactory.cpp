@@ -11,6 +11,13 @@
 /// </summary>
 namespace Exelius
 {
+	/// <summary>
+	/// Constructor initialized the log.
+	/// </summary>
+	ExeliusComponentFactory::ExeliusComponentFactory()
+	{
+	}
+
 	bool ExeliusComponentFactory::Initialize()
 	{
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
@@ -28,8 +35,8 @@ namespace Exelius
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
 		EXE_ASSERT(pGameObjectSystem);
 		EXE_ASSERT(componentName.IsValid());
-		Log log("GameObjectSystem");
-		log.Trace("Attempting to create Component: {}", componentName.Get().c_str());
+
+		m_gameObjectSystemLog.Trace("Attempting to create Component: {}", componentName.Get().c_str());
 
 		Handle newHandle;
 		bool initSucceeded = false;
@@ -40,7 +47,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				log.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				m_gameObjectSystemLog.Error("{}: Component failed to be created.", componentName.Get().c_str());
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -54,7 +61,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				log.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				m_gameObjectSystemLog.Error("{}: Component failed to be created.", componentName.Get().c_str());
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -68,7 +75,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				log.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				m_gameObjectSystemLog.Error("{}: Component failed to be created.", componentName.Get().c_str());
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -79,12 +86,12 @@ namespace Exelius
 
 		if (!initSucceeded)
 		{
-			log.Error("{}: Component failed to initialize.", componentName.Get().c_str());
+			m_gameObjectSystemLog.Error("{}: Component failed to initialize.", componentName.Get().c_str());
 			pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 			return {}; // Invalid.
 		}
 
-		log.Trace("Completed Component Creation.");
+		m_gameObjectSystemLog.Trace("Completed Component Creation.");
 		return newHandle;
 	}
 }

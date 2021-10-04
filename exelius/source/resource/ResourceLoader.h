@@ -1,6 +1,7 @@
 #pragma once
 #include "source/utility/generic/Singleton.h"
 #include "source/resource/ResourceDatabase.h"
+#include "source/debug/Log.h"
 
 #include <EASTL/deque.h>
 #include <EASTL/vector.h>
@@ -76,6 +77,11 @@ namespace Exelius
 		/// to listen for a single resource being loaded.
 		/// </summary>
 		using ListenersMap = eastl::unordered_map<ResourceID, ResourceListeners>;
+
+		/// <summary>
+		/// ResourceLoader Log.
+		/// </summary>
+		Log m_resourceLoaderLog;
 
 		/// <summary>
 		/// A map of listeners keyed by resource ID, allowing multiple listeners

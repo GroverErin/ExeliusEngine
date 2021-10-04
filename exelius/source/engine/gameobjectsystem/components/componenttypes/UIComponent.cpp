@@ -20,15 +20,15 @@ namespace Exelius
 
     bool UIComponent::Initialize(const rapidjson::Value& jsonComponentData)
     {
-        Log log("GameObjectSystem");
-
         EXE_ASSERT(m_pOwner);
+
+        m_gameObjectSystemLog.Info("Creating UI Component");
 
         auto textureData = jsonComponentData.FindMember("Texture");
 
         if (textureData == jsonComponentData.MemberEnd())
         {
-            log.Warn("Initialization for UIComponent failed: No texture data found.");
+            m_gameObjectSystemLog.Warn("Initialization for UIComponent failed: No texture data found.");
             return false;
         }
 
@@ -44,7 +44,7 @@ namespace Exelius
         auto sliceData = jsonComponentData.FindMember("SliceData");
         if (sliceData == jsonComponentData.MemberEnd())
         {
-            log.Warn("Initialization for UIComponent failed: No slice data found.");
+            m_gameObjectSystemLog.Warn("Initialization for UIComponent failed: No slice data found.");
             return false;
         }
 
@@ -108,12 +108,11 @@ namespace Exelius
         return true;
     }
 
-    void UIComponent::Render() const
+    void UIComponent::Render()
     {
-        Log log("GameObjectSystem");
         if (!m_pOwner)
         {
-            log.Fatal("Owner of UIComponent was nullptr. This should NEVER happen.");
+            m_gameObjectSystemLog.Fatal("Owner of UIComponent was nullptr. This should NEVER happen.");
             return;
         }
 
@@ -122,22 +121,33 @@ namespace Exelius
 
         if (!m_textureID.IsValid())
         {
-            log.Error("Bailing render because m_textureID was invalid.");
+            m_gameObjectSystemLog.Error("Bailing render because m_textureID was invalid.");
             return;
         }
 
         auto transformComponent = m_pOwner->GetComponent<TransformComponent>();
 
         if (!transformComponent.IsValid())
-            return;
-
-        for (auto command : m_commands)
         {
-            // Adjust the command according to the transform here.
+            m_gameObjectSystemLog.Warn("Transform Component was invalid!");
+            return;
+        }
+
+        for (int i = 0; i < 9; ++i)
+        {
+            auto command = m_commands[i];
             command.m_destinationFrame.m_left += transformComponent->GetX();
             command.m_destinationFrame.m_top += transformComponent->GetY();
             RenderManager::GetInstance()->PushRenderCommand(command);
         }
+
+        //for (auto& command : m_commands)
+        //{
+        //    // Adjust the command according to the transform here.
+        //    command.m_destinationFrame.m_left += transformComponent->GetX();
+        //    command.m_destinationFrame.m_top += transformComponent->GetY();
+        //    RenderManager::GetInstance()->PushRenderCommand(command);
+        //}
     }
 
     void UIComponent::Destroy()

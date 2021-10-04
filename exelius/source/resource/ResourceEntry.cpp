@@ -19,6 +19,7 @@ namespace Exelius
 		, m_status(ResourceLoadStatus::kInvalid)
 		, m_refCount(1)
 		, m_lockCount(0)
+		, m_resourceDatabaseLog("ResourceDatabase")
 	{
 		//
 	}
@@ -29,20 +30,18 @@ namespace Exelius
 	/// </summary>
 	ResourceEntry::~ResourceEntry()
 	{
-		Log log("ResourceDatabase");
-
 		if (m_refCount + m_lockCount > 0)
 		{
 			if (m_pResource)
-				log.Warn("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
+				m_resourceDatabaseLog.Warn("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
 			else
-				log.Warn("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+				m_resourceDatabaseLog.Warn("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
 		}
 
 		if (m_pResource)
-			log.Info("Destroying resource '{}'.", m_pResource->GetResourceID().Get().c_str());
+			m_resourceDatabaseLog.Info("Destroying resource '{}'.", m_pResource->GetResourceID().Get().c_str());
 		else
-			log.Info("Destroying nullptr resource.");
+			m_resourceDatabaseLog.Info("Destroying nullptr resource.");
 
 		delete m_pResource;
 		m_pResource = nullptr;
@@ -62,8 +61,6 @@ namespace Exelius
 	/// <returns>The resource held by this entry if loaded, nullptr otherwise.</returns>
 	Resource* ResourceEntry::GetResource()
 	{
-		Log log("ResourceDatabase");
-
 		if (m_status == ResourceLoadStatus::kLoaded)
 		{
 			return m_pResource;
@@ -75,7 +72,7 @@ namespace Exelius
 			// before setting the status to unloading (unless it is the
 			// intended purpose to catch this kind of error!) otherwise
 			// this branch will trigger unintentionally.
-			log.Fatal("Attempting to get a resource that is unloading.");
+			m_resourceDatabaseLog.Fatal("Attempting to get a resource that is unloading.");
 		}
 		else if (m_status == ResourceLoadStatus::kLoading)
 		{
@@ -94,7 +91,7 @@ namespace Exelius
 			// by incrementing the refcount, so that the refcount is not reduced to 0.
 			// A potential solution is: unknown.
 			//IncrementRefCount();
-			log.Fatal("Attempting to get a resource that is loading.");
+			m_resourceDatabaseLog.Fatal("Attempting to get a resource that is loading.");
 		}
 		return nullptr;
 	}
@@ -118,8 +115,7 @@ namespace Exelius
 	void ResourceEntry::IncrementRefCount()
 	{
 		++m_refCount;
-		Log log("ResourceDatabase");
-		log.Trace("New Ref Count: {}", m_refCount);
+		m_resourceDatabaseLog.Trace("New Ref Count: {}", m_refCount);
 	}
 
 	/// <summary>
@@ -130,16 +126,15 @@ namespace Exelius
 	/// <returns>True if the ref count + lock count == 0, otherwise false.</returns>
 	bool ResourceEntry::DecrementRefCount()
 	{
-		Log log("ResourceDatabase");
 		--m_refCount;
 
 		if (m_refCount < 0)
 		{
-			log.Warn("ResourceEntry Ref Count below 0. Resource is being Over Released.");
+			m_resourceDatabaseLog.Warn("ResourceEntry Ref Count below 0. Resource is being Over Released.");
 			m_refCount = 0;
 		}
 
-		log.Trace("New Ref Count: {}", m_refCount);
+		m_resourceDatabaseLog.Trace("New Ref Count: {}", m_refCount);
 		return IsReferenceOrLocked();
 	}
 
@@ -149,8 +144,7 @@ namespace Exelius
 	void ResourceEntry::IncrementLockCount()
 	{
 		++m_lockCount;
-		Log log("ResourceDatabase");
-		log.Trace("New Lock Count: {}", m_lockCount);
+		m_resourceDatabaseLog.Trace("New Lock Count: {}", m_lockCount);
 	}
 
 	/// <summary>
@@ -161,16 +155,15 @@ namespace Exelius
 	/// <returns>True if the ref count + lock count == 0, otherwise false.</returns>
 	bool ResourceEntry::DecrementLockCount()
 	{
-		Log log("ResourceDatabase");
 		--m_lockCount;
 
 		if (m_lockCount < 0)
 		{
-			log.Warn("ResourceEntry Lock Count below 0. Resource is being Over Unlocked.");
+			m_resourceDatabaseLog.Warn("ResourceEntry Lock Count below 0. Resource is being Over Unlocked.");
 			m_lockCount = 0;
 		}
 
-		log.Trace("New Lock Count: {}", m_lockCount);
+		m_resourceDatabaseLog.Trace("New Lock Count: {}", m_lockCount);
 		return IsReferenceOrLocked();
 	}
 

@@ -14,8 +14,6 @@ namespace Exelius
 
     bool TransformComponent::Initialize(const rapidjson::Value& jsonComponentData)
     {
-        Log log("GameObjectSystem");
-
         EXE_ASSERT(m_pOwner);
 
         for (auto componentDataObj = jsonComponentData.MemberBegin(); componentDataObj != jsonComponentData.MemberEnd(); ++componentDataObj)
@@ -31,7 +29,7 @@ namespace Exelius
             else if (objectName == "h")
                 m_dimensions.h = componentDataObj->value.GetFloat();
             else
-                log.Warn("Unhandled Component Data Object: {}", componentDataObj->name.GetString());
+                m_gameObjectSystemLog.Warn("Unhandled Component Data Object: {}", componentDataObj->name.GetString());
         }
 
         return true;

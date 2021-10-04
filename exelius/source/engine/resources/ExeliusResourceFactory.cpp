@@ -15,7 +15,6 @@ namespace Exelius
 	Resource* ExeliusResourceFactory::CreateResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		Log log("ResourceManager");
 
 		Resource* pNewResource = nullptr;
 		ResourceType::Type type = GetResourceType(resourceID);
@@ -24,7 +23,7 @@ namespace Exelius
 		{
 		case ResourceType::kInvalid:
 			{
-				log.Warn("Resource cannot be created: Invalid or Unsupported Resource Type.");
+				m_resourceManagerLog.Warn("Resource cannot be created: Invalid or Unsupported Resource Type.");
 				break;
 			}
 		case ResourceType::kTextFile:
@@ -50,13 +49,12 @@ namespace Exelius
 	ResourceType::Type ExeliusResourceFactory::GetResourceType(const ResourceID& resourceID) const
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		Log log("ResourceManager");
 
 		eastl::string fileExtension = resourceID.Get().substr(resourceID.Get().find_last_of('.') + 1);
 
 		if (fileExtension.empty())
 		{
-			log.Warn("Could not parse resource extention.");
+			m_resourceManagerLog.Warn("Could not parse resource extention.");
 			return ResourceType::kInvalid;
 		}
 

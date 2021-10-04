@@ -50,6 +50,8 @@ namespace Exelius
 			FindOrAdd(::std::move(string));
 		}
 
+		StringIntern(StringIntern&&) = default;
+
 		const eastl::string& Get() const { EXE_ASSERT(IsValid()); return (*m_pString); }
 
 		bool IsValid() const

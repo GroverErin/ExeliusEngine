@@ -1,5 +1,6 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
+#include "source/debug/Log.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -26,7 +27,18 @@ namespace Exelius
 	/// </summary>
 	class ResourceFactory
 	{
+	protected:
+		/// <summary>
+		/// Log for the ResourceManager.
+		/// </summary>
+		Log m_resourceManagerLog;
 	public:
+		ResourceFactory()
+			: m_resourceManagerLog("ResourceManager")
+		{
+			//
+		}
+
 		/// <summary>
 		/// Destroy the resource factory.
 		/// </summary>

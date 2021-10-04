@@ -6,6 +6,8 @@
 #include "source/engine/gameobjectsystem/components/ComponentList.h"
 #include "source/engine/gameobjectsystem/components/Component.h"
 
+#include "source/debug/Log.h"
+
 #include <EASTL/deque.h>
 #include <EASTL/unordered_map.h>
 #include <EASTL/shared_ptr.h>
@@ -37,6 +39,11 @@ namespace Exelius
 	class GameObjectSystem
 		: public Singleton<GameObjectSystem>
 	{
+		/// <summary>
+		/// Log for the GameObjectSystem.
+		/// </summary>
+		Log m_gameObjectSystemLog;
+
 		/// <summary>
 		/// This value contains the ID for the next object to be created.
 		/// </summary>

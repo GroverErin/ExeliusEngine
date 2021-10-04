@@ -13,6 +13,7 @@ namespace Exelius
 	class ResourceFactory;
 	class ComponentFactory;
 	class ConfigFile;
+	class Log;
 
 	/// <summary>
 	/// The application class is to be inhereted by the client,
@@ -21,6 +22,7 @@ namespace Exelius
 	class Application
 		: public Singleton<Application>, public OSEventObserver
 	{
+		Log* m_pApplicationLog; // Needs to be pointer because it is created after LogManager Init();
 		ResourceFactory* m_pResourceFactory;
 		ComponentFactory* m_pComponentFactory;
 		float m_lastFrameTime;

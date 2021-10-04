@@ -18,13 +18,11 @@ namespace Exelius
 
     Resource::LoadResult SpritesheetResource::Load(eastl::vector<std::byte>&& data)
     {
-        Log log("ResourceLoader");
-
         // Set the raw byte data to a string value.
         m_text = eastl::string((const char*)data.begin(), (const char*)data.end());
         if (m_text.empty())
         {
-            log.Warn("Failed to read data in Spritesheet Resource.");
+            m_resourceManagerLog.Warn("Failed to read data in Spritesheet Resource.");
             return LoadResult::kFailed;
         }
 
@@ -32,7 +30,7 @@ namespace Exelius
         rapidjson::Document jsonDoc;
         if (jsonDoc.Parse(m_text.c_str()).HasParseError())
         {
-            log.Error("Failed to Parse JSON.");
+            m_resourceManagerLog.Error("Failed to Parse JSON.");
             return LoadResult::kFailed;
         }
 
@@ -43,7 +41,7 @@ namespace Exelius
 
         if (textureMember == jsonDoc.MemberEnd())
         {
-            log.Warn("No Texture field found. Spritesheets must have a texture.");
+            m_resourceManagerLog.Warn("No Texture field found. Spritesheets must have a texture.");
             return LoadResult::kFailed;
         }
 
@@ -67,7 +65,7 @@ namespace Exelius
 
         if (spriteMember == jsonDoc.MemberEnd())
         {
-            log.Warn("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
+            m_resourceManagerLog.Warn("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
             return LoadResult::kFailed;
         }
 
@@ -105,7 +103,7 @@ namespace Exelius
 
         if (!containsSpriteData)
         {
-            log.Warn("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
+            m_resourceManagerLog.Warn("No Sprite field found. Spritesheets must have at least 1 Sprite. TODO: Maybe no sprite means default value?");
             return LoadResult::kFailed;
         }
 

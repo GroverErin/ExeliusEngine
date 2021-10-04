@@ -1,6 +1,7 @@
 #pragma once
 #include "source/engine/gameobjectsystem/components/Component.h"
 #include "source/utility/generic/Handle.h"
+#include "source/debug/Log.h"
 
 #include <rapidjson/document.h>
 
@@ -28,7 +29,19 @@ namespace Exelius
 	/// </summary>
 	class ComponentFactory
 	{
+	protected:
+		/// <summary>
+		/// Log for the GameObjectSystem.
+		/// </summary>
+		Log m_gameObjectSystemLog;
+
 	public:
+		ComponentFactory()
+			: m_gameObjectSystemLog("GameObjectSystem")
+		{
+			//
+		}
+
 		/// <summary>
 		/// Destroy the component factory.
 		/// </summary>

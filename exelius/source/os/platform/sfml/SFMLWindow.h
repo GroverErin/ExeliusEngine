@@ -2,6 +2,7 @@
 #include "source/os/events/EventManagement.h"
 #include "source/utility/containers/Vector2.h"
 #include "source/utility/math/Rectangle.h"
+#include "source/debug/Log.h"
 
 #include "source/os/platform/PlatformForwardDeclarations.h"
 
@@ -40,6 +41,11 @@ namespace Exelius
 	/// </summary>
 	class SFMLWindow
 	{
+		/// <summary>
+		/// Log for the Graphics Interface.
+		/// </summary>
+		Log m_graphicsInterfaceLog;
+
 		sf::RenderWindow* m_pWindow;
 		OSEventMessenger m_messenger;
 		bool m_isVSync; // TODO: Elevate this to the Window interface.

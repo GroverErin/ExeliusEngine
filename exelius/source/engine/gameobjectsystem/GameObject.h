@@ -2,6 +2,7 @@
 #include "source/resource/ResourceListener.h"
 #include "source/engine/gameobjectsystem/components/Component.h"
 #include "source/engine/gameobjectsystem/components/ComponentHandle.h"
+#include "source/debug/Log.h"
 
 #include <EASTL/string.h>
 #include <EASTL/unordered_map.h>
@@ -15,7 +16,11 @@ namespace Exelius
     class GameObject
         : public ResourceListener
 	{
-    private:
+        /// <summary>
+        /// Log for the GameObjectSystem.
+        /// </summary>
+        Log m_gameObjectSystemLog;
+
         /// <summary>
         /// List of the components (Handles to) by component type.
         /// </summary>
@@ -132,14 +137,13 @@ namespace Exelius
         ComponentHandle<ComponentType> GetComponent()
         {
             EXE_ASSERT(ComponentType::kType.IsValid());
-            Log log("GameObjectSystem");
 
             auto found = m_components.find(ComponentType::kType);
 
             // Component was not found, return invalid ComponentHandle.
             if (found == m_components.end())
             {
-                log.Warn("Component of type '{}' was not found.", ComponentType::kType);
+                m_gameObjectSystemLog.Warn("Component of type '{}' was not found.", ComponentType::kType);
                 return {}; // Invalid.
             }
 

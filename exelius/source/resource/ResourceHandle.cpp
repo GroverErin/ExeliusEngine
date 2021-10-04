@@ -35,6 +35,7 @@ namespace Exelius
 	ResourceHandle::ResourceHandle(const ResourceID& resourceID, bool loadResource)
 		: m_resourceID(resourceID)
 		, m_resourceHeld(false)
+		, m_resourceLoaderLog("ResourceLoader")
 	{
 		// Check if the resource is already loaded.
 		if (!TryToAcquireResource() && loadResource)
@@ -65,6 +66,9 @@ namespace Exelius
 			TryToAcquireResource();
 		}
 
+		if (!m_resourceID.IsValid())
+			return nullptr;
+
 		Resource* pResource = ResourceLoader::GetInstance()->GetResource(m_resourceID, forceLoad);
 
 		if (pResource && !m_resourceHeld)
@@ -82,17 +86,15 @@ namespace Exelius
 	/// <param name="pListener">- An object that inherets from ResourceListener to be notified of on load completion.</param>
 	void ResourceHandle::QueueLoad(bool signalLoaderThread, ResourceListenerPtr pListener)
 	{
-		Log log("ResourceLoader");
-
 		if (m_resourceHeld)
 		{
-			log.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			m_resourceLoaderLog.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
 			return;
 		}
 
 		if (!m_resourceID.IsValid())
 		{
-			log.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			m_resourceLoaderLog.Info("Resource cannot be acquired, resource ID is invalid or not set.");
 			return;
 		}
 
@@ -114,17 +116,15 @@ namespace Exelius
 	/// <param name="pListener">- An object that inherets from ResourceListener to be notified of on load completion.</param>
 	void ResourceHandle::LoadNow(ResourceListenerPtr pListener)
 	{
-		Log log("ResourceLoader");
-
 		if (m_resourceHeld)
 		{
-			log.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			m_resourceLoaderLog.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
 			return;
 		}
 
 		if (!m_resourceID.IsValid())
 		{
-			log.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			m_resourceLoaderLog.Info("Resource cannot be acquired, resource ID is invalid or not set.");
 			return;
 		}
 
@@ -209,22 +209,21 @@ namespace Exelius
 	/// <returns>True if acquired, false otherwise.</returns>
 	bool ResourceHandle::TryToAcquireResource()
 	{
-		Log log("ResourceLoader");
 		if (m_resourceHeld)
 		{
-			log.Info("Resource with id '{}' cannot be acquired, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			m_resourceLoaderLog.Info("Resource with id '{}' cannot be acquired, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
 			return false;
 		}
 
 		if (!m_resourceID.IsValid())
 		{
-			log.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			m_resourceLoaderLog.Info("Resource cannot be acquired, resource ID is invalid or not set.");
 			return false;
 		}
 
 		if (!ResourceLoader::GetInstance()->IsResourceAcquirable(m_resourceID))
 		{
-			log.Trace("Resource cannot be acquired, resource not available.");
+			m_resourceLoaderLog.Trace("Resource cannot be acquired, resource not available.");
 			return false;
 		}
 

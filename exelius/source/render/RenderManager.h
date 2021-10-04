@@ -6,6 +6,7 @@
 
 #include "source/os/interface/graphics/View.h"
 #include "source/os/interface/graphics/Vertex.h"
+#include "source/debug/Log.h"
 
 #include <EASTL/vector.h>
 #include <EASTL/unordered_map.h>
@@ -29,6 +30,11 @@ namespace Exelius
 		static constexpr int s_kMaxFramesBehind = 2;
 		Window* m_pWindow;
 		
+		/// <summary>
+		/// Log for the RenderManager.
+		/// </summary>
+		Log m_renderManagerLog;
+
 		eastl::vector<RenderCommand> m_advancedBuffer; // Main loop adds to this buffer.
 		
 		eastl::vector<RenderCommand> m_intermediateBuffer; // Main loop will swap this buffer with advancedbuffer at the end of a frame. Render Thread will swap with this buffer if it is not processing.

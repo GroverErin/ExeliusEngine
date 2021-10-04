@@ -11,18 +11,18 @@
 /// </summary>
 namespace Exelius
 {
+	LogManager::LogManager()
+		: m_defaultLog("Exelius")
+	{
+		//
+	}
+
 	/// <summary>
-	/// Unregister all the loggers and clear the map of logs and log definitions.
+	/// Unregister all the loggers and clear the map of log definitions.
 	/// </summary>
 	LogManager::~LogManager()
 	{
 		UnregisterAllLogs();
-
-		for (auto pNameLogPair : m_logs)
-		{
-			pNameLogPair.second = nullptr;
-		}
-		m_logs.clear();
 
 		for (auto pDefinition : m_logDefinitions)
 		{
@@ -42,8 +42,7 @@ namespace Exelius
 		// Create Default Log. This is intentionally not created using the preinit file. This is
 		// accessible as some of the tools that are used to initialize the log system rely on logging.
 		// However, the config file can overwrite these default settings.
-		if (!CreateLog("Exelius", LogLocation::kConsoleAndFile, LogLevel::kTrace))
-			return false;
+		InitializedDefaultLog();
 
 		return true;
 	}
@@ -102,82 +101,102 @@ namespace Exelius
 	{
 		StringIntern logName(pLogName);
 
-		// If a log with this name exists, destroy it.
-		if (GetLog(logName))
+		// This GetLog should only ever return a non-null value
+		// in the default logs case or the Application log.
+		// TODO: This could probably be its own function.
+		if (auto pDefaultLogAsSharedPtr = GetLog(logName))
 		{
-			UnregisterLog(logName);
+			auto defaultSinks = m_defaultLog.sinks();
+			defaultSinks.clear();
 
-			m_logLock.lock();
-			m_logs.erase(logName);
-			m_logLock.unlock();
+			switch (type)
+			{
+				case LogLocation::kConsole:
+				{
+					// Set the logger to use the defined sink for the console.
+					defaultSinks.emplace_back(m_logDefinitions[0]);
+					break;
+				}
+				case LogLocation::kFile:
+				{
+					// Set the logger to use the defined sink for the file.
+					defaultSinks.emplace_back(m_logDefinitions[1]);
+					break;
+				}
+				case LogLocation::kConsoleAndFile:
+				{
+					// Set the logger to use the defined sink for the console and the file.
+					for (auto sink : m_logDefinitions)
+					{
+						defaultSinks.emplace_back(sink);
+					}
+					break;
+				}
+				default:
+				{
+					EXE_ASSERT(false);
+					return false;
+					break;
+				}
+			}
+
+			SetLogLevel(pDefaultLogAsSharedPtr, logLevel);
+			return true;
 		}
 
-		std::shared_ptr<spdlog::logger> newLog = nullptr;
+		std::shared_ptr<spdlog::logger> pNewLog = nullptr;
 
-		m_logLock.lock();
 		switch (type)
 		{
 			case LogLocation::kConsole:
 			{
 				// Create the logger that uses the defined sink for the console.
-				m_logs.emplace(pLogName, std::make_shared<spdlog::logger>(pLogName, m_logDefinitions[0]));
+				pNewLog = std::make_shared<spdlog::logger>(pLogName, m_logDefinitions[0]);
 				break;
 			}
 			case LogLocation::kFile:
 			{
 				// Create the logger that uses the defined sink for the file.
-				m_logs.emplace(pLogName, std::make_shared<spdlog::logger>(pLogName, m_logDefinitions[1]));
+				pNewLog = std::make_shared<spdlog::logger>(pLogName, m_logDefinitions[1]);
 				break;
 			}
 			case LogLocation::kConsoleAndFile:
 			{
 				// Create the logger that uses the defined sink for the console and the file.
-				m_logs.emplace(pLogName, std::make_shared<spdlog::logger>(pLogName, std::begin(m_logDefinitions), std::end(m_logDefinitions)));
+				pNewLog = std::make_shared<spdlog::logger>(pLogName, std::begin(m_logDefinitions), std::end(m_logDefinitions));
 				break;
 			}
 			default:
 			{
-				m_logLock.unlock();
+				EXE_ASSERT(false);
 				return false;
 				break;
 			}
 		}
-		m_logLock.unlock();
 
-		// Get the log we just created and initialize it.
-		newLog = GetLog(logName);
-		EXE_ASSERT(newLog);
+		EXE_ASSERT(pNewLog);
 
-		// TODO: This may need to be inside of the locked creation above...
-		RegisterLog(newLog);
+		RegisterLog(pNewLog);
 
-		SetLogLevel(newLog, logLevel);
+		SetLogLevel(pNewLog, logLevel);
 
 		return true;
 	}
 
 	/// <summary>
 	/// Retrieve the log with the given name if it exists.
+	/// 
+	/// @note
+	/// Calling get can be expensive as it locks a mutex, so use with caution.
+	/// It is advisable to save the shared_ptr<spdlog::logger> returned and use it directly, at least in hot code paths.
+	/// @see https://github.com/gabime/spdlog/wiki/2.-Creating-loggers
 	/// </summary>
 	/// <param name="logName">- The name of the log to retrieve. Example: "Exelius" will retrieve the default log.</param>
 	/// <returns>The log with the given name if found, nullptr if not found.</returns>
 	std::shared_ptr<spdlog::logger> LogManager::GetLog(StringIntern logName)
 	{
 		EXE_ASSERT(logName.IsValid());
-
-		// TODO: This locking can severely cripple the logging (Main thread!) performance,
-		// and is caused by attempting to get and create logs at the same time.
-		// These locks should be stripped in release mode, and log creation
-		// outside of initialization should be a hard error case (in release builds).
-		
-		m_logLock.lock();
-		auto found = m_logs.find(logName);
-		m_logLock.unlock();
-
-		if (found != m_logs.end())
-			return found->second;
-
-		return nullptr;
+		return spdlog::get(logName.Get().c_str());
 	}
 
 	/// <summary>
@@ -203,8 +222,21 @@ namespace Exelius
 		m_logDefinitions[1]->set_pattern("[%T] [%l] [%n] [%t]: %v");
 	}
 
+	void LogManager::InitializedDefaultLog()
+	{
+		EXE_ASSERT(!m_logDefinitions.empty());
+
+		for (auto sink : m_logDefinitions)
+		{
+			m_defaultLog.sinks().emplace_back(sink);
+		}
+		auto pDefaultLog = std::make_shared<spdlog::logger>(m_defaultLog);
+		RegisterLog(pDefaultLog);
+		SetLogLevel(pDefaultLog, LogLevel::kTrace);
+	}
+
 	/// <summary>
-	/// Register a log. This is purely for spdlog, and is likely an unnecessary step.
+	/// Register a log.
 	/// </summary>
 	/// <param name="pLogToRegister">- The log to register with spdlog.</param>
 	void LogManager::RegisterLog(std::shared_ptr<spdlog::logger> pLogToRegister)
@@ -214,7 +246,7 @@ namespace Exelius
 	}
 
 	/// <summary>
-	/// Unregister a log. This is purely for spdlog, and is likely an unnecessary step.
+	/// Unregister a log.
 	/// </summary>
 	/// <param name="pLogToRegister">- The log to unregister with spdlog.</param>
 	void LogManager::UnregisterLog(StringIntern logName)
@@ -223,7 +255,7 @@ namespace Exelius
 	}
 
 	/// <summary>
-	/// Unregister all logs. This is purely for spdlog, and is likely an unnecessary step.
+	/// Unregister all logs.
 	/// </summary>
 	void LogManager::UnregisterAllLogs()
 	{

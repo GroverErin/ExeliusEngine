@@ -11,7 +11,7 @@ void* operator new(size_t sizeToAllocate, const char* pFileName, int lineNum)
     return pGlobalAllocator->Allocate(sizeToAllocate, pFileName, lineNum);
 }
 
-void operator delete(void* pMemoryToFree, const char* pFileName, int lineNum)
+void operator delete(void* pMemoryToFree)
 {
     auto pMemManager = Exelius::MemoryManager::GetInstance();
     EXE_ASSERT(pMemManager);
@@ -29,7 +29,7 @@ void* operator new[](size_t sizeToAllocate, const char* pFileName, int lineNum)
     return pGlobalAllocator->Allocate(sizeToAllocate, pFileName, lineNum);
 }
 
-void operator delete[](void* pMemoryToFree, const char* pFileName, int lineNum)
+void operator delete[](void* pMemoryToFree)
 {
     auto pMemManager = Exelius::MemoryManager::GetInstance();
     EXE_ASSERT(pMemManager);

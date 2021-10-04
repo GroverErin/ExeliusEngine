@@ -37,7 +37,9 @@ namespace Exelius
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
 	{
-		//
+		MemoryManager::SetSingleton(new MemoryManager());
+		EXE_ASSERT(MemoryManager::GetInstance());
+		MemoryManager::GetInstance()->Initialize(false); // Should be set by the config file.
 	}
 
 	Application::~Application()
@@ -66,9 +68,9 @@ namespace Exelius
 	bool Application::PreInitializeExelius()
 	{
 		// Should be the only call to "new" inside any Exelius code.
-		MemoryManager::SetSingleton(new MemoryManager());
-		EXE_ASSERT(MemoryManager::GetInstance());
-		MemoryManager::GetInstance()->Initialize(false); // Should be set by the config file.
+		//MemoryManager::SetSingleton(new MemoryManager());
+		//EXE_ASSERT(MemoryManager::GetInstance());
+		//MemoryManager::GetInstance()->Initialize(false); // Should be set by the config file.
 
 		LogManager::SetSingleton(new LogManager());
 		EXE_ASSERT(LogManager::GetInstance());

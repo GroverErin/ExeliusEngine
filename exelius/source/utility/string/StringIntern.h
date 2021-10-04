@@ -15,7 +15,6 @@ namespace Exelius
 		// Using a hash set here because it only requires 1 value, not a key value pair.
 		using StringInternSet = eastl::hash_set<eastl::string>;
 
-		// why does not inlining cause build error??
 		inline static StringInternSet s_stringSet = StringInternSet();
 		const eastl::string* m_pString;
 

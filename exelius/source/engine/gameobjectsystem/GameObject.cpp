@@ -83,7 +83,6 @@ namespace Exelius
 
 		for (auto& componentPair : m_components)
 		{
-			EXE_ASSERT(componentPair.first.IsValid());
 			EXE_ASSERT(componentPair.second.IsValid());
 
 			pGameObjectSystem->ReleaseComponent(componentPair.first, componentPair.second);
@@ -156,11 +155,11 @@ namespace Exelius
 		// For each Component in the Components List.
 		for (auto componentMember = componentArrayValue.MemberBegin(); componentMember != componentArrayValue.MemberEnd(); ++componentMember)
 		{
-			Handle newComponentHandle = pGameObjectSystem->CreateComponentFromFactory(componentMember->name.GetString(), this, componentMember->value);
+			Handle newComponentHandle = pGameObjectSystem->CreateComponentFromFactory(StringHash::HashString32(componentMember->name.GetString()), this, componentMember->value);
 			if (!newComponentHandle.IsValid())
 				continue;
 
-			m_components.try_emplace(componentMember->name.GetString(), newComponentHandle);
+			m_components.try_emplace(StringHash::HashString32(componentMember->name.GetString()), newComponentHandle);
 		}
 	}
 }

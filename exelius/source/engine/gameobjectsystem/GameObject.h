@@ -136,8 +136,6 @@ namespace Exelius
         template <class ComponentType>
         ComponentHandle<ComponentType> GetComponent()
         {
-            EXE_ASSERT(ComponentType::kType.IsValid());
-
             auto found = m_components.find(ComponentType::kType);
 
             // Component was not found, return invalid ComponentHandle.

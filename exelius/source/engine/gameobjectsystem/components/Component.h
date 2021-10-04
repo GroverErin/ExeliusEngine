@@ -1,5 +1,6 @@
 #pragma once
 #include "source/utility/string/StringIntern.h"
+#include "source/utility/string/StringHash.h"
 #include "source/debug/Log.h"
 
 #include <rapidjson/document.h>
@@ -26,7 +27,7 @@ namespace Exelius
 	/// 
 	/// TODO: Make this not required?
 	/// </summary>
-	#define DEFINE_COMPONENT(COMPONENTTYPE) public: inline static const Type kType = #COMPONENTTYPE
+	#define DEFINE_COMPONENT(COMPONENTTYPE) public: inline static const Type kType = StringHash::HashString32(#COMPONENTTYPE)
 
 	class GameObject;
 
@@ -36,12 +37,12 @@ namespace Exelius
 		/// <summary>
 		/// The Component Type. Is a StringIntern.
 		/// </summary>
-		using Type = StringIntern;
+		using Type = uint32_t;
 
 		/// <summary>
 		/// Invalid definition of Type. Currently Unused. TODO: Can I remove this?
 		/// </summary>
-		inline static const Type kInvalidType = "InvalidComponent";
+		inline static const Type kInvalidType = StringHash::HashString32("InvalidComponent");
 
 	protected:
 		/// <summary>

@@ -7,7 +7,7 @@
 	#endif
 #endif
 
-#define EXELIUS_USE_EASTL_ALLOCATOR
+//#define EXELIUS_USE_EASTL_ALLOCATOR
 #include <source/os/memory/MemoryOverloads.h>
 
 #ifndef EXELIUS_USE_EASTL_ALLOCATOR

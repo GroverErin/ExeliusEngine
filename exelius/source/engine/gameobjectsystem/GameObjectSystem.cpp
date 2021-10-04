@@ -248,7 +248,6 @@ namespace Exelius
 	Handle GameObjectSystem::CreateComponentFromFactory(const Component::Type& componentType, GameObject* pOwningObject, const rapidjson::Value& componentData)
 	{
 		EXE_ASSERT(m_pComponentFactory);
-		EXE_ASSERT(componentType.IsValid());
 
 		if (!pOwningObject)
 		{
@@ -269,7 +268,6 @@ namespace Exelius
 	/// <param name="handle">The handle to that component in the ComponentList of it's type.</param>
 	void GameObjectSystem::ReleaseComponent(const Component::Type& componentType, Handle handle)
 	{
-		EXE_ASSERT(componentType.IsValid());
 		EXE_ASSERT(handle.IsValid());
 
 		// Look for the component with the type specified.

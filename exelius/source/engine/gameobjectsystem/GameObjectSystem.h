@@ -203,7 +203,6 @@ namespace Exelius
 		template <class ComponentType>
 		Handle CreateComponent(GameObject* pOwningObject)
 		{
-			EXE_ASSERT(ComponentType::kType.IsValid());
 			Log log("GameObjectSystem");
 
 			// Check if the map contains this componenttype as a key value pair.
@@ -211,7 +210,7 @@ namespace Exelius
 
 			if (itr == m_componentLists.end())
 			{
-				log.Warn("Component '{}' creation failed: No ComponentList defined.", ComponentType::kType.Get().c_str());
+				log.Warn("Component '{}' creation failed: No ComponentList defined.", ComponentType::kType);
 				return {}; // Invalid.
 			}
 
@@ -232,7 +231,6 @@ namespace Exelius
 		template <class ComponentType>
 		ComponentType& GetComponent(Handle internalHandle)
 		{
-			EXE_ASSERT(ComponentType::kType.IsValid());
 			EXE_ASSERT(internalHandle.IsValid());
 
 			// Look for the component with the type specified.
@@ -258,8 +256,6 @@ namespace Exelius
 		template <class ComponentType>
 		bool IsValidComponent(Handle internalHandle)
 		{
-			EXE_ASSERT(ComponentType::kType.IsValid());
-
 			if (!internalHandle.IsValid())
 				return false;
 
@@ -301,9 +297,6 @@ namespace Exelius
 		template <class ComponentType>
 		void RegisterComponent(const Component::Type& componentType, bool isUpdated = false, bool isRendered = false)
 		{
-			// ALL of the MUST be true.
-			EXE_ASSERT(ComponentType::kType.IsValid());
-			EXE_ASSERT(componentType.IsValid());
 			EXE_ASSERT(componentType == ComponentType::kType);
 			Log log("GameObjectSystem");
 
@@ -315,7 +308,7 @@ namespace Exelius
 			}
 			else
 			{
-				log.Warn("ComponentList of type '{}' is already registered.", componentType.Get().c_str());
+				log.Warn("ComponentList of type '{}' is already registered.", componentType);
 			}
 		}
 	private:

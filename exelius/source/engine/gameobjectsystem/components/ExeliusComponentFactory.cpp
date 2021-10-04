@@ -34,9 +34,6 @@ namespace Exelius
 	{
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
 		EXE_ASSERT(pGameObjectSystem);
-		EXE_ASSERT(componentName.IsValid());
-
-		m_gameObjectSystemLog.Trace("Attempting to create Component: {}", componentName.Get().c_str());
 
 		Handle newHandle;
 		bool initSucceeded = false;
@@ -47,7 +44,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				m_gameObjectSystemLog.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				m_gameObjectSystemLog.Error("TransformComponent failed to be created.");
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -61,7 +58,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				m_gameObjectSystemLog.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				m_gameObjectSystemLog.Error("SpriteComponent failed to be created.");
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -75,7 +72,7 @@ namespace Exelius
 
 			if (!newHandle.IsValid())
 			{
-				m_gameObjectSystemLog.Error("{}: Component failed to be created.", componentName.Get().c_str());
+				m_gameObjectSystemLog.Error("UIComponent failed to be created.");
 				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 				return {}; // Invalid.
 			}
@@ -86,7 +83,7 @@ namespace Exelius
 
 		if (!initSucceeded)
 		{
-			m_gameObjectSystemLog.Error("{}: Component failed to initialize.", componentName.Get().c_str());
+			m_gameObjectSystemLog.Error("Component failed to initialize.");
 			pGameObjectSystem->ReleaseComponent(componentName, newHandle);
 			return {}; // Invalid.
 		}

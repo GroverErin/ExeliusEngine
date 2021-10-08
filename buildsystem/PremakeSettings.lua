@@ -72,6 +72,12 @@ function exeliusDefaultSettings.SetGlobalProjectDefaultSettings()
         defines("EXE_RELEASE")
         staticruntime("On")
 
+    filter {"system:windows"}
+        defines("EXE_WINDOWS")
+
+    filter {"system:linux"}
+        defines("EXE_LINUX")
+
     -- Reset Filters
     filter {}
 end

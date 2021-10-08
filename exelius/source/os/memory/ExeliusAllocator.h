@@ -8,8 +8,10 @@ namespace Exelius
 	class ExeliusAllocator
 	{
 	public:
-		virtual void* Allocate(size_t sizeToAllocate, const char* pFileName, int lineNum) = 0;
-		virtual void Free(void* pMemoryToFree, size_t sizeToFree = 0) = 0;
+		virtual ~ExeliusAllocator() = default;
+
+		virtual void* Allocate(size_t sizeToAllocate, size_t memoryAlignment = 16, const char* pFileName = nullptr, int lineNum = -1) = 0;
+		virtual void Free(void* pMemoryToFree, size_t sizeToFree = 0, bool isAligned = false) = 0;
 
 		virtual void DumpMemoryData() {};
 	};

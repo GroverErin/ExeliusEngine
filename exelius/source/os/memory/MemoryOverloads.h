@@ -1,4 +1,5 @@
 #pragma once
+#include <new>
 
 /// <summary>
 /// Global new overload. Prefer macro EXELIUS_NEW.
@@ -10,12 +11,6 @@
 void* operator new(size_t sizeToAllocate, const char* pFileName, int lineNum);
 
 /// <summary>
-/// Global delete overload. Prefer macro EXELIUS_DELETE.
-/// </summary>
-/// <param name="pMemoryToFree">- The memory to free.</param>
-void operator delete(void* pMemoryToFree);
-
-/// <summary>
 /// Global new[] overload. Prefer macro EXELIUS_NEW_ARRAY.
 /// </summary>
 /// <param name="sizeToAllocate">- The size in bytes of memory to allocate.</param>
@@ -25,10 +20,61 @@ void operator delete(void* pMemoryToFree);
 void* operator new[](size_t sizeToAllocate, const char* pFileName, int lineNum);
 
 /// <summary>
+/// Global new overload, with alignment. Prefer macro EXELIUS_NEW.
+/// </summary>
+/// <param name="sizeToAllocate">- The size in bytes of memory to allocate.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+/// <returns>The allocated memory.</returns>
+void* operator new(size_t sizeToAllocate, std::align_val_t memoryAlignment, const char* pFileName, int lineNum);
+
+/// <summary>
+/// Global new[] overload, with alignment. Prefer macro EXELIUS_NEW_ARRAY.
+/// </summary>
+/// <param name="sizeToAllocate">- The size in bytes of memory to allocate.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+/// <returns>The allocated memory.</returns>
+void* operator new[](size_t sizeToAllocate, std::align_val_t memoryAlignment, const char* pFileName, int lineNum);
+
+/// <summary>
+/// Global new overload, with alignment. Prefer macro EXELIUS_NEW.
+/// </summary>
+/// <param name="sizeToAllocate">- The size in bytes of memory to allocate.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+/// <returns>The allocated memory.</returns>
+void* operator new(size_t sizeToAllocate, size_t memoryAlignment, const char* pFileName, int lineNum);
+
+/// <summary>
+/// Global new[] overload, with alignment. Prefer macro EXELIUS_NEW_ARRAY.
+/// </summary>
+/// <param name="sizeToAllocate">- The size in bytes of memory to allocate.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+/// <returns>The allocated memory.</returns>
+void* operator new[](size_t sizeToAllocate, size_t memoryAlignment, const char* pFileName, int lineNum);
+
+
+/// <summary>
+/// Global delete overload. Prefer macro EXELIUS_DELETE.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+void operator delete(void* pMemoryToFree);
+
+/// <summary>
 /// Global delete[] overload. Prefer macro EXELIUS_DELETE_ARRAY.
 /// </summary>
 /// <param name="pMemoryToFree">- The memory to free.</param>
 void operator delete[](void* pMemoryToFree);
+
+
+
+
 
 #ifdef EXE_DEBUG
 	#define EXELIUS_NEW(object) new(__FILE__, __LINE__) object

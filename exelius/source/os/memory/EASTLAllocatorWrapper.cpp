@@ -11,27 +11,30 @@ namespace Exelius
 	{
 	}
 
-	void* EASTLAllocatorWrapper::allocate(size_t n, int)
+	void* EASTLAllocatorWrapper::allocate(size_t n, int /* flags = 0 */)
 	{
-		EXE_ASSERT(MemoryManager::GetInstance());
-		auto pAllocator = MemoryManager::GetInstance()->GetGlobalAllocator();
-		EXE_ASSERT(pAllocator);
-		return pAllocator->Allocate(n, m_pName, -1);
+		auto pMemManager = Exelius::MemoryManager::GetInstance();
+		EXE_ASSERT(pMemManager);
+		auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+		EXE_ASSERT(pGlobalAllocator);
+		return pGlobalAllocator->Allocate(n, 16, m_pName, -1);
 	}
 
-	void* EASTLAllocatorWrapper::allocate(size_t n, size_t, size_t, int)
+	void* EASTLAllocatorWrapper::allocate(size_t n, size_t alignment, size_t /* offset */, int /* flags = 0 */)
 	{
-		EXE_ASSERT(MemoryManager::GetInstance());
-		auto pAllocator = MemoryManager::GetInstance()->GetGlobalAllocator();
-		EXE_ASSERT(pAllocator);
-		return pAllocator->Allocate(n, m_pName, -1);
+		auto pMemManager = Exelius::MemoryManager::GetInstance();
+		EXE_ASSERT(pMemManager);
+		auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+		EXE_ASSERT(pGlobalAllocator);
+		return pGlobalAllocator->Allocate(n, alignment, m_pName, -1);
 	}
 
 	void EASTLAllocatorWrapper::deallocate(void* p, size_t n)
 	{
-		EXE_ASSERT(MemoryManager::GetInstance());
-		auto pAllocator = MemoryManager::GetInstance()->GetGlobalAllocator();
-		EXE_ASSERT(pAllocator);
-		pAllocator->Free(p, n);
+		auto pMemManager = Exelius::MemoryManager::GetInstance();
+		EXE_ASSERT(pMemManager);
+		auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+		EXE_ASSERT(pGlobalAllocator);
+		pGlobalAllocator->Free(p, n);
 	}
 }

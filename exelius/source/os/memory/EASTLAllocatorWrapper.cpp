@@ -17,7 +17,7 @@ namespace Exelius
 		EXE_ASSERT(pMemManager);
 		auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
 		EXE_ASSERT(pGlobalAllocator);
-		return pGlobalAllocator->Allocate(n, 16, m_pName, -1);
+		return pGlobalAllocator->Allocate(n, 16, m_pName, 0);
 	}
 
 	void* EASTLAllocatorWrapper::allocate(size_t n, size_t alignment, size_t /* offset */, int /* flags = 0 */)
@@ -26,15 +26,22 @@ namespace Exelius
 		EXE_ASSERT(pMemManager);
 		auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
 		EXE_ASSERT(pGlobalAllocator);
-		return pGlobalAllocator->Allocate(n, alignment, m_pName, -1);
+		return pGlobalAllocator->Allocate(n, alignment, m_pName, 0);
 	}
 
 	void EASTLAllocatorWrapper::deallocate(void* p, size_t n)
 	{
+		if (!p)
+			return;
+
 		auto pMemManager = Exelius::MemoryManager::GetInstance();
-		EXE_ASSERT(pMemManager);
+		if (!pMemManager)
+			return free(p); // Triggers on Application Delete.
+
 		auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
-		EXE_ASSERT(pGlobalAllocator);
+		if (!pGlobalAllocator)
+			return free(p); // Should never trigger... *shrug*
+
 		pGlobalAllocator->Free(p, n);
 	}
 }

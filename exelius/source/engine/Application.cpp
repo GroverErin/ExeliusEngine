@@ -19,6 +19,25 @@
 
 #include "source/utility/generic/Time.h"
 
+
+
+// TEST
+#include "source/os/memory/PoolAllocator.h"
+
+
+class PoolTester;
+inline static Exelius::PoolAllocator<sizeof(PoolTester), 4096> m_pool;
+
+class PoolTester
+{
+	int testInt;
+public:
+	PoolTester() : testInt(0) { }
+	void* operator new(size_t size) { void* p = m_pool.Allocate(size, 0, "PoolTester", 0); return p; }
+private:
+};
+
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -37,9 +56,7 @@ namespace Exelius
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
 	{
-		MemoryManager::SetSingleton(new MemoryManager());
-		EXE_ASSERT(MemoryManager::GetInstance());
-		MemoryManager::GetInstance()->Initialize(false); // Should be set by the config file.
+		//
 	}
 
 	Application::~Application()
@@ -57,22 +74,23 @@ namespace Exelius
 
 		ResourceLoader::DestroySingleton();
 
+		EXELIUS_DELETE(m_pApplicationLog);
+
 		MemoryManager::GetInstance()->GetGlobalAllocator()->DumpMemoryData();
 
 		LogManager::DestroySingleton();
 
-		// TODO: How bad is this?
-		// NOTE: we never destroy the memory manager, we let the program do that.
+		MemoryManager::DestroySingleton();
 	}
 
 	bool Application::PreInitializeExelius()
 	{
 		// Should be the only call to "new" inside any Exelius code.
-		//MemoryManager::SetSingleton(new MemoryManager());
-		//EXE_ASSERT(MemoryManager::GetInstance());
-		//MemoryManager::GetInstance()->Initialize(false); // Should be set by the config file.
+		MemoryManager::SetSingleton(new MemoryManager());
+		EXE_ASSERT(MemoryManager::GetInstance());
+		MemoryManager::GetInstance()->Initialize(true);
 
-		LogManager::SetSingleton(new LogManager());
+		LogManager::SetSingleton(EXELIUS_NEW(LogManager()));
 		EXE_ASSERT(LogManager::GetInstance());
 		if (!LogManager::GetInstance()->PreInitialize())
 		{
@@ -94,6 +112,8 @@ namespace Exelius
 		// Config File - Open & Parse
 		//-----------------------------------------------
 		
+		PoolTester* pTest = new PoolTester();
+
 		// Read in the config file. This uses the logging system,
 		// which is why the PreInit exists for the LoggingManager.
 		ConfigFile configFile;

@@ -117,9 +117,12 @@ namespace Exelius
 		{
 			if (entry.memoryAddress != 0)
 			{
+				if (entry.memoryAddress == reinterpret_cast<uintptr_t>(m_pMemoryLog))
+					continue; // We know that this memory gets cleaned, so we just ignore it.
+
 				if (entry.pAllocationFile)
 				{
-					m_pMemoryLog->Info("Leak Detected: {:x}, {}, {}, {}", entry.memoryAddress, entry.allocationSize, entry.pAllocationFile, entry.lineNumber);
+					m_pMemoryLog->Error("Leak Detected: Address: {:x}, Size (bytes): {}, Filename: {}, Line Number: {}", entry.memoryAddress, entry.allocationSize, entry.pAllocationFile, entry.lineNumber);
 				}
 			}
 		}

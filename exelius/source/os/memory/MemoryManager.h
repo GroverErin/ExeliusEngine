@@ -21,9 +21,9 @@ namespace Exelius
 			m_traceAllocator.SetParentAllocator(&m_systemAllocator);
 
 			if (useTraceAllocator)
-				m_pGlobalAllocator = &m_systemAllocator;
-			else
 				m_pGlobalAllocator = &m_traceAllocator;
+			else
+				m_pGlobalAllocator = &m_systemAllocator;
 		}
 
 		ExeliusAllocator* GetGlobalAllocator() { return m_pGlobalAllocator; }

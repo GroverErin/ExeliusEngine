@@ -59,7 +59,6 @@ void* operator new(size_t sizeToAllocate, size_t memoryAlignment, const char* pF
 /// <returns>The allocated memory.</returns>
 void* operator new[](size_t sizeToAllocate, size_t memoryAlignment, const char* pFileName, int lineNum);
 
-
 /// <summary>
 /// Global delete overload. Prefer macro EXELIUS_DELETE.
 /// </summary>
@@ -72,15 +71,67 @@ void operator delete(void* pMemoryToFree);
 /// <param name="pMemoryToFree">- The memory to free.</param>
 void operator delete[](void* pMemoryToFree);
 
+/// <summary>
+/// Placement Delete Override. Called by the comiler if stack unwiding on exception
+/// is enabled and a constructor throws during the matching operator new call.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+void operator delete(void* pMemoryToFree, const char* pFileName, int lineNum);
 
+/// <summary>
+/// Placement Delete Override. Called by the comiler if stack unwiding on exception
+/// is enabled and a constructor throws during the matching operator new call.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+void operator delete[](void* pMemoryToFree, const char* pFileName, int lineNum);
 
+/// <summary>
+/// Placement Delete Override. Called by the comiler if stack unwiding on exception
+/// is enabled and a constructor throws during the matching operator new call.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+void operator delete(void* pMemoryToFree, std::align_val_t memoryAlignment, const char* pFileName, int lineNum);
 
+/// <summary>
+/// Placement Delete Override. Called by the comiler if stack unwiding on exception
+/// is enabled and a constructor throws during the matching operator new call.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+void operator delete[](void* pMemoryToFree, std::align_val_t memoryAlignment, const char* pFileName, int lineNum);
+
+/// <summary>
+/// Placement Delete Override. Called by the comiler if stack unwiding on exception
+/// is enabled and a constructor throws during the matching operator new call.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+void operator delete(void* pMemoryToFree, size_t memoryAlignment, const char* pFileName, int lineNum);
+
+/// <summary>
+/// Placement Delete Override. Called by the comiler if stack unwiding on exception
+/// is enabled and a constructor throws during the matching operator new call.
+/// </summary>
+/// <param name="pMemoryToFree">- The memory to free.</param>
+/// <param name="memoryAlignment">- The memory alignment for this allocation.</param>
+/// <param name="pFileName">- The name of the file this allocation was made in.</param>
+/// <param name="lineNum">- The line number of this allocation call.</param>
+void operator delete[](void* pMemoryToFree, size_t memoryAlignment, const char* pFileName, int lineNum);
 
 #ifdef EXE_DEBUG
 	#define EXELIUS_NEW(object) new(__FILE__, __LINE__) object
 	#define EXELIUS_NEW_ARRAY(object, size) new(__FILE__, __LINE__) object[size]
-	//#define EXELIUS_DELETE(objectPointer) operator delete(objectPointer, __FILE__, __LINE__)
-	//#define EXELIUS_DELETE_ARRAY(objectPointer) operator delete[](objectPointer, __FILE__, __LINE__)
 	#define EXELIUS_DELETE(objectPointer) delete objectPointer
 	#define EXELIUS_DELETE_ARRAY(objectPointer) delete[] objectPointer
 #else // !EXE_DEBUG

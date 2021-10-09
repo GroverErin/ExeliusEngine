@@ -11,7 +11,7 @@ namespace Exelius
 	class TraceAllocator
 		: public ExeliusAllocator
 	{
-		static constexpr uint32_t s_kMaxTrackedAllocationCount = 4098;
+		static constexpr uint32_t s_kMaxTrackedAllocationCount = 4096;
 		ExeliusAllocator* m_pParentAllocator;
 		Log* m_pMemoryLog;
 

@@ -58,18 +58,128 @@ void* operator new[](size_t sizeToAllocate, size_t memoryAlignment, const char* 
 
 void operator delete(void* pMemoryToFree)
 {
+    if (!pMemoryToFree)
+        return;
+
     auto pMemManager = Exelius::MemoryManager::GetInstance();
-    EXE_ASSERT(pMemManager);
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
     auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
-    EXE_ASSERT(pGlobalAllocator);
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
     pGlobalAllocator->Free(pMemoryToFree);
 }
 
 void operator delete[](void* pMemoryToFree)
 {
+    if (!pMemoryToFree)
+        return;
+
     auto pMemManager = Exelius::MemoryManager::GetInstance();
-    EXE_ASSERT(pMemManager);
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
     auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
-    EXE_ASSERT(pGlobalAllocator);
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
+    pGlobalAllocator->Free(pMemoryToFree);
+}
+
+void operator delete(void* pMemoryToFree, const char*, int)
+{
+    if (!pMemoryToFree)
+        return;
+
+    auto pMemManager = Exelius::MemoryManager::GetInstance();
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
+    auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
+    pGlobalAllocator->Free(pMemoryToFree);
+}
+
+void operator delete[](void* pMemoryToFree, const char*, int)
+{
+    if (!pMemoryToFree)
+        return;
+
+    auto pMemManager = Exelius::MemoryManager::GetInstance();
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
+    auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
+    pGlobalAllocator->Free(pMemoryToFree);
+}
+
+void operator delete(void* pMemoryToFree, std::align_val_t, const char*, int)
+{
+    if (!pMemoryToFree)
+        return;
+
+    auto pMemManager = Exelius::MemoryManager::GetInstance();
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
+    auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
+    pGlobalAllocator->Free(pMemoryToFree);
+}
+
+void operator delete[](void* pMemoryToFree, std::align_val_t, const char*, int)
+{
+    if (!pMemoryToFree)
+        return;
+
+    auto pMemManager = Exelius::MemoryManager::GetInstance();
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
+    auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
+    pGlobalAllocator->Free(pMemoryToFree);
+}
+
+void operator delete(void* pMemoryToFree, size_t, const char*, int)
+{
+    if (!pMemoryToFree)
+        return;
+
+    auto pMemManager = Exelius::MemoryManager::GetInstance();
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
+    auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
+    pGlobalAllocator->Free(pMemoryToFree);
+}
+
+void operator delete[](void* pMemoryToFree, size_t, const char*, int)
+{
+    if (!pMemoryToFree)
+        return;
+
+    auto pMemManager = Exelius::MemoryManager::GetInstance();
+    if (!pMemManager)
+        return free(pMemoryToFree); // Triggers on Application Delete.
+
+    auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+    if (!pGlobalAllocator)
+        return free(pMemoryToFree); // Should never trigger... *shrug*
+
     pGlobalAllocator->Free(pMemoryToFree);
 }

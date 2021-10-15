@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/GroverErin/ExeliusEngine/blob/main/Tools/Images/Exelius_Engine.png?raw=true" alt="Exelius Engine Logo"/>
+  <img src="https://github.com/GroverErin/ExeliusEngine/blob/main/tools/images/Exelius_Engine.png?raw=true" alt="Exelius Engine Logo"/>
 </p>
 
 # Exelius Engine - A Simple Multiplatform 2D Game Engine

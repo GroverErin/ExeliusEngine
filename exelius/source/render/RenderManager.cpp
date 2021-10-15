@@ -11,6 +11,7 @@
 #include <EASTL/numeric_limits.h>
 #include <EASTL/sort.h>
 
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -22,21 +23,23 @@ namespace Exelius
 		if (m_zOrder != command.m_zOrder)
 			return (m_zOrder < command.m_zOrder);
 
-		float leftLowestY = m_position.y + (m_spriteFrame.m_width * m_scaleFactor.y);
-		float rightLowestY = command.m_position.y + (command.m_spriteFrame.m_width * command.m_scaleFactor.y);
+		float leftLowestY = m_destinationFrame.y + m_destinationFrame.h;
+		float rightLowestY = command.m_destinationFrame.y + command.m_destinationFrame.h;
 
 		// Sort By Bottom of Sprite y + h
 		if (leftLowestY != rightLowestY)
 			return (leftLowestY < rightLowestY);
 
 		// sort by x
-		return (m_position.x < command.m_position.x);
+		return (m_destinationFrame.x < command.m_destinationFrame.x);
 	}
 
 	RenderManager::RenderManager()
 		: m_renderManagerLog("RenderManager")
+		#if !FORCE_SINGLE_THREADED_RENDERER
 		, m_quitThread(false)
 		, m_framesBehind(0)
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 		, m_pWindow(nullptr)
 	{
 		//
@@ -46,16 +49,24 @@ namespace Exelius
 	{
 		m_advancedBuffer.clear();
 
-		m_intermediateBufferMutex.lock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBufferMutex.lock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 		m_intermediateBuffer.clear();
-		m_intermediateBufferMutex.unlock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBufferMutex.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 
-		// Tell the thread we are done.
-		m_quitThread = true;
-		SignalAndWaitForRenderThread();
-		m_renderThread.join();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			// Tell the thread we are done.
+			m_quitThread = true;
+			SignalAndWaitForRenderThread();
+			m_renderThread.join();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 
+		#if !FORCE_SINGLE_THREADED_RENDERER
 		m_pWindow->SetActive(true);
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 
 		delete m_pWindow;
 		m_pWindow = nullptr;
@@ -65,18 +76,26 @@ namespace Exelius
 	{
 		m_advancedBuffer.clear();
 
-		m_intermediateBufferMutex.lock();
-		m_intermediateBuffer.clear();
-		m_intermediateBufferMutex.unlock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBufferMutex.lock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBuffer.clear();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBufferMutex.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 
 		EXE_ASSERT(!m_pWindow);
 		m_pWindow = new Window(title, windowSize);
 		EXE_ASSERT(m_pWindow);
 		m_pWindow->SetVSync(isVsyncEnabled);
-		m_pWindow->SetActive(false);
 
-		m_renderThread = std::thread(&RenderManager::RenderThread, this);
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_pWindow->SetActive(false);
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_renderThread = std::thread(&RenderManager::RenderThread, this);
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 		return true;
 	}
 
@@ -93,25 +112,30 @@ namespace Exelius
 
 	void RenderManager::EndRenderFrame()
 	{
-		if (!m_advancedBuffer.empty())
-		{
-			SwapRenderCommandBuffer(m_advancedBuffer);
-			++m_framesBehind;
-			m_advancedBuffer.clear();
-		}
 
-		if (m_framesBehind > s_kMaxFramesBehind)
-		{
-			// wait for render thread.
-			SignalAndWaitForRenderThread();
-		}
-		else
-		{
-			m_signalThread.notify_one();
-		}
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			if (!m_advancedBuffer.empty())
+			{
+				SwapRenderCommandBuffer(m_advancedBuffer);
+				++m_framesBehind;
+				m_advancedBuffer.clear();
+			}
 
-		EXE_ASSERT(m_framesBehind <= s_kMaxFramesBehind);
-		EXE_ASSERT(m_renderThread.joinable());
+			if (m_framesBehind > s_kMaxFramesBehind)
+			{
+				// wait for render thread.
+				SignalAndWaitForRenderThread();
+			}
+			else
+			{
+				m_signalThread.notify_one();
+			}
+
+			EXE_ASSERT(m_framesBehind <= s_kMaxFramesBehind);
+			EXE_ASSERT(m_renderThread.joinable());
+		#else
+			RenderThread();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 	}
 
 	Window* RenderManager::GetWindow()
@@ -125,13 +149,18 @@ namespace Exelius
 		// TODO:
 		// Check if this view already exists?
 		// Maybe not necessary, as it should replace any existing view.
-		m_viewListLock.lock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_viewListLock.lock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 		m_views.emplace_back(viewID, view);
-		m_viewListLock.unlock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_viewListLock.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 	}
 
 	void RenderManager::RenderThread()
 	{
+		#if !FORCE_SINGLE_THREADED_RENDERER
 		m_renderManagerLog.Info("Instantiating Render Thread.");
 		eastl::vector<RenderCommand> backBuffer;
 
@@ -192,6 +221,22 @@ namespace Exelius
 		// Let the main thread know we are fully exiting in case they are waiting.
 		m_renderManagerLog.Info("Signaled Main Thread: Render Thread Terminating.");
 		m_signalThread.notify_one();
+		#else
+		SortRenderCommands(m_advancedBuffer);
+
+		// Render Clear
+		m_pWindow->Clear();
+
+		if (m_views.empty())
+			DrawToWindow(m_advancedBuffer);
+		else
+			DrawToViews(m_advancedBuffer);
+
+		m_advancedBuffer.clear();
+
+		// Render Display
+		m_pWindow->Render();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 	}
 
 	void RenderManager::DrawToWindow(const eastl::vector<RenderCommand>& backBuffer)
@@ -203,7 +248,7 @@ namespace Exelius
 		//	We could set this to the max possible size,
 		//	meaning we would only allocate memory once.
 		//	Further, we could get the highest number of
-		//	"Like" textures and use that as max size.		
+		//	"Like" textures and use that as max size.
 		VertexArray vertices;
 
 		ResourceID currentTexture = backBuffer.front().m_texture;
@@ -220,14 +265,16 @@ namespace Exelius
 				ResourceHandle texture(currentTexture);
 				auto* pTextureResource = texture.GetAs<TextureResource>();
 
-				if (!pTextureResource)
+				if (pTextureResource)
 				{
-					m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
-					continue;
+					// Render current vertex buffer
+					m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
 				}
-
-				// Render current vertex buffer
-				m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+				else
+				{
+					// Render current vertex buffer
+					m_pWindow->Draw(vertices);
+				}
 
 				// Clear Vertex Buffer
 				vertices.Clear();
@@ -249,17 +296,16 @@ namespace Exelius
 			ResourceHandle texture(currentTexture);
 			auto* pTextureResource = texture.GetAs<TextureResource>();
 
-			if (!pTextureResource)
+			if (pTextureResource)
 			{
-				if (!currentTexture.IsValid())
-					return;
-
-				m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
-				return;
+				// Render current vertex buffer
+				m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
 			}
-
-			// Render current vertex buffer
-			m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+			else
+			{
+				// Render current vertex buffer
+				m_pWindow->Draw(vertices);
+			}
 
 			// Clear Vertex Buffer
 			vertices.Clear();
@@ -301,14 +347,16 @@ namespace Exelius
 					ResourceHandle texture(currentTexture);
 					auto* pTextureResource = texture.GetAs<TextureResource>();
 
-					if (!pTextureResource)
+					if (pTextureResource)
 					{
-						m_renderManagerLog.Warn("Attempting to render nullptr texture: {}", currentTexture.Get().c_str());
-						continue;
+						// Render current vertex buffer
+						m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
 					}
-
-					// Render current vertex buffer
-					m_pWindow->Draw(vertices, *pTextureResource->GetTexture());
+					else
+					{
+						// Render current vertex buffer
+						m_pWindow->Draw(vertices);
+					}
 
 					// Clear Vertex Buffer
 					vertices.Clear();
@@ -344,9 +392,13 @@ namespace Exelius
 
 	void RenderManager::SwapRenderCommandBuffer(eastl::vector<RenderCommand>& bufferToSwap)
 	{
-		m_intermediateBufferMutex.lock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBufferMutex.lock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 		bufferToSwap.swap(m_intermediateBuffer);
-		m_intermediateBufferMutex.unlock();
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			m_intermediateBufferMutex.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 	}
 
 	void RenderManager::SortRenderCommands(eastl::vector<RenderCommand>& bufferToSort)
@@ -364,7 +416,7 @@ namespace Exelius
 					return (left.m_texture < right.m_texture);
 
 				// Sort By Shader
-				return (left.m_shader < right.m_shader); // TODO: This may be a bug if m_shader is not set?
+				return (1 < 0); // TODO: This may be a bug if m_shader is not set?
 			});
 	}
 
@@ -372,11 +424,7 @@ namespace Exelius
 	{
 		// TODO:
 			//	Crappy Conversion.
-		Vector2f tempVect;
-		tempVect.x = command.m_spriteFrame.GetSize().x * command.m_scaleFactor.x;
-		tempVect.y = command.m_spriteFrame.GetSize().y * command.m_scaleFactor.y;
-
-		IRectangle rectToDraw(static_cast<Vector2i>(command.m_position), static_cast<Vector2i>(tempVect));
+		IRectangle rectToDraw((int)command.m_destinationFrame.x, (int)command.m_destinationFrame.y, (int)command.m_destinationFrame.w, (int)command.m_destinationFrame.h);
 		if (!viewBounds.Intersects(rectToDraw))
 			return false;
 
@@ -424,20 +472,21 @@ namespace Exelius
 		Vector2f uvBottomLeft(command.m_sourceFrame.m_left, command.m_sourceFrame.m_top + command.m_sourceFrame.m_height);
 
 		// TOP LEFT
-		vertexArray.Append(Vertex(posTopLeft, uvTopLeft));
+		vertexArray.Append(Vertex(posTopLeft, command.m_tint, uvTopLeft));
 
 		// TOP RIGHT
-		vertexArray.Append(Vertex(posTopRight, uvTopRight));
+		vertexArray.Append(Vertex(posTopRight, command.m_tint, uvTopRight));
 
 		// BOTTOM RIGHT
-		vertexArray.Append(Vertex(posBottomRight, uvBottomRight));
+		vertexArray.Append(Vertex(posBottomRight, command.m_tint, uvBottomRight));
 
 		// BOTTOM LEFT
-		vertexArray.Append(Vertex(posBottomLeft, uvBottomLeft));
+		vertexArray.Append(Vertex(posBottomLeft, command.m_tint, uvBottomLeft));
 	}
 
 	void RenderManager::SignalAndWaitForRenderThread()
 	{
+		#if !FORCE_SINGLE_THREADED_RENDERER
 		EXE_ASSERT(m_renderThread.joinable());
 		m_signalThread.notify_one();
 
@@ -448,5 +497,6 @@ namespace Exelius
 			});
 
 		waitLock.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
 	}
 }

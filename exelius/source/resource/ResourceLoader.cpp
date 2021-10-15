@@ -19,8 +19,10 @@ namespace Exelius
 	ResourceLoader::ResourceLoader()
 		: m_resourceLoaderLog("ResourceLoader")
 		, m_pResourceFactory(nullptr)
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		, m_quitThread(false)
 		, m_successfulThreadShutdown(false)
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		, m_engineResourcePath("Invalid Engine Resource Path.")
 		, m_useRawAssets(false)
 	{
@@ -34,19 +36,29 @@ namespace Exelius
 	ResourceLoader::~ResourceLoader()
 	{
 		// Remove resources to be loaded.
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredQueueLock.lock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredQueue.clear();
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredQueueLock.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
 		// Remove listeners waiting on resources.
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_listenerMapLock.lock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredResourceListenersMap.clear();
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_listenerMapLock.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
 		// Tell the thread we are done.
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_quitThread = true;
 		SignalAndWaitForLoaderThread();
 		m_loaderThread.join();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
 		// Unload any assets that were added to this queue during
 		// engine shutdown processes.
@@ -86,16 +98,26 @@ namespace Exelius
 		m_useRawAssets = useRawAssets;
 
 		// Should not contain data, but just in case.
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredQueueLock.lock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredQueue.clear();
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredQueueLock.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_listenerMapLock.lock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_deferredResourceListenersMap.clear();
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_listenerMapLock.unlock();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		// Spin up the loader thread.
 		m_loaderThread = std::thread(&ResourceLoader::ProcessResourceQueue, this);
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
 		return true;
 	}
@@ -139,6 +161,7 @@ namespace Exelius
 	void ResourceLoader::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		EXE_ASSERT(m_loaderThread.joinable());
 
 		m_resourceLoaderLog.Trace("Queueing Resource: {}", resourceID.Get().c_str());
@@ -198,6 +221,9 @@ namespace Exelius
 			SignalLoaderThread();
 
 		m_resourceLoaderLog.Trace("QueueLoad Complete.");
+		#else
+		LoadNow(resourceID, pListener);
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 	}
 
 	/// <summary>
@@ -236,9 +262,13 @@ namespace Exelius
 		{
 			m_resourceLoaderLog.Trace("Created new resource entry.");
 
+			#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 			m_listenerMapLock.lock();
+			#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 			m_deferredResourceListenersMap[resourceID].emplace_back(pListener);
+			#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 			m_listenerMapLock.unlock();
+			#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		}
 		else if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoaded)
 		{
@@ -304,14 +334,11 @@ namespace Exelius
 	void ResourceLoader::ReleaseResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Releasing Resource: {}", resourceID.Get().c_str());
 
 		// Decrement the reference count of this resource.
 		// If there is no longer any references to this resource, then unload it.
 		if (m_resourceDatabase.DecrementEntryRefCount(resourceID))
 			m_resourceDatabase.UnloadEntry(resourceID);
-
-		m_resourceLoaderLog.Trace("Release Complete.");
 	}
 
 	/// <summary>
@@ -365,7 +392,6 @@ namespace Exelius
 	Resource* ResourceLoader::GetResource(const ResourceID& resourceID, bool forceLoad)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Attempting to Retrieve Resource: {}", resourceID.Get().c_str());
 
 		if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
@@ -387,7 +413,6 @@ namespace Exelius
 			return nullptr;
 		}
 
-		m_resourceLoaderLog.Trace("Resource Retrieved.");
 		return pResource;
 	}
 
@@ -434,10 +459,12 @@ namespace Exelius
 	/// </summary>
 	void ResourceLoader::SignalLoaderThread()
 	{
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		EXE_ASSERT(m_loaderThread.joinable());
 		m_resourceLoaderLog.Trace("Signaling Loader Thread.");
 
 		m_signalThread.notify_one();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 	}
 
 	/// <summary>
@@ -447,6 +474,7 @@ namespace Exelius
 	/// </summary>
 	void ResourceLoader::SignalAndWaitForLoaderThread()
 	{
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		SignalLoaderThread();
 
 		std::mutex waitMutex;
@@ -457,6 +485,7 @@ namespace Exelius
 		{
 			return !m_quitThread || m_successfulThreadShutdown;
 		});
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 	}
 
 	/// <summary>
@@ -501,6 +530,7 @@ namespace Exelius
 	/// </summary>
 	void ResourceLoader::ProcessResourceQueue()
 	{
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		m_resourceLoaderLog.Info("Instantiating Resource Loader Thread.");
 		std::mutex waitMutex;
 
@@ -568,6 +598,7 @@ namespace Exelius
 		m_successfulThreadShutdown = true;
 		m_resourceLoaderLog.Info("Signaled Main Thread: Thread Terminating.");
 		m_signalThread.notify_one();
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 	}
 
 	/// <summary>

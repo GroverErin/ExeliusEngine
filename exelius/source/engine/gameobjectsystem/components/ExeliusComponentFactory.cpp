@@ -25,7 +25,7 @@ namespace Exelius
 		// Register the Engine component types.
 		pGameObjectSystem->RegisterComponent<TransformComponent>(TransformComponent::kType, false, false);
 		pGameObjectSystem->RegisterComponent<SpriteComponent>(SpriteComponent::kType, false, true);
-		pGameObjectSystem->RegisterComponent<UIComponent>(UIComponent::kType, false, true);
+		pGameObjectSystem->RegisterComponent<UIComponent>(UIComponent::kType, true, true);
 
 		return true;
 	}

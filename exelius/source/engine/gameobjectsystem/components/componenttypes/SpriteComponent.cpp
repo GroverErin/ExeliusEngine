@@ -90,9 +90,9 @@ namespace Exelius
 		RenderCommand command;
 		command.m_renderLayer = RenderCommand::RenderLayer::World;
 		command.m_texture = pSheet->GetTextureResource();
-		command.m_spriteFrame = pSheet->GetSprite(m_spriteID);
-		command.m_scaleFactor = { m_xScale, m_yScale };
-		command.m_position = { transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset };
+		//command.m_spriteFrame = pSheet->GetSprite(m_spriteID);
+		//command.m_scaleFactor = { m_xScale, m_yScale };
+		//command.m_position = { transformComponent->GetX() + m_xOffset, transformComponent->GetY() + m_yOffset };
 		RenderManager::GetInstance()->PushRenderCommand(command);
 	}
 

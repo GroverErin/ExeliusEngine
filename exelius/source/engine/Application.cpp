@@ -24,19 +24,21 @@
 // TEST
 #include "source/os/memory/PoolAllocator.h"
 
-
-class PoolTester;
-inline static Exelius::PoolAllocator<sizeof(PoolTester), 4096> m_pool;
-
 class PoolTester
 {
 	int testInt;
 public:
 	PoolTester() : testInt(0) { }
-	void* operator new(size_t size) { void* p = m_pool.Allocate(size, 0, "PoolTester", 0); return p; }
-private:
+	void* operator new(size_t size);
 };
 
+static auto& GetPool()
+{
+	static Exelius::PoolAllocator<sizeof(PoolTester), 4096> m_pool;
+	return m_pool;
+}
+
+void* PoolTester::operator new(size_t size) { void* p = GetPool().Allocate(size, 0, "PoolTester", 0); return p; }
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -112,7 +114,7 @@ namespace Exelius
 		// Config File - Open & Parse
 		//-----------------------------------------------
 		
-		PoolTester* pTest = new PoolTester();
+		//PoolTester* pTest = new PoolTester();
 
 		// Read in the config file. This uses the logging system,
 		// which is why the PreInit exists for the LoggingManager.
@@ -128,11 +130,6 @@ namespace Exelius
 
 		if (!InitializeLogManager(configFile))
 			return false;
-
-		eastl::vector<int> testAllocationForEASTL;
-
-		for (int i = 0; i < 256; ++i)
-			testAllocationForEASTL.emplace_back(i);
 
 		//-----------------------------------------------
 		// Rendering - Initialization
@@ -196,15 +193,31 @@ namespace Exelius
 	{
 		EXE_ASSERT(m_pApplicationLog);
 
+		constexpr int kNumFramesToAVG = 6000;
+		int numFramesSinceAVG = 0;
+		float accumulatedDeltaTime = 0.0f;
+
 		//Log log;
 		auto previousTime = eastl::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
-			auto time = eastl::chrono::high_resolution_clock::now();
-			eastl::chrono::duration<float> deltaTime = time - previousTime;
-			m_pApplicationLog->Trace("DeltaTime: {}", deltaTime.count());
-
+			auto lastFrameTime = eastl::chrono::high_resolution_clock::now();
+			eastl::chrono::duration<float> deltaTime = lastFrameTime - previousTime;
+			previousTime = lastFrameTime;
 			Time::DeltaTime.SetFromSeconds(deltaTime.count());
+
+			if (numFramesSinceAVG < kNumFramesToAVG)
+			{
+				accumulatedDeltaTime += Time::DeltaTime.GetAsSeconds();
+				++numFramesSinceAVG;
+			}
+			else
+			{
+				float avgFrameRate = accumulatedDeltaTime / (float)kNumFramesToAVG;
+				m_pApplicationLog->Info("FPS: {}", 1.0f / avgFrameRate);
+				numFramesSinceAVG = 0;
+				accumulatedDeltaTime = 0.0f;
+			}
 
 			// Poll Window Events.
 			RenderManager::GetInstance()->Update();
@@ -226,8 +239,6 @@ namespace Exelius
 
 			// Deallocate any resources necessary.
 			ResourceLoader::GetInstance()->ProcessUnloadQueue();
-
-			previousTime = time;
 		}
 	}
 

@@ -83,7 +83,6 @@ namespace Exelius
 	void ResourceDatabase::IncrementEntryRefCount(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceDatabaseLog.Trace("Incrementing Reference Count for '{}'", resourceID.Get().c_str());
 
 		m_mapLock.lock();
 		ResourceEntry* pResourceEntry = GetEntry(resourceID);
@@ -108,7 +107,6 @@ namespace Exelius
 	bool ResourceDatabase::DecrementEntryRefCount(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceDatabaseLog.Trace("Decrementing Reference Count for '{}'", resourceID.Get().c_str());
 
 		m_mapLock.lock();
 		ResourceEntry* pResourceEntry = GetEntry(resourceID);
@@ -134,7 +132,6 @@ namespace Exelius
 	void ResourceDatabase::IncrementEntryLockCount(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceDatabaseLog.Trace("Incrementing Lock Count for '{}'", resourceID.Get().c_str());
 
 		m_mapLock.lock();
 		ResourceEntry* pResourceEntry = GetEntry(resourceID);
@@ -159,7 +156,6 @@ namespace Exelius
 	bool ResourceDatabase::DecrementEntryLockCount(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceDatabaseLog.Trace("Decrementing Lock Count for '{}'", resourceID.Get().c_str());
 
 		m_mapLock.lock();
 		ResourceEntry* pResourceEntry = GetEntry(resourceID);

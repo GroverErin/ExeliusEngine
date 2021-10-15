@@ -49,6 +49,8 @@ namespace Exelius
 
 		void Draw(const VertexArray& vertices, const Texture& texture) { m_impl.Draw(vertices, texture); }
 
+		void Draw(const VertexArray& vertices) { m_impl.Draw(vertices); }
+
 		ImplWindow& GetNativeWindow() { return m_impl; }
 
 		/// <summary>

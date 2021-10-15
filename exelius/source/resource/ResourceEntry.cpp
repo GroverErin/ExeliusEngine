@@ -115,7 +115,6 @@ namespace Exelius
 	void ResourceEntry::IncrementRefCount()
 	{
 		++m_refCount;
-		m_resourceDatabaseLog.Trace("New Ref Count: {}", m_refCount);
 	}
 
 	/// <summary>
@@ -134,7 +133,6 @@ namespace Exelius
 			m_refCount = 0;
 		}
 
-		m_resourceDatabaseLog.Trace("New Ref Count: {}", m_refCount);
 		return IsReferenceOrLocked();
 	}
 
@@ -144,7 +142,6 @@ namespace Exelius
 	void ResourceEntry::IncrementLockCount()
 	{
 		++m_lockCount;
-		m_resourceDatabaseLog.Trace("New Lock Count: {}", m_lockCount);
 	}
 
 	/// <summary>
@@ -163,7 +160,6 @@ namespace Exelius
 			m_lockCount = 0;
 		}
 
-		m_resourceDatabaseLog.Trace("New Lock Count: {}", m_lockCount);
 		return IsReferenceOrLocked();
 	}
 

@@ -50,7 +50,7 @@ namespace Exelius
         // TODO: This should not be accessible for DeltaTime publicly... maybe friend Application will work here?
         constexpr void SetFromSeconds(float seconds)
         {
-            m_microseconds = static_cast<int64_t>(seconds * 1000000);
+            m_microseconds = static_cast<int64_t>(seconds * 1000000); // TODO: Fix warning
         }
 
         static Time DeltaTime;

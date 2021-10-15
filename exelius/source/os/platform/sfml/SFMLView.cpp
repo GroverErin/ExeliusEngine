@@ -11,7 +11,7 @@ namespace Exelius
 	SFMLView::SFMLView()
 		: m_pSFMLView(nullptr)
 	{
-		m_pSFMLView = new sf::View();
+		m_pSFMLView = EXELIUS_NEW(sf::View());
 		EXE_ASSERT(m_pSFMLView);
 	}
 
@@ -45,7 +45,8 @@ namespace Exelius
 
 	SFMLView::~SFMLView()
 	{
-		SAFE_DELETE(m_pSFMLView);
+		EXELIUS_DELETE(m_pSFMLView);
+		m_pSFMLView = nullptr;
 	}
 
 	void SFMLView::SetCenter(float x, float y)

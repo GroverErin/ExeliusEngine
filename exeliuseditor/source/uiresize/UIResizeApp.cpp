@@ -72,7 +72,7 @@ void UIResizeApp::SwapImagesAndReset()
 
 	if (auto ui = pInactiveObject->GetComponent<Exelius::UIComponent>())
 	{
-		ui->Reset();
+		//ui->Reset();
 	}
 }
 
@@ -112,31 +112,4 @@ void UIResizeApp::StretchImage()
 {
 	auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
 	EXE_ASSERT(pGameObjectSystem);
-
-	const auto& pObject = pGameObjectSystem->GetGameObject(m_activeImage);
-	if (auto ui = pObject->GetComponent<Exelius::UIComponent>())
-	{
-		if (Exelius::IsKeyDown(Exelius::KeyCode::Up))
-			ui->SetH(ui->GetH() - 100.0f * Exelius::Time::DeltaTime.GetAsSeconds());
-		else if (Exelius::IsKeyDown(Exelius::KeyCode::Down))
-			ui->SetH(ui->GetH() + 100.0f * Exelius::Time::DeltaTime.GetAsSeconds());
-
-		if (ui->GetH() < 1.0f)
-			ui->SetH(1.0f);
-
-		if (ui->GetH() > 384.0f)
-			ui->SetH(384.0f);
-
-
-		if (Exelius::IsKeyDown(Exelius::KeyCode::Left))
-			ui->SetW(ui->GetW() - 100.0f * Exelius::Time::DeltaTime.GetAsSeconds());
-		else if (Exelius::IsKeyDown(Exelius::KeyCode::Right))
-			ui->SetW(ui->GetW() + 100.0f * Exelius::Time::DeltaTime.GetAsSeconds());
-
-		if (ui->GetW() < 1.0f)
-			ui->SetW(1.0f);
-
-		if (ui->GetW() > 384.0f)
-			ui->SetW(384.0f);
-	}
 }

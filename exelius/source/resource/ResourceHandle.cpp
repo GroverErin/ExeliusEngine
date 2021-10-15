@@ -94,7 +94,7 @@ namespace Exelius
 
 		if (!m_resourceID.IsValid())
 		{
-			m_resourceLoaderLog.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			m_resourceLoaderLog.Info("Resource cannot be Queued for load, resource ID is invalid or not set.");
 			return;
 		}
 
@@ -124,7 +124,7 @@ namespace Exelius
 
 		if (!m_resourceID.IsValid())
 		{
-			m_resourceLoaderLog.Info("Resource cannot be acquired, resource ID is invalid or not set.");
+			m_resourceLoaderLog.Info("Resource cannot be loaded, resource ID is invalid or not set.");
 			return;
 		}
 
@@ -217,8 +217,7 @@ namespace Exelius
 
 		if (!m_resourceID.IsValid())
 		{
-			m_resourceLoaderLog.Info("Resource cannot be acquired, resource ID is invalid or not set.");
-			return false;
+			return false; // We don't log here because it is a common case.
 		}
 
 		if (!ResourceLoader::GetInstance()->IsResourceAcquirable(m_resourceID))

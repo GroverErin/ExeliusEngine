@@ -26,10 +26,83 @@ namespace Exelius
         static_assert(eastl::is_integral_v<NumberType> || eastl::is_floating_point_v<NumberType>, "Type must be of integral number type.");
 
     public:
-        NumberType m_left;   // Left coordinate of the rectangle
-        NumberType m_top;    // Top coordinate of the rectangle
-        NumberType m_width;  // Width of the rectangle
-        NumberType m_height; // Height of the rectangle
+        /// <summary>
+        /// This slightly complex looking union allows rects to use either x,y or m_left,m_top names
+        /// and they will have the same values.
+        /// </summary>
+        #pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
+        union
+        {
+            struct
+            {
+                /// <summary>
+                /// X coordinate of the rectangle.
+                /// this->x == this->m_left
+                /// </summary>
+                NumberType x;
+
+                /// <summary>
+                /// Y coordinate of the rectangle.
+                /// this->y == this->m_top
+                /// </summary>
+                NumberType y;
+            };
+
+            struct
+            {
+                /// <summary>
+                /// Left coordinate of the rectangle.
+                /// this->x == this->m_left
+                /// </summary>
+                NumberType m_left;
+
+                /// <summary>
+                /// Top coordinate of the rectangle
+                /// this->y == this->m_top
+                /// </summary>
+                NumberType m_top;
+            };
+        };
+
+        /// <summary>
+        /// This slightly complex looking union allows rects to use either w,h or m_width,m_height names
+        /// and they will have the same values.
+        /// </summary>
+        #pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
+        union
+        {
+            struct
+            {
+                /// <summary>
+                /// Width of the rectangle.
+                /// this->w == this->m_width
+                /// </summary>
+                NumberType w;
+
+                /// <summary>
+                /// Height of the rectangle.
+                /// this->h == this->m_height
+                /// </summary>
+                NumberType h;
+            };
+
+            struct
+            {
+                /// <summary>
+                /// Width of the rectangle.
+                /// this->w == this->m_width
+                /// </summary>
+                NumberType m_width;
+
+                /// <summary>
+                /// Height of the rectangle.
+                /// this->h == this->m_height
+                /// </summary>
+                NumberType m_height;
+            };
+        };
+
+
 
         /// <summary>
         /// Creates an empty rectangle (it is equivalent to calling
@@ -194,6 +267,28 @@ namespace Exelius
                 return false;
             }
         }
+
+        bool IsPointInRect(NumberType X, NumberType Y) const
+        {
+            return Rectangle<NumberType>::IsPointInRect(X, Y, *this);
+        }
+
+        bool IsPointInRect(const Vector2<NumberType>& point) const
+        {
+            return Rectangle<NumberType>::IsPointInRect(point.x, point.y, *this);
+        }
+
+        static bool IsPointInRect(NumberType X, NumberType Y, const Rectangle<NumberType>& rect)
+        {
+            bool isXInside = false;
+            bool isYInside = false;
+            if (X >= rect.m_left && X <= rect.m_left + rect.m_width)
+                isXInside = true;
+            if (Y >= rect.m_top && Y <= rect.m_top + rect.m_height)
+                isYInside = true;
+
+            return (isXInside && isYInside);
+        }
         
         /// <summary>
         /// Get the position of the rectangle's top-left corner
@@ -241,6 +336,17 @@ namespace Exelius
     inline bool operator !=(const Rectangle<NumberType>& left, const Rectangle<NumberType>& right)
     {
         return !(left == right);
+    }
+
+    template <typename NumberType>
+    inline Rectangle<NumberType> operator *(const Rectangle<NumberType>& right, const Rectangle<NumberType>& left)
+    {
+        return {
+            right.m_left * left.m_left,
+            right.m_top * left.m_top,
+            right.m_width * left.m_width,
+            right.m_height * left.m_height
+        };
     }
 
     /// <summary>

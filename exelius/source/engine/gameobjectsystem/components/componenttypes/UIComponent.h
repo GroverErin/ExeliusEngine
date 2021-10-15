@@ -4,6 +4,8 @@
 #include "source/utility/math/Rectangle.h"
 #include "source/render/RenderCommand.h"
 
+#include "source/engine/ui/UIElement.h"
+
 #include <EASTL/array.h>
 
 /// <summary>
@@ -14,6 +16,9 @@ namespace Exelius
 	class UIComponent
 		: public Component
 	{
+		UIElement m_uiRootElement;
+
+
 		ResourceID m_textureID;
 
 		eastl::array<RenderCommand, 9> m_commands;
@@ -27,18 +32,12 @@ namespace Exelius
 			//
 		}
 
-		virtual bool Initialize() final override;
 		virtual bool Initialize(const rapidjson::Value& jsonComponentData) final override;
+
+		virtual void Update() final override;
 
 		virtual void Render() final override;
 
 		virtual void Destroy() final override;
-
-		float GetW() const { return m_dimensions.w; }
-		void SetW(float w);
-		float GetH() const { return m_dimensions.h; }
-		void SetH(float h);
-
-		void Reset();
 	};
 }

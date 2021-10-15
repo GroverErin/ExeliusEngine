@@ -41,7 +41,7 @@ namespace Exelius
 		}
 
 		_Vertex(const Vector2f& position, const Color& color, const Vector2f& textureCoordinates)
-			: m_impl(position, textureCoordinates, color)
+			: m_impl(position, color, textureCoordinates)
 		{
 			//
 		}

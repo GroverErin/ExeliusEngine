@@ -11,10 +11,16 @@
 #include <EASTL/vector.h>
 #include <EASTL/unordered_map.h>
 
-#include <thread>
-#include <condition_variable>
-#include <atomic>
-#include <mutex>
+#define FORCE_SINGLE_THREADED_RENDERER 1
+
+#if !FORCE_SINGLE_THREADED_RENDERER
+	#include <thread>
+	#include <condition_variable>
+	#include <atomic>
+	#include <mutex>
+#endif // !FORCE_SINGLE_THREADED_RENDERER
+
+
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -38,17 +44,18 @@ namespace Exelius
 		eastl::vector<RenderCommand> m_advancedBuffer; // Main loop adds to this buffer.
 		
 		eastl::vector<RenderCommand> m_intermediateBuffer; // Main loop will swap this buffer with advancedbuffer at the end of a frame. Render Thread will swap with this buffer if it is not processing.
-		std::mutex m_intermediateBufferMutex;
-
-		std::thread m_renderThread;
-		std::atomic_bool m_quitThread;
-		std::atomic_int m_framesBehind;
-
-		std::mutex m_signalMutex;
-		std::condition_variable m_signalThread;
-
 		eastl::vector<eastl::pair<StringIntern, View>> m_views;
-		std::mutex m_viewListLock;
+
+		#if !FORCE_SINGLE_THREADED_RENDERER
+			std::mutex m_intermediateBufferMutex;
+			std::thread m_renderThread;
+			std::atomic_bool m_quitThread;
+			std::atomic_int m_framesBehind;
+			std::mutex m_signalMutex;
+			std::condition_variable m_signalThread;
+			std::mutex m_viewListLock;
+		#endif // !FORCE_SINGLE_THREADED_RENDERER
+
 	public:
 		RenderManager();
 		RenderManager(const RenderManager&) = delete;

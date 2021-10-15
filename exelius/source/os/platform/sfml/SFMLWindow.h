@@ -215,6 +215,8 @@ namespace Exelius
 		// This may need to change to not use sf::drawable?
 		void Draw(const VertexArray& vertices, const Texture& texture);
 
+		void Draw(const VertexArray& vertices);
+
 		/// <summary>
 		/// 
 		/// </summary>

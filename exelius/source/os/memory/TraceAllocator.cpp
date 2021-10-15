@@ -40,6 +40,9 @@ namespace Exelius
 	
 	void* TraceAllocator::Allocate(size_t sizeToAllocate, size_t memoryAlignment, const char* pFileName, int lineNum)
 	{
+		if (!pFileName)
+			pFileName = "null";
+
 		EXE_ASSERT(m_pParentAllocator);
 		void* allocatedMemory = m_pParentAllocator->Allocate(sizeToAllocate, memoryAlignment, pFileName, lineNum);
 		EXE_ASSERT(allocatedMemory);

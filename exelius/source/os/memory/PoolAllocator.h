@@ -18,35 +18,39 @@ namespace Exelius
 		/// <summary>
 		/// Vector of memory pages.
 		/// </summary>
-		eastl::vector<char*> m_pooledMemory;
+		eastl::vector<uintptr_t> m_pooledMemory;
 
 		eastl::stack<void*> m_freeMemory;
 
 		// Internal block pointers.
-		char* m_pAllocationFront;
-		char* m_pAllocationCurrent;
-		char* m_pAllocationEnd;
-
+		uintptr_t m_pAllocationFront;
+		uintptr_t m_pAllocationCurrent;
+		uintptr_t m_pAllocationEnd;
 
 	public:
 		PoolAllocator()
-			: m_pAllocationFront(nullptr)
-			, m_pAllocationCurrent(nullptr)
-			, m_pAllocationEnd(nullptr)
+			: m_pAllocationFront(0)
+			, m_pAllocationCurrent(0)
+			, m_pAllocationEnd(0)
 		{
 			AllocateNewChunk("PoolAllocatorConstructor", 0);
 		}
 
 		~PoolAllocator()
 		{
-			m_pAllocationFront = nullptr;
-			m_pAllocationCurrent = nullptr;
-			m_pAllocationEnd = nullptr;
+			m_pAllocationFront = 0;
+			m_pAllocationCurrent = 0;
+			m_pAllocationEnd = 0;
 
-			for (auto* pool : m_pooledMemory)
+			auto pMemManager = Exelius::MemoryManager::GetInstance();
+			EXE_ASSERT(pMemManager);
+			auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
+			EXE_ASSERT(pGlobalAllocator);
+
+			for (auto pool : m_pooledMemory)
 			{
-				delete pool;
-				pool = nullptr;
+				pGlobalAllocator->Free(reinterpret_cast<void*>(pool));
+				pool = 0;
 			}
 		}
 
@@ -65,12 +69,13 @@ namespace Exelius
 				AllocateNewChunk(pFileName, lineNum);
 			}
 
-			m_pAllocationCurrent += sizeof(char*);
-			return m_pAllocationCurrent - sizeof(char*);
+			m_pAllocationCurrent += TypeSize;
+			return reinterpret_cast<void*>(m_pAllocationCurrent - TypeSize);
 		}
 
 		virtual void Free(void* memoryToFree, size_t, bool) final override
 		{
+			memset(memoryToFree, 0xCDCDCDCD, TypeSize);
 			m_freeMemory.push(memoryToFree);
 			memoryToFree = nullptr;
 		}
@@ -83,9 +88,9 @@ namespace Exelius
 			auto pGlobalAllocator = pMemManager->GetGlobalAllocator();
 			EXE_ASSERT(pGlobalAllocator);
 			auto* pMem = pGlobalAllocator->Allocate(ChunkSize, 16U, pFileName, lineNum);
-			m_pooledMemory.emplace_back((char*)pMem);
+			m_pooledMemory.emplace_back(reinterpret_cast<uintptr_t>(pMem));
 
-			m_pAllocationFront = (char*)pMem;
+			m_pAllocationFront = reinterpret_cast<uintptr_t>(pMem);
 			m_pAllocationEnd = m_pAllocationFront + ChunkSize;
 			m_pAllocationCurrent = m_pAllocationFront;
 		}

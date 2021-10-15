@@ -1,18 +1,48 @@
 {
-    "Name": "TestUIB",
+    "Name": "TestUIC",
     "Components" :
     {
         "TransformComponent" : 
         {
             "x" : 0.0,
             "y" : 0.0,
-            "w" : 256.0,
-            "h" : 256.0
+            "w" : 1.0,
+            "h" : 1.0
         },
-        "UIComponent" : 
+        "UIComponent" :
         {
-            "Texture" : "assets/ui/Textures/image3.png",
-            "SliceData" : [22, 243, 71, 418, 276, 441]
+            "LayoutType" : 0,
+            "originX" : ["%", 0.0],
+            "originY" : ["%", 0.0],
+            "x" : ["%", 0.0],
+            "y" : ["%", 0.0],
+            "w" : ["%", 1.0],
+            "h" : ["%", 1.0],
+            "Children" :
+            {
+                "UIImage" :
+                {
+                    "Texture" : "assets/ui/textures/image3.png",
+                    "SourceRect" : [0, 0, 276, 441],
+                    "9Slices" : [22, 243, 71, 418],
+                    "originX" : ["%", 0.0],
+                    "originY" : ["%", 0.0],
+                    "x" : ["%", 0.0],
+                    "y" : ["%", 0.0],
+                    "w" : ["%", 0.5],
+                    "h" : ["%", 0.5]
+                },
+                "UIRect" :
+                {
+                    "Color" : [255, 0, 0, 255],
+                    "originX" : ["%", 0.0],
+                    "originY" : ["%", 0.0],
+                    "x" : ["%", 0.5],
+                    "y" : ["%", 0.5],
+                    "w" : ["%", 0.5],
+                    "h" : ["%", 0.5]
+                }
+            }
         }
     }
 }

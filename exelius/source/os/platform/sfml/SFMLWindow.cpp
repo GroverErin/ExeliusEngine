@@ -394,6 +394,12 @@ namespace Exelius
 		m_pWindow->draw(vertices.GetNativeVertexArray().GetNativeVertexArray(), texture.GetNativeTexture().GetSFMLTexture());
 	}
 
+	void SFMLWindow::Draw(const VertexArray& vertices)
+	{
+		EXE_ASSERT(m_pWindow);
+		m_pWindow->draw(vertices.GetNativeVertexArray().GetNativeVertexArray());
+	}
+
 	void SFMLWindow::Clear()
 	{
 		EXE_ASSERT(m_pWindow);

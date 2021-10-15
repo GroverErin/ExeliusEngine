@@ -1,6 +1,7 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
 #include "source/utility/math/Rectangle.h"
+#include "source/utility/generic/Color.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -20,15 +21,11 @@ namespace Exelius
 		};
 
 		RenderLayer m_renderLayer;
-		ResourceID m_shader;
 		ResourceID m_texture;
-		IRectangle m_spriteFrame;
+		Color m_tint;
 
 		FRectangle m_sourceFrame;
 		FRectangle m_destinationFrame;
-
-		Vector2f m_position;
-		Vector2f m_scaleFactor;
 		int m_zOrder;
 
 		bool operator<(const RenderCommand& command) const;

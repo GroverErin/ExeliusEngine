@@ -159,9 +159,12 @@ namespace Exelius
 
 		ComponentType& GetComponent(Handle handle)
 		{
+			//m_componentLock.lock();
 			EXE_ASSERT(IsValidComponent(handle));
 
-			return m_components[handle.GetId()];
+			ComponentType& comp = m_components[handle.GetId()];
+			//m_componentLock.unlock();
+			return comp;
 		}
 
 		bool IsValidComponent(Handle handle)

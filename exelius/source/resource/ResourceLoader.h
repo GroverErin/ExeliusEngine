@@ -6,10 +6,15 @@
 #include <EASTL/deque.h>
 #include <EASTL/vector.h>
 
-#include <thread>
-#include <condition_variable>
-#include <atomic>
-#include <mutex>
+#define FORCE_SINGLE_THREADED_RESOURCE_LOADER 1
+
+#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
+	#include <thread>
+	#include <condition_variable>
+	#include <atomic>
+	#include <mutex>
+#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
+
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -89,12 +94,14 @@ namespace Exelius
 		/// </summary>
 		ListenersMap m_deferredResourceListenersMap;
 
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		/// <summary>
 		/// A mutex used to protect the listeners from data race conditions.
 		/// This allows the main thread and resource thread to swap maps
 		/// safely.
 		/// </summary>
 		std::mutex m_listenerMapLock;
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
 		/// <summary>
 		/// The resource factory as defined by either the Engine or the Client.
@@ -102,6 +109,7 @@ namespace Exelius
 		/// </summary>
 		ResourceFactory* m_pResourceFactory;
 
+		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		/// <summary>
 		/// The dedicated resource loading thread.
 		/// </summary>
@@ -134,6 +142,7 @@ namespace Exelius
 		/// safely.
 		/// </summary>
 		std::mutex m_deferredQueueLock;
+		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 
 		/// <summary>
 		/// The resource database containing all the managed resources.

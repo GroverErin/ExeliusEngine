@@ -86,7 +86,7 @@ ___
     - `git clone https://github.com/GroverErin/ExeliusEngine`
     - Alternatively, you can just download the source by selecting the Code dropdown and the Download ZIP option.
 <p align="center">
-  <img src="https://github.com/GroverErin/ExeliusEngine/blob/main/Tools/Images/DownloadRepo.png?raw=true" alt="Alternate Download Method"/>
+  <img src="https://github.com/GroverErin/ExeliusEngine/blob/main/tools/images/DownloadRepo.png?raw=true" alt="Alternate Download Method"/>
 </p>
 
   - Navigate to the `ExeliusEngine/StartHere/` directory.

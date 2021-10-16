@@ -32,6 +32,13 @@ class SubmoduleLoader:
 
     @classmethod
     def _UpdateSubmodules(self):
-        log.Info("Updating Submodules. Some failure messages are expected, particularly with EASTL.")
-        subprocess.call(["git", "submodule", "update", "--init", "--recursive"])
+        log.Info("Updating Submodules.")
+        log.Info("Some failure messages are expected, particularly with EASTL.")
+        subprocess.call(["git", "submodule", "update", "--init", "--recursive", "--quiet"])
+
+        # Does nothing on non-windows platforms.
+        # This is necessary because calling git
+        # functions disables vt100 emulation, and
+        # it needs to be manually reenabled.
+        log.EnableWindowsColorLog()
         log.Info("Submodules Update Complete.")

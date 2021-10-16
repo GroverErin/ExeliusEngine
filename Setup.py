@@ -3,11 +3,14 @@ from buildsystem.PythonSubmoduleLoader import SubmoduleLoader as submodLoader
 from buildsystem.PythonArgHelper import ArgHelper
 from buildsystem.PythonPremakeSystem import PremakeSystem as premake
 
+# Does nothing on non-windows platforms.
+log.EnableWindowsColorLog()
+
 # Print Help menu and bail if necessary
 if ArgHelper.HandleHelpCommand():
     exit()
 
-ArgHelper.DetectAndSetVerbosity()
+isVerbose = ArgHelper.DetectAndSetVerbosity()
 
 # Should force 'git submodule update --init --recursive'?
 forceSubmoduleUpdates = ArgHelper.ShouldForceSubmoduleUpdates()
@@ -22,7 +25,7 @@ if (ArgHelper.OnlyUpdateSubmodules()):
 premakeInstalled = premake.Validate()
 
 if (premakeInstalled):
-    premake.Run()
+    premake.Run(isVerbose)
 else:
     log.Error("Premake Required for Project Generation.")
 

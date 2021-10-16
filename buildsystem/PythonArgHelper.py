@@ -28,6 +28,8 @@ class ArgHelper:
             if const.VERBOSE_COMMAND_SHORT == param or const.VERBOSE_COMMAND == param:
                 log.SetVerbose(True)
                 log.Log("The Exelius engines build-system log verbosity has now been elevated to the highest of tiers.")
+                return True
+            return False
         
     @classmethod
     def ShouldForceSubmoduleUpdates(self):

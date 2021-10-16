@@ -10,7 +10,7 @@ class PremakeSystem:
     @classmethod
     def Validate(self):
         log.Info("Validating Premake Installation.")
-        if (not self.__ValidatePremake()):
+        if (not self._ValidatePremake()):
             log.Error("Premake Not Installed.")
             return False
 
@@ -18,15 +18,19 @@ class PremakeSystem:
         return True
 
     @classmethod
-    def Run(self):
+    def Run(self, isVerbose):
         log.Info("Executing Premake.")
-        
+
+        verbositySetting = "--verbosity=low"
+        if isVerbose:
+            verbositySetting = "--verbosity=high"
+
         if 'armv' in platform.machine():
-            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake", "--file=./buildsystem/PremakeMain.lua", "--architecture=ARM64", "--configuration=Release", "nopause"])
+            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake", "--file=./buildsystem/PremakeMain.lua", "--architecture=ARM64", "--configuration=Release", verbositySetting, "nopause"])
         elif platform.system() == "Windows":
-            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5.exe"), "vs2019", "--file=./buildsystem/PremakeMain.lua", "nopause"])
+            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5.exe"), "vs2019", "--file=./buildsystem/PremakeMain.lua", verbositySetting, "nopause"])
         elif platform.system() == "Linux":
-            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake2", "--file=./buildsystem/PremakeMain.lua", "nopause"])
+            subprocess.call([os.path.abspath("./tools/thirdparty/premake/premake5"), "gmake2", "--file=./buildsystem/PremakeMain.lua", verbositySetting, "nopause"])
         else:
             log.Error("OS '{0:s}' Not Supported.".format(platform.system()))
             exit() # Cannot complete setup.
@@ -34,7 +38,7 @@ class PremakeSystem:
         log.Info("Premake Generation Completed.")
 
     @classmethod
-    def __ValidatePremake(self):
+    def _ValidatePremake(self):
         if platform.system() == "Windows":
             premakeExecutablePath = os.path.abspath(const.PREMAKE_UNPACK_PATH + 'premake5.exe')
         elif platform.system() == "Linux":
@@ -44,13 +48,14 @@ class PremakeSystem:
 
         if (not os.path.isfile(premakeExecutablePath)):
             log.Warn("Premake Not Found at Location: {0:s}".format(os.path.abspath(const.PREMAKE_UNPACK_PATH)))
-            return self.__UnpackPremake()
+            return self._UnpackPremake()
 
         log.Info("Premake Validation Succeeded.")
         return True
 
     @classmethod
-    def __UnpackPremake(self):
+    def _UnpackPremake(self):
+        log.Info("Unpacking Premake.")
         packedPremakeFilename = ""
         if 'armv' in platform.machine():
             packedPremakeFilename = const.PREMAKE_RPI_TAR_FILE

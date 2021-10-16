@@ -33,6 +33,18 @@ newoption
     default =           "x64"
 }
 
+newoption
+{
+    trigger =           "verbosity",
+    value =             "verbose",
+    description =       "The logging level that Premake should print.",
+    allowed = {
+        { "low",        "Log level will only output some necessary information." },
+        { "high",       "Log level will output everything." },
+    },
+    default =           "low"
+}
+
 log.Log("[Premake] Beginning Premake File Generation.")
 
 ------------------------------------------------------------------------------------------------------

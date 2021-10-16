@@ -4,11 +4,18 @@ local exeliusLog = premake.modules.exeliusConsoleLog
 
 -- Sets the default logging color
 local defaultColor = term.getTextColor()
+local isVerbose = false
+
+if _OPTIONS["verbosity"] == "high" then
+    isVerbose = true
+end
 
 function exeliusLog.Log(text)
-    term.setTextColor(term.white)
-    print(text)
-    term.setTextColor(defaultColor)
+    if isVerbose then
+        term.setTextColor(term.white)
+        print(text)
+        term.setTextColor(defaultColor)
+    end
 end
 
 function exeliusLog.Info(text)

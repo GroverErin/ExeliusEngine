@@ -4,7 +4,6 @@ import subprocess
 from buildsystem.PythonConsoleLog import Log as log
 import buildsystem.PythonConfig as constants
 
-
 class SubmoduleLoader:
     @classmethod
     def ValidateSubmodules(self, forceSubmoduleUpdate=False):
@@ -21,7 +20,7 @@ class SubmoduleLoader:
 
         shouldUpdateSubmodules = forceSubmoduleUpdate
         for path in moduleList:
-            if (os.path.isdir(path)):
+            if (os.path.isdir(path) and (len(os.listdir(path)) != 0)):
                 log.Log("Submodule Found at Location: {0:s}".format(path))
             else:
                 log.Log("Submodule Not Found at Location: {0:s}".format(path))
@@ -29,10 +28,10 @@ class SubmoduleLoader:
         log.Info("Submodule Validation Complete.")
 
         if shouldUpdateSubmodules:
-            self.__UpdateSubmodules()
+            self._UpdateSubmodules()
 
     @classmethod
-    def __UpdateSubmodules(self):
-        log.Info("Updating Submodules.")
+    def _UpdateSubmodules(self):
+        log.Info("Updating Submodules. Some failure messages are expected, particularly with EASTL.")
         subprocess.call(["git", "submodule", "update", "--init", "--recursive"])
         log.Info("Submodules Update Complete.")

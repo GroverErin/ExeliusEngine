@@ -10,7 +10,7 @@ exeliusDependencyGenerator.dependencies = {}
 
 -- Load all dependencies in the dependency folder using the lua scripts.
 function LoadDependencyScripts()
-    -- Use a relative path here only because it logs nicer. Totally unnessesary.
+    -- Use a real path here only because it logs nicer. Totally unnessesary.
     local pathToLog = os.realpath(defaultSettings.DependencyScriptLocation)
     log.Log("[Premake] Checking for Premake Scripts at Path: " .. pathToLog)
 

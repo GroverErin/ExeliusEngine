@@ -148,7 +148,7 @@ ___
 
   Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project.
   
-    - The design of the core `Application` class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
+    - The design of the core Application class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
     - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made python 2.7 compatable (that might change though).
     - I am currently using his event system to handle window events from SFML. I will be stripping this system out shortly, to be replaced with an entirely new system.
     - I might use his LayerStack design for applications. I haven't yet, but I am exploring the idea and the implications it would have in Exelius.

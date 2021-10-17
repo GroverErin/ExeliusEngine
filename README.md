@@ -142,7 +142,7 @@ ___
   - Josh Stefanski — Instructor and Mentor.
 ### Further Credits
   - Dylan Wijnen — Helped with Premake/Lua build system, Game Object and Component systems, and other minor tips and tricks.
-  - Kirill Sizykh — Helped with Premake/Lua build system for Linux.
+  - Kirill Sizykh — Helped with the first iteration of the Linux build system. Taught me how Linux works for building complex C++ projects.
   - [Yan "The Cherno" Chernikov](https://www.youtube.com/c/TheChernoProject/featured) — YouTube series that I've used to evaluate different design decisions. See note below on this.
   - Jason Gregory — Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
 

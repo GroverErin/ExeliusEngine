@@ -59,9 +59,9 @@ Summer/Fall 2021 goals:
   - GUI Layer
   - Thread Pool/Job System
   - Message/Event System (To prep for networking)
-  - Profiler
 ### Future
 Spring 2022 goals:
+  - Profiler
   - Scripting (Lua and Native C++)
   - Networking Layer
   - Flipbook/Sprite Animations
@@ -97,7 +97,7 @@ ___
 </p>
 
   - Inside of a terminal window, navigate to the `ExeliusEngine/` directory.
-    - The fastest way to accomplish this is to type `cmd` into the address bar (not the Search bar).
+    - The fastest way to accomplish this is to type `cmd` into the address bar (not the Search bar) and press Enter/Return.
   - Run the command `python Setup.py` in the terminal.
     - There is currently a bug requiring this step to be performed twice.
   - Open the `ExeliusEngine.sln` in the root directory with Visual Studio 2019.
@@ -147,6 +147,7 @@ ___
   - Jason Gregory - Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
 
   Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project.
+  
     - The design of the core `Application` class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
     - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made python 2.7 compatable (that might change though).
     - I am currently using his event system to handle window events from SFML. I will be stripping this system out shortly, to be replaced with an entirely new system.

@@ -144,7 +144,7 @@ ___
   - Dylan Wijnen — Helped with Premake/Lua build system, Game Object and Component systems, and other minor tips and tricks.
   - Kirill Sizykh — Helped with Premake/Lua build system for Linux.
   - [Yan "The Cherno" Chernikov](https://www.youtube.com/c/TheChernoProject/featured) — YouTube series that I've used to evaluate different design decisions. See note below on this.
-  - Jason Gregory - Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
+  - Jason Gregory — Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
 
   Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project.
   

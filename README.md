@@ -149,13 +149,14 @@ ___
   Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project.
   
     - The design of the core Application class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
-    - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made python 2.7 compatable (that might change though).
+    - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made it python 2.7 compatable (that might change though).
     - I am currently using his event system to handle window events from SFML. I will be stripping this system out shortly, to be replaced with an entirely new system.
     - I might use his LayerStack design for applications. I haven't yet, but I am exploring the idea and the implications it would have in Exelius.
 ### Third-Party Tools
 Here is a list of all the third party tools currently being used by Exelius. The goal is to make this list as short as possible. Other libraries may be included but are currently unused.
   - [Premake 5](https://premake.github.io) — Used for the build system.
   - [SFML](https://www.sfml-dev.org) — Used for window creation, rendering, and input events.
+  - [EASTL](https://github.com/electronicarts/EASTL) — Used as the main STL for Exelius.
   - [rapidjson](https://github.com/Tencent/rapidjson) — Used to parse gameobjects and the config file (which should not be json but whatever... subject to change blah blah).
   - [spdlog](https://github.com/gabime/spdlog) — Used for multithreaded debug logging to console and files.
   - [Dear ImGui](https://github.com/ocornut/imgui) — Not currently used. Will be used to create an editor GUI. This will be separate from the in-game (retained) gui.

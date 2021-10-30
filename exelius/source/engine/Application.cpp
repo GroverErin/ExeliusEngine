@@ -9,6 +9,8 @@
 
 #include "source/debug/LogManager.h"
 
+#include "source/messages/MessageServer.h"
+
 #include "source/render/RenderManager.h"
 
 #include "source/resource/ResourceLoader.h"
@@ -78,6 +80,8 @@ namespace Exelius
 
 		EXELIUS_DELETE(m_pApplicationLog);
 
+		EXELIUS_DELETE(s_pGlobalMessageServer);
+
 		MemoryManager::GetInstance()->GetGlobalAllocator()->DumpMemoryData();
 
 		LogManager::DestroySingleton();
@@ -130,6 +134,13 @@ namespace Exelius
 
 		if (!InitializeLogManager(configFile))
 			return false;
+
+		//-----------------------------------------------
+		// Messaging - Initialization
+		//-----------------------------------------------
+
+		if (!s_pGlobalMessageServer)
+			s_pGlobalMessageServer = EXELIUS_NEW(MessageServer());
 
 		//-----------------------------------------------
 		// Rendering - Initialization
@@ -218,6 +229,9 @@ namespace Exelius
 				numFramesSinceAVG = 0;
 				accumulatedDeltaTime = 0.0f;
 			}
+
+			// Dispatch Messages
+			s_pGlobalMessageServer->DispatchMessages();
 
 			// Poll Window Events.
 			RenderManager::GetInstance()->Update();

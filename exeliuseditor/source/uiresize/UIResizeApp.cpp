@@ -3,6 +3,8 @@
 #include <include/Input.h>
 #include <include/Log.h>
 
+#include <source/os/threads/JobSystem.h>
+
 bool UIResizeApp::Initialize()
 {
 	auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();

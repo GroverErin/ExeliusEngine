@@ -54,16 +54,16 @@ You can also see the overall progress, as well as the features currently in prod
   - File Saving & Loading
   - Improved/Rewritten Build system
   - Memory Manager
+  - Thread Pool/Job System
 ### Upcoming
 Summer/Fall 2021 goals:
   - GUI Layer
-  - Thread Pool/Job System
   - Message/Event System (To prep for networking)
+  - Networking Layer
 ### Future
 Spring 2022 goals:
   - Profiler
   - Scripting (Lua and Native C++)
-  - Networking Layer
   - Flipbook/Sprite Animations
   - Tilemaps
 Stretch goals:

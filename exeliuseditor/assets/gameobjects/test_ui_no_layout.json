@@ -1,0 +1,72 @@
+{
+    "Name": "TestUINoLayout",
+    "Components" :
+    {
+        "TransformComponent" : 
+        {
+            "x" : 0.0,
+            "y" : 0.0,
+            "w" : 1.0,
+            "h" : 1.0
+        },
+        "UIComponent" :
+        {
+            "LayoutType" : 0,
+            "originX" : ["%", 0.0],
+            "originY" : ["%", 0.0],
+            "x" : ["%", 0.0],
+            "y" : ["%", 0.0],
+            "w" : ["%", 1.0],
+            "h" : ["%", 1.0],
+            "Color" : [0, 0, 0, 0],
+            "Children" :
+            {
+                "UIRect" :
+                {
+                    "originX" : ["%", 0.5],
+                    "originY" : ["%", 0.5],
+                    "x" : ["%", 0.5],
+                    "y" : ["%", 0.9],
+                    "w" : ["%", 0.5],
+                    "h" : ["%", 0.05],
+                    "Color" : [255, 0, 0, 255]
+                },
+                "UIRect_1" :
+                {
+                    "originX" : ["%", 0.5],
+                    "originY" : ["%", 1.0],
+                    "x" : ["%", 0.5],
+                    "y" : ["%", 1.0],
+                    "w" : ["%", 0.5],
+                    "h" : ["%", 0.05],
+                    "Color" : [0, 255, 0, 255]
+                },
+                "UIRect_2" :
+                {
+                    "originX" : ["%", 0.0],
+                    "originY" : ["%", 0.0],
+                    "x" : ["%", 0.0],
+                    "y" : ["%", 0.0],
+                    "w" : ["%", 0.15],
+                    "h" : ["%", 0.35],
+                    "Color" : [0, 0, 255, 255]
+                },
+                "UILabel" :
+                {
+                    "Font" : "assets/fonts/boxy_bold.font",
+                    "Text" : "IT'S DANGEROUS TO GO ALONE.\n\t\tTAKE THIS!",
+                    "HorizontalAlignment" : 0,
+                    "VerticalAlignment" : 0,
+                    "Size" : 10,
+                    "originX" : ["%", 0.0],
+                    "originY" : ["%", 0.0],
+                    "x" : ["%", 0.20],
+                    "y" : ["%", 0.5],
+                    "w" : ["%", 0.4],
+                    "h" : ["%", 0.1],
+                    "Color" : [255, 255, 255, 255]
+                }
+            }
+        }
+    }
+}

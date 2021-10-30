@@ -5,6 +5,7 @@
 #include "source/engine/ui/elements/UIButton.h"
 #include "source/engine/ui/elements/UIImage.h"
 #include "source/engine/ui/elements/UIRect.h"
+#include "source/engine/ui/elements/UILabel.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -19,6 +20,8 @@ namespace Exelius
             return EXELIUS_NEW(UIRect(pParent));
         else if (elementType.find("UIImage") != eastl::string::npos)
             return EXELIUS_NEW(UIImage(pParent));
+        else if (elementType.find("UILabel") != eastl::string::npos)
+            return EXELIUS_NEW(UILabel(pParent));
 
         return nullptr;
     }

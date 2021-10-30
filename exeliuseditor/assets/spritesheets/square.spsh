@@ -1,5 +1,5 @@
 {
-    "Texture": "assets/Textures/Square.png",
+    "Texture": "assets/textures/square.png",
     "Sprites" :
     {
         "player_paddle" : 

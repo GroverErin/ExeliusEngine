@@ -17,7 +17,7 @@ namespace Exelius
 
 		// TESTING ONLY
 		eastl::string m_text;
-		eastl::unordered_map<StringIntern, IRectangle> m_sprites;
+		eastl::unordered_map<StringIntern, FRectangle> m_sprites;
 
 	public:
 		SpritesheetResource(const ResourceID& id);
@@ -29,7 +29,7 @@ namespace Exelius
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
 		virtual void Unload() final override;
 
-		IRectangle GetSprite(const StringIntern& name)
+		FRectangle GetSprite(const StringIntern& name)
 		{
 			EXE_ASSERT(name.IsValid());
 

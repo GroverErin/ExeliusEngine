@@ -6,6 +6,7 @@
 #include "source/engine/resources/resourcetypes/TextFileResource.h"
 #include "source/engine/resources/resourcetypes/TextureResource.h"
 #include "source/engine/resources/resourcetypes/SpritesheetResource.h"
+#include "source/engine/resources/resourcetypes/FontResource.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -41,6 +42,11 @@ namespace Exelius
 				pNewResource = new SpritesheetResource(resourceID);
 				break;
 			}
+		case ResourceType::kFont:
+			{
+				pNewResource = new FontResource(resourceID);
+				break;
+			}
 		}
 
 		return pNewResource;
@@ -69,6 +75,10 @@ namespace Exelius
 		else if (fileExtension == "spsh")
 		{
 			return ResourceType::kSpritesheet;
+		}
+		else if (fileExtension == "font")
+		{
+			return ResourceType::kFont;
 		}
 
 		return ResourceType::kInvalid;

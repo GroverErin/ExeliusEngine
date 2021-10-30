@@ -224,6 +224,9 @@ namespace Exelius
 		#else
 		SortRenderCommands(m_advancedBuffer);
 
+		if (m_advancedBuffer.empty())
+			return;
+
 		// Render Clear
 		m_pWindow->Clear();
 

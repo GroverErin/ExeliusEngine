@@ -188,13 +188,13 @@ namespace Exelius
 			StackLayoutUpdate();
 			break;
 		case LayoutType::StackVertical:
-			StackLayoutUpdate();
+			StackLayoutUpdate(false);
 			break;
 		case LayoutType::WrapHorizontal:
 			WrapLayoutUpdate();
 			break;
 		case LayoutType::WrapVertical:
-			WrapLayoutUpdate();
+			WrapLayoutUpdate(false);
 			break;
 		default:
 			EXE_ASSERT(false);
@@ -238,24 +238,17 @@ namespace Exelius
 		float nextY = 0.0f;
 		for (auto* pChild : m_children)
 		{
-			FRectangle newPosition = m_actualRegion;
-			newPosition.x += nextX;
-			newPosition.y += nextY;
-			pChild->OnUpdate(newPosition);
+			pChild->OnUpdate({m_actualRegion.x + nextX, m_actualRegion.y + nextY, m_actualRegion.w, m_actualRegion.h});
 			if (isHorizontal)
 			{
 				if ((pChild->m_actualRegion.x + pChild->m_actualRegion.w) > m_actualRegion.w)
 				{
 					nextX = 0;
 					nextY += pChild->m_actualRegion.h;
-					newPosition.x += nextX;
-					newPosition.y += nextY;
-					pChild->OnUpdate(newPosition);
+					pChild->OnUpdate({ m_actualRegion.x + nextX, m_actualRegion.y + nextY, m_actualRegion.w, m_actualRegion.h });
 				}
-				else
-				{
-					nextX += pChild->m_actualRegion.w;
-				}
+
+				nextX += pChild->m_actualRegion.w;
 			}
 			else
 			{
@@ -263,14 +256,10 @@ namespace Exelius
 				{
 					nextY = 0;
 					nextX += pChild->m_actualRegion.w;
-					newPosition.x += nextX;
-					newPosition.y += nextY;
-					pChild->OnUpdate(newPosition);
+					pChild->OnUpdate({ m_actualRegion.x + nextX, m_actualRegion.y + nextY, m_actualRegion.w, m_actualRegion.h });
 				}
-				else
-				{
-					nextY += pChild->m_actualRegion.h;
-				}
+
+				nextY += pChild->m_actualRegion.h;
 			}
 		}
 	}

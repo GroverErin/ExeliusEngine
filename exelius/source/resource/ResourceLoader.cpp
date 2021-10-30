@@ -158,7 +158,7 @@ namespace Exelius
 	/// <param name="resourceID">- The filepath of the resource to load. This is a StringIntern for optimization.</param>
 	/// <param name="signalLoaderThread">- True if the loader thread should be signaled to begin loading. Does nothing in single threaded mode.</param>
 	/// <param name="pListener">- The listener to be notified when a resource has completed the load process.</param>
-	void ResourceLoader::QueueLoad(const ResourceID& resourceID, bool signalLoaderThread, ResourceListenerPtr pListener)
+	void ResourceLoader::QueueLoad(const ResourceID& resourceID, [[maybe_unused]] bool signalLoaderThread, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
 		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER

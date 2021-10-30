@@ -44,12 +44,12 @@ namespace Exelius
         /// </summary>
         CreationMode m_createMode;
 
+
+    public:
         /// <summary>
         /// Is this game object enabled?
         /// </summary>
         bool m_enabled;
-
-    public:
         /// <summary>
         /// Constructor - Initializes member variables.
         /// TODO: This should not be publicly accessable!
@@ -57,11 +57,33 @@ namespace Exelius
         /// <param name="id">The unique object ID given by the GameObjectSystem.</param>
         GameObject(uint32_t id, CreationMode createMode = CreationMode::kQueueAndSignal);
         
-        /*GameObject(const GameObject&) = delete;
+        /*GameObject(const GameObject& other)
+        {
+            __debugbreak();
+        }
+
+        GameObject(GameObject&& other)
+        {
+            __debugbreak();
+        }
+
+        GameObject& operator=(const GameObject& other)
+        {
+            __debugbreak();
+            return *this;
+        }
+
+        GameObject& operator=(GameObject&& other)
+        {
+            __debugbreak();
+            return *this;
+        }*/
+
+        GameObject(const GameObject&) = delete;
         GameObject(GameObject&&) = delete;
         GameObject& operator=(const GameObject&) = delete;
         GameObject& operator=(GameObject&&) = delete;
-        ~GameObject() = default;*/
+        ~GameObject() = default;
 
         /// <summary>
         /// Initialize this object using a JSON text file.

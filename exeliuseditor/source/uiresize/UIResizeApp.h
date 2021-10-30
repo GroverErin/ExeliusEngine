@@ -3,9 +3,8 @@
 
 class UIResizeApp
 {
-	Exelius::GameObjectID m_activeImage;
-	Exelius::GameObjectID m_inactiveImage;
-	Exelius::GameObjectID m_inactiveImage2;
+	eastl::array<Exelius::GameObjectID, 5> m_uiTests;
+	int m_activeUIIndex;
 
 	static constexpr float kPictureSpeed = 300.0f;
 public:

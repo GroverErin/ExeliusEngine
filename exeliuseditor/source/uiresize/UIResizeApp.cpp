@@ -8,21 +8,29 @@ bool UIResizeApp::Initialize()
 	auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
 	EXE_ASSERT(pGameObjectSystem);
 
-	eastl::string uiImage = "assets/ui/gameobjects/uitesta.json";
-	eastl::string uiImageB = "assets/ui/gameobjects/uitestb.json";
-	eastl::string uiImageC = "assets/ui/gameobjects/uitestc.json";
+	eastl::string uiObj = "assets/gameobjects/test_ui_no_layout.json";
+	eastl::string uiObjB = "assets/gameobjects/test_ui_wrap_v.json";
+	eastl::string uiObjC = "assets/gameobjects/test_ui_wrap_h.json";
+	eastl::string uiObjD = "assets/gameobjects/test_ui_stack_v.json";
+	eastl::string uiObjE = "assets/gameobjects/test_ui_stack_h.json";
 
-	m_activeImage = pGameObjectSystem->CreateGameObject(uiImage, Exelius::CreationMode::kQueueAndSignal);
-	m_inactiveImage = pGameObjectSystem->CreateGameObject(uiImageB, Exelius::CreationMode::kQueueAndSignal);
-	m_inactiveImage2 = pGameObjectSystem->CreateGameObject(uiImageC, Exelius::CreationMode::kQueueAndSignal);
+	m_uiTests[0] = pGameObjectSystem->CreateGameObject(uiObj, Exelius::CreationMode::kQueueAndSignal);
+	m_uiTests[1] = pGameObjectSystem->CreateGameObject(uiObjB, Exelius::CreationMode::kQueueAndSignal);
+	m_uiTests[2] = pGameObjectSystem->CreateGameObject(uiObjC, Exelius::CreationMode::kQueueAndSignal);
+	m_uiTests[3] = pGameObjectSystem->CreateGameObject(uiObjD, Exelius::CreationMode::kQueueAndSignal);
+	m_uiTests[4] = pGameObjectSystem->CreateGameObject(uiObjE, Exelius::CreationMode::kQueueAndSignal);
 
-	const auto& pInactiveObject2 = pGameObjectSystem->GetGameObject(m_inactiveImage2);
-	const auto& pInactiveObject = pGameObjectSystem->GetGameObject(m_inactiveImage);
-	const auto& pActiveObject = pGameObjectSystem->GetGameObject(m_activeImage);
+	for (auto objID : m_uiTests)
+	{
+		const auto& pObj = pGameObjectSystem->GetGameObject(objID);
+		pObj->SetEnabled(false);
+	}
+
+	m_activeUIIndex = 0;
+
+	const auto& pActiveObject = pGameObjectSystem->GetGameObject(m_uiTests[m_activeUIIndex]);
 
 	pActiveObject->SetEnabled(true);
-	pInactiveObject->SetEnabled(false);
-	pInactiveObject2->SetEnabled(false);
 	return true;
 }
 
@@ -42,8 +50,10 @@ void UIResizeApp::ShutDown()
 	auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
 	EXE_ASSERT(pGameObjectSystem);
 
-	pGameObjectSystem->DestroyGameObject(m_activeImage);
-	pGameObjectSystem->DestroyGameObject(m_inactiveImage);
+	for (auto objID : m_uiTests)
+	{
+		pGameObjectSystem->DestroyGameObject(objID);
+	}
 }
 
 void UIResizeApp::SwapImagesAndReset()
@@ -52,15 +62,15 @@ void UIResizeApp::SwapImagesAndReset()
 	EXE_ASSERT(pGameObjectSystem);
 
 	// Swap the images.
-	Exelius::GameObjectID tempID = m_activeImage;
-	m_activeImage = m_inactiveImage2;
-	m_inactiveImage2 = m_inactiveImage;
-	m_inactiveImage = tempID;
+	Exelius::GameObjectID oldActive = m_uiTests[m_activeUIIndex];
+	++m_activeUIIndex;
+	if ((size_t)m_activeUIIndex >= m_uiTests.size())
+		m_activeUIIndex = 0;
 
-	const auto& pInactiveObject = pGameObjectSystem->GetGameObject(m_inactiveImage);
+	const auto& pInactiveObject = pGameObjectSystem->GetGameObject(oldActive);
 	pInactiveObject->SetEnabled(false);
 
-	const auto& pActiveObject = pGameObjectSystem->GetGameObject(m_activeImage);
+	const auto& pActiveObject = pGameObjectSystem->GetGameObject(m_uiTests[m_activeUIIndex]);
 	pActiveObject->SetEnabled(true);
 
 	// Reset the transform of the inactive object.
@@ -81,7 +91,7 @@ void UIResizeApp::MoveImage()
 	auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
 	EXE_ASSERT(pGameObjectSystem);
 
-	const auto& pObject = pGameObjectSystem->GetGameObject(m_activeImage);
+	const auto& pObject = pGameObjectSystem->GetGameObject(m_uiTests[m_activeUIIndex]);
 	if (auto transform = pObject->GetComponent<Exelius::TransformComponent>())
 	{
 		if (Exelius::IsKeyDown(Exelius::KeyCode::W))

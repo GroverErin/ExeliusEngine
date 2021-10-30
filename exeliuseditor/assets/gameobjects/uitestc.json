@@ -1,5 +1,5 @@
 {
-    "Name": "TestUIB",
+    "Name": "TestUIC",
     "Components" :
     {
         "TransformComponent" : 
@@ -18,13 +18,14 @@
             "y" : ["%", 0.0],
             "w" : ["%", 1.0],
             "h" : ["%", 1.0],
+            "Color" : [0, 0, 0, 0],
             "Children" :
             {
                 "UIImage" :
                 {
-                    "Texture" : "assets/ui/textures/image2.png",
-                    "SourceRect" : [0, 0, 256, 256],
-                    "9Slices" : [20, 222, 65, 222],
+                    "Texture" : "assets/textures/image3.png",
+                    "SourceRect" : [0, 0, 276, 441],
+                    "9Slices" : [22, 243, 71, 418],
                     "originX" : ["%", 0.0],
                     "originY" : ["%", 0.0],
                     "x" : ["%", 0.0],

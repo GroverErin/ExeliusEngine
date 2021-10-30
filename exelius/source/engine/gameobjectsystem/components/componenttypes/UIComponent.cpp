@@ -10,6 +10,10 @@
 
 #include "source/engine/ui/elements/UIImage.h"
 
+
+
+#include <iostream>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -31,18 +35,27 @@ namespace Exelius
 
     void UIComponent::Update()
     {
-        static int renderedNum = 0;
-        static bool changed = false;
+        if (!m_pOwner)
+        {
+            m_gameObjectSystemLog.Fatal("Owner of UIComponent was nullptr. This should NEVER happen.");
+            return;
+        }
+
+        if (!m_pOwner->IsEnabled())
+            return;
+
+        //static int renderedNum = 0;
+        //static bool changed = false;
         auto size = RenderManager::GetInstance()->GetWindow()->GetWindowSize();
-        if (renderedNum > 60000 && !changed)
+        /*if (renderedNum > 60000 && !changed)
         {
             RenderManager::GetInstance()->GetWindow()->SetWindowSize({ 360, 320 });
-            RenderManager::GetInstance()->GetWindow()->SetView(View(FRectangle(0.0f, 0.0f, (float)size.x, (float)size.y)));
             changed = true;
         }
         else
-            ++renderedNum;
+            ++renderedNum;*/
 
+        RenderManager::GetInstance()->GetWindow()->SetView(View(FRectangle(0.0f, 0.0f, (float)size.x, (float)size.y)));
         m_uiRootElement.OnUpdate({ 0.0f, 0.0f, (float)size.w, (float)size.h });
     }
 
@@ -53,6 +66,17 @@ namespace Exelius
             m_gameObjectSystemLog.Fatal("Owner of UIComponent was nullptr. This should NEVER happen.");
             return;
         }
+
+        /*std::cout << "\n\n";
+        std::cout << (void*)m_pOwner << "\n";
+        std::cout << sizeof(GameObject) << "\n";
+        std::cout << alignof(GameObject) << "\n";
+        std::cout << (void*)((uintptr_t)m_pOwner + offsetof(Exelius::GameObject, m_enabled)) << "\n";
+        std::cout << offsetof(Exelius::GameObject, m_enabled) << "\n";*/
+        /*if (!m_pOwner)
+        {
+            __debugbreak();
+        }*/
 
         if (!m_pOwner->IsEnabled())
             return;

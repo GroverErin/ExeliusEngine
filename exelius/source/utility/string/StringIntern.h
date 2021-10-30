@@ -37,6 +37,12 @@ namespace Exelius
 			FindOrAdd(pString);
 		}
 
+		StringIntern(char character)
+			: m_pString(nullptr)
+		{
+			FindOrAdd(&character);
+		}
+
 		StringIntern(const StringIntern& stringIntern)
 			: m_pString(nullptr)
 		{

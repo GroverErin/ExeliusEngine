@@ -19,8 +19,6 @@
 
 #include "source/utility/generic/Time.h"
 
-
-
 // TEST
 #include "source/os/memory/PoolAllocator.h"
 
@@ -39,6 +37,8 @@ static auto& GetPool()
 }
 
 void* PoolTester::operator new(size_t size) { void* p = GetPool().Allocate(size, 0, "PoolTester", 0); return p; }
+
+// END TEST
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -92,7 +92,7 @@ namespace Exelius
 		EXE_ASSERT(MemoryManager::GetInstance());
 		MemoryManager::GetInstance()->Initialize(true);
 
-		LogManager::SetSingleton(EXELIUS_NEW(LogManager()));
+		LogManager::SetSingleton(new LogManager());
 		EXE_ASSERT(LogManager::GetInstance());
 		if (!LogManager::GetInstance()->PreInitialize())
 		{
@@ -114,7 +114,7 @@ namespace Exelius
 		// Config File - Open & Parse
 		//-----------------------------------------------
 		
-		//PoolTester* pTest = new PoolTester();
+		//PoolTester* pTest = new PoolTester();                                                                 <== Test code... to be removed
 
 		// Read in the config file. This uses the logging system,
 		// which is why the PreInit exists for the LoggingManager.

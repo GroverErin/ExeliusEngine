@@ -19,7 +19,7 @@ namespace Exelius
 		, m_name("Invalid")
 		, m_id(id)
 		, m_createMode(createMode)
-		, m_enabled(true)
+		, m_enabled(false)
 	{
 		EXE_ASSERT(m_id != kInvalidGameObjectID);
 

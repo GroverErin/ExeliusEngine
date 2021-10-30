@@ -19,8 +19,9 @@ namespace Exelius
 		//#else
 		//	return aligned_alloc(memoryAlignment, sizeToAllocate);
 		//#endif // EXE_WINDOWS
-
-			return malloc(sizeToAllocate);
+			void* ptr = malloc(sizeToAllocate);
+			memset(ptr, 0, sizeToAllocate);
+			return ptr;
 		}
 
 		virtual void Free(void* memoryToFree, size_t /* sizeToFree */, bool /* isAligned */) final override

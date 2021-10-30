@@ -47,9 +47,9 @@ namespace Exelius
 
 	class UIElement
 	{
-		UIElement* m_pParent;
 		eastl::vector<UIElement*> m_children;
 	protected:
+		UIElement* m_pParent;
 		Color m_color;
 		enum class LayoutType
 		{

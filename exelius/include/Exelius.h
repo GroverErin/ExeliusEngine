@@ -3,6 +3,7 @@
 
 // TODO: ALL OF THESE NEED TO BE REWORKED TO REMOVE AS MUCH AS POSSIBLE.
 //		 THIS FILE SHOULD BE TOTALLY EMPTY IF POSSIBLE.
+#include "source/precompilation/EXEPCH.h"
 #include "source/engine/gameobjectsystem/GameObjectSystem.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/TransformComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/SpriteComponent.h"

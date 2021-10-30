@@ -59,9 +59,9 @@ Summer/Fall 2021 goals:
   - GUI Layer
   - Thread Pool/Job System
   - Message/Event System (To prep for networking)
-  - Profiler
 ### Future
 Spring 2022 goals:
+  - Profiler
   - Scripting (Lua and Native C++)
   - Networking Layer
   - Flipbook/Sprite Animations
@@ -97,7 +97,7 @@ ___
 </p>
 
   - Inside of a terminal window, navigate to the `ExeliusEngine/` directory.
-    - The fastest way to accomplish this is to type `cmd` into the address bar (not the Search bar).
+    - The fastest way to accomplish this is to type `cmd` into the address bar (not the Search bar) and press Enter/Return.
   - Run the command `python Setup.py` in the terminal.
     - There is currently a bug requiring this step to be performed twice.
   - Open the `ExeliusEngine.sln` in the root directory with Visual Studio 2019.
@@ -142,19 +142,21 @@ ___
   - Josh Stefanski — Instructor and Mentor.
 ### Further Credits
   - Dylan Wijnen — Helped with Premake/Lua build system, Game Object and Component systems, and other minor tips and tricks.
-  - Kirill Sizykh — Helped with Premake/Lua build system for Linux.
+  - Kirill Sizykh — Helped with the first iteration of the Linux build system. Taught me how Linux works for building complex C++ projects.
   - [Yan "The Cherno" Chernikov](https://www.youtube.com/c/TheChernoProject/featured) — YouTube series that I've used to evaluate different design decisions. See note below on this.
-  - Jason Gregory - Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
+  - Jason Gregory — Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
 
   Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project.
-    - The design of the core `Application` class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
-    - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made python 2.7 compatable (that might change though).
+  
+    - The design of the core Application class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
+    - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made it python 2.7 compatable (that might change though).
     - I am currently using his event system to handle window events from SFML. I will be stripping this system out shortly, to be replaced with an entirely new system.
     - I might use his LayerStack design for applications. I haven't yet, but I am exploring the idea and the implications it would have in Exelius.
 ### Third-Party Tools
 Here is a list of all the third party tools currently being used by Exelius. The goal is to make this list as short as possible. Other libraries may be included but are currently unused.
   - [Premake 5](https://premake.github.io) — Used for the build system.
   - [SFML](https://www.sfml-dev.org) — Used for window creation, rendering, and input events.
+  - [EASTL](https://github.com/electronicarts/EASTL) — Used as the main STL for Exelius.
   - [rapidjson](https://github.com/Tencent/rapidjson) — Used to parse gameobjects and the config file (which should not be json but whatever... subject to change blah blah).
   - [spdlog](https://github.com/gabime/spdlog) — Used for multithreaded debug logging to console and files.
   - [Dear ImGui](https://github.com/ocornut/imgui) — Not currently used. Will be used to create an editor GUI. This will be separate from the in-game (retained) gui.

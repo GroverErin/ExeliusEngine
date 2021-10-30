@@ -81,7 +81,7 @@ function exeliusDependencyGenerator.LinkDependencies()
         log.Log("[Premake] Linking Dependancy Project '" .. dependency.location .. "' from: " .. dependencyRootFolder)
 
         if dependency.LinkDependency ~= nil then
-            log.Log("[Premake] Linking '" .. dependency.location .. "'.")
+            log.Info("[Premake] Linking '" .. dependency.location .. "'.")
             dependency.LinkDependency(dependencyRootFolder)
         else
             log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no LinkDependency function defined.")

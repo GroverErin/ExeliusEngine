@@ -29,24 +29,24 @@ namespace Exelius
         return true;
     }
 
-    const Job& JobSystem::PushJob(const eastl::function<void()>& jobToPush, Job* pParentJob /* = nullptr */)
+    const eastl::shared_ptr<Job> JobSystem::PushJob(const eastl::function<void()>& jobToPush, eastl::shared_ptr<Job> pParentJob /* = nullptr */)
     {
-        Job newJob;
-        newJob.m_pParentJob = pParentJob;
-        ++newJob.m_jobCounter;
-        newJob.m_job = jobToPush;
+        eastl::shared_ptr<Job> pNewJob = eastl::make_shared<Job>();
+        pNewJob->m_pParentJob = pParentJob;
+        ++pNewJob->m_jobCounter;
+        pNewJob->m_job = jobToPush;
         if (pParentJob)
             ++pParentJob->m_jobCounter;
         ++m_jobCounter;
 
-        while (!m_jobPool.PushBack(newJob))
+        while (!m_jobPool.PushBack(pNewJob))
         {
             CycleThread();
         }
 
         m_jobSignal.notify_one();
 
-        return newJob;
+        return pNewJob;
     }
 
     bool JobSystem::JobsAreExecuting()
@@ -78,14 +78,14 @@ namespace Exelius
 
     void JobSystem::ExecuteJob()
     {
-        Job jobToExecute;
+        eastl::shared_ptr<Job> pJobToExecute;
 
         while (true)
         {
-            if (m_jobPool.PopFront(jobToExecute))
+            if (m_jobPool.PopFront(pJobToExecute))
             {
-                jobToExecute.m_job();
-                RecurseCounterDecrement(&jobToExecute);
+                pJobToExecute->m_job();
+                RecurseCounterDecrement(pJobToExecute);
             }
             else
             {
@@ -95,7 +95,7 @@ namespace Exelius
         }
     }
 
-    void JobSystem::RecurseCounterDecrement(Job* pJob)
+    void JobSystem::RecurseCounterDecrement(eastl::shared_ptr<Job> pJob)
     {
         --pJob->m_jobCounter;
         if (pJob->m_pParentJob)

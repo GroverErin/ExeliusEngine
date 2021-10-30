@@ -10,6 +10,7 @@
 #include "source/debug/LogManager.h"
 
 #include "source/messages/MessageServer.h"
+#include "source/os/threads/JobSystem.h"
 
 #include "source/render/RenderManager.h"
 
@@ -141,6 +142,14 @@ namespace Exelius
 
 		if (!s_pGlobalMessageServer)
 			s_pGlobalMessageServer = EXELIUS_NEW(MessageServer());
+
+		//-----------------------------------------------
+		// Job System - Initialization
+		//-----------------------------------------------
+
+		if (!s_pGlobalJobSystem)
+			s_pGlobalJobSystem = EXELIUS_NEW(JobSystem());
+		s_pGlobalJobSystem->Initialize();
 
 		//-----------------------------------------------
 		// Rendering - Initialization

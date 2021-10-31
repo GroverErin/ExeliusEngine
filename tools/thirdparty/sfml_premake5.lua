@@ -366,8 +366,6 @@ function sfml.LinkDependency(dependencyRootFolder, exeliusLibDir)
             "Xcursor",
             "udev"
         }
-
-    filter {}
 end
 
 dependencies.AddDependency("sfml", sfml)

@@ -19,6 +19,7 @@ namespace Exelius
 
 		MessageID GetMessageID() const { return m_id; }
 		
+		//Add assert instead of boolean
 		bool SetMessageCallback(const eastl::function<void(Message*)>& callbackToSet);
 
 		void ClearCallback();

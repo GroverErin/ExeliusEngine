@@ -41,6 +41,7 @@ namespace Exelius
 
 			pMessage->ExecuteMessageCallback();
 
+			// TODO: Clone recievers here.
 			for (auto& callback : m_recievers[pMessage->GetMessageID()])
 			{
 				callback(pMessage);

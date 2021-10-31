@@ -25,7 +25,4 @@ function rapidjson.IncludeDependency(dependencyRootFolder)
     filter {}
 end
 
-function rapidjson.LinkDependency(dependencyRootFolder, exeliusLibDir)
-end
-
 dependencies.AddDependency("rapidjson", rapidjson)

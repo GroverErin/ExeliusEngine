@@ -99,7 +99,6 @@ ___
   - Inside of a terminal window, navigate to the `ExeliusEngine/` directory.
     - The fastest way to accomplish this is to type `cmd` into the address bar (not the Search bar) and press Enter/Return.
   - Run the command `python Setup.py` in the terminal.
-    - There is currently a bug requiring this step to be performed twice.
   - Open the `ExeliusEngine.sln` in the root directory with Visual Studio 2019.
   - Build desired configuration - Outputs to `bin/` and `obj/` directories.
   - You can run the build in either the Visual Studio IDE or navigate to the `ExeliusEngine/bin/[Config]_[Architecture]/exeliuseditor/` directory and run the executable.

@@ -81,6 +81,8 @@ namespace Exelius
 
 		EXELIUS_DELETE(m_pApplicationLog);
 
+		EXELIUS_DELETE(s_pGlobalJobSystem);
+
 		EXELIUS_DELETE(s_pGlobalMessageServer);
 
 		MemoryManager::GetInstance()->GetGlobalAllocator()->DumpMemoryData();

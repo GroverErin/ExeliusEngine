@@ -1,0 +1,87 @@
+{
+    "Name": "MainMenu",
+    "Components" :
+    {
+        "TransformComponent" : 
+        {
+            "x" : 0.0,
+            "y" : 0.0,
+            "w" : 1.0,
+            "h" : 1.0
+        },
+        "UIComponent" :
+        {
+            "LayoutType" : 0,
+            "originX" : ["%", 0.0],
+            "originY" : ["%", 0.0],
+            "x" : ["%", 0.0],
+            "y" : ["%", 0.0],
+            "w" : ["%", 1.0],
+            "h" : ["%", 1.0],
+            "Color" : [0, 0, 0, 0],
+            "Children" :
+            {
+                "UILabel" :
+                {
+                    "Font" : "assets/fonts/boxy_bold.font",
+                    "Text" : "PONG CLONE",
+                    "HorizontalAlignment" : 2,
+                    "VerticalAlignment" : 0,
+                    "Size" : 48,
+                    "originX" : ["%", 0.5],
+                    "originY" : ["%", 0.0],
+                    "x" : ["%", 0.5],
+                    "y" : ["%", 0.15],
+                    "w" : ["%", 0.75],
+                    "h" : ["%", 0.1],
+                    "Color" : [255, 255, 255, 255],
+                    "Children" :
+                    {
+                        "UILabel" :
+                        {
+                            "Font" : "assets/fonts/boxy_bold.font",
+                            "Text" : "DEVELOPED BY:\nERIN GROVER",
+                            "HorizontalAlignment" : 2,
+                            "VerticalAlignment" : 0,
+                            "Size" : 24,
+                            "originX" : ["%", 0.0],
+                            "originY" : ["%", 0.0],
+                            "x" : ["%", 0.0],
+                            "y" : ["%", 1.0],
+                            "w" : ["%", 1.0],
+                            "h" : ["%", 1.0],
+                            "Color" : [0, 255, 255, 255]
+                        },
+                        "UILabel_1" :
+                        {
+                            "Font" : "assets/fonts/boxy_bold.font",
+                            "Text" : "PRESS SPACE TO BEGIN!",
+                            "HorizontalAlignment" : 2,
+                            "VerticalAlignment" : 0,
+                            "Size" : 24,
+                            "originX" : ["%", 0.0],
+                            "originY" : ["%", 0.0],
+                            "x" : ["%", 0.0],
+                            "y" : ["%", 3.0],
+                            "w" : ["%", 1.0],
+                            "h" : ["%", 1.0],
+                            "Color" : [255, 255, 0, 255]
+                        }
+                    }
+                },
+                "UIImage" :
+                {
+                    "Texture" : "assets/textures/image1.png",
+                    "SourceRect" : [0, 0, 256, 256],
+                    "9Slices" : [29, 198, 22, 198],
+                    "originX" : ["%", 0.5],
+                    "originY" : ["%", 0.0],
+                    "x" : ["%", 0.5],
+                    "y" : ["%", 0.5],
+                    "w" : ["%", 0.5],
+                    "h" : ["%", 0.5]
+                }
+            }
+        }
+    }
+}

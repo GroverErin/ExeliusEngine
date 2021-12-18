@@ -10,10 +10,11 @@
 /// </summary>
 namespace Exelius
 {
+	class Log;
 	class ResourceFactory;
 	class ComponentFactory;
+	class MessageFactory;
 	class ConfigFile;
-	class Log;
 
 	/// <summary>
 	/// The application class is to be inhereted by the client,
@@ -23,8 +24,11 @@ namespace Exelius
 		: public Singleton<Application>, public OSEventObserver
 	{
 		Log* m_pApplicationLog; // Needs to be pointer because it is created after LogManager Init();
+
 		ResourceFactory* m_pResourceFactory;
 		ComponentFactory* m_pComponentFactory;
+		MessageFactory* m_pMessageFactory;
+
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;
@@ -86,7 +90,7 @@ namespace Exelius
 		virtual void SetComponentFactory();
 
 		/// <summary>
-		/// Sets the resource factory to use when creating resources.
+		/// Sets the resource factory to use when creating Resources.
 		/// 
 		/// NOTE:
 		///		This will override any engine specific components unless
@@ -99,6 +103,21 @@ namespace Exelius
 		///			return Exelius::ExeliusResourceFactory::CreateResource(resourceID);
 		/// </summary>
 		virtual void SetResourceFactory();
+
+		/// <summary>
+		/// Sets the message factory to use when creating Messages.
+		/// 
+		/// NOTE:
+		///		This will override any engine specific Messages unless
+		///		the client's defined MessageFactory inherets from
+		///		ExeliusMessageFactory and calls it's CreateMessage()
+		///		function.
+		/// 
+		///	Example:
+		///		case default:
+		///			return Exelius::ExeliusMessageFactory::CreateMessage();
+		/// </summary>
+		virtual void SetMessageFactory();
 
 		/// <summary>
 		/// Client Update Loop Hook. Clients are required to define this function

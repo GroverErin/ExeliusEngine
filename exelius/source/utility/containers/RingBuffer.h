@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

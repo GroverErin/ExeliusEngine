@@ -132,11 +132,11 @@ void operator delete[](void* pMemoryToFree, size_t memoryAlignment, const char* 
 #ifdef EXE_DEBUG
 	#define EXELIUS_NEW(object) new(__FILE__, __LINE__) object
 	#define EXELIUS_NEW_ARRAY(object, size) new(__FILE__, __LINE__) object[size]
-	#define EXELIUS_DELETE(objectPointer) delete objectPointer
-	#define EXELIUS_DELETE_ARRAY(objectPointer) delete[] objectPointer
+	#define EXELIUS_DELETE(objectPointer) delete objectPointer; objectPointer = nullptr
+	#define EXELIUS_DELETE_ARRAY(objectPointer) delete[] objectPointer; objectPointer = nullptr
 #else // !EXE_DEBUG
 	#define EXELIUS_NEW(object) new object
 	#define EXELIUS_NEW_ARRAY(object, size) new object[size]
-	#define EXELIUS_DELETE(objectPointer) delete objectPointer
-	#define EXELIUS_DELETE_ARRAY(objectPointer) delete[] objectPointer
+	#define EXELIUS_DELETE(objectPointer) delete objectPointer; objectPointer = nullptr
+	#define EXELIUS_DELETE_ARRAY(objectPointer) delete[] objectPointer; objectPointer = nullptr
 #endif // EXE_DEBUG

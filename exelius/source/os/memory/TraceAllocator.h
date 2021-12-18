@@ -6,14 +6,11 @@
 /// </summary>
 namespace Exelius
 {
-	class Log;
-
 	class TraceAllocator
 		: public ExeliusAllocator
 	{
 		static constexpr uint32_t s_kMaxTrackedAllocationCount = 4096;
 		ExeliusAllocator* m_pParentAllocator;
-		Log* m_pMemoryLog;
 
 		int32_t m_allocationCount;
 		size_t m_totalAllocatedBytes;
@@ -48,8 +45,6 @@ namespace Exelius
 		TraceAllocator();
 
 		TraceAllocator(ExeliusAllocator* pParentAllocator);
-
-		virtual ~TraceAllocator();
 
 		void SetParentAllocator(ExeliusAllocator* pParentAllocator);
 

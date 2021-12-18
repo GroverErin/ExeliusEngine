@@ -16,6 +16,8 @@ namespace Exelius
 
 		ExeliusAllocator* m_pGlobalAllocator;
 	public:
+		virtual ~MemoryManager() { m_pGlobalAllocator = nullptr; }
+
 		void Initialize(bool useTraceAllocator)
 		{
 			m_traceAllocator.SetParentAllocator(&m_systemAllocator);

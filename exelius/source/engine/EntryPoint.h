@@ -24,7 +24,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
 	pApp->Run();
 
-	delete pApp;
+	pApp->DestroySingleton();
+
 	return 0;
 }
 

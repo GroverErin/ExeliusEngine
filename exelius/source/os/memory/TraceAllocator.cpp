@@ -1,6 +1,8 @@
 #include "EXEPCH.h"
 #include "TraceAllocator.h"
 
+#include <iostream>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -8,7 +10,6 @@ namespace Exelius
 {
 	TraceAllocator::TraceAllocator()
 		: m_pParentAllocator(nullptr)
-		, m_pMemoryLog(nullptr)
 		, m_allocationCount(0)
 		, m_totalAllocatedBytes(0)
 		, m_deallocationCount(0)
@@ -19,18 +20,12 @@ namespace Exelius
 
 	TraceAllocator::TraceAllocator(ExeliusAllocator* pParentAllocator)
 		: m_pParentAllocator(pParentAllocator)
-		, m_pMemoryLog(nullptr)
 		, m_allocationCount(0)
 		, m_totalAllocatedBytes(0)
 		, m_deallocationCount(0)
 		, m_totalDeallocatedBytes(0)
 	{
 		EXE_ASSERT(m_pParentAllocator);
-	}
-
-	TraceAllocator::~TraceAllocator()
-	{
-		EXELIUS_DELETE(m_pMemoryLog);
 	}
 
 	void TraceAllocator::SetParentAllocator(ExeliusAllocator* pParentAllocator)
@@ -82,15 +77,18 @@ namespace Exelius
 		{
 			if (entry.memoryAddress == reinterpret_cast<uintptr_t>(memoryToFree))
 			{
-				// Zero out the entry.
-				entry.memoryAddress = 0;
-				entry.allocationSize = 0;
-				entry.pAllocationFile = nullptr;
-				entry.lineNumber = 0;
-
 				// We only track the memory we allocated.
 				++m_deallocationCount;
-				m_totalDeallocatedBytes += sizeToFree;
+				if (sizeToFree <= 0)
+					m_totalDeallocatedBytes += entry.allocationSize;
+				else
+					m_totalDeallocatedBytes += sizeToFree;
+
+				// Zero out the entry.
+				entry.memoryAddress = 0;
+				entry.pAllocationFile = nullptr;
+				entry.lineNumber = 0;
+				entry.allocationSize = 0;
 
 				// This was one of Exelius's allocations, so we can free it (aligned).
 				m_pParentAllocator->Free(memoryToFree, sizeToFree, true);
@@ -104,28 +102,24 @@ namespace Exelius
 
 	void TraceAllocator::DumpMemoryData()
 	{
-		if (!m_pMemoryLog)
-			m_pMemoryLog = EXELIUS_NEW(Log("MemoryManager"));
+		std::cout << "\n----------------------------------------------------\n";
+		std::cout << "Debug Memory Manager Data Dump";
+		std::cout << "\n----------------------------------------------------\n";
+		std::cout << "Current Total Allocation Count: " << m_allocationCount << "\n";
+		std::cout << "Current Total Deallocation Count: " << m_deallocationCount << "\n";
+		std::cout << "Difference: " << m_allocationCount - m_deallocationCount << "\n";
 
-		EXE_ASSERT(m_pMemoryLog);
-		m_pMemoryLog->Info("Current Total Allocation Count: {}", m_allocationCount);
-		m_pMemoryLog->Info("Current Total Deallocation Count: {}", m_deallocationCount);
-		m_pMemoryLog->Info("Difference: {}", m_allocationCount - m_deallocationCount);
-
-		m_pMemoryLog->Info("Current Total Memory Allocated: {}", m_totalAllocatedBytes);
-		m_pMemoryLog->Info("Current Total Memory Deallocated: {}", m_totalDeallocatedBytes);
-		m_pMemoryLog->Info("Difference: {}", m_totalAllocatedBytes - m_totalDeallocatedBytes);
+		std::cout << "Current Total Memory Allocated: " << m_totalAllocatedBytes << "\n";
+		std::cout << "Current Total Memory Deallocated: " << m_totalDeallocatedBytes << "\n";
+		std::cout << "Difference: " << m_totalAllocatedBytes - m_totalDeallocatedBytes << "\n";
 
 		for (auto& entry : m_trackedMemory)
 		{
 			if (entry.memoryAddress != 0)
 			{
-				if (entry.memoryAddress == reinterpret_cast<uintptr_t>(m_pMemoryLog))
-					continue; // We know that this memory gets cleaned, so we just ignore it.
-
 				if (entry.pAllocationFile)
 				{
-					m_pMemoryLog->Error("Leak Detected: Address: {:x}, Size (bytes): {}, Filename: {}, Line Number: {}", entry.memoryAddress, entry.allocationSize, entry.pAllocationFile, entry.lineNumber);
+					std::cout << "Leak Detected: Address: " << entry.memoryAddress << ", Size (bytes): " << entry.allocationSize  << ", Filename: " << entry.pAllocationFile << ", Line Number: " << entry.lineNumber << "\n";
 				}
 			}
 		}

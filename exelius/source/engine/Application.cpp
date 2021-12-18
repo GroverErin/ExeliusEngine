@@ -1,15 +1,23 @@
 #include "EXEPCH.h"
 
 #include "source/engine/Application.h"
-#include "source/engine/resources/ExeliusResourceFactory.h"
-#include "source/engine/gameobjectsystem/GameObjectSystem.h"
-#include "source/engine/gameobjectsystem/components/ExeliusComponentFactory.h"
 
 #include "source/engine/settings/ConfigFile.h"
 
-#include "source/debug/LogManager.h"
+#include "source/engine/resources/ExeliusResourceFactory.h"
+
+#include "source/engine/gameobjectsystem/GameObjectSystem.h"
+
+#include "source/engine/gameobjectsystem/components/ExeliusComponentFactory.h"
 
 #include "source/messages/MessageServer.h"
+
+#include "source/messages/exeliusmessages/ExeliusMessageFactory.h"
+
+#include "source/networking/NetworkingManager.h"
+
+#include "source/debug/LogManager.h"
+
 #include "source/os/threads/JobSystem.h"
 
 #include "source/render/RenderManager.h"
@@ -17,11 +25,14 @@
 #include "source/resource/ResourceLoader.h"
 
 #include "source/os/input/InputManager.h"
-#include "source/os/events/ApplicationEvents.h"
-#include "source/os/interface/graphics/Window.h"
+
+#include "source/os/events/ApplicationEvents.h" // TODO: Remove this.
+
+#include "source/os/interface/graphics/Window.h" // TODO: Remove this.
 
 #include "source/utility/generic/Time.h"
 
+// ---------------------------------------------------------------------------------------------------------------
 // TEST
 #include "source/os/memory/PoolAllocator.h"
 
@@ -42,6 +53,7 @@ static auto& GetPool()
 void* PoolTester::operator new(size_t size) { void* p = GetPool().Allocate(size, 0, "PoolTester", 0); return p; }
 
 // END TEST
+// ---------------------------------------------------------------------------------------------------------------
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -57,6 +69,7 @@ namespace Exelius
 		: m_pApplicationLog(nullptr)
 		, m_pResourceFactory(nullptr)
 		, m_pComponentFactory(nullptr)
+		, m_pMessageFactory(nullptr)
 		, m_lastFrameTime(0.0f)
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
@@ -68,8 +81,9 @@ namespace Exelius
 	{
 		GameObjectSystem::DestroySingleton();
 
-		delete m_pComponentFactory;
-		m_pComponentFactory = nullptr;
+		EXELIUS_DELETE(m_pComponentFactory);
+		EXELIUS_DELETE(m_pResourceFactory);
+		EXELIUS_DELETE(m_pMessageFactory);
 
 		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
 		InputManager::DestroySingleton();
@@ -81,13 +95,17 @@ namespace Exelius
 
 		EXELIUS_DELETE(m_pApplicationLog);
 
+		NetworkingManager::DestroySingleton();
+
 		EXELIUS_DELETE(s_pGlobalJobSystem);
 
-		EXELIUS_DELETE(s_pGlobalMessageServer);
-
-		MemoryManager::GetInstance()->GetGlobalAllocator()->DumpMemoryData();
+		MessageServer::DestroySingleton();
 
 		LogManager::DestroySingleton();
+
+		StringIntern::_ClearStringInternSet();
+
+		MemoryManager::GetInstance()->GetGlobalAllocator()->DumpMemoryData();
 
 		MemoryManager::DestroySingleton();
 	}
@@ -99,7 +117,7 @@ namespace Exelius
 		EXE_ASSERT(MemoryManager::GetInstance());
 		MemoryManager::GetInstance()->Initialize(true);
 
-		LogManager::SetSingleton(new LogManager());
+		LogManager::SetSingleton(EXELIUS_NEW(LogManager()));
 		EXE_ASSERT(LogManager::GetInstance());
 		if (!LogManager::GetInstance()->PreInitialize())
 		{
@@ -142,8 +160,8 @@ namespace Exelius
 		// Messaging - Initialization
 		//-----------------------------------------------
 
-		if (!s_pGlobalMessageServer)
-			s_pGlobalMessageServer = EXELIUS_NEW(MessageServer());
+		MessageServer::SetSingleton(EXELIUS_NEW(MessageServer()));
+		EXE_ASSERT(MessageServer::GetInstance());
 
 		//-----------------------------------------------
 		// Job System - Initialization
@@ -152,6 +170,18 @@ namespace Exelius
 		if (!s_pGlobalJobSystem)
 			s_pGlobalJobSystem = EXELIUS_NEW(JobSystem());
 		s_pGlobalJobSystem->Initialize();
+
+		//-----------------------------------------------
+		// Networking System - Initialization
+		//-----------------------------------------------
+
+		SetMessageFactory();
+		EXE_ASSERT(m_pMessageFactory);
+
+		NetworkingManager::SetSingleton(EXELIUS_NEW(NetworkingManager()));
+		EXE_ASSERT(NetworkingManager::GetInstance());
+		if (!NetworkingManager::GetInstance()->Initialize(m_pMessageFactory))
+			return false;
 
 		//-----------------------------------------------
 		// Rendering - Initialization
@@ -242,7 +272,7 @@ namespace Exelius
 			}
 
 			// Dispatch Messages
-			s_pGlobalMessageServer->DispatchMessages();
+			MessageServer::GetInstance()->DispatchMessages();
 
 			// Poll Window Events.
 			RenderManager::GetInstance()->Update();
@@ -283,7 +313,7 @@ namespace Exelius
 	/// </summary>
 	void Application::SetComponentFactory()
 	{
-		m_pComponentFactory = new ExeliusComponentFactory();
+		m_pComponentFactory = EXELIUS_NEW(ExeliusComponentFactory());
 	}
 
 	/// <summary>
@@ -301,7 +331,25 @@ namespace Exelius
 	/// </summary>
 	void Application::SetResourceFactory()
 	{
-		m_pResourceFactory = new ExeliusResourceFactory();
+		m_pResourceFactory = EXELIUS_NEW(ExeliusResourceFactory());
+	}
+
+	/// <summary>
+	/// Sets the message factory to use when creating Messages.
+	/// 
+	/// NOTE:
+	///		This will override any engine specific Messages unless
+	///		the client's defined MessageFactory inherets from
+	///		ExeliusMessageFactory and calls it's CreateMessage()
+	///		function.
+	/// 
+	///	Example:
+	///		case default:
+	///			return Exelius::ExeliusMessageFactory::CreateMessage();
+	/// </summary>
+	void Application::SetMessageFactory()
+	{
+		m_pMessageFactory = EXELIUS_NEW(ExeliusMessageFactory());
 	}
 
 	/// <summary>
@@ -372,7 +420,7 @@ namespace Exelius
 			m_pApplicationLog->Warn("Failed to populate window data correctly. Please verify config file.");
 		}
 
-		RenderManager::SetSingleton(new RenderManager());
+		RenderManager::SetSingleton(EXELIUS_NEW(RenderManager()));
 		EXE_ASSERT(RenderManager::GetInstance());
 		if (!RenderManager::GetInstance()->Initialize(windowTitle, windowSize, isVSyncEnabled))
 		{
@@ -392,7 +440,7 @@ namespace Exelius
 	{
 		EXE_ASSERT(m_pApplicationLog);
 
-		InputManager::SetSingleton(new InputManager());
+		InputManager::SetSingleton(EXELIUS_NEW(InputManager()));
 		EXE_ASSERT(InputManager::GetInstance());
 		if (!InputManager::GetInstance()->Initialize())
 		{
@@ -417,7 +465,7 @@ namespace Exelius
 		EXE_ASSERT(m_pApplicationLog);
 
 		// Create Resource Manager Singleton.
-		ResourceLoader::SetSingleton(new ResourceLoader());
+		ResourceLoader::SetSingleton(EXELIUS_NEW(ResourceLoader()));
 		EXE_ASSERT(ResourceLoader::GetInstance());
 		if (!ResourceLoader::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
 		{
@@ -437,7 +485,7 @@ namespace Exelius
 	{
 		EXE_ASSERT(m_pApplicationLog);
 
-		GameObjectSystem::SetSingleton(new GameObjectSystem());
+		GameObjectSystem::SetSingleton(EXELIUS_NEW(GameObjectSystem()));
 		EXE_ASSERT(GameObjectSystem::GetInstance());
 		if (!GameObjectSystem::GetInstance()->Initialize(m_pComponentFactory))
 		{

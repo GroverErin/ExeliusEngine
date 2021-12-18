@@ -119,11 +119,6 @@ namespace Exelius
 		//if (!isVisible)
 		//	return;
 
-		RenderCommand command;
-		command.m_destinationFrame = m_actualRegion;
-		command.m_tint = m_color;
-		RenderManager::GetInstance()->PushRenderCommand(command);
-
 		for (auto* pChild : m_children)
 		{
 			pChild->OnRender();

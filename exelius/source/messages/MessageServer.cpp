@@ -1,24 +1,35 @@
 #include "EXEPCH.h"
 #include "MessageServer.h"
-#include "Message.h"
+#include "MessageReceiver.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
-	void MessageServer::AddMessageReciever(MessageID id, eastl::function<void(Message*)> callback)
+	MessageServer::~MessageServer()
 	{
-		const auto& foundList = m_recievers.find(id);
+		Message* pMessage = nullptr;
+		while (m_messages.PopFront(pMessage))
+		{
+			EXELIUS_DELETE(pMessage);
+		}
 
-		if (foundList != m_recievers.end())
-			foundList->second.emplace_back(callback);
+		m_receivers.clear();
+	}
+
+	void MessageServer::AddMessageReceiver(MessageID id, eastl::shared_ptr<MessageReceiver> pNewEntry)
+	{
+		const auto& foundList = m_receivers.find(id);
+
+		if (foundList != m_receivers.end())
+			foundList->second.emplace_back(pNewEntry);
 		else
 		{
 			// This doesn't seem like the best thing...
-			eastl::vector<eastl::function<void(Message*)>> newCallbacksList;
-			newCallbacksList.emplace_back(callback);
-			m_recievers.emplace(id, newCallbacksList);
+			eastl::vector<eastl::shared_ptr<MessageReceiver>> newReceiversList;
+			newReceiversList.emplace_back(pNewEntry);
+			m_receivers.emplace(id, newReceiversList);
 		}
 	}
 	
@@ -41,10 +52,11 @@ namespace Exelius
 
 			pMessage->ExecuteMessageCallback();
 
-			// TODO: Clone recievers here.
-			for (auto& callback : m_recievers[pMessage->GetMessageID()])
+			// TODO: Clone receivers here and protect with mutex, as recievers are added from multiple threads.
+			for (const auto& entry : m_receivers[pMessage->GetMessageID()])
 			{
-				callback(pMessage);
+				if (entry)
+					entry->InvokeCallback(pMessage);
 			}
 
 			EXELIUS_DELETE(pMessage);

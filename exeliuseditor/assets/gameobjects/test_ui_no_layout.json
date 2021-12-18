@@ -54,15 +54,15 @@
                 "UILabel" :
                 {
                     "Font" : "assets/fonts/boxy_bold.font",
-                    "Text" : "IT'S DANGEROUS TO GO ALONE.\n\t\tTAKE THIS!",
+                    "Text" : "HI GRANDMA!\nYOU'RE IN A VIDEOGAME!",
                     "HorizontalAlignment" : 0,
                     "VerticalAlignment" : 0,
-                    "Size" : 10,
+                    "Size" : 24,
                     "originX" : ["%", 0.0],
                     "originY" : ["%", 0.0],
                     "x" : ["%", 0.20],
                     "y" : ["%", 0.5],
-                    "w" : ["%", 0.4],
+                    "w" : ["%", 0.6],
                     "h" : ["%", 0.1],
                     "Color" : [255, 255, 255, 255]
                 }

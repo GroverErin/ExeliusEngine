@@ -1,10 +1,13 @@
 #include <include/ExeliusMain.h>
 #include <include/Log.h>
-//#include "pong/PongGame.h"
-#include "uiresize/UIResizeApp.h"
 
-//EXELIUS_MAIN(Sandbox, PongGame m_app);
-EXELIUS_MAIN(Sandbox, UIResizeApp m_app);
+#if 0
+#include "pong/PongGame.h"
+EXELIUS_MAIN(Sandbox, PongGame m_app);
+#else
+#include "uifinal/UIFinalApp.h"
+EXELIUS_MAIN(Sandbox, UIFinalApp m_app);
+#endif
 
 bool Sandbox::Initialize()
 {

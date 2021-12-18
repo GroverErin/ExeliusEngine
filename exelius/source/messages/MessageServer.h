@@ -1,30 +1,31 @@
 #pragma once
+#include "source/utility/generic/Singleton.h"
 #include "source/utility/containers/RingBuffer.h"
+#include "Message.h"
 
 #include <EASTL/unordered_map.h>
 #include <EASTL/vector.h>
-#include <EASTL/functional.h>
+#include <EASTL/shared_ptr.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
-	class Message;
-	using MessageID = uint32_t;
+	class MessageReceiver;
 	class MessageServer
+		: public Singleton<MessageServer>
 	{
-		using RecieverList = eastl::vector<eastl::function<void(Message*)>>;
-		eastl::unordered_map<MessageID, RecieverList> m_recievers;
+		using ReceiverList = eastl::vector<eastl::shared_ptr<MessageReceiver>>;
+		eastl::unordered_map<MessageID, ReceiverList> m_receivers;
 		RingBufferMT<Message*, 4096> m_messages;
 	public:
+		~MessageServer();
 
-		void AddMessageReciever(MessageID id, eastl::function<void(Message*)> callback);
+		void AddMessageReceiver(MessageID id, eastl::shared_ptr<MessageReceiver> pNewEntry);
 
 		void PushMessage(Message* pMessageToPush);
 
 		void DispatchMessages();
 	};
-
-	inline static MessageServer* s_pGlobalMessageServer = nullptr;
 }

@@ -28,7 +28,7 @@ namespace Exelius
 		virtual ~OSEventObserver() = default;
 
 		/// <summary>
-		/// Override this function in order to recieve and handle any OS
+		/// Override this function in order to receive and handle any OS
 		/// events.
 		/// </summary>
 		/// <param name="evnt">Event to handle.</param>

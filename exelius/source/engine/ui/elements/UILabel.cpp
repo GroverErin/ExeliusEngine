@@ -134,6 +134,8 @@ namespace Exelius
             }
             nextY += m_textHeight;
         }
+
+        UIElement::OnRender();
     }
 
     void UILabel::OnDestroy()

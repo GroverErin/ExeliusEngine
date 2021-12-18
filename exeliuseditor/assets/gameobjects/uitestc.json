@@ -23,23 +23,13 @@
             {
                 "UIImage" :
                 {
-                    "Texture" : "assets/textures/image3.png",
+                    "Texture" : "assets/textures/image1.png",
                     "SourceRect" : [0, 0, 276, 441],
                     "9Slices" : [22, 243, 71, 418],
                     "originX" : ["%", 0.0],
                     "originY" : ["%", 0.0],
                     "x" : ["%", 0.0],
                     "y" : ["%", 0.0],
-                    "w" : ["%", 0.5],
-                    "h" : ["%", 0.5]
-                },
-                "UIRect" :
-                {
-                    "Color" : [255, 0, 0, 255],
-                    "originX" : ["%", 0.0],
-                    "originY" : ["%", 0.0],
-                    "x" : ["%", 0.5],
-                    "y" : ["%", 0.5],
                     "w" : ["%", 0.5],
                     "h" : ["%", 0.5]
                 }

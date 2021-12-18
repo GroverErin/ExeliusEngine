@@ -158,7 +158,7 @@ namespace Exelius
 		// at this point the resource will be unlocked again
 		// and the resource will fall out of scope, thus
 		// causing it to be unloaded, as expected after
-		// the gameobject has recieved its notification.
+		// the gameobject has received its notification.
 		return id;
 	}
 

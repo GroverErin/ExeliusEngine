@@ -554,7 +554,7 @@ namespace Exelius
 				return m_quitThread || !empty;
 			});
 
-			m_resourceLoaderLog.Trace("Loader Thread Recieved Signal");
+			m_resourceLoaderLog.Trace("Loader Thread Received Signal");
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)

@@ -15,7 +15,11 @@ namespace Exelius
 		// Using a hash set here because it only requires 1 value, not a key value pair.
 		using StringInternSet = eastl::hash_set<eastl::string>;
 
-		inline static StringInternSet s_stringSet = StringInternSet();
+		// Using a pointer here because hash_set allocates memory
+		// and will cause the Memory Tracker to pick up false positive
+		// leaks unless deleted before the data dump at engine shutdown.
+		inline static StringInternSet* s_pStringSet = nullptr;
+
 		const eastl::string* m_pString;
 
 	public:
@@ -100,6 +104,23 @@ namespace Exelius
 		operator const char* () const { EXE_ASSERT(m_pString); return (m_pString->c_str()); }
 		operator const eastl::string&() const { EXE_ASSERT(m_pString); return (*m_pString); }
 
+
+		/// <summary>
+		/// Clears the string intern set. This is an Exelius internal
+		/// function. DO NOT call this function, as the engine relies
+		/// on the string intern set.
+		/// 
+		/// This function is here to deallocate the memory of the set
+		/// upon engine shutdown.
+		/// </summary>
+		static void _ClearStringInternSet()
+		{
+			if (s_pStringSet)
+				s_pStringSet->clear();
+
+			EXELIUS_DELETE(s_pStringSet);
+		}
+
 	private:
 		void Set(const StringIntern& stringIntern)
 		{
@@ -108,8 +129,11 @@ namespace Exelius
 
 		void FindOrAdd(const eastl::string& string)
 		{
-			auto found = s_stringSet.find(string);
-			if (found != s_stringSet.end())
+			if (!s_pStringSet)
+				s_pStringSet = EXELIUS_NEW(StringInternSet());
+
+			auto found = s_pStringSet->find(string);
+			if (found != s_pStringSet->end())
 			{
 				// Assign it the same data.
 				m_pString = &(*found);
@@ -117,15 +141,18 @@ namespace Exelius
 			else
 			{
 				// Add it to the set.
-				m_pString = &(*s_stringSet.emplace(string).first);
+				m_pString = &(*s_pStringSet->emplace(string).first);
 			}
 		}
 
 		void FindOrAdd(eastl::string&& string)
 		{
+			if (!s_pStringSet)
+				s_pStringSet = EXELIUS_NEW(StringInternSet());
+
 			// TODO: Access needs to be wrapping in a mutex
-			auto found = s_stringSet.find(string);
-			if (found != s_stringSet.end())
+			auto found = s_pStringSet->find(string);
+			if (found != s_pStringSet->end())
 			{
 				// Assign it the same data.
 				m_pString = &(*found);
@@ -133,7 +160,7 @@ namespace Exelius
 			else
 			{
 				// Add it to the set.
-				m_pString = &(*s_stringSet.emplace(std::move(string)).first); //<-- STD::MOVE
+				m_pString = &(*s_pStringSet->emplace(std::move(string)).first); //<-- STD::MOVE
 			}
 		}
 

@@ -33,8 +33,6 @@ namespace Exelius
 
 		PeerID Connect(const NetAddress& netAddress);
 
-		PeerID Connect(const char* pAddress, unsigned short portNumber);
-
 		// Disconnect other
 		void DisconnectPeer(PeerID peerIdToDisconnect);
 

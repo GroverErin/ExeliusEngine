@@ -96,11 +96,6 @@ namespace Exelius
 		// Else, cancel new peer, and open a listen tcp socket on given address and port and udp on given address and port + 1.
 	}
 
-	PeerID NetworkingManager::Connect(const char* pAddress, unsigned short portNumber)
-	{
-		return Connect({ pAddress, portNumber });
-	}
-
 	void NetworkingManager::DisconnectPeer(PeerID peerIdToDisconnect)
 	{
 		// If ID is invalid, then we dont need to do anything.

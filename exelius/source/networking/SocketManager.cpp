@@ -97,20 +97,21 @@ namespace Exelius
 			m_socketLock.unlock();
 
 			m_socketLock.lock();
-			for (auto& sock : m_socketsToAdd)
+			for (auto* pSock : m_socketsToAdd)
 			{
-				Socket::Status status = sock->Connect(10.0f);
+				Socket::Status status = pSock->Connect(10.0f);
 				if (status == Socket::Status::Done)
 				{
-					pMessageServer->PushMessage(EXELIUS_NEW(ConnectedMessage(sock->m_peerID)));
-					m_sockets.emplace_back(sock); // TODO: consider making m_sockets a vector of pointers.
+					pMessageServer->PushMessage(EXELIUS_NEW(ConnectedMessage(pSock->m_peerID)));
+					m_sockets.emplace_back(pSock); // TODO: consider making m_sockets a vector of pointers.
 
-					AddSocket(sock->m_socket);
+					AddSocket(pSock->m_socket);
 				}
 				else
 				{
-					sock->CloseSocket();
-					pMessageServer->PushMessage(EXELIUS_NEW(ConnectionFailedMessage(sock->m_peerID)));
+					pSock->CloseSocket();
+					pMessageServer->PushMessage(EXELIUS_NEW(ConnectionFailedMessage(pSock->m_peerID)));
+					EXELIUS_DELETE(pSock);
 				}
 			}
 
@@ -268,6 +269,7 @@ namespace Exelius
 			sock->CloseSocket();
 			pMessageServer->PushMessage(EXELIUS_NEW(DisconnectedMessage(sock->m_peerID)));
 			m_sockets.erase(&sock);
+			EXELIUS_DELETE(sock);
 			return;
 		}
 	}

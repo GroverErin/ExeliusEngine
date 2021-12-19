@@ -90,7 +90,7 @@ namespace Exelius
 		// If success, then we must attempt to validate ourselves.
 			// "Host" will send an "encripted" message that we will receive,
 			// translate, and send an appropriate response back, which the "Host" with then send
-			//  an Accepted (with hosts ID) or Rejected response with reason for reject. (with their peer id and my new one).
+			// an Accepted (with hosts ID) or Rejected response with reason for reject. (with their peer id and my new one).
 			// Peer State == Unvalidated until an Accepted message is received (may contain new peer ID as dictated by the host).
 			// Which will set state to Valid and open UDP connection on newPeer.port + 1 with same newPeer.address.
 		// Else, cancel new peer, and open a listen tcp socket on given address and port and udp on given address and port + 1.

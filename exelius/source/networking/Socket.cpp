@@ -8,6 +8,14 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 #endif
 
 /// <summary>
@@ -197,7 +205,9 @@ namespace Exelius
 
 		EXE_ASSERT(m_type == SocketType::TCP);
 
-		if (m_netAddress.ToString() == NetAddressDefines::Any_IPV4 || m_netAddress.ToString() == NetAddressDefines::Any_IPV6 || m_netAddress.ToString() == NetAddressDefines::None)
+		eastl::string addressString = m_netAddress.ToString();
+
+		if (addressString == NetAddressDefines::Any_IPV4 || addressString == NetAddressDefines::Any_IPV6 || addressString == NetAddressDefines::None)
 		{
 			Socket::Status status = Listen();
 			return status;

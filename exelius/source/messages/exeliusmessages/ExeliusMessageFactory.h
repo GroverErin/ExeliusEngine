@@ -10,6 +10,7 @@ namespace Exelius
 		: public MessageFactory
 	{
 	public:
-		virtual Message* CreateMessage(MessageID, const eastl::vector<char>&) override { return nullptr; }
+		virtual ~ExeliusMessageFactory() = default;
+		virtual Message* CreateMessage(MessageID messageID, const eastl::vector<char>& messageData) override;
 	};
 }

@@ -25,10 +25,12 @@ namespace Exelius
 	{
 		Log* m_pApplicationLog; // Needs to be pointer because it is created after LogManager Init();
 
+	protected:
 		ResourceFactory* m_pResourceFactory;
 		ComponentFactory* m_pComponentFactory;
 		MessageFactory* m_pMessageFactory;
 
+	private:
 		float m_lastFrameTime;
 		bool m_isRunning;
 		bool m_hasLostFocus;

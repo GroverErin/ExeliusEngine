@@ -3,6 +3,7 @@
 #include "source/networking/NetHelpers.h"
 
 #include <EASTL/array.h>
+#include <EASTL/shared_ptr.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -15,7 +16,7 @@ namespace Exelius
 	class Connection
 	{
 		NetAddress m_connectionAddress;
-		PeerID m_id; // This connection is associated with a Peer (Self, not the remote Connection).
+		PeerID m_id; // This connection is associated with this Peer (Self, not the remote Connection).
 
 		eastl::array<eastl::shared_ptr<MessageReceiver>, 6> m_listeners;
 	public:
@@ -24,12 +25,14 @@ namespace Exelius
 
 		// Closes the connection.
 		virtual ~Connection();
-
-		// Begin a connection with the address given in the constructor.
-		void Connect();
+		
+		/// <summary>
+		/// Begin a connection with the address given in the constructor.
+		/// </summary>
+		void Open();
 
 		// Close the connection with the address.
-		void Disconnect();
+		void Close();
 
 		PeerID GetPeerID() const { return m_id; }
 

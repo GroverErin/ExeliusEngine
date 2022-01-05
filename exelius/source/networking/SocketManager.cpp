@@ -1,5 +1,6 @@
 #include "EXEPCH.h"
 #include "SocketManager.h"
+#include "Socket.h"
 
 #include "source/networking/Peer.h"
 
@@ -10,6 +11,14 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <WinSock2.h>
 #include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 #endif
 
 /// <summary>
@@ -17,25 +26,85 @@
 /// </summary>
 namespace Exelius
 {
-	SocketManager* SocketManager::s_pGlobalSocketManager = nullptr;
-
-	struct SocketManager::SocketData
+	class SocketManager::SocketData
 	{
-		fd_set allSockets;  // Set containing all the sockets handles
-		fd_set readSockets;	// Set containing handles of the sockets that are ready for reading.
-		fd_set writeSockets;// Set containing handles of the sockets that are ready for writing.
-		fd_set excepts;		// Caught errors
-		int    maxSocket;   // Maximum socket handle
-		int    socketCount; // Number of socket handles
+	public:
+		fd_set m_allSockets;	// Set containing all the sockets handles
+		fd_set m_readSockets;	// Set containing handles of the sockets that are ready for reading.
+		fd_set m_writeSockets;	// Set containing handles of the sockets that are ready for writing.
+		fd_set m_excepts;		// Caught errors
+		int    m_maxSocket;		// Maximum socket handle
+		int    m_socketCount;	// Number of socket handles
 
 		SocketData()
-			: maxSocket(0)
-			, socketCount(0)
+			: m_maxSocket(0)
+			, m_socketCount(0)
 		{
-			FD_ZERO(&allSockets);
-			FD_ZERO(&readSockets);
-			FD_ZERO(&writeSockets);
-			FD_ZERO(&excepts);
+			FD_ZERO(&m_allSockets);
+			FD_ZERO(&m_readSockets);
+			FD_ZERO(&m_writeSockets);
+			FD_ZERO(&m_excepts);
+		}
+
+		void AddSocketData(SocketHandle sockHandle)
+		{
+			if (sockHandle != SocketHandle_Invalid)
+			{
+				#if EXE_WINDOWS
+				if (m_socketCount >= FD_SETSIZE)
+				{
+					// TODO: Log Error.
+					return;
+				}
+
+				if (FD_ISSET(sockHandle, &m_allSockets))
+					return;
+
+				m_socketCount++;
+				#else
+				if (sockHandle >= FD_SETSIZE)
+				{
+					// TODO: Log Error.
+					return;
+				}
+
+				// SocketHandle is an int in POSIX
+				m_maxSocket = std::max(m_maxSocket, sockHandle);
+				#endif
+
+				FD_SET(sockHandle, &m_allSockets);
+			}
+		}
+
+		void RemoveSocketData(SocketHandle sockHandle)
+		{
+			if (sockHandle != SocketHandle_Invalid)
+			{
+				#if defined(EXE_WINDOWS)
+				if (!FD_ISSET(sockHandle, &m_allSockets))
+					return;
+				m_socketCount--;
+				#else
+				if (sockHandle >= FD_SETSIZE)
+					return;
+				#endif
+
+				FD_CLR(sockHandle, &m_allSockets);
+				FD_CLR(sockHandle, &m_readSockets);
+				FD_CLR(sockHandle, &m_writeSockets);
+				FD_CLR(sockHandle, &m_excepts);
+			}
+		}
+
+		void ClearSocketData()
+		{
+			FD_ZERO(&m_allSockets);
+			FD_ZERO(&m_readSockets);
+			FD_ZERO(&m_writeSockets);
+			FD_ZERO(&m_excepts);
+
+			m_maxSocket = 0;
+			m_socketCount = 0;
 		}
 	};
 
@@ -45,7 +114,7 @@ namespace Exelius
 	{
 		EXE_ASSERT(m_pSocketData);
 
-		// Spin up the loader thread.
+		// Spin up the networking thread.
 		m_socketSelectThread = std::thread(&SocketManager::SelectSockets, this);
 	}
 
@@ -54,28 +123,7 @@ namespace Exelius
 		m_quitThread = true;
 		m_socketSelectThread.join();
 
-		for (auto* pSocket : m_sockets)
-		{
-			EXELIUS_DELETE(pSocket);
-		}
-		for (auto* pSocket : m_socketsToAdd)
-		{
-			EXELIUS_DELETE(pSocket);
-		}
-
 		EXELIUS_DELETE(m_pSocketData);
-	}
-
-	SocketManager* SocketManager::GetInstance()
-	{
-		if (!s_pGlobalSocketManager)
-			s_pGlobalSocketManager = EXELIUS_NEW(SocketManager());
-		return s_pGlobalSocketManager;
-	}
-
-	void SocketManager::DestroyInstance()
-	{
-		EXELIUS_DELETE(s_pGlobalSocketManager);
 	}
 
 	void SocketManager::SelectSockets()
@@ -87,97 +135,38 @@ namespace Exelius
 		{
 			// Recreate the SocketData so it is cleared.
 			SocketData threadSocketData;
+			SwapSocketData(threadSocketData);
 
-			m_socketLock.lock();
-			threadSocketData.readSockets = m_pSocketData->allSockets;
-			threadSocketData.writeSockets = m_pSocketData->allSockets;
-			threadSocketData.excepts = m_pSocketData->allSockets;
-			threadSocketData.maxSocket = m_pSocketData->maxSocket + 1;
-			threadSocketData.socketCount = m_pSocketData->socketCount;
-			m_socketLock.unlock();
+			HandleNewConnections();
 
-			m_socketLock.lock();
-			for (auto* pSock : m_socketsToAdd)
-			{
-				Socket::Status status = pSock->Connect(10.0f);
-				if (status == Socket::Status::Done)
-				{
-					pMessageServer->PushMessage(EXELIUS_NEW(ConnectedMessage(pSock->m_peerID)));
-					m_sockets.emplace_back(pSock); // TODO: consider making m_sockets a vector of pointers.
-
-					AddSocket(pSock->m_socket);
-				}
-				else
-				{
-					pSock->CloseSocket();
-					pMessageServer->PushMessage(EXELIUS_NEW(ConnectionFailedMessage(pSock->m_peerID)));
-					EXELIUS_DELETE(pSock);
-				}
-			}
-
-			m_socketsToAdd.clear();
-
-			for (auto& sockHandle : m_socketsToRemove)
-			{
-				RemoveSocketFromSockets(sockHandle);
-			}
-
-			m_socketsToRemove.clear();
-			m_socketLock.unlock();
+			HandleClosedConnections();
 
 			if (!Select(threadSocketData))
 				continue;
 
-			for (auto& sock : m_sockets)
-			{
-				if (!sock->IsValid() && FD_ISSET(sock->m_socket, &threadSocketData.excepts))
-				{
-					m_socketLock.lock();
-					m_socketsToRemove.emplace_back(sock->m_socket);
-					m_socketLock.unlock();
-					continue;
-				}
-
-				if (FD_ISSET(sock->m_socket, &threadSocketData.readSockets))
-					sock->ReceiveIncomingMessage();
-
-				if (FD_ISSET(sock->m_socket, &threadSocketData.writeSockets))
-					sock->SendOutgoingMessages();
-			}
+			HandleCurrentSockets(threadSocketData);
 		}
 	}
 
-	bool SocketManager::ConnectPeer(Peer& peerToConnect)
+	void SocketManager::RegisterPeerSockets(const Peer& peerToConnect)
 	{
-		MessageServer* pMessageServer = MessageServer::GetInstance();
-		EXE_ASSERT(pMessageServer);
-
-		Socket* pReliableSocket = EXELIUS_NEW(Socket(Socket::SocketType::TCP, peerToConnect.m_netAddress, peerToConnect.m_id));
-		Socket* pUnreliableSocket = EXELIUS_NEW(Socket(Socket::SocketType::UDP, peerToConnect.m_netAddress, peerToConnect.m_id));
-
-		// This should be an invalid peer. (Technically, it is an already valid peer)
-		if (peerToConnect.m_pReliableSocket != nullptr && peerToConnect.m_pUnreliableSocket != nullptr)
-		{
-			pMessageServer->PushMessage(EXELIUS_NEW(ConnectionFailedMessage(peerToConnect.m_id)));
-			return false;
-		}
-
-		peerToConnect.m_pReliableSocket = pReliableSocket;
-		peerToConnect.m_pUnreliableSocket = pUnreliableSocket;
+		EXE_ASSERT(peerToConnect.GetReliableSocket());
+		EXE_ASSERT(peerToConnect.GetUnreliableSocket());
 
 		m_socketLock.lock();
-		m_socketsToAdd.emplace_back(pReliableSocket);
-		m_socketsToAdd.emplace_back(pUnreliableSocket);
+		m_socketsToAdd.emplace_back(peerToConnect.GetReliableSocket());
+		m_socketsToAdd.emplace_back(peerToConnect.GetUnreliableSocket());
 		m_socketLock.unlock();
-
-		return true;
 	}
 	
-	void SocketManager::DisconnectPeer(Peer& peerToDisconnect)
+	void SocketManager::DisconnectPeer(const Peer& peerToDisconnect)
 	{
+		EXE_ASSERT(peerToDisconnect.GetReliableSocket());
+		EXE_ASSERT(peerToDisconnect.GetUnreliableSocket());
+
 		m_socketLock.lock();
-		m_socketsToRemove.emplace_back(peerToDisconnect.m_pReliableSocket->m_socket);
-		m_socketsToRemove.emplace_back(peerToDisconnect.m_pUnreliableSocket->m_socket);
+		m_socketsToRemove.emplace_back(peerToDisconnect.GetReliableSocket());
+		m_socketsToRemove.emplace_back(peerToDisconnect.GetUnreliableSocket());
 		m_socketLock.unlock();
 	}
 
@@ -187,104 +176,19 @@ namespace Exelius
 		EXE_ASSERT(pMessageServer);
 
 		m_socketLock.lock();
-		for (auto* pSock : m_socketsToAdd)
+		for (auto& pSock : m_socketsToAdd)
 		{
 			pMessageServer->PushMessage(EXELIUS_NEW(ConnectionFailedMessage(pSock->m_peerID)));
-			EXELIUS_DELETE(pSock);
 		}
 		m_socketsToAdd.clear();
 
 		for (auto& sock : m_sockets)
 		{
-			m_socketsToRemove.emplace_back(sock->m_socket);
+			if (!sock)
+				continue;
+			m_socketsToRemove.emplace_back(sock);
 		}
 		m_socketLock.unlock();
-	}
-
-	void SocketManager::AddSocket(SocketHandle sockHandle)
-	{
-		EXE_ASSERT(m_pSocketData);
-
-		if (sockHandle != SocketHandle_Invalid)
-		{
-			#if EXE_WINDOWS
-			if (m_pSocketData->socketCount >= FD_SETSIZE)
-			{
-				// TODO: Log Error.
-				return;
-			}
-
-			if (FD_ISSET(sockHandle, &m_pSocketData->allSockets))
-				return;
-
-			m_pSocketData->socketCount++;
-			#else
-			if (sockHandle >= FD_SETSIZE)
-			{
-				// TODO: Log Error.
-				return;
-			}
-
-			// SocketHandle is an int in POSIX
-			maxSocket = std::max(maxSocket, sockHandle);
-			#endif
-
-			FD_SET(sockHandle, &m_pSocketData->allSockets);
-		}
-	}
-	
-	void SocketManager::RemoveSocket(SocketHandle sockHandle)
-	{
-		EXE_ASSERT(m_pSocketData);
-
-		if (sockHandle != SocketHandle_Invalid)
-		{
-			#if defined(EXE_WINDOWS)
-			if (!FD_ISSET(sockHandle, &m_pSocketData->allSockets))
-				return;
-			m_pSocketData->socketCount--;
-			#else
-			if (sockHandle >= FD_SETSIZE)
-				return;
-			#endif
-
-			FD_CLR(sockHandle, &m_pSocketData->allSockets);
-			FD_CLR(sockHandle, &m_pSocketData->readSockets);
-			FD_CLR(sockHandle, &m_pSocketData->writeSockets);
-			FD_CLR(sockHandle, &m_pSocketData->excepts);
-		}
-	}
-
-	void SocketManager::RemoveSocketFromSockets(SocketHandle sockHandle)
-	{
-		MessageServer* pMessageServer = MessageServer::GetInstance();
-		EXE_ASSERT(pMessageServer);
-
-		for (auto& sock : m_sockets)
-		{
-			if (sockHandle != sock->m_socket)
-				continue;
-
-			RemoveSocket(sock->m_socket);
-			sock->CloseSocket();
-			pMessageServer->PushMessage(EXELIUS_NEW(DisconnectedMessage(sock->m_peerID)));
-			m_sockets.erase(&sock);
-			EXELIUS_DELETE(sock);
-			return;
-		}
-	}
-	
-	void SocketManager::ClearSockets()
-	{
-		EXE_ASSERT(m_pSocketData);
-
-		FD_ZERO(&m_pSocketData->allSockets);
-		FD_ZERO(&m_pSocketData->readSockets);
-		FD_ZERO(&m_pSocketData->writeSockets);
-		FD_ZERO(&m_pSocketData->excepts);
-
-		m_pSocketData->maxSocket = 0;
-		m_pSocketData->socketCount = 0;
 	}
 
 	bool SocketManager::Select(SocketData& socketData, float timeOut)
@@ -293,8 +197,98 @@ namespace Exelius
 		time.tv_sec = static_cast<long>(timeOut / 1000000);
 		time.tv_usec = static_cast<long>(static_cast<unsigned long long>(timeOut) % 1000000);
 
-		int count = select(socketData.maxSocket + 1, &socketData.readSockets, &socketData.writeSockets, &socketData.excepts, timeOut != 0.0f ? &time : nullptr);
+		int count = select(socketData.m_maxSocket + 1, &socketData.m_readSockets, &socketData.m_writeSockets, &socketData.m_excepts, timeOut != 0.0f ? &time : nullptr);
 
 		return count > 0;
+	}
+
+	void SocketManager::SwapSocketData(SocketData& outData)
+	{
+		m_socketLock.lock();
+		outData.m_readSockets = m_pSocketData->m_allSockets;
+		outData.m_writeSockets = m_pSocketData->m_allSockets;
+		outData.m_excepts = m_pSocketData->m_allSockets;
+		outData.m_maxSocket = m_pSocketData->m_maxSocket + 1;
+		outData.m_socketCount = m_pSocketData->m_socketCount;
+		m_socketLock.unlock();
+	}
+
+	void SocketManager::HandleNewConnections()
+	{
+		MessageServer* pMessageServer = MessageServer::GetInstance();
+		EXE_ASSERT(pMessageServer);
+
+		for (auto& pSock : m_socketsToAdd)
+		{
+			Socket::Status status = pSock->Connect(10.0f);
+			if (status == Socket::Status::Done)
+			{
+				pMessageServer->PushMessage(EXELIUS_NEW(ConnectedMessage(pSock->m_peerID)));
+
+				m_socketLock.lock();
+				m_sockets.emplace_back(pSock);
+				m_socketLock.unlock();
+
+				EXE_ASSERT(m_pSocketData);
+				m_pSocketData->AddSocketData(pSock->m_socket);
+			}
+			else
+			{
+				pSock->CloseSocket();
+				pMessageServer->PushMessage(EXELIUS_NEW(ConnectionFailedMessage(pSock->m_peerID)));
+			}
+		}
+
+		m_socketsToAdd.clear();
+	}
+
+	void SocketManager::HandleClosedConnections()
+	{
+		MessageServer* pMessageServer = MessageServer::GetInstance();
+		EXE_ASSERT(pMessageServer);
+
+		m_socketLock.lock();
+		for (const auto& pRemoveSock : m_socketsToRemove)
+		{
+			if (!pRemoveSock)
+				continue; // Skip nullptrs
+
+			for (auto iter = m_sockets.begin(); iter != m_sockets.end(); ++iter)
+			{
+				if (!iter || pRemoveSock != *iter)
+					continue;
+
+				EXE_ASSERT(m_pSocketData);
+				m_pSocketData->RemoveSocketData((*iter)->m_socket);
+				(*iter)->CloseSocket();
+				pMessageServer->PushMessage(EXELIUS_NEW(DisconnectedMessage((*iter)->m_peerID)));
+				iter = m_sockets.erase(iter);
+				if (iter == m_sockets.end())
+					break; // Exit outer for loop.
+			}
+		}
+		m_socketLock.unlock();
+
+		m_socketsToRemove.clear();
+	}
+
+	void SocketManager::HandleCurrentSockets(const SocketData& socketData)
+	{
+		for (auto& sock : m_sockets)
+		{
+			if (!sock->IsValid() && FD_ISSET(sock->m_socket, &socketData.m_excepts))
+			{
+				m_socketLock.lock();
+				m_socketsToRemove.emplace_back(sock);
+				m_socketLock.unlock();
+				continue;
+			}
+
+			if (FD_ISSET(sock->m_socket, &socketData.m_readSockets))
+				sock->ReceiveIncomingMessage();
+
+			if (FD_ISSET(sock->m_socket, &socketData.m_writeSockets))
+				sock->SendOutgoingMessages();
+		}
 	}
 }

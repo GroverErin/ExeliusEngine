@@ -57,7 +57,7 @@ namespace Exelius
 
 	const char* NetAddress::ToString(bool includePort) const
 	{
-		char* addressString = nullptr;
+		char addressString[1025];
 		int errorCheck = 0;
 
 		if (m_pAddress->m_ipv4.sin_family == AF_INET)
@@ -70,7 +70,9 @@ namespace Exelius
 		}
 
 		if (errorCheck != 0)
-			addressString = "0";
+		{
+			memset(addressString, 0, sizeof(addressString));
+		}
 
 		if (addressString == nullptr)
 			return nullptr;

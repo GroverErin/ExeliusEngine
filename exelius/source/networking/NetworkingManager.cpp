@@ -12,6 +12,7 @@ namespace Exelius
 {
 	NetworkingManager::NetworkingManager()
 		: m_pMessageFactory(nullptr)
+		, m_pSocketManager(nullptr)
 		, m_peerIDCounter(PeerID_Invalid)
 	{
 		//
@@ -20,7 +21,8 @@ namespace Exelius
 	NetworkingManager::~NetworkingManager()
 	{
 		DisconnectAll();
-		SocketManager::DestroyInstance();
+		UnregisterForNetworkedMessages();
+		EXELIUS_DELETE(m_pSocketManager);
 	}
 	
 	bool NetworkingManager::Initialize(MessageFactory* pMessageFactory)
@@ -28,12 +30,87 @@ namespace Exelius
 		EXE_ASSERT(pMessageFactory);
 		m_pMessageFactory = pMessageFactory;
 
-		EXE_ASSERT(SocketManager::GetInstance());
+		m_pSocketManager = EXELIUS_NEW(SocketManager());
+		EXE_ASSERT(m_pSocketManager);
 
+		// Begin recieving all networked messages.
+		RegisterForNetworkedMessages();
+		return true;
+	}
+
+	PeerID NetworkingManager::ConnectPeer(const NetAddress& netAddress)
+	{
+		// Create new potential peer.
+		Peer newPeer(GetNextAvailablePeerID(), netAddress);
+
+		if (IsDuplicatePeer(newPeer))
+			return newPeer.GetPeerID(); // This peer already exists, so just bail. TODO: The duplicate connection that made this call will also catch the relative messages, resulting in possible duplications. May be a bug.
+
+		newPeer.InitializePeer();
+
+		m_pSocketManager->RegisterPeerSockets(newPeer);
+
+		// We add this peer to the list, since we are going to wait for a connection to occur.
+		// We need to make sure that we don't wait on too many connections at once,
+		// and they need to be "cleaned" out if they have been around too long without being accepted.
+		m_connectedPeers.emplace_back(newPeer); // std::move here?
+
+		return newPeer.GetPeerID();
+		// If success, then we must attempt to validate ourselves.
+			// "Host" will send an "encripted" message that we will receive,
+			// translate, and send an appropriate response back, which the "Host" with then send
+			// an Accepted (with hosts ID) or Rejected response with reason for reject. (with their peer id and my new one).
+			// Peer State == Unvalidated until an Accepted message is received (may contain new peer ID as dictated by the host).
+			// Which will set state to Valid and open UDP connection on newPeer.port + 1 with same newPeer.address.
+		// Else, cancel new peer, and open a listen tcp socket on given address and port and udp on given address and port + 1.
+	}
+
+	void NetworkingManager::DisconnectPeer(PeerID peerIdToDisconnect)
+	{
+		// If ID is invalid, then we dont need to do anything.
+		if (peerIdToDisconnect == PeerID_Invalid)
+			return;
+
+		for (auto& peer : m_connectedPeers)
+		{
+			if (peer.GetPeerID() == peerIdToDisconnect)
+				m_pSocketManager->DisconnectPeer(peer);
+		}
+	}
+
+	void NetworkingManager::DisconnectAll()
+	{		
+		m_pSocketManager->DisconnectAll();
+		m_connectedPeers.clear();
+	}
+
+	PeerID NetworkingManager::GetNextAvailablePeerID()
+	{
+		return ++m_peerIDCounter;
+	}
+
+	bool NetworkingManager::IsDuplicatePeer(Peer& newPeer)
+	{
+		// Make sure we don't have a duplicate peer looking at this same address.
+		// This is unlikely to be a large list, unless this is in an MMO context.
+		// In that case, this could utilize the Job System.
+		for (const auto& peer : m_connectedPeers)
+		{
+			// Compare Peer addresses and ports (Not PeerID's).
+			if (newPeer == peer)
+			{
+				newPeer.SetPeerID(peer.GetPeerID());
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void NetworkingManager::RegisterForNetworkedMessages()
+	{
 		MessageServer* pMessageServer = MessageServer::GetInstance();
 		EXE_ASSERT(pMessageServer);
 
-		// Begin recieving all networked messages.
 		m_listeners[0] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::LocalOnly>(reinterpret_cast<NetMessage<NetProtocol::LocalOnly>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::LocalOnly>), m_listeners[0]);
@@ -53,79 +130,14 @@ namespace Exelius
 		m_listeners[4] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::Reliable>(reinterpret_cast<NetMessage<NetProtocol::Reliable>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::Reliable>), m_listeners[4]);
-
-		// Begin listening for other network messages too. (Connect, Disconnect, Validate, etc)
-		return true;
 	}
 
-	PeerID NetworkingManager::Connect(const NetAddress& netAddress)
+	void NetworkingManager::UnregisterForNetworkedMessages()
 	{
-		// Create new potential peer.
-		Peer newPeer(GetNextAvailablePeerID(), netAddress);
-
-		// Make sure we don't have a duplicate peer looking at this same address.
-		for (const auto& peer : m_connectedPeers)
+		for (auto& listener : m_listeners)
 		{
-			// Compare Peer addresses and ports (Not PeerID's).
-			if (newPeer == peer)
-				return PeerID_Invalid; // This peer already exists, so just bail. TODO: Send Connect failed.
+			listener->ClearCallback();
 		}
-
-		SocketManager* pSocketManager = SocketManager::GetInstance();
-		EXE_ASSERT(pSocketManager);
-
-		if (!pSocketManager->ConnectPeer(newPeer))
-		{
-			// If we get here, an error has occurred. Just bail completely. An on connection failed message as already been sent.
-			// TODO: Log error.
-			return newPeer.m_id; // We don't return an invalid Id because we wouldn't catch the connect failed message.
-		}
-
-		// We add this peer to the list, since we are going to wait for a connection to occur.
-		// We need to make sure that we don't wait on too many connections at once,
-		// and they need to be "cleaned" out if they have been around too long without being accepted.
-		m_connectedPeers.emplace_back(newPeer); // std::move here?
-
-		return newPeer.m_id;
-		// If success, then we must attempt to validate ourselves.
-			// "Host" will send an "encripted" message that we will receive,
-			// translate, and send an appropriate response back, which the "Host" with then send
-			// an Accepted (with hosts ID) or Rejected response with reason for reject. (with their peer id and my new one).
-			// Peer State == Unvalidated until an Accepted message is received (may contain new peer ID as dictated by the host).
-			// Which will set state to Valid and open UDP connection on newPeer.port + 1 with same newPeer.address.
-		// Else, cancel new peer, and open a listen tcp socket on given address and port and udp on given address and port + 1.
-	}
-
-	void NetworkingManager::DisconnectPeer(PeerID peerIdToDisconnect)
-	{
-		// If ID is invalid, then we dont need to do anything.
-		if (peerIdToDisconnect == PeerID_Invalid)
-			return;
-
-		for (auto& peer : m_connectedPeers)
-		{
-			if (peer.m_id == peerIdToDisconnect)
-			{
-				SocketManager* pSocketManager = SocketManager::GetInstance();
-				EXE_ASSERT(pSocketManager);
-
-				pSocketManager->DisconnectPeer(peer);
-			}
-		}
-	}
-
-	void NetworkingManager::DisconnectAll()
-	{
-		SocketManager* pSocketManager = SocketManager::GetInstance();
-		EXE_ASSERT(pSocketManager);
-		
-		pSocketManager->DisconnectAll();
-		m_connectedPeers.clear();
-	}
-
-	PeerID NetworkingManager::GetNextAvailablePeerID()
-	{
-		return ++m_peerIDCounter;
 	}
 
 	void NetworkingManager::HandleLocalOnlyMessage(Message* pMsg)
@@ -155,7 +167,7 @@ namespace Exelius
 	{
 		for (auto& peer : m_connectedPeers)
 		{
-			if (peer.m_id == toID)
+			if (peer.GetPeerID() == toID)
 			{
 				peer.SendUnreliableMessage(pMsg);
 				break; // There should never be 2 peers with the same ID.
@@ -167,7 +179,7 @@ namespace Exelius
 	{
 		for (auto& peer : m_connectedPeers)
 		{
-			if (peer.m_id == toID)
+			if (peer.GetPeerID() == toID)
 			{
 				peer.SendReliableMessage(pMsg);
 				break; // There should never be 2 peers with the same ID.

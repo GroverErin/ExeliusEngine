@@ -1,9 +1,8 @@
 #pragma once
 #include "source/networking/NetHelpers.h"
 
-#include "source/networking/Socket.h"
-
 #include <EASTL/vector.h>
+#include <EASTL/shared_ptr.h>
 
 #include <thread>
 #include <atomic>
@@ -15,15 +14,16 @@
 namespace Exelius
 {
 	class Peer;
+	class Socket;
 
 	class SocketManager
 	{
-		struct SocketData;
+		class SocketData;
 		SocketData* m_pSocketData;
-		eastl::vector<Socket*> m_sockets;
+		eastl::vector<eastl::shared_ptr<Socket>> m_sockets;
 
-		eastl::vector<Socket*> m_socketsToAdd;
-		eastl::vector<SocketHandle> m_socketsToRemove;
+		eastl::vector<eastl::shared_ptr<Socket>> m_socketsToAdd;
+		eastl::vector<eastl::shared_ptr<Socket>> m_socketsToRemove;
 
 		/// <summary>
 		/// A mutex used to protect the sockets from data race conditions.
@@ -43,35 +43,26 @@ namespace Exelius
 		/// </summary>
 		std::atomic_bool m_quitThread;
 
-		static SocketManager* s_pGlobalSocketManager;
-
+	public:
 		SocketManager();
 		~SocketManager();
-	public:
-		static SocketManager* GetInstance();
-
-		static void DestroyInstance();
 
 		void SelectSockets();
 
-		// Attempt to connect (non-blocking) to given address with new Peer
-		// If the netaddress contains a port, but an Any or None IpAddress, then we are going to establish a listener.
-		// Peer State will be NoConnection until the select function says it is writable, which will set it to UnvalidatedConnection.
-		bool ConnectPeer(Peer& peerToConnect);
+		void RegisterPeerSockets(const Peer& peerToConnect);
 
-		void DisconnectPeer(Peer& peerToDisconnect);
+		void DisconnectPeer(const Peer& peerToDisconnect);
 
 		void DisconnectAll();
+
 	private:
-
-		void AddSocket(SocketHandle sockHandle);
-
-		void RemoveSocket(SocketHandle sockHandle);
-
-		void RemoveSocketFromSockets(SocketHandle sockHandle);
-
-		void ClearSockets();
-
+		// Threaded Functions
 		bool Select(SocketData& socketData, float timeOut = 0.0f);
+
+		void SwapSocketData(SocketData& outData);
+
+		void HandleNewConnections();
+		void HandleClosedConnections();
+		void HandleCurrentSockets(const SocketData& socketData);
 	};
 }

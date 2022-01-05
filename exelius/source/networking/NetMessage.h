@@ -47,6 +47,6 @@ namespace Exelius
 			//
 		}
 
-		MessageID GetMessageID() { return m_childMessageID; }
+		MessageID GetChildMessageID() { return m_childMessageID; }
 	};
 }

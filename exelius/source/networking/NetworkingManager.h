@@ -6,8 +6,6 @@
 #include "source/messages/MessageServer.h"
 #include "source/messages/MessageFactory.h"
 
-#include "source/networking/NetAddress.h"
-
 #include <EASTL/vector.h>
 
 /// <summary>
@@ -16,22 +14,25 @@
 namespace Exelius
 {
 	class MessageReceiver;
+	class SocketManager;
+	class NetAddress;
+
 	class NetworkingManager
 		: public Singleton<NetworkingManager>
 	{
 		eastl::vector<Peer> m_connectedPeers;
 		MessageFactory* m_pMessageFactory;
+		SocketManager* m_pSocketManager;
 		eastl::array<eastl::shared_ptr<MessageReceiver>, 5> m_listeners;
 
 		PeerID m_peerIDCounter;
 	public:
 		NetworkingManager();
-
 		~NetworkingManager();
 
 		bool Initialize(MessageFactory* pMessageFactory);
 
-		PeerID Connect(const NetAddress& netAddress);
+		PeerID ConnectPeer(const NetAddress& netAddress);
 
 		// Disconnect other
 		void DisconnectPeer(PeerID peerIdToDisconnect);
@@ -42,13 +43,18 @@ namespace Exelius
 	private:
 		PeerID GetNextAvailablePeerID();
 
+		void RegisterForNetworkedMessages();
+		void UnregisterForNetworkedMessages();
+
+		bool IsDuplicatePeer(Peer& newPeer);
+
 		// Called by MessageServer on NetMessage Dispatch
 		template <NetProtocol Protocol>
 		void HandleNetMessage(NetMessage<Protocol>* pMessage)
 		{
 			// Extract and construct the child message.
 			// If this crashes, it is probably due to a hash collision and an incorrect pointer reinterpretation. (undefined behavior)
-			Message* pEmbeddedMessage = m_pMessageFactory->CreateMessage(pMessage->GetMessageID(), pMessage->GetDataPacket());
+			Message* pEmbeddedMessage = m_pMessageFactory->CreateMessage(pMessage->GetChildMessageID(), pMessage->GetDataPacket());
 			switch (Protocol)
 			{
 			case NetProtocol::LocalOnly:			HandleLocalOnlyMessage(pEmbeddedMessage); break;

@@ -76,6 +76,7 @@ public:\
 	}\
 	virtual bool Initialize() final override;\
 	virtual void Update() final override;\
+	virtual void SetMessageFactory() final override;\
 	void Shutdown();\
 };\
 Exelius::Application* Exelius::CreateApplication() { return new USER_APP_NAME(); }\

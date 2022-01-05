@@ -41,7 +41,7 @@ namespace Exelius
 
 	Connection::~Connection()
 	{
-		Disconnect();
+		Close();
 
 		for (auto& listener : m_listeners)
 		{
@@ -49,20 +49,36 @@ namespace Exelius
 		}
 	}
 
-	void Connection::Connect()
+	void Connection::Open()
 	{
 		NetworkingManager* pNetManager = NetworkingManager::GetInstance();
 		EXE_ASSERT(pNetManager);
 
-		EXE_ASSERT(m_id <= -1); // The ID must not be set, the user is expected to call disconnect before trying to call Connect again.
+		// The ID must not be set, the user is expected to call disconnect before trying to call Connect again.
+		EXE_ASSERT(m_id == PeerID_Invalid);
 
-		m_id = pNetManager->Connect(m_connectionAddress);
+		m_id = pNetManager->ConnectPeer(m_connectionAddress);
+	}
+	
+	void Connection::Close()
+	{
+		NetworkingManager* pNetManager = NetworkingManager::GetInstance();
+		EXE_ASSERT(pNetManager);
+
+		if (m_id == PeerID_Invalid)
+			return;
+
+		pNetManager->DisconnectPeer(m_id);
+		m_id = PeerID_Invalid;
 	}
 
 	void Connection::DisconnectPeer(PeerID idToDisconnect)
 	{
 		NetworkingManager* pNetManager = NetworkingManager::GetInstance();
 		EXE_ASSERT(pNetManager);
+
+		if (idToDisconnect == PeerID_Invalid)
+			return;
 
 		pNetManager->DisconnectPeer(idToDisconnect);
 	}
@@ -73,14 +89,5 @@ namespace Exelius
 		EXE_ASSERT(pNetManager);
 
 		pNetManager->DisconnectAll();
-	}
-	
-	void Connection::Disconnect()
-	{
-		NetworkingManager* pNetManager = NetworkingManager::GetInstance();
-		EXE_ASSERT(pNetManager);
-
-		pNetManager->DisconnectPeer(m_id);
-		m_id = PeerID_Invalid;
 	}
 }

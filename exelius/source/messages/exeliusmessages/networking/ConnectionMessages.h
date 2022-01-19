@@ -12,10 +12,12 @@ namespace Exelius
 	{
 	public:
 		PeerID m_id;
+		NetAddress m_address;
 
-		ConnectedMessage(PeerID id)
+		ConnectedMessage(PeerID id, const NetAddress& address)
 			: Message(DEFINE_MESSAGE(ConnectedMessage))
 			, m_id(id)
+			, m_address(address)
 		{
 			//
 		}

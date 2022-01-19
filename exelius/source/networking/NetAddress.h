@@ -31,7 +31,7 @@ namespace Exelius
 		NetAddress& operator=(NetAddress&& other) = delete;
 		~NetAddress();
 
-		const char* ToString(bool includePort = false) const;
+		eastl::string ToString(bool includePort = false) const;
 
 		uint32_t ToInteger() const;
 

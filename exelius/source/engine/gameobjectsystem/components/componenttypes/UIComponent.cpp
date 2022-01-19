@@ -55,7 +55,7 @@ namespace Exelius
         else
             ++renderedNum;*/
 
-        RenderManager::GetInstance()->GetWindow()->SetView(View(FRectangle(0.0f, 0.0f, (float)size.x, (float)size.y)));
+        //RenderManager::GetInstance()->GetWindow()->SetView(View(FRectangle(0.0f, 0.0f, (float)size.x, (float)size.y)));
         m_uiRootElement.OnUpdate({ 0.0f, 0.0f, (float)size.w, (float)size.h });
     }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <source/networking/Connection.h>
+#include <source/messages/exeliusmessages/networking/ConnectionMessages.h>
 #include <iostream>
 
 class NetTestCustomConnectionHandler
@@ -18,6 +19,13 @@ protected:
 	virtual void OnConnected(Exelius::Message* pMsg) final override
 	{
 		std::cout << "Received OnConnected Message.\n";
+
+
+		Exelius::ConnectedMessage* pConMsg = reinterpret_cast<Exelius::ConnectedMessage*>(pMsg);
+		eastl::string str = pConMsg->m_address.ToString(true);
+		if (pConMsg)
+			std::cout << "Connected PeerID: " << str.c_str() << "\n";
+
 		//Connection::OnConnected(pMsg);
 	}
 

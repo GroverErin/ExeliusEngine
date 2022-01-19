@@ -223,7 +223,7 @@ namespace Exelius
 			Socket::Status status = pSock->Connect(10.0f);
 			if (status == Socket::Status::Done)
 			{
-				pMessageServer->PushMessage(EXELIUS_NEW(ConnectedMessage(pSock->m_peerID)));
+				pMessageServer->PushMessage(EXELIUS_NEW(ConnectedMessage(pSock->m_peerID, pSock->m_netAddress)));
 
 				m_socketLock.lock();
 				m_sockets.emplace_back(pSock);

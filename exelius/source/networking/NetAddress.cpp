@@ -55,7 +55,7 @@ namespace Exelius
 		EXELIUS_DELETE(m_pAddress);
 	}
 
-	const char* NetAddress::ToString(bool includePort) const
+	eastl::string NetAddress::ToString(bool includePort) const
 	{
 		char addressString[1025];
 		int errorCheck = 0;
@@ -86,7 +86,7 @@ namespace Exelius
 			_itoa(m_portNumber, addressString + strlen(addressString), 10);
 		}
 
-		return addressString;
+		return eastl::string(addressString);
 	}
 
 	uint32_t NetAddress::ToInteger() const

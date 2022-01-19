@@ -11,7 +11,9 @@ namespace Exelius
 {
 	bool operator==(const Peer& left, const Peer& right)
 	{
-		if (left.m_netAddress == right.m_netAddress)
+		if (left.m_pReliableSocket->m_netAddress == right.m_netAddress)
+			return true;
+		else if (left.m_pUnreliableSocket->m_netAddress == right.m_netAddress)
 			return true;
 
 		return false;
@@ -30,7 +32,8 @@ namespace Exelius
 	void Peer::InitializePeer()
 	{
 		m_pReliableSocket = eastl::make_shared<Socket>(Socket::SocketType::TCP, m_netAddress, m_id);
-		m_pUnreliableSocket = eastl::make_shared<Socket>(Socket::SocketType::UDP, m_netAddress, m_id);
+		NetAddress unreliableAddr(m_netAddress.ToString(), m_netAddress.GetPort() + 1);
+		m_pUnreliableSocket = eastl::make_shared<Socket>(Socket::SocketType::UDP, unreliableAddr, m_id);
 	}
 
 	void Peer::SendReliableMessage(Message* pMsg)

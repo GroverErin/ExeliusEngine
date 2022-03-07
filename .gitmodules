@@ -17,3 +17,6 @@
 [submodule "tools/thirdparty/sfml"]
 	path = tools/thirdparty/sfml
 	url = https://github.com/SFML/SFML
+[submodule "tools/thirdparty/box2d"]
+	path = tools/thirdparty/box2d
+	url = https://github.com/erincatto/box2d

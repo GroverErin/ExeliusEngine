@@ -77,7 +77,7 @@ namespace Exelius
 			: x(X)
 			, y(Y)
 		{
-
+			//
 		}
 
 		/// <summary>

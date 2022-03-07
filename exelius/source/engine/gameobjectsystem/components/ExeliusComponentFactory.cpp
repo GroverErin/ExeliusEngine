@@ -31,7 +31,8 @@ namespace Exelius
 
 		return true;
 	}
-
+	
+	//Todo fix naming of variables
 	Handle ExeliusComponentFactory::CreateComponent(const Component::Type& componentName, GameObject* pOwningObject, const rapidjson::Value& componentData)
 	{
 		auto* pGameObjectSystem = GameObjectSystem::GetInstance();
@@ -95,6 +96,11 @@ namespace Exelius
 
 			auto& newComponent = pGameObjectSystem->GetComponent<AudioComponent>(newHandle);
 			initSucceeded = newComponent.Initialize(componentData);
+		}
+		else
+		{
+			m_gameObjectSystemLog.Error("Component failed to initialize: Component Type '{}' Does Not Exist.", componentName);
+			return {}; // Invalid.
 		}
 
 		if (!initSucceeded)

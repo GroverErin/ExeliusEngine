@@ -108,6 +108,22 @@ namespace Exelius
 		return static_cast<size_t>(size);
 	}
 
+	const eastl::string File::GetFileExtension(const eastl::string& filepath)
+	{
+		return filepath.substr(filepath.find_last_of('.') + 1);
+	}
+
+	const eastl::string File::GetFileDirectory(const eastl::string& filepath)
+	{
+		const size_t lastSlashIndex = filepath.find_last_of('/');
+		if (eastl::string::npos != lastSlashIndex)
+		{
+			return filepath.substr(0, lastSlashIndex);
+		}
+
+		return eastl::string();
+	}
+
 	bool File::VerifyAccessPermissions(AccessPermission access, CreationType create) const
 	{
 		if (access == AccessPermission::kReadOnly && (create == CreationType::kCreateFile || create == CreationType::kOverwriteFile))

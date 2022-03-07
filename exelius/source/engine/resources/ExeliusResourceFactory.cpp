@@ -8,6 +8,7 @@
 #include "source/engine/resources/resourcetypes/SpritesheetResource.h"
 #include "source/engine/resources/resourcetypes/FontResource.h"
 #include "source/engine/resources/resourcetypes/AudioResource.h"
+#include "source/utility/io/File.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -62,7 +63,7 @@ namespace Exelius
 	{
 		EXE_ASSERT(resourceID.IsValid());
 
-		eastl::string fileExtension = resourceID.Get().substr(resourceID.Get().find_last_of('.') + 1);
+		eastl::string fileExtension = File::GetFileExtension(resourceID.Get());
 
 		if (fileExtension.empty())
 		{

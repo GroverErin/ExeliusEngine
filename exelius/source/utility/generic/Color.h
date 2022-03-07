@@ -1,4 +1,5 @@
 #pragma once
+#include <EASTL/string.h>
 #include <cstdint>
 
 /// <summary>
@@ -72,6 +73,40 @@ namespace Exelius
 						(uint8_t)(hexColor & 0x000000FF));
 		}
 
+		static Color FromHexString(const eastl::string& colorString)
+		{
+			// Removes preceding #
+			const char* pStr = colorString.c_str();
+			auto result = colorString.find_last_of('#');
+			if (result != eastl::string::npos)
+			{
+				pStr = colorString.substr(result + 1).c_str();
+			}
+
+			if (std::strlen(pStr) == 6 || std::strlen(pStr) == 8)
+			{
+				unsigned int value = std::stoi(pStr, 0, 16);
+				unsigned int r = 0;
+				unsigned int g = 0;
+				unsigned int b = 0;
+				unsigned int a = 255;
+
+				r = (value >> 16) & 0xff;
+				g = (value >> 8) & 0xff;
+				b = value & 0xff;
+
+				if (std::strlen(pStr) == 8)
+				{
+					a = (value >> 24) & 0xff;
+				}
+
+				return{ std::uint8_t(r), std::uint8_t(g), std::uint8_t(b), std::uint8_t(a) };
+			}
+
+			// TODO: Logger::log(str + ": not a valid colour string", Logger::Type::Error);
+			return {};
+		}
+
 		/// <summary>
 		/// Return the color as a single hexidecimal value.
 		/// </summary>
@@ -101,6 +136,19 @@ namespace Exelius
 		/// Alpha value.
 		/// </summary>
 		uint8_t a;
+
+		bool operator == (const Color& other)
+		{
+			return other.r == r
+				&& other.g == g
+				&& other.b == b
+				&& other.a == a;
+		}
+
+		bool operator != (const Color& other)
+		{
+			return !(*this == other);
+		}
 	};
 
 	/// <summary>

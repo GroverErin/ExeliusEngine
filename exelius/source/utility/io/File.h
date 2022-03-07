@@ -53,6 +53,9 @@ namespace Exelius
 		bool IsValid() const;
 		size_t GetSize();
 
+		static const eastl::string GetFileExtension(const eastl::string& filepath);
+		static const eastl::string GetFileDirectory(const eastl::string& filepath);
+
 	private:
 		bool VerifyAccessPermissions(AccessPermission access, CreationType create) const;
 		bool InternalOpen(const char* pFileName, AccessPermission access, CreationType create);

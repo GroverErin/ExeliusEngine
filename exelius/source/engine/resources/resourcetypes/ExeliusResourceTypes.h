@@ -67,6 +67,15 @@ namespace Exelius
 		static constexpr Type kFont = kSpritesheet + 1;
 
 		/// <summary>
+		/// A audio resource type is a resource
+		/// that contains the data needed to
+		/// playback music or sound.
+		/// 
+		/// @see AudioResource
+		/// </summary>
+		static constexpr Type kAudio = kFont + 1;
+
+		/// <summary>
 		/// The last resource type to be defined by the engine.
 		/// The client application should increment this type
 		/// in order to define a new type.
@@ -76,6 +85,6 @@ namespace Exelius
 		///		static constexpr Exelius::ResourceType::Type kClientResource = kLastEngineResourceType + 1;
 		/// @endcode
 		/// </summary>
-		static constexpr Type kLastEngineResourceType = kFont;
+		static constexpr Type kLastEngineResourceType = kAudio;
 	}
 }

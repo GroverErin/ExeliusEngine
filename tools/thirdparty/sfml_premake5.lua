@@ -306,13 +306,13 @@ function sfml.IncludeDependency(dependencyRootFolder)
     filter {"system:windows", "architecture:x86"}
         libdirs
         {
-            dependencyRootFolder .. "extlibs/libs-msvc/x86/"
+            dependencyRootFolder .. "extlibs/libs-msvc-universal/x86/"
         }
 
     filter {"system:windows", "architecture:x86_64"}
         libdirs
         {
-            dependencyRootFolder .. "extlibs/libs-msvc/x64/"
+            dependencyRootFolder .. "extlibs/libs-msvc-universal/x64/"
         }
 
     filter {"system:linux"}

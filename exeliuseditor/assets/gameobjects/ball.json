@@ -20,6 +20,12 @@
                 "xScale" : 0.3,
                 "yScale" : 0.3
             }
+        },
+        "AudioComponent" :
+        {
+            "file" : "assets/audio/beam.wav",
+            "isMusic" : false,
+            "loopCount" : 0
         }
     }
 }

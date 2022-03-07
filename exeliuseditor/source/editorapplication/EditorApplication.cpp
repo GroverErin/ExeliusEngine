@@ -23,6 +23,10 @@ bool EditorApplication::Initialize()
 {
 	//RunTestCode();
 
+	auto* pGameObjectSystem = Exelius::GameObjectSystem::GetInstance();
+	EXE_ASSERT(pGameObjectSystem);
+
+
 	m_leftPaddle.Initialize("assets/GameObjects/player_paddle.json");
 	m_rightPaddle.Initialize("assets/GameObjects/other_paddle.json");
 	m_ball.Initialize("assets/GameObjects/ball.json");
@@ -30,6 +34,9 @@ bool EditorApplication::Initialize()
 	m_uiMenues[1].Initialize("assets/gameobjects/game_hud.json");
 	m_uiMenues[0].SetEnabled(true);
 
+	auto id = pGameObjectSystem->CreateGameObject("assets/gameobjects/tilemap_test.json", Exelius::CreationMode::kQueueAndSignal);
+
+	pGameObjectSystem->GetGameObject(id)->SetEnabled(true);
 	return true;
 }
 

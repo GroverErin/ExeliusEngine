@@ -6,6 +6,7 @@
 #include "source/engine/gameobjectsystem/components/componenttypes/SpriteComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/UIComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/AudioComponent.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/TilemapComponent.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -28,10 +29,11 @@ namespace Exelius
 		pGameObjectSystem->RegisterComponent<SpriteComponent>(SpriteComponent::kType, false, true);
 		pGameObjectSystem->RegisterComponent<UIComponent>(UIComponent::kType, true, true);
 		pGameObjectSystem->RegisterComponent<AudioComponent>(AudioComponent::kType, false, false);
+		pGameObjectSystem->RegisterComponent<TilemapComponent>(TilemapComponent::kType, true, true);
 
 		return true;
 	}
-	
+
 	//Todo fix naming of variables
 	Handle ExeliusComponentFactory::CreateComponent(const Component::Type& componentName, GameObject* pOwningObject, const rapidjson::Value& componentData)
 	{
@@ -95,6 +97,20 @@ namespace Exelius
 			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<AudioComponent>(newHandle);
+			initSucceeded = newComponent.Initialize(componentData);
+		}
+		else if (componentName == TilemapComponent::kType)
+		{
+			newHandle = pGameObjectSystem->CreateComponent<TilemapComponent>(pOwningObject);
+
+			if (!newHandle.IsValid())
+			{
+				m_gameObjectSystemLog.Error("TilemapComponent failed to be created.");
+				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
+				return {}; // Invalid.
+			}
+
+			auto& newComponent = pGameObjectSystem->GetComponent<TilemapComponent>(newHandle);
 			initSucceeded = newComponent.Initialize(componentData);
 		}
 		else

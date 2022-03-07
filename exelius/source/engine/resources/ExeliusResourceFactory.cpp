@@ -8,6 +8,8 @@
 #include "source/engine/resources/resourcetypes/SpritesheetResource.h"
 #include "source/engine/resources/resourcetypes/FontResource.h"
 #include "source/engine/resources/resourcetypes/AudioResource.h"
+#include "source/engine/resources/resourcetypes/tilemap/TilemapResource.h"
+
 #include "source/utility/io/File.h"
 
 /// <summary>
@@ -54,6 +56,11 @@ namespace Exelius
 				pNewResource = new AudioResource(resourceID);
 				break;
 			}
+		case ResourceType::kTilemap:
+			{
+				pNewResource = new TilemapResource(resourceID);
+				break;
+			}
 		}
 
 		return pNewResource;
@@ -91,7 +98,11 @@ namespace Exelius
 		{
 			return ResourceType::kAudio;
 		}
-		
+		else if (fileExtension == "tmx")
+		{
+			return ResourceType::kTilemap;
+		}
+
 		return ResourceType::kInvalid;
 	}
 }

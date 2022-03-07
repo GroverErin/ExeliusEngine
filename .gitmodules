@@ -26,3 +26,6 @@
 [submodule "tools/thirdparty/pugixml"]
 	path = tools/thirdparty/pugixml
 	url = https://github.com/zeux/pugixml/
+[submodule "tools/thirdparty/glfw"]
+	path = tools/thirdparty/glfw
+	url = https://github.com/glfw/glfw

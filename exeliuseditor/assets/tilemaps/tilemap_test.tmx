@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="16" height="16" tilewidth="64" tileheight="64" infinite="0" nextlayerid="5" nextobjectid="1">
+ <tileset firstgid="1" source="../tilesets/platform.tsx"/>
+ <layer id="4" name="Backdrop" width="16" height="16">
+  <data encoding="base64" compression="zlib">
+   eJyTZGBgkKQAS1ABi5OJYXrFyMSU6B3Fo3g4YACkaxZl
+  </data>
+ </layer>
+ <layer id="2" name="Far" width="16" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFowABGKlsniiF+oWHmX4NEvWLoPHVKXALNgAAnkAAxg==
+  </data>
+ </layer>
+ <layer id="1" name="Middle" width="16" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo4B6QAmI5aBYeYDdMhKAAhDLk4kVgRgAHNsCdQ==
+  </data>
+ </layer>
+ <layer id="3" name="Near" width="16" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFowAVCEDxKKAf4IfSvEDMA8R8SGLocUHNuAEAaRQAhg==
+  </data>
+ </layer>
+</map>

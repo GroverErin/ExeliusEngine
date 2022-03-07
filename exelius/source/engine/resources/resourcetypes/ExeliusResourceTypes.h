@@ -76,6 +76,15 @@ namespace Exelius
 		static constexpr Type kAudio = kFont + 1;
 
 		/// <summary>
+		/// A tilemap resource type is a resource
+		/// that contains the data needed to
+		/// render a series of textures efficiently.
+		/// 
+		/// @see TilemapResource
+		/// </summary>
+		static constexpr Type kTilemap = kAudio + 1;
+
+		/// <summary>
 		/// The last resource type to be defined by the engine.
 		/// The client application should increment this type
 		/// in order to define a new type.
@@ -85,6 +94,8 @@ namespace Exelius
 		///		static constexpr Exelius::ResourceType::Type kClientResource = kLastEngineResourceType + 1;
 		/// @endcode
 		/// </summary>
-		static constexpr Type kLastEngineResourceType = kAudio;
+		static constexpr Type kLastEngineResourceType = kTilemap;
+
+
 	}
 }

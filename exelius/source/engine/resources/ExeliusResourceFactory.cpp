@@ -7,6 +7,7 @@
 #include "source/engine/resources/resourcetypes/TextureResource.h"
 #include "source/engine/resources/resourcetypes/SpritesheetResource.h"
 #include "source/engine/resources/resourcetypes/FontResource.h"
+#include "source/engine/resources/resourcetypes/AudioResource.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -47,6 +48,11 @@ namespace Exelius
 				pNewResource = new FontResource(resourceID);
 				break;
 			}
+		case ResourceType::kAudio:
+			{
+				pNewResource = new AudioResource(resourceID);
+				break;
+			}
 		}
 
 		return pNewResource;
@@ -80,7 +86,11 @@ namespace Exelius
 		{
 			return ResourceType::kFont;
 		}
-
+		else if (fileExtension == "wav" || fileExtension == "ogg" || fileExtension == "flac")
+		{
+			return ResourceType::kAudio;
+		}
+		
 		return ResourceType::kInvalid;
 	}
 }

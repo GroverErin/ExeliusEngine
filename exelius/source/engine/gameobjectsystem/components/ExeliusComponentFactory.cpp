@@ -5,6 +5,7 @@
 #include "source/engine/gameobjectsystem/components/componenttypes/TransformComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/SpriteComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/UIComponent.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/AudioComponent.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -26,6 +27,7 @@ namespace Exelius
 		pGameObjectSystem->RegisterComponent<TransformComponent>(TransformComponent::kType, false, false);
 		pGameObjectSystem->RegisterComponent<SpriteComponent>(SpriteComponent::kType, false, true);
 		pGameObjectSystem->RegisterComponent<UIComponent>(UIComponent::kType, true, true);
+		pGameObjectSystem->RegisterComponent<AudioComponent>(AudioComponent::kType, false, false);
 
 		return true;
 	}
@@ -78,6 +80,20 @@ namespace Exelius
 			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<UIComponent>(newHandle);
+			initSucceeded = newComponent.Initialize(componentData);
+		}
+		else if (componentName == AudioComponent::kType)
+		{
+			newHandle = pGameObjectSystem->CreateComponent<AudioComponent>(pOwningObject);
+
+			if (!newHandle.IsValid())
+			{
+				m_gameObjectSystemLog.Error("AudioComponent failed to be created.");
+				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
+				return {}; // Invalid.
+			}
+
+			auto& newComponent = pGameObjectSystem->GetComponent<AudioComponent>(newHandle);
 			initSucceeded = newComponent.Initialize(componentData);
 		}
 

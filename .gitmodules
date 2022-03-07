@@ -20,3 +20,6 @@
 [submodule "tools/thirdparty/box2d"]
 	path = tools/thirdparty/box2d
 	url = https://github.com/erincatto/box2d
+[submodule "tools/thirdparty/openal"]
+	path = tools/thirdparty/openal
+	url = https://github.com/kcat/openal-soft

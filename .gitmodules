@@ -29,3 +29,6 @@
 [submodule "tools/thirdparty/glfw"]
 	path = tools/thirdparty/glfw
 	url = https://github.com/glfw/glfw
+[submodule "tools/thirdparty/glm"]
+	path = tools/thirdparty/glm
+	url = https://github.com/g-truc/glm

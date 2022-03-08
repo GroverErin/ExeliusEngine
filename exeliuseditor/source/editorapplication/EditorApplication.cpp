@@ -36,7 +36,7 @@ bool EditorApplication::Initialize()
 
 	auto id = pGameObjectSystem->CreateGameObject("assets/gameobjects/tilemap_test.json", Exelius::CreationMode::kQueueAndSignal);
 
-	pGameObjectSystem->GetGameObject(id)->SetEnabled(true);
+	//pGameObjectSystem->GetGameObject(id)->SetEnabled(true);
 	return true;
 }
 

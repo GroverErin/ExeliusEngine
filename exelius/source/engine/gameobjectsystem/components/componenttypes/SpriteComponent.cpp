@@ -40,6 +40,7 @@ namespace Exelius
 		if (spriteData == jsonComponentData.MemberEnd())
 		{
 			m_gameObjectSystemLog.Warn("Initialization for SpriteComponent failed: No Sprite data found.");
+			Destroy();
 			return false;
 		}
 

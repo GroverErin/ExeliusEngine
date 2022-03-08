@@ -7,6 +7,7 @@
 #include "source/engine/gameobjectsystem/components/componenttypes/UIComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/AudioComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/TilemapComponent.h"
+#include "source/engine/gameobjectsystem/components/componenttypes/AnimationComponent.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -30,6 +31,7 @@ namespace Exelius
 		pGameObjectSystem->RegisterComponent<UIComponent>(UIComponent::kType, true, true);
 		pGameObjectSystem->RegisterComponent<AudioComponent>(AudioComponent::kType, false, false);
 		pGameObjectSystem->RegisterComponent<TilemapComponent>(TilemapComponent::kType, true, true);
+		pGameObjectSystem->RegisterComponent<AnimationComponent>(AnimationComponent::kType, true, true);
 
 		return true;
 	}
@@ -111,6 +113,20 @@ namespace Exelius
 			}
 
 			auto& newComponent = pGameObjectSystem->GetComponent<TilemapComponent>(newHandle);
+			initSucceeded = newComponent.Initialize(componentData);
+		}
+		else if (componentName == AnimationComponent::kType)
+		{
+			newHandle = pGameObjectSystem->CreateComponent<AnimationComponent>(pOwningObject);
+
+			if (!newHandle.IsValid())
+			{
+				m_gameObjectSystemLog.Error("AnimationComponent failed to be created.");
+				pGameObjectSystem->ReleaseComponent(componentName, newHandle);
+				return {}; // Invalid.
+			}
+
+			auto& newComponent = pGameObjectSystem->GetComponent<AnimationComponent>(newHandle);
 			initSucceeded = newComponent.Initialize(componentData);
 		}
 		else

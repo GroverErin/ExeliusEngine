@@ -83,11 +83,13 @@ void Ball::Update(Exelius::GameObjectID leftPaddleID, Exelius::GameObjectID righ
 
 		// Get the audio
 		auto audioComp = pObject->GetComponent<Exelius::AudioComponent>();
+		auto animComp = pObject->GetComponent<Exelius::AnimationComponent>();
 
 		Exelius::FRectangle intersectRect;
 		if (ballRect.Intersects(playerPaddleRect, intersectRect))
 		{
 			audioComp->Play();
+			animComp->Play("left-bounce");
 			if (intersectRect.w < intersectRect.h)
 			{
 				// We need to move left or right.
@@ -122,6 +124,7 @@ void Ball::Update(Exelius::GameObjectID leftPaddleID, Exelius::GameObjectID righ
 		else if (ballRect.Intersects(otherPaddleRect, intersectRect))
 		{
 			audioComp->Play();
+			animComp->Play("right-bounce");
 			if (intersectRect.w < intersectRect.h)
 			{
 				// We need to move left or right.

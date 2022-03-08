@@ -4,21 +4,49 @@
     {
         "player_paddle" : 
         {
-            "sourceX" : 0,
+            "sourceX" : 200,
             "sourceY" : 0,
             "sourceW" : 100,
             "sourceH" : 100
         },
         "other_paddle" : 
         {
-            "sourceX" : 0,
+            "sourceX" : 200,
             "sourceY" : 0,
             "sourceW" : 100,
             "sourceH" : 100
         },
         "ball" : 
         {
+            "sourceX" : 200,
+            "sourceY" : 0,
+            "sourceW" : 100,
+            "sourceH" : 100
+        },
+        "ball-half-left" : 
+        {
+            "sourceX" : 100,
+            "sourceY" : 0,
+            "sourceW" : 100,
+            "sourceH" : 100
+        },
+        "ball-qtr-left" : 
+        {
             "sourceX" : 0,
+            "sourceY" : 0,
+            "sourceW" : 100,
+            "sourceH" : 100
+        },
+        "ball-half-right" : 
+        {
+            "sourceX" : 300,
+            "sourceY" : 0,
+            "sourceW" : 100,
+            "sourceH" : 100
+        },
+        "ball-qtr-right" : 
+        {
+            "sourceX" : 400,
             "sourceY" : 0,
             "sourceW" : 100,
             "sourceH" : 100

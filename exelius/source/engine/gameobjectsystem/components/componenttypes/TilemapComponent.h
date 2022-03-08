@@ -40,7 +40,7 @@ namespace Exelius
 
 		virtual void Update() final override;
 
-		virtual void Render() final override;
+		virtual void Render() const final override;
 
 		virtual void Destroy() final override;
 

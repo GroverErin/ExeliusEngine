@@ -61,7 +61,7 @@ namespace Exelius
 
     }
 
-    void TilemapComponent::Render()
+    void TilemapComponent::Render() const
     {
         if (!m_pOwner)
         {

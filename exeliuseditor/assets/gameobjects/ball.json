@@ -9,17 +9,31 @@
             "w" : 30.0,
             "h" : 30.0
         },
-        "SpriteComponent" : 
+        "AnimationComponent" :
         {
             "Spritesheet" : "assets/spritesheets/square.spsh",
-            "Sprite" : 
-            {
-                "name" : "ball",
-                "xOffset" : 0.0,
-                "yOffset" : 0.0,
-                "xScale" : 0.3,
-                "yScale" : 0.3
-            }
+            "DefaultAnimation" : "ball",
+            "Animations" :
+            [
+                {
+                    "name" : "ball",
+                    "frameRate" : 360.0,
+                    "doesLoop" : true,
+                    "spriteArray" : ["ball"]
+                },
+                {
+                    "name" : "left-bounce",
+                    "frameRate" : 2.0,
+                    "doesLoop" : false,
+                    "spriteArray" : ["ball", "ball-half-left", "ball-qtr-left", "ball-half-left", "ball"]
+                },
+                {
+                    "name" : "right-bounce",
+                    "frameRate" : 2.0,
+                    "doesLoop" : false,
+                    "spriteArray" : ["ball", "ball-half-right", "ball-qtr-right", "ball-half-right", "ball"]
+                }
+            ]
         },
         "AudioComponent" :
         {

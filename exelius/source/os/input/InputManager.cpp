@@ -132,8 +132,8 @@ namespace Exelius
 		case EventType::MouseScrolled:
 			{
 				MouseScrolledEvent* pMouseScrolledEvent = static_cast<MouseScrolledEvent*>(&evnt);
-				pMouseScrolledEvent->GetWheelDelta();
-				if (pMouseScrolledEvent->GetWheelDelta() > 0)
+				pMouseScrolledEvent->GetWheelXDelta();
+				if (pMouseScrolledEvent->GetWheelXDelta() > 0)
 					SetWheelState(ScrollWheelDirection::WheelUp);
 				else
 					SetWheelState(ScrollWheelDirection::WheelDown);

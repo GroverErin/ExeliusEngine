@@ -51,7 +51,7 @@ function glfw.GenerateDependencyProject(dependencyRootFolder)
                 "%{prj.location}/src/osmesa_context.c"
             }
 
-            defines 
+            defines
             { 
                 "_GLFW_WIN32",
                 "_CRT_SECURE_NO_WARNINGS"
@@ -104,6 +104,13 @@ function glfw.IncludeDependency(dependencyRootFolder)
             "_CRT_SECURE_NO_WARNINGS"
         }
     filter {}
+
+    defines
+    {
+        "OPENGL_RENDERER",
+        "EXELIUS_RENDERER=OPENGL_RENDERER",
+        "GLFW_INCLUDE_NONE"
+    }
 end
 
 function glfw.LinkDependency(dependencyRootFolder, exeliusLibDir)

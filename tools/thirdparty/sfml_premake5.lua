@@ -325,8 +325,9 @@ function sfml.IncludeDependency(dependencyRootFolder)
 
     defines
     {
-        "SFML_STATIC",
-        "EXELIUS_RENDERER=SFML_RENDERER"
+        "SFML_STATIC"--,
+        --"SFML_RENDERER",
+        --"EXELIUS_RENDERER=SFML_RENDERER"
     }
 end
 

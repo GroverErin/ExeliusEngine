@@ -231,6 +231,12 @@ namespace Exelius
 	{
 		using Window = _Window<SFMLWindow>;
 	}
+#elif EXELIUS_RENDERER == OPENGL_RENDERER
+	#include "source/os/platform/opengl/OpenGLWindow.h"
+	namespace Exelius
+	{
+		using Window = _Window<OpenGLWindow>;
+	}
 #else
 	#error "Unknown Render Skin Implementation."
 #endif

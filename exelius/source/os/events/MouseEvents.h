@@ -110,14 +110,16 @@ namespace Exelius
 	class MouseScrolledEvent
 		: public Event
 	{
-		float m_delta;
+		float m_xDelta;
+		float m_yDelta;
 	public:
 		/// <summary>
 		/// Event that occurs when a mouse scroll wheel move is detected.
 		/// </summary>
 		/// <param name="delta">Scroll change data.</param>
-		MouseScrolledEvent(const float delta)
-			: m_delta(delta)
+		MouseScrolledEvent(const float xDelta, const float yDelta = 0.0f)
+			: m_xDelta(xDelta)
+			, m_yDelta(yDelta)
 		{
 			//
 		}
@@ -133,9 +135,14 @@ namespace Exelius
 		/// Get the positional data for the scroll wheel movement.
 		/// </summary>
 		/// <returns>Scroll change data.</returns>
-		float GetWheelDelta() const
+		float GetWheelXDelta() const
 		{
-			return m_delta;
+			return m_xDelta;
+		}
+
+		float GetWheelYDelta() const
+		{
+			return m_yDelta;
 		}
 
 		EVENT_CLASS_TYPE(MouseScrolled)

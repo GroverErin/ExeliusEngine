@@ -42,13 +42,14 @@ namespace Exelius
 	/// </summary>
 	class Event
 	{
-		bool m_handled;
 	public:
+		bool m_isHandled;
+
 		/// <summary>
 		/// OS event triggered by the platform window.
 		/// </summary>
 		Event()
-			: m_handled(false)
+			: m_isHandled(false)
 		{
 			//
 		}
@@ -85,18 +86,6 @@ namespace Exelius
 		{
 			return (int)GetCategoryFlags() & (int)category;
 		}
-
-		/// <summary>
-		/// Check if the event has been handled already or not.
-		/// Some events may be allowed to propagate down.
-		/// </summary>
-		/// <returns>Event handled state.</returns>
-		bool IsEventHandled() const { return m_handled; }
-
-		/// <summary>
-		/// Set the event to be handled. (No longer propagates)
-		/// </summary>
-		void SetEventHandled() { m_handled = true; }
 	};
 
 	/// <summary>

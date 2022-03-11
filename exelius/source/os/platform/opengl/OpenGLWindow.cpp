@@ -12,6 +12,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -54,7 +55,7 @@ namespace Exelius
 		if (s_GLFWWindowCount == 0)
 		{
 			int success = glfwInit();
-			EXE_ASSERT(success, "Could not initialize GLFW!");
+			EXE_ASSERT(success);
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 

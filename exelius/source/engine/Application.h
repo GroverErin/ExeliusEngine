@@ -3,6 +3,9 @@
 #include "source/utility/generic/Singleton.h"
 #include "source/os/events/EventManagement.h"
 
+#include "source/engine/layers/LayerStack.h"
+#include "source/engine/layers/imgui/ImGuiLayer.h"
+
 #include <EASTL/string.h>
 
 /// <summary>
@@ -30,6 +33,8 @@ namespace Exelius
 		ComponentFactory* m_pComponentFactory;
 		MessageFactory* m_pMessageFactory;
 
+		LayerStack m_layerStack;
+		ImGuiLayer* m_pImGuiLayer;
 	private:
 		float m_lastFrameTime;
 		bool m_isRunning;
@@ -105,6 +110,10 @@ namespace Exelius
 		///			return Exelius::ExeliusResourceFactory::CreateResource(resourceID);
 		/// </summary>
 		virtual void SetResourceFactory();
+
+		// TODO: Comments
+		void PushLayer(Layer* pLayer);
+		void PushOverlayLayer(Layer* pOverlayLayer);
 
 		/// <summary>
 		/// Sets the message factory to use when creating Messages.

@@ -253,5 +253,7 @@ namespace Exelius
 		/// Call any code required to shut down a window in OpenGL.
 		/// </summary>
 		void Shutdown();
+
+		GLFWwindow* GetGLFWWindow() const { EXE_ASSERT(m_pWindow); return m_pWindow; }
 	};
 }

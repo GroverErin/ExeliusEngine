@@ -26,6 +26,8 @@
 
 #include "source/os/input/InputManager.h"
 
+#include "source/engine/layers/Layer.h"
+
 #include "source/os/events/ApplicationEvents.h" // TODO: Remove this.
 
 #include "source/os/interface/graphics/Window.h" // TODO: Remove this.
@@ -187,6 +189,9 @@ namespace Exelius
 		// Rendering - Initialization
 		//-----------------------------------------------
 
+		m_pImGuiLayer = EXELIUS_NEW(ImGuiLayer());
+		m_layerStack.PushOverlayLayer(m_pImGuiLayer);
+
 		if (!InitializeRenderManager(configFile))
 			return false;
 
@@ -280,6 +285,17 @@ namespace Exelius
 			// Update Components.
 			GameObjectSystem::GetInstance()->Update();
 
+			for (Layer* pLayer : m_layerStack)
+				pLayer->OnUpdate();
+
+			// TODO: Move to render thread?
+			m_pImGuiLayer->Begin();
+			{
+				for (Layer* pLayer : m_layerStack)
+					pLayer->OnImGuiRender();
+			}
+			m_pImGuiLayer->End();
+
 			// Client Update.
 			Update();
 
@@ -334,6 +350,16 @@ namespace Exelius
 		m_pResourceFactory = EXELIUS_NEW(ExeliusResourceFactory());
 	}
 
+	void Application::PushLayer(Layer* pLayer)
+	{
+		m_layerStack.PushLayer(pLayer);
+	}
+
+	void Application::PushOverlayLayer(Layer* pOverlayLayer)
+	{
+		m_layerStack.PushOverlayLayer(pOverlayLayer);
+	}
+
 	/// <summary>
 	/// Sets the message factory to use when creating Messages.
 	/// 
@@ -364,6 +390,14 @@ namespace Exelius
 		{
 			//WindowClosedEvent* pWinClosed = static_cast<WindowClosedEvent*>(&evnt);
 			CloseApplication();
+			evnt.m_isHandled = true;
+		}
+
+		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
+		{
+			if (evnt.m_isHandled)
+				break;
+			(*it)->OnEvent(evnt);
 		}
 	}
 

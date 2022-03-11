@@ -8,7 +8,17 @@ function glm.GenerateDependencyProject(dependencyRootFolder)
 end
 
 function glm.IncludeDependency(dependencyRootFolder)
+    includedirs
+    {
+        dependencyRootFolder .. "/"
+    }
 
+    filter {"system:windows"}
+        files
+        {
+            dependencyRootFolder .. "util/glm.natvis"
+        }
+    filter {}
 end
 
 function glm.LinkDependency(dependencyRootFolder, exeliusLibDir)

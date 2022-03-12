@@ -53,6 +53,8 @@ namespace Exelius
             m_microseconds = static_cast<int64_t>(seconds * 1000000); // TODO: Fix warning
         }
 
+        operator float() const { return GetAsSeconds(); }
+
         static Time DeltaTime;
 
     private:

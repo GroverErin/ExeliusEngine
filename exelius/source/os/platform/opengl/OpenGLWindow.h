@@ -19,6 +19,8 @@ namespace Exelius
 	FORWARD_DECLARE(Texture);
 	FORWARD_DECLARE(VertexArray);
 
+	FORWARD_DECLARE(RenderContext);
+
 	/// <summary>
 	/// Window class that handles OpenGL specific function calls.
 	/// The window also processes OpenGL events and passes them to
@@ -42,6 +44,8 @@ namespace Exelius
 		/// Log for the Graphics Interface.
 		/// </summary>
 		Log m_graphicsInterfaceLog;
+
+		RenderContext* m_pRenderContext;
 
 		GLFWwindow* m_pWindow;
 		bool m_isVSync; // TODO: Elevate this to the Window interface.
@@ -78,6 +82,8 @@ namespace Exelius
 		/// <param name="windowSize"></param>
 #undef CreateWindow // Defined in WinUser.h :(
 		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize);
+
+		void InitializeRenderContext(Window* pAbstractWindow);
 
 		/// <summary>
 		/// Check if the window is open.

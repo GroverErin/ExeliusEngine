@@ -1,0 +1,40 @@
+#pragma once
+#include "source/os/platform/PlatformForwardDeclarations.h"
+
+// TODO: Remove
+typedef unsigned int GLenum;
+
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
+namespace Exelius
+{
+	FORWARD_DECLARE(Texture);
+
+	class OpenGLTexture
+	{
+		eastl::string m_path;
+		bool m_isLoaded = false;
+		uint32_t m_width, m_height;
+		uint32_t m_rendererID;
+		GLenum m_internalFormat, m_dataFormat;
+	public:
+		OpenGLTexture(uint32_t width, uint32_t height);
+
+		OpenGLTexture(const eastl::string& path);
+
+		~OpenGLTexture();
+
+		uint32_t GetWidth() const;
+		uint32_t GetHeight() const;
+		uint32_t GetRendererID() const;
+
+		void SetData(void* data, uint32_t size);
+
+		void Bind(uint32_t slot = 0) const;
+
+		bool IsLoaded() const;
+
+		bool operator==(const Texture& other) const;
+	};
+}

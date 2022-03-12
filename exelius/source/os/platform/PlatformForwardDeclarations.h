@@ -10,7 +10,7 @@
 	/// <summary>
 	/// Forward declares a class of an OpenGL type.
 	/// </summary>
-	#define FORWARD_DECLARE(CLASSNAME) class OPENGL##CLASSNAME; template<class Impl##CLASSNAME> class _##CLASSNAME; using CLASSNAME = _##CLASSNAME<OPENGL##CLASSNAME>
+	#define FORWARD_DECLARE(CLASSNAME) class OpenGL##CLASSNAME; template<class Impl##CLASSNAME> class _##CLASSNAME; using CLASSNAME = _##CLASSNAME<OpenGL##CLASSNAME>
 #else
 	#error "Unknown Render Skin Implementation."
 #endif

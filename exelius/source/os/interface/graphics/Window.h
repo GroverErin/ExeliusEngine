@@ -38,6 +38,8 @@ namespace Exelius
 			//
 		}
 
+		void InitializeRenderContext() { m_impl.InitializeRenderContext(this); }
+
 		/// <summary>
 		/// Calls the implementations update method.
 		/// </summary>

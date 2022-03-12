@@ -2,6 +2,7 @@
 #include "OpenGLWindow.h"
 
 #include "source/os/platform/opengl/OpenGLInputConversions.h"
+#include "source/render/RenderContext.h"
 
 #include "source/os/events/ApplicationEvents.h"
 #include "source/os/events/KeyEvents.h"
@@ -28,6 +29,7 @@ namespace Exelius
 
 	OpenGLWindow::OpenGLWindow()
 		: m_graphicsInterfaceLog("GraphicsInterface")
+		, m_pRenderContext(nullptr)
 		, m_pWindow(nullptr)
 		, m_isVSync(false)
 	{
@@ -35,6 +37,7 @@ namespace Exelius
 
 	OpenGLWindow::OpenGLWindow(const eastl::string& title, const Vector2u& windowSize)
 		: m_graphicsInterfaceLog("GraphicsInterface")
+		, m_pRenderContext(nullptr)
 		, m_pWindow(nullptr)
 		, m_isVSync(false)
 	{
@@ -59,19 +62,11 @@ namespace Exelius
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		{
 #if defined(EXE_DEBUG)
-			//if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
-				//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
-			m_pWindow = glfwCreateWindow(m_windowData.m_windowSize.w, m_windowData.m_windowSize.h, m_windowData.m_title.c_str(), nullptr, nullptr);
-
-			int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-			++s_GLFWWindowCount;
-		}
-
-		//m_Context = GraphicsContext::Create(m_Window);
-		//m_Context->Init();
+		m_pWindow = glfwCreateWindow(m_windowData.m_windowSize.w, m_windowData.m_windowSize.h, m_windowData.m_title.c_str(), nullptr, nullptr);
+		++s_GLFWWindowCount;
 
 		glfwSetWindowUserPointer(m_pWindow, &m_windowData);
 		SetVSync(false);
@@ -211,10 +206,18 @@ namespace Exelius
 		return true;
 	}
 
+	void OpenGLWindow::InitializeRenderContext(Window* pAbstractWindow)
+	{
+		m_pRenderContext = EXELIUS_NEW(RenderContext());
+		EXE_ASSERT(m_pRenderContext);
+		m_pRenderContext->Initialize(pAbstractWindow);
+	}
+
 	void OpenGLWindow::Update()
 	{
+		EXE_ASSERT(m_pRenderContext);
 		glfwPollEvents();
-		//m_Context->SwapBuffers();
+		m_pRenderContext->SwapBuffers();
 	}
 
 	Vector2u OpenGLWindow::GetWindowSize() const
@@ -231,6 +234,8 @@ namespace Exelius
 		{
 			glfwTerminate();
 		}
+
+		EXELIUS_DELETE(m_pRenderContext);
 	}
 
 	void OpenGLWindow::SetVSync(bool isEnabled)

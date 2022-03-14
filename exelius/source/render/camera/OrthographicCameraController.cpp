@@ -63,8 +63,20 @@ namespace Exelius
 		m_cameraTranslationSpeed = m_zoomLevel;
 	}
 
-	void OrthographicCameraController::OnEvent(Event& e)
+	void OrthographicCameraController::OnEvent(Event& evnt)
 	{
+		if (evnt.GetEventType() == EventType::MouseScrolled)
+		{
+			MouseScrolledEvent* pMouseScrolled = static_cast<MouseScrolledEvent*>(&evnt);
+			OnMouseScrolled(*pMouseScrolled);
+			evnt.m_isHandled = false;
+		}
+		else if (evnt.GetEventType() == EventType::WindowResized)
+		{
+			WindowResizedEvent* pWindowResized = static_cast<WindowResizedEvent*>(&evnt);
+			OnWindowResized(*pWindowResized);
+			evnt.m_isHandled = false;
+		}
 	}
 
 	void OrthographicCameraController::OnResize(float width, float height)

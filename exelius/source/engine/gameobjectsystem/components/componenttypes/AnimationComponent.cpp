@@ -130,7 +130,7 @@ namespace Exelius
             m_currentSpriteFrameName = found->second.m_frameIDs[m_currentFrameIndex];
         }
         else
-            m_currentFrameTime += Time::DeltaTime.GetAsSeconds();
+            m_currentFrameTime += Time::DeltaTime;
     }
 
     void AnimationComponent::Render() const

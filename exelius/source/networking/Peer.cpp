@@ -31,9 +31,9 @@ namespace Exelius
 
 	void Peer::InitializePeer()
 	{
-		m_pReliableSocket = eastl::make_shared<Socket>(Socket::SocketType::TCP, m_netAddress, m_id);
+		m_pReliableSocket = MakeShared<Socket>(Socket::SocketType::TCP, m_netAddress, m_id);
 		NetAddress unreliableAddr(m_netAddress.ToString(), m_netAddress.GetPort() + 1);
-		m_pUnreliableSocket = eastl::make_shared<Socket>(Socket::SocketType::UDP, unreliableAddr, m_id);
+		m_pUnreliableSocket = MakeShared<Socket>(Socket::SocketType::UDP, unreliableAddr, m_id);
 	}
 
 	void Peer::SendReliableMessage(Message* pMsg)

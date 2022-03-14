@@ -1,10 +1,15 @@
 #pragma once
+#include "source/os/platform/PlatformForwardDeclarations.h"
+#include "source/utility/generic/SmartPointers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
+	FORWARD_DECLARE(VertexBuffer);
+	FORWARD_DECLARE(IndexBuffer);
+
 	/// <summary>
 	/// Templated window class using CRTP.
 	/// https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
@@ -23,11 +28,11 @@ namespace Exelius
 		void Bind() const { m_impl.Bind(); }
 		void Unbind() const { m_impl.Unbind(); }
 
-		void AddVertexBuffer(const eastl::unique_ptr<VertexBuffer>& vertexBuffer) { m_impl.AddVertexBuffer(vertexBuffer); }
-		void SetIndexBuffer(const eastl::unique_ptr<IndexBuffer>& indexBuffer) { m_impl.SetIndexBuffer(indexBuffer); }
+		void AddVertexBuffer(const SharedPtr<VertexBuffer>& vertexBuffer) { m_impl.AddVertexBuffer(vertexBuffer); }
+		void SetIndexBuffer(const SharedPtr<IndexBuffer>& indexBuffer) { m_impl.SetIndexBuffer(indexBuffer); }
 
-		const std::vector<eastl::unique_ptr<VertexBuffer>>& GetVertexBuffers() const { return m_impl.GetVertexBuffers(); }
-		const eastl::unique_ptr<IndexBuffer>& GetIndexBuffer() const { return m_impl.GetIndexBuffer(); }
+		const std::vector<SharedPtr<VertexBuffer>>& GetVertexBuffers() const { return m_impl.GetVertexBuffers(); }
+		const SharedPtr<IndexBuffer>& GetIndexBuffer() const { return m_impl.GetIndexBuffer(); }
 	};
 }
 

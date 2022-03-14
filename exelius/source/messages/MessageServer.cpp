@@ -18,7 +18,7 @@ namespace Exelius
 		m_receivers.clear();
 	}
 
-	void MessageServer::AddMessageReceiver(MessageID id, eastl::shared_ptr<MessageReceiver> pNewEntry)
+	void MessageServer::AddMessageReceiver(MessageID id, SharedPtr<MessageReceiver> pNewEntry)
 	{
 		const auto& foundList = m_receivers.find(id);
 
@@ -27,7 +27,7 @@ namespace Exelius
 		else
 		{
 			// This doesn't seem like the best thing...
-			eastl::vector<eastl::shared_ptr<MessageReceiver>> newReceiversList;
+			eastl::vector<SharedPtr<MessageReceiver>> newReceiversList;
 			newReceiversList.emplace_back(pNewEntry);
 			m_receivers.emplace(id, newReceiversList);
 		}

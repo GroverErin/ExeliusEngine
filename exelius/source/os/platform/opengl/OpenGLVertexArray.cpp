@@ -52,7 +52,7 @@ namespace Exelius
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::AddVertexBuffer(const eastl::unique_ptr<VertexBuffer>& vertexBuffer)
+	void OpenGLVertexArray::AddVertexBuffer(const SharedPtr<VertexBuffer>& vertexBuffer)
 	{
 		EXE_ASSERT(vertexBuffer->GetLayout().GetElements().size());
 
@@ -120,7 +120,7 @@ namespace Exelius
 		m_vertexBuffers.push_back(vertexBuffer);
 	}
 
-	void OpenGLVertexArray::SetIndexBuffer(const eastl::unique_ptr<IndexBuffer>& indexBuffer)
+	void OpenGLVertexArray::SetIndexBuffer(const SharedPtr<IndexBuffer>& indexBuffer)
 	{
 		glBindVertexArray(m_rendererID);
 		indexBuffer->Bind();
@@ -128,12 +128,12 @@ namespace Exelius
 		m_indexBuffer = indexBuffer;
 	}
 
-	const std::vector<eastl::unique_ptr<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const
+	const std::vector<SharedPtr<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const
 	{
 		return m_vertexBuffers;
 	}
 
-	const eastl::unique_ptr<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const
+	const SharedPtr<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const
 	{
 		return m_indexBuffer;
 	}

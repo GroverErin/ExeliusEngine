@@ -8,33 +8,33 @@
 /// </summary>
 namespace Exelius
 {
-	void ShaderLibrary::Add(const eastl::string& name, const eastl::unique_ptr<Shader>& shader)
+	void ShaderLibrary::Add(const eastl::string& name, const SharedPtr<Shader>& shader)
 	{
 		EXE_ASSERT(!Exists(name));
 		m_shaders[name] = shader;
 	}
 
-	void ShaderLibrary::Add(const eastl::unique_ptr<Shader>& shader)
+	void ShaderLibrary::Add(const SharedPtr<Shader>& shader)
 	{
 		auto& name = shader->GetName();
 		Add(name, shader);
 	}
 
-	eastl::unique_ptr<Shader> ShaderLibrary::Load(const eastl::string& filepath)
+	SharedPtr<Shader> ShaderLibrary::Load(const eastl::string& filepath)
 	{
-		auto shader = EXELIUS_NEW(Shader(filepath));
+		auto shader = MakeShared<Shader>(filepath);
 		Add(shader);
 		return shader;
 	}
 
-	eastl::unique_ptr<Shader> ShaderLibrary::Load(const eastl::string& name, const eastl::string& filepath)
+	SharedPtr<Shader> ShaderLibrary::Load(const eastl::string& name, const eastl::string& filepath)
 	{
-		auto shader = EXELIUS_NEW(Shader(filepath));
+		auto shader = MakeShared<Shader>(filepath);
 		Add(name, shader);
 		return shader;
 	}
 
-	eastl::unique_ptr<Shader> ShaderLibrary::GetShader(const eastl::string& name)
+	SharedPtr<Shader> ShaderLibrary::GetShader(const eastl::string& name)
 	{
 		return m_shaders[name];
 	}

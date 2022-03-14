@@ -1,9 +1,9 @@
 #pragma once
 #include "source/os/platform/PlatformForwardDeclarations.h"
+#include "source/utility/generic/SmartPointers.h"
 
 #include <EASTL/unordered_map.h>
 #include <EASTL/string.h>
-#include <EASTL/unique_ptr.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -14,15 +14,15 @@ namespace Exelius
 
 	class ShaderLibrary
 	{
-		eastl::unordered_map<eastl::string, eastl::unique_ptr<Shader>> m_shaders;
+		eastl::unordered_map<eastl::string, SharedPtr<Shader>> m_shaders;
 	public:
-		void Add(const eastl::string& name, const eastl::unique_ptr<Shader>& shader);
-		void Add(const eastl::unique_ptr<Shader>& shader);
+		void Add(const eastl::string& name, const SharedPtr<Shader>& shader);
+		void Add(const SharedPtr<Shader>& shader);
 
-		eastl::unique_ptr<Shader> Load(const eastl::string& filepath);
-		eastl::unique_ptr<Shader> Load(const eastl::string& name, const eastl::string& filepath);
+		SharedPtr<Shader> Load(const eastl::string& filepath);
+		SharedPtr<Shader> Load(const eastl::string& name, const eastl::string& filepath);
 
-		eastl::unique_ptr<Shader> GetShader(const eastl::string& name);
+		SharedPtr<Shader> GetShader(const eastl::string& name);
 
 		bool Exists(const eastl::string& name) const;
 	};

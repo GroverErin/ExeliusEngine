@@ -111,23 +111,23 @@ namespace Exelius
 		MessageServer* pMessageServer = MessageServer::GetInstance();
 		EXE_ASSERT(pMessageServer);
 
-		m_listeners[0] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
+		m_listeners[0] = MakeShared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::LocalOnly>(reinterpret_cast<NetMessage<NetProtocol::LocalOnly>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::LocalOnly>), m_listeners[0]);
 
-		m_listeners[1] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
+		m_listeners[1] = MakeShared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::BroadcastUnreliable>(reinterpret_cast<NetMessage<NetProtocol::BroadcastUnreliable>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::BroadcastUnreliable>), m_listeners[1]);
 
-		m_listeners[2] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
+		m_listeners[2] = MakeShared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::BroadcastReliable>(reinterpret_cast<NetMessage<NetProtocol::BroadcastReliable>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::BroadcastReliable>), m_listeners[2]);
 
-		m_listeners[3] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
+		m_listeners[3] = MakeShared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::Unreliable>(reinterpret_cast<NetMessage<NetProtocol::Unreliable>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::Unreliable>), m_listeners[3]);
 
-		m_listeners[4] = eastl::make_shared<MessageReceiver>([this](Message* pMsg)
+		m_listeners[4] = MakeShared<MessageReceiver>([this](Message* pMsg)
 			{ HandleNetMessage<NetProtocol::Reliable>(reinterpret_cast<NetMessage<NetProtocol::Reliable>*>(pMsg)); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(NetMessage<NetProtocol::Reliable>), m_listeners[4]);
 	}

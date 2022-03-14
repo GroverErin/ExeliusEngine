@@ -1,8 +1,8 @@
 #pragma once
 #include "source/networking/NetHelpers.h"
+#include "source/utility/generic/SmartPointers.h"
 
 #include <EASTL/vector.h>
-#include <EASTL/shared_ptr.h>
 
 #include <thread>
 #include <atomic>
@@ -20,10 +20,10 @@ namespace Exelius
 	{
 		class SocketData;
 		SocketData* m_pSocketData;
-		eastl::vector<eastl::shared_ptr<Socket>> m_sockets;
+		eastl::vector<SharedPtr<Socket>> m_sockets;
 
-		eastl::vector<eastl::shared_ptr<Socket>> m_socketsToAdd;
-		eastl::vector<eastl::shared_ptr<Socket>> m_socketsToRemove;
+		eastl::vector<SharedPtr<Socket>> m_socketsToAdd;
+		eastl::vector<SharedPtr<Socket>> m_socketsToRemove;
 
 		/// <summary>
 		/// A mutex used to protect the sockets from data race conditions.

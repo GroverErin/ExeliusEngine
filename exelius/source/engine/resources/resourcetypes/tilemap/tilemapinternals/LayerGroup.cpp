@@ -48,22 +48,22 @@ namespace Exelius
             }
             else if (attribString == "layer")
             {
-                m_layers.emplace_back(eastl::make_unique<TileLayer>(m_tileCount.x * m_tileCount.y));
+                m_layers.emplace_back(MakeUnique<TileLayer>(m_tileCount.x * m_tileCount.y));
                 m_layers.back()->Parse(child, map);
             }
             else if (attribString == "objectgroup")
             {
-                m_layers.emplace_back(eastl::make_unique<ObjectGroup>());
+                m_layers.emplace_back(MakeUnique<ObjectGroup>());
                 m_layers.back()->Parse(child, map);
             }
             else if (attribString == "imagelayer")
             {
-                m_layers.emplace_back(eastl::make_unique<ImageLayer>(m_workingDir));
+                m_layers.emplace_back(MakeUnique<ImageLayer>(m_workingDir));
                 m_layers.back()->Parse(child, map);
             }
             else if (attribString == "group")
             {
-                m_layers.emplace_back(eastl::make_unique<LayerGroup>(m_workingDir, m_tileCount));
+                m_layers.emplace_back(MakeUnique<LayerGroup>(m_workingDir, m_tileCount));
                 m_layers.back()->Parse(child, map);
             }
             else

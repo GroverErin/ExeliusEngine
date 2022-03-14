@@ -244,17 +244,17 @@ namespace Exelius
             }
             else if (name == "layer")
             {
-                m_layers.emplace_back(eastl::make_unique<TileLayer>(m_tileCount.x * m_tileCount.y));
+                m_layers.emplace_back(MakeUnique<TileLayer>(m_tileCount.x * m_tileCount.y));
                 m_layers.back()->Parse(node);
             }
             else if (name == "objectgroup")
             {
-                m_layers.emplace_back(eastl::make_unique<ObjectGroup>());
+                m_layers.emplace_back(MakeUnique<ObjectGroup>());
                 m_layers.back()->Parse(node, this);
             }
             else if (name == "imagelayer")
             {
-                m_layers.emplace_back(eastl::make_unique<ImageLayer>(m_workingDirectory));
+                m_layers.emplace_back(MakeUnique<ImageLayer>(m_workingDirectory));
                 m_layers.back()->Parse(node, this);
             }
             else if (name == "properties")
@@ -268,7 +268,7 @@ namespace Exelius
             }
             else if (name == "group")
             {
-                m_layers.emplace_back(eastl::make_unique<LayerGroup>(m_workingDirectory, m_tileCount));
+                m_layers.emplace_back(MakeUnique<LayerGroup>(m_workingDirectory, m_tileCount));
                 m_layers.back()->Parse(node, this);
             }
             else

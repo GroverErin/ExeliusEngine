@@ -1,5 +1,6 @@
 #pragma once
 #include "source/utility/generic/Singleton.h"
+#include "source/utility/generic/SmartPointers.h"
 #include "source/resource/ResourceHelpers.h"
 #include "source/engine/gameobjectsystem/GameObjectHelpers.h"
 
@@ -10,7 +11,6 @@
 
 #include <EASTL/deque.h>
 #include <EASTL/unordered_map.h>
-#include <EASTL/shared_ptr.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -74,7 +74,7 @@ namespace Exelius
 		/// *shouldn't* need to be iterated over, but accessed by ID
 		/// is likely to be common.
 		/// </summary>
-		eastl::unordered_map<GameObjectID, eastl::shared_ptr<GameObject>> m_gameObjects;
+		eastl::unordered_map<GameObjectID, SharedPtr<GameObject>> m_gameObjects;
 
 	public:
 		/// <summary>
@@ -136,7 +136,7 @@ namespace Exelius
 		/// </summary>
 		/// <param name="objectId">GameObjectID for an object to be retrieved.</param>
 		/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
-		const eastl::shared_ptr<GameObject> GetGameObject(GameObjectID gameObjectID) const;
+		const SharedPtr<GameObject> GetGameObject(GameObjectID gameObjectID) const;
 
 		/// <summary>
 		/// Completely destroys a GameObject and 'detatches' any components.

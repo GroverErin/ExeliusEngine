@@ -1,7 +1,7 @@
 #pragma once
 #include "ResourceHelpers.h"
 
-#include <EASTL/shared_ptr.h>
+#include "source/utility/generic/SmartPointers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -47,11 +47,11 @@ namespace Exelius
 	/// 
 	/// @note
 	/// The caviat to this is that the ResourceListenerPtr
-	/// MUST be constructed using a shared_ptr.
+	/// MUST be constructed using a SharedPtr.
 	/// https://stackoverflow.com/questions/19140172/creating-weak-ptr-from-raw-pointer
 	/// It is also worth noting that the use of
 	/// enable_shared_from_this is very specific and in
 	/// general should be avoided.
 	/// </summary>
-	using ResourceListenerPtr = eastl::weak_ptr<ResourceListener>;
+	using ResourceListenerPtr = WeakPtr<ResourceListener>;
 }

@@ -104,7 +104,7 @@ namespace Exelius
 		m_gameObjectSystemLog.Info("Creating GameObject from '{}' with ID: {}", resourceID.Get().c_str(), id);
 
 		// Create and Get the new object.
-		m_gameObjects.try_emplace(id, eastl::make_shared<GameObject>(id, createMode));
+		m_gameObjects.try_emplace(id, MakeShared<GameObject>(id, createMode));
 		auto& pNewObject = m_gameObjects.at(id);
 		EXE_ASSERT(pNewObject);
 
@@ -171,7 +171,7 @@ namespace Exelius
 	/// </summary>
 	/// <param name="objectId">GameObjectID for an object to be retrieved.</param>
 	/// <returns>Pointer to a GameObject, nullptr if GameObject not found.</returns>
-	const eastl::shared_ptr<GameObject> GameObjectSystem::GetGameObject(GameObjectID gameObjectID) const
+	const SharedPtr<GameObject> GameObjectSystem::GetGameObject(GameObjectID gameObjectID) const
 	{
 		if (gameObjectID == kInvalidGameObjectID)
 		{

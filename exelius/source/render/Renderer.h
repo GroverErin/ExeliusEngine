@@ -3,9 +3,9 @@
 #include "source/utility/generic/Singleton.h"
 #include "source/utility/generic/Color.h"
 #include "source/render/camera/OrthographicCamera.h"
+#include "source/utility/generic/SmartPointers.h"
 
 #include <glm/glm.hpp>
-#include <EASTL/unique_ptr.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -26,7 +26,7 @@ namespace Exelius
 
 		SceneData m_sceneData;
 
-		eastl::unique_ptr<SceneData> s_pSceneData;
+		UniquePtr<SceneData> s_pSceneData;
 		RendererAPI* m_pRendererAPI;
 
 	public:
@@ -41,8 +41,8 @@ namespace Exelius
 		void BeginScene(OrthographicCamera& camera);
 		void EndScene();
 
-		void Submit(const eastl::unique_ptr<Shader>& shader, const eastl::unique_ptr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
-		void DrawIndexed(const eastl::unique_ptr<VertexArray>& vertexArray, uint32_t count = 0);
+		void Submit(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
+		void DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t count = 0);
 
 		void Clear();
 	private:

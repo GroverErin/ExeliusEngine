@@ -1,5 +1,6 @@
 #pragma once
 #include "source/utility/generic/Singleton.h"
+#include "source/utility/generic/SmartPointers.h"
 #include "source/networking/NetMessage.h"
 #include "source/networking/Peer.h"
 
@@ -23,7 +24,7 @@ namespace Exelius
 		eastl::vector<Peer> m_connectedPeers;
 		MessageFactory* m_pMessageFactory;
 		SocketManager* m_pSocketManager;
-		eastl::array<eastl::shared_ptr<MessageReceiver>, 5> m_listeners;
+		eastl::array<SharedPtr<MessageReceiver>, 5> m_listeners;
 
 		PeerID m_peerIDCounter;
 	public:

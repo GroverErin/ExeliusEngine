@@ -1,9 +1,9 @@
 #pragma once
 #include "source/utility/containers/RingBuffer.h"
+#include "source/utility/generic/SmartPointers.h"
 
 #include <EASTL/functional.h>
 #include <EASTL/vector.h>
-#include <EASTL/shared_ptr.h>
 #include <condition_variable>
 
 /// <summary>
@@ -13,7 +13,7 @@ namespace Exelius
 {
 	struct Job
 	{
-		eastl::shared_ptr<Job> m_pParentJob;
+		SharedPtr<Job> m_pParentJob;
 		eastl::function<void()> m_job;
 		std::atomic<uint16_t> m_jobCounter;
 
@@ -28,7 +28,7 @@ namespace Exelius
 
 	class JobSystem
 	{
-		RingBufferMT<eastl::shared_ptr<Job>, 256> m_jobPool;
+		RingBufferMT<SharedPtr<Job>, 256> m_jobPool;
 		std::atomic<uint32_t> m_jobCounter;
 		std::condition_variable m_jobSignal;
 		std::mutex m_jobLock;
@@ -39,7 +39,7 @@ namespace Exelius
 
 		bool Initialize();
 
-		const eastl::shared_ptr<Job> PushJob(const eastl::function<void()>& jobToPush, eastl::shared_ptr<Job> pParentJob = nullptr);
+		const SharedPtr<Job> PushJob(const eastl::function<void()>& jobToPush, SharedPtr<Job> pParentJob = nullptr);
 
 		bool JobsAreExecuting();
 
@@ -50,7 +50,7 @@ namespace Exelius
 	private:
 		void CycleThread();
 		void ExecuteJob();
-		void RecurseCounterDecrement(eastl::shared_ptr<Job> pJob);
+		void RecurseCounterDecrement(SharedPtr<Job> pJob);
 	};
 
 	inline static JobSystem* s_pGlobalJobSystem = nullptr;

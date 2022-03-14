@@ -27,7 +27,7 @@ namespace Exelius
 		OrthographicCameraController(float aspectRatio, bool rotation = false);
 
 		void OnUpdate();
-		void OnEvent(Event& e);
+		void OnEvent(Event& evnt);
 
 		void OnResize(float width, float height);
 

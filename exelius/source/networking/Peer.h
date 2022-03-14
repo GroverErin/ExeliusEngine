@@ -1,8 +1,7 @@
 #pragma once
 #include "source/networking/NetAddress.h"
 #include "source/networking/NetHelpers.h"
-
-#include <EASTL/shared_ptr.h>
+#include "source/utility/generic/SmartPointers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -24,8 +23,8 @@ namespace Exelius
 	private:
 		friend bool operator ==(const Peer& left, const Peer& right);
 
-		eastl::shared_ptr<Socket> m_pReliableSocket;
-		eastl::shared_ptr<Socket> m_pUnreliableSocket;
+		SharedPtr<Socket> m_pReliableSocket;
+		SharedPtr<Socket> m_pUnreliableSocket;
 
 		// The current state of this peers connection.
 		ConnectionState m_connectionState;
@@ -48,8 +47,8 @@ namespace Exelius
 
 		void SendUnreliableMessage(Message* pMsg);
 
-		const eastl::shared_ptr<Socket>& GetReliableSocket() const { return m_pReliableSocket; }
-		const eastl::shared_ptr<Socket>& GetUnreliableSocket() const { return m_pUnreliableSocket; }
+		const SharedPtr<Socket>& GetReliableSocket() const { return m_pReliableSocket; }
+		const SharedPtr<Socket>& GetUnreliableSocket() const { return m_pUnreliableSocket; }
 		PeerID GetPeerID() const { return m_id; }
 		void SetPeerID(PeerID newID) { m_id = newID; }
 	};

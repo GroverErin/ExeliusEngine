@@ -265,7 +265,7 @@ namespace Exelius
 
 			if (numFramesSinceAVG < kNumFramesToAVG)
 			{
-				accumulatedDeltaTime += Time::DeltaTime.GetAsSeconds();
+				accumulatedDeltaTime += Time::DeltaTime;
 				++numFramesSinceAVG;
 			}
 			else
@@ -380,7 +380,7 @@ namespace Exelius
 
 	/// <summary>
 	/// OS event handler. Handles the events that the platform sends.
-	/// This function should not be inhereted, engine determins how OS events are handled.
+	/// This function should not be inhereted, engine determines how OS events are handled.
 	/// Example: SFML pollevent().
 	/// </summary>
 	/// <param name="evnt">The event to handle.</param>

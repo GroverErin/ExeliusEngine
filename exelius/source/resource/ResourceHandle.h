@@ -9,7 +9,7 @@ namespace Exelius
 {
 	class Resource;
 	class ResourceListener;
-	using ResourceListenerPtr = eastl::weak_ptr<ResourceListener>; // "Forward Declaring" ResourceListenerPtr from ResourceListener.h
+	using ResourceListenerPtr = WeakPtr<ResourceListener>; // "Forward Declaring" ResourceListenerPtr from ResourceListener.h
 
 	/// <summary>
 	/// ResourceHandle acts as the interface for acquiring and manipulating resources.

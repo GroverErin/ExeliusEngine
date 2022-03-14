@@ -28,11 +28,11 @@ namespace Exelius
 }
 
 #if EXELIUS_RENDERER == SFML_RENDERER
-#include "source/os/platform/sfml/SFMLAudio.h"
-namespace Exelius
-{
-	using Vertex = _Audio<SFMLAudio>;
-}
+	#include "source/os/platform/sfml/SFMLAudio.h"
+	namespace Exelius
+	{
+		using Vertex = _Audio<SFMLAudio>;
+	}
 #else
-#error "Unknown Render Skin Implementation."
+	#error "Unknown Render Skin Implementation."
 #endif

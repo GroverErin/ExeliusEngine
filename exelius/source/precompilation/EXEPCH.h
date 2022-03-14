@@ -27,8 +27,7 @@
 #include <EASTL/list.h>
 #include <EASTL/chrono.h>
 
-#include <EASTL/shared_ptr.h>
-#include <EASTL/unique_ptr.h>
+#include "source/utility/generic/SmartPointers.h"
 
 #include <source/utility/containers/Vector2.h>
 #include <source/utility/generic/Macros.h>

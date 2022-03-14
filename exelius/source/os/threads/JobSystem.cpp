@@ -29,9 +29,9 @@ namespace Exelius
         return true;
     }
 
-    const eastl::shared_ptr<Job> JobSystem::PushJob(const eastl::function<void()>& jobToPush, eastl::shared_ptr<Job> pParentJob /* = nullptr */)
+    const SharedPtr<Job> JobSystem::PushJob(const eastl::function<void()>& jobToPush, SharedPtr<Job> pParentJob /* = nullptr */)
     {
-        eastl::shared_ptr<Job> pNewJob = eastl::make_shared<Job>();
+        SharedPtr<Job> pNewJob = MakeShared<Job>();
         pNewJob->m_pParentJob = pParentJob;
         ++pNewJob->m_jobCounter;
         pNewJob->m_job = jobToPush;
@@ -78,7 +78,7 @@ namespace Exelius
 
     void JobSystem::ExecuteJob()
     {
-        eastl::shared_ptr<Job> pJobToExecute;
+        SharedPtr<Job> pJobToExecute;
 
         while (true)
         {
@@ -95,7 +95,7 @@ namespace Exelius
         }
     }
 
-    void JobSystem::RecurseCounterDecrement(eastl::shared_ptr<Job> pJob)
+    void JobSystem::RecurseCounterDecrement(SharedPtr<Job> pJob)
     {
         --pJob->m_jobCounter;
         if (pJob->m_pParentJob)

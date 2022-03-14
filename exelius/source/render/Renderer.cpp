@@ -12,7 +12,7 @@ namespace Exelius
 	Renderer::Renderer()
 		: m_pRendererAPI(nullptr)
 	{
-		//
+		Initialize();
 	}
 
 	Renderer::~Renderer()
@@ -44,7 +44,7 @@ namespace Exelius
 	{
 	}
 
-	void Renderer::Submit(const eastl::unique_ptr<Shader>& shader, const eastl::unique_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
+	void Renderer::Submit(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform)
 	{
 		shader->Bind();
 		shader->SetMat4("u_viewProjection", m_sceneData.m_viewProjectionMatrix);
@@ -54,7 +54,7 @@ namespace Exelius
 		DrawIndexed(vertexArray);
 	}
 
-	void Renderer::DrawIndexed(const eastl::unique_ptr<VertexArray>& vertexArray, uint32_t count)
+	void Renderer::DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t count)
 	{
 		m_pRendererAPI->DrawIndexed(vertexArray, count);
 	}

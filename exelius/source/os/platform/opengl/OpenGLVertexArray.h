@@ -1,5 +1,6 @@
 #pragma once
 #include "source/os/platform/PlatformForwardDeclarations.h"
+#include "source/utility/generic/SmartPointers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -13,8 +14,8 @@ namespace Exelius
 	{
 		uint32_t m_rendererID;
 		uint32_t m_vertexBufferIndex = 0;
-		std::vector<eastl::unique_ptr<VertexBuffer>> m_vertexBuffers;
-		eastl::unique_ptr<IndexBuffer> m_indexBuffer;
+		std::vector<SharedPtr<VertexBuffer>> m_vertexBuffers;
+		SharedPtr<IndexBuffer> m_indexBuffer;
 
 	public:
 
@@ -24,10 +25,10 @@ namespace Exelius
 		void Bind() const;
 		void Unbind() const;
 
-		void AddVertexBuffer(const eastl::unique_ptr<VertexBuffer>& vertexBuffer);
-		void SetIndexBuffer(const eastl::unique_ptr<IndexBuffer>& indexBuffer);
+		void AddVertexBuffer(const SharedPtr<VertexBuffer>& vertexBuffer);
+		void SetIndexBuffer(const SharedPtr<IndexBuffer>& indexBuffer);
 
-		const std::vector<eastl::unique_ptr<VertexBuffer>>& GetVertexBuffers() const;
-		const eastl::unique_ptr<IndexBuffer>& GetIndexBuffer() const;
+		const std::vector<SharedPtr<VertexBuffer>>& GetVertexBuffers() const;
+		const SharedPtr<IndexBuffer>& GetIndexBuffer() const;
 	};
 }

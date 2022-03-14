@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Property.h"
+#include "source/utility/generic/SmartPointers.h"
 
 #include <EASTL/string.h>
 #include <EASTL/vector.h>
-#include <EASTL/unique_ptr.h>
 
 namespace pugi
 {
@@ -29,7 +29,7 @@ namespace Exelius
     class Layer
     {
     public:
-        using Ptr = eastl::unique_ptr<Layer>;
+        using Ptr = UniquePtr<Layer>;
 
         Layer() : m_opacity(1.f), m_visible(true) {};
         virtual ~Layer() = default;

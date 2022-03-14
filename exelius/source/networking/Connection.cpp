@@ -20,22 +20,22 @@ namespace Exelius
 		EXE_ASSERT(pMessageServer);
 
 		// Begin recieving all networked messages we are responsible for.
-		m_listeners[0] = eastl::make_shared<MessageReceiver>([this](Message* pMsg) { OnConnected(pMsg); });
+		m_listeners[0] = MakeShared<MessageReceiver>([this](Message* pMsg) { OnConnected(pMsg); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(ConnectedMessage), m_listeners[0]);
 
-		m_listeners[1] = eastl::make_shared<MessageReceiver>([this](Message* pMsg) { OnValidate(pMsg); });
+		m_listeners[1] = MakeShared<MessageReceiver>([this](Message* pMsg) { OnValidate(pMsg); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(ValidateMessage), m_listeners[1]);
 
-		m_listeners[2] = eastl::make_shared<MessageReceiver>([this](Message* pMsg) { OnAccepted(pMsg); });
+		m_listeners[2] = MakeShared<MessageReceiver>([this](Message* pMsg) { OnAccepted(pMsg); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(AcceptedMessage), m_listeners[2]);
 
-		m_listeners[3] = eastl::make_shared<MessageReceiver>([this](Message* pMsg) { OnRejected(pMsg); });
+		m_listeners[3] = MakeShared<MessageReceiver>([this](Message* pMsg) { OnRejected(pMsg); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(RejectedMessage), m_listeners[3]);
 
-		m_listeners[4] = eastl::make_shared<MessageReceiver>([this](Message* pMsg) { OnDisconnected(pMsg); });
+		m_listeners[4] = MakeShared<MessageReceiver>([this](Message* pMsg) { OnDisconnected(pMsg); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(DisconnectedMessage), m_listeners[4]);
 
-		m_listeners[5] = eastl::make_shared<MessageReceiver>([this](Message* pMsg) { OnConnectionFailed(pMsg); });
+		m_listeners[5] = MakeShared<MessageReceiver>([this](Message* pMsg) { OnConnectionFailed(pMsg); });
 		pMessageServer->AddMessageReceiver(DEFINE_MESSAGE(ConnectionFailedMessage), m_listeners[5]);
 	}
 

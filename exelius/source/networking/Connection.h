@@ -2,8 +2,8 @@
 #include "source/networking/NetAddress.h"
 #include "source/networking/NetHelpers.h"
 
+#include "source/utility/generic/SmartPointers.h"
 #include <EASTL/array.h>
-#include <EASTL/shared_ptr.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -18,7 +18,7 @@ namespace Exelius
 		NetAddress m_connectionAddress;
 		PeerID m_id; // This connection is associated with this Peer (Self, not the remote Connection).
 
-		eastl::array<eastl::shared_ptr<MessageReceiver>, 6> m_listeners;
+		eastl::array<SharedPtr<MessageReceiver>, 6> m_listeners;
 	public:
 		// Registers for all the appropriate callbacks.
 		Connection(const NetAddress& address);

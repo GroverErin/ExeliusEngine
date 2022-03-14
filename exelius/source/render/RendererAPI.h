@@ -1,8 +1,7 @@
 #pragma once
 #include "source/os/platform/PlatformForwardDeclarations.h"
 #include "source/utility/generic/Color.h"
-
-#include <EASTL/unique_ptr.h>
+#include "source/utility/generic/SmartPointers.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -36,7 +35,7 @@ namespace Exelius
 		void SetClearColor(Color color) { m_impl.SetClearColor(color); }
 		void Clear() { m_impl.Clear(); }
 
-		void DrawIndexed(const eastl::unique_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) { m_impl.DrawIndexed(vertexArray, indexCount); }
+		void DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t indexCount = 0) { m_impl.DrawIndexed(vertexArray, indexCount); }
 	};
 }
 

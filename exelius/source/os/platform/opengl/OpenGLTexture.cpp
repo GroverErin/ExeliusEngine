@@ -3,6 +3,7 @@
 #include "source/render/Texture.h"
 
 #include <glad/glad.h>
+#include <stb_image.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

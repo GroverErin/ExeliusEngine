@@ -1,5 +1,6 @@
 #pragma once
 #include "source/utility/generic/Singleton.h"
+#include "source/utility/generic/SmartPointers.h"
 #include "source/resource/ResourceDatabase.h"
 #include "source/debug/Log.h"
 
@@ -23,7 +24,7 @@ namespace Exelius
 {
 	class ResourceFactory;
 	class ResourceListener;
-	using ResourceListenerPtr = eastl::weak_ptr<ResourceListener>; // "Forward Declaring" ResourceListenerPtr from ResourceListener.h
+	using ResourceListenerPtr = WeakPtr<ResourceListener>; // "Forward Declaring" ResourceListenerPtr from ResourceListener.h
 
 	/// <summary>
 	/// Loading of resources is managed by this class. Resources can

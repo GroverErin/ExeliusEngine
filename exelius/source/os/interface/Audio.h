@@ -27,7 +27,7 @@ namespace Exelius
 	};
 }
 
-#if EXELIUS_RENDERER == SFML_RENDERER
+#if EXELIUS_AUDIO == SFML_AUDIO
 	#include "source/os/platform/sfml/SFMLAudio.h"
 	namespace Exelius
 	{

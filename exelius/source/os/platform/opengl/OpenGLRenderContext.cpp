@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 #include "OpenGLRenderContext.h"
-#include "source/os/interface/graphics/Window.h"
+#include "source/render/Window.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>

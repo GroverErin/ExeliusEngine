@@ -325,7 +325,8 @@ function sfml.IncludeDependency(dependencyRootFolder)
 
     defines
     {
-        "SFML_STATIC"--,
+        "SFML_STATIC",
+        "EXELIUS_AUDIO=SFML_AUDIO"
         --"SFML_RENDERER",
         --"EXELIUS_RENDERER=SFML_RENDERER"
     }
@@ -367,6 +368,7 @@ function sfml.LinkDependency(dependencyRootFolder, exeliusLibDir)
             "Xcursor",
             "udev"
         }
+    filter {}
 end
 
 dependencies.AddDependency("sfml", sfml)

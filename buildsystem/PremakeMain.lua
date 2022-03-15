@@ -65,6 +65,7 @@ end
 log.Log("[Premake] Creating ExeliusEngine Project.")
 engineGenerator.GenerateEngineProject()
 dependencyGenerator.IncludeDependencies()
+--dependencyGenerator.LinkDependencies()
 log.Info("[Premake] ExeliusEngine Project Created.")
 
 log.Log("[Premake] Creating ExeliusEditor Project.")

@@ -6,6 +6,10 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
+#include <spirv_cross/spirv_glsl.hpp>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -300,7 +304,7 @@ namespace Exelius
 			}
 			else
 			{
-				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), m_filepath.c_str(), options);
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source.c_str(), Utils::GLShaderStageToShaderC(stage), m_filepath.c_str(), options);
 				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
 					//HZ_CORE_ERROR(module.GetErrorMessage());
@@ -357,11 +361,11 @@ namespace Exelius
 			}
 			else
 			{
-				spirv_cross::CompilerGLSL glslCompiler(spirv);
-				m_openGLSourceCode[stage] = glslCompiler.compile();
+				spirv_cross::CompilerGLSL glslCompiler(spirv.data(), spirv.size());
+				m_openGLSourceCode[stage] = glslCompiler.compile().c_str();
 				auto& source = m_openGLSourceCode[stage];
 
-				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), m_filepath.c_str());
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source.c_str(), Utils::GLShaderStageToShaderC(stage), m_filepath.c_str());
 				if (module.GetCompilationStatus() != shaderc_compilation_status_success)
 				{
 					//HZ_CORE_ERROR(module.GetErrorMessage());
@@ -425,7 +429,7 @@ namespace Exelius
 
 	void OpenGLShader::Reflect(GLenum stage, const eastl::vector<uint32_t>& shaderData)
 	{
-		spirv_cross::Compiler compiler(shaderData);
+		spirv_cross::Compiler compiler(shaderData.data(), shaderData.size());
 		spirv_cross::ShaderResources resources = compiler.get_shader_resources();
 
 		//HZ_CORE_TRACE("OpenGLShader::Reflect - {0} {1}", Utils::GLShaderStageToString(stage), m_FilePath);

@@ -18,4 +18,7 @@ namespace Exelius
 	bool IsMouseButtonPressed(MouseCode button);
 
 	bool IsMouseButtonReleased(MouseCode button);
+
+	float GetMouseX();
+	float GetMouseY();
 }

@@ -7,7 +7,7 @@
 /// </summary>
 namespace Exelius
 {
-	FORWARD_DECLARE(Audio);
+	FORWARD_DECLARE_AUDIO(Audio);
 
 	class AudioResource
 		: public Resource

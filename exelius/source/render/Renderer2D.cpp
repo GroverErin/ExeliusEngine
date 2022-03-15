@@ -8,6 +8,7 @@
 #include "source/render/Shader.h"
 #include "source/render/Texture.h"
 #include "source/render/UniformBuffer.h"
+#include "source/render/SubTexture.h"
 
 #include <EASTL/array.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -108,7 +109,7 @@ namespace Exelius
 		for (uint32_t i = 0; i < s_data.s_kMaxTextureSlots; ++i)
 			samplers[i] = i;
 
-		s_data.m_pTextureShader = MakeShared<Shader>("assets/shaders/Texture.glsl");
+		s_data.m_pTextureShader = MakeShared<Shader>("assets/shaders/texture.glsl");
 
 		// Set first texture slot to 0
 		s_data.m_textureSlots[0] = s_data.m_pWhiteTexture;
@@ -212,6 +213,16 @@ namespace Exelius
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		DrawQuad({ position.x, position.y, 0.0f }, size, texture->GetTexture(), tilingFactor, tintColor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const SharedPtr<SubTexture>& texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		DrawQuad(position, size, texture->GetTexture(), tilingFactor, tintColor);
+	}
+
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
 		constexpr size_t quadVertexCount = 4;
@@ -282,6 +293,11 @@ namespace Exelius
 		++s_data.m_stats.m_quadCount;
 	}
 
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const SharedPtr<SubTexture>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+	{
+		DrawQuad(transform, texture->GetTexture(), tilingFactor, tintColor, entityID);
+	}
+
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);
@@ -310,13 +326,23 @@ namespace Exelius
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
-	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const SharedPtr<SubTexture>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		if (src.Texture)
-			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
-		else
-			DrawQuad(transform, src.Color, entityID);
+		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture->GetTexture(), tilingFactor, tintColor);
 	}
+
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const SharedPtr<SubTexture>& texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		DrawRotatedQuad(position, size, rotation, texture->GetTexture(), tilingFactor, tintColor);
+	}
+
+	//void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	//{
+	//	if (src.Texture)
+	//		DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
+	//	else
+	//		DrawQuad(transform, src.Color, entityID);
+	//}
 
 	void Renderer2D::ResetStats()
 	{

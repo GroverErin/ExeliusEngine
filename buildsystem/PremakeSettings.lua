@@ -52,25 +52,25 @@ function exeliusDefaultSettings.SetGlobalProjectDefaultSettings()
         symbols("full")
         runtime("Debug")
         defines("EXE_DEBUG")
-        staticruntime("On")
+        staticruntime("off")
 
     filter {"configurations:Asan"}
         symbols("full")
         runtime("Debug")
         defines("EXE_DEBUG")
-        staticruntime("On")
+        staticruntime("off")
 
     filter {"configurations:Test"}
         optimize("On")
         runtime("Release")
         defines("EXE_TEST")
-        staticruntime("On")
+        staticruntime("off")
 
     filter {"configurations:Release"}
         optimize("On")
         runtime("Release")
         defines("EXE_RELEASE")
-        staticruntime("On")
+        staticruntime("off")
 
     filter {"system:windows"}
         defines("EXE_WINDOWS")

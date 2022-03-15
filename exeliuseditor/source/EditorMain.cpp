@@ -1,33 +1,25 @@
 #include <include/ExeliusMain.h>
 #include <include/Log.h>
 
-#include "editorapplication/EditorApplication.h"
-#include "editorapplication/TestClientMessageFactory.h"
+#include "editorapplication/EditorLayer.h"
 
-EXELIUS_MAIN(ExeliusEditor, EditorApplication m_app);
-
-void ExeliusEditor::SetMessageFactory()
+class ExeliusEditor final
+	: public Exelius::Application
 {
-	m_pMessageFactory = EXELIUS_NEW(Exelius::TestClientMessageFactory());
-}
+	public:
+		ExeliusEditor()
+			: Application()
+		{
+			//
+		}
 
-bool ExeliusEditor::Initialize()
-{
-	if (!m_app.Initialize())
-	{
-		Exelius::Log log;
-		log.Fatal("App failed to Initialize.");
-		return false;
-	}
-	return true;
-}
+		virtual bool Initialize() final override
+		{
+			PushLayer(EXELIUS_NEW(EditorLayer()));
 
-void ExeliusEditor::Update()
-{
-	m_app.Update();
-}
+			return true;
+		}
 
-void ExeliusEditor::Shutdown()
-{
-	m_app.ShutDown();
-}
+};
+
+Exelius::Application* Exelius::CreateApplication() { return new ExeliusEditor(); }

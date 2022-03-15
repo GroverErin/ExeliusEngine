@@ -15,6 +15,7 @@ namespace Exelius
 {
 	FORWARD_DECLARE(RendererAPI);
 	FORWARD_DECLARE(Texture);
+	class SubTexture;
 
 	class Renderer2D
 		: public Singleton<Renderer2D>
@@ -46,15 +47,22 @@ namespace Exelius
 		void DrawQuad(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		void DrawQuad(const glm::vec3& position, const glm::vec2& size, const SharedPtr<Texture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
+		void DrawQuad(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+		void DrawQuad(const glm::vec3& position, const glm::vec2& size, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+
 		void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
 		void DrawQuad(const glm::mat4& transform, const SharedPtr<Texture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), int entityID = -1);
+		void DrawQuad(const glm::mat4& transform, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), int entityID = -1);
 
 		void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
 		void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
 		void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const SharedPtr<Texture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const SharedPtr<Texture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
-		void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
+		void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+		void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+
+		//void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
 
 		void ResetStats();
 		Statistics GetStats();

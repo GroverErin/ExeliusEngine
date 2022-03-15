@@ -44,12 +44,10 @@ namespace Exelius
 		RenderContext* m_pRenderContext;
 
 		GLFWwindow* m_pWindow;
-		bool m_isVSync; // TODO: Elevate this to the Window interface.
+		bool m_isVSync;
 
 	public:
-
-		OpenGLWindow();
-		OpenGLWindow(const eastl::string& title, const Vector2u& windowSize);
+		OpenGLWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled);
 		OpenGLWindow(const OpenGLWindow&) = delete;
 		OpenGLWindow(OpenGLWindow&&) = delete;
 		OpenGLWindow& operator=(const OpenGLWindow&) = delete;
@@ -58,7 +56,7 @@ namespace Exelius
 
 
 #undef CreateWindow // Defined in WinUser.h :(
-		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize);
+		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled);
 
 		void InitializeRenderContext(Window* pAbstractWindow);
 

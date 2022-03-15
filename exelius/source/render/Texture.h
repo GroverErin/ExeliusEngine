@@ -1,4 +1,5 @@
 #pragma once
+#include "source/os/platform/PlatformForwardDeclarations.h"
 
 #include <EASTL/string.h>
 
@@ -7,6 +8,8 @@
 /// </summary>
 namespace Exelius
 {
+	FORWARD_DECLARE(Texture);
+
 	/// <summary>
 	/// Templated window class using CRTP.
 	/// https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern

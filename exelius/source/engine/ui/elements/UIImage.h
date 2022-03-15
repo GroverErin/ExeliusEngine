@@ -1,6 +1,5 @@
 #pragma once
 #include "source/engine/ui/UIElement.h"
-#include "source/render/RenderCommand.h"
 
 #include "source/resource/ResourceHelpers.h"
 
@@ -13,7 +12,6 @@ namespace Exelius
 	class UIImage
 		: public UIElement
 	{
-		eastl::array<RenderCommand, 9> m_commands;
 		ResourceID m_textureID;
 		Vector2f m_sourceSize;
 	public:

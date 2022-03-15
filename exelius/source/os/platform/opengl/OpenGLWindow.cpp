@@ -27,20 +27,13 @@ namespace Exelius
 		EXE_ASSERT(false);
 	}
 
-	OpenGLWindow::OpenGLWindow()
+	OpenGLWindow::OpenGLWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
 		: m_graphicsInterfaceLog("GraphicsInterface")
 		, m_pRenderContext(nullptr)
 		, m_pWindow(nullptr)
-		, m_isVSync(false)
+		, m_isVSync(isVSyncEnabled)
 	{
-	}
-
-	OpenGLWindow::OpenGLWindow(const eastl::string& title, const Vector2u& windowSize)
-		: m_graphicsInterfaceLog("GraphicsInterface")
-		, m_pRenderContext(nullptr)
-		, m_pWindow(nullptr)
-		, m_isVSync(false)
-	{
+		CreateWindow(title, windowSize, isVSyncEnabled);
 	}
 
 	OpenGLWindow::~OpenGLWindow()
@@ -48,8 +41,9 @@ namespace Exelius
 		Shutdown();
 	}
 
-	bool OpenGLWindow::CreateWindow(const eastl::string& title, const Vector2u& windowSize)
+	bool OpenGLWindow::CreateWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
 	{
+		m_isVSync = isVSyncEnabled;
 		m_windowData.m_title = title;
 		m_windowData.m_windowSize = windowSize;
 
@@ -68,8 +62,9 @@ namespace Exelius
 		m_pWindow = glfwCreateWindow(m_windowData.m_windowSize.w, m_windowData.m_windowSize.h, m_windowData.m_title.c_str(), nullptr, nullptr);
 		++s_GLFWWindowCount;
 
+		EXE_ASSERT(m_pWindow);
+
 		glfwSetWindowUserPointer(m_pWindow, &m_windowData);
-		SetVSync(false);
 
 		// Set GLFW Window Event Callbacks
 		glfwSetWindowCloseCallback(m_pWindow, [](GLFWwindow* pWindow)
@@ -211,6 +206,7 @@ namespace Exelius
 		m_pRenderContext = EXELIUS_NEW(RenderContext());
 		EXE_ASSERT(m_pRenderContext);
 		m_pRenderContext->Initialize(pAbstractWindow);
+		SetVSync(m_isVSync);
 	}
 
 	void OpenGLWindow::Update()

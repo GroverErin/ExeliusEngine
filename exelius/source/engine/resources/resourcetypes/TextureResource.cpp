@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 #include "TextureResource.h"
-#include "source/os/interface/graphics/Texture.h"
+#include "source/render/Texture.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -22,9 +22,9 @@ namespace Exelius
     {
         delete m_pTexture;
 
-        m_pTexture = new Texture();
-        if (m_pTexture->LoadFromMemory(data.data(), data.size()))
-            return LoadResult::kKeptRawData;
+        //m_pTexture = new Texture();
+        //if (m_pTexture->LoadFromMemory(data.data(), data.size()))
+            //return LoadResult::kKeptRawData;
         return LoadResult::kFailed;
     }
 

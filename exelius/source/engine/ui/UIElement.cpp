@@ -2,8 +2,6 @@
 #include "UIElement.h"
 
 #include "source/engine/ui/UIElementFactory.h"
-#include "source/render/RenderCommand.h"
-#include "source/render/RenderManager.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

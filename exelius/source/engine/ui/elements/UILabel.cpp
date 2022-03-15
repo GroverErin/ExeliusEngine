@@ -2,7 +2,6 @@
 #include "UILabel.h"
 #include "source/resource/ResourceHandle.h"
 #include "source/engine/resources/resourcetypes/FontResource.h"
-#include "source/render/RenderManager.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

@@ -51,13 +51,17 @@ function GenerateLinuxWorkspace()
 end
 
 function SetWindowsPostBuildCommands()
+    local vulkanSDKPath = os.getenv("VULKAN_SDK")
+
     filter {"system:windows"}
         postbuildcommands
         {
             [[copy "%{wks.location}tools\templates\engine_config.ini" "%{cfg.targetdir}\engine_config.ini" /y /a]], -- Copy the ini into the final build directory.
             [[copy "%{wks.location}tools\templates\engine_config.ini" "engine_config.ini" /y /a]], -- Copy the ini into the debuggers directory.
-            [[xcopy "assets" "%{cfg.targetdir}\assets\" /y /q /e]] -- Copy assets into final build directory.
+            [[xcopy "assets" "%{cfg.targetdir}\assets\" /y /q /e]], -- Copy assets into final build directory.
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin32" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
         }
+    filter {}
 end
 
 function SetLinuxPostBuildCommands()
@@ -68,6 +72,7 @@ function SetLinuxPostBuildCommands()
             [[cp -f %{wks.location}/tools/templates/engine_config.ini %{cfg.targetdir}/engine_config.ini]],
             [[cp -r assets %{cfg.targetdir}/assets]]
         }
+    filter {}
 end
 
 function exeliusGenerator.GenerateEngineWorkspace()

@@ -29,7 +29,7 @@ class ArgHelper:
                 log.SetVerbose(True)
                 log.Log("The Exelius engines build-system log verbosity has now been elevated to the highest of tiers.")
                 return True
-            return False
+        return False
         
     @classmethod
     def ShouldForceSubmoduleUpdates(self):

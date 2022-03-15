@@ -1,7 +1,8 @@
 #include "EXEPCH.h"
 #include "ImGuiLayer.h"
-#include "source/render/RenderManager.h"
-#include "source/os/interface/graphics/Window.h"
+
+#include "source/render/Renderer.h"
+
 #include "source/os/events/Event.h"
 
 #include <imgui.h>
@@ -37,8 +38,8 @@ namespace Exelius
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
 		float fontSize = 18.0f;// *2.0f;
-		io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Bold.ttf", fontSize);
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Regular.ttf", fontSize);
+		io.Fonts->AddFontFromFileTTF("assets/fonts/audiowide.ttf", fontSize);
+		io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/audiowide.ttf", fontSize);
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -53,7 +54,7 @@ namespace Exelius
 		}
 
 		EnableDarkTheme();
-		OpenGLWindow& window = RenderManager::GetInstance()->GetWindow()->GetNativeWindow();
+		OpenGLWindow& window = Renderer::GetInstance()->GetWindow().GetNativeWindow();
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window.GetGLFWWindow(), true);
@@ -88,7 +89,7 @@ namespace Exelius
 	void ImGuiLayer::End()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		OpenGLWindow& window = RenderManager::GetInstance()->GetWindow()->GetNativeWindow();
+		OpenGLWindow& window = Renderer::GetInstance()->GetWindow().GetNativeWindow();
 		io.DisplaySize = ImVec2((float)window.GetWindowSize().w, (float)window.GetWindowSize().h);
 
 		// Rendering

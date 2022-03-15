@@ -20,17 +20,15 @@
 
 #include "source/os/threads/JobSystem.h"
 
-#include "source/render/RenderManager.h"
-
 #include "source/resource/ResourceLoader.h"
+
+#include "source/render/Renderer.h"
 
 #include "source/os/input/InputManager.h"
 
 #include "source/engine/layers/Layer.h"
 
 #include "source/os/events/ApplicationEvents.h" // TODO: Remove this.
-
-#include "source/os/interface/graphics/Window.h" // TODO: Remove this.
 
 #include "source/utility/generic/Time.h"
 
@@ -72,6 +70,7 @@ namespace Exelius
 		, m_pResourceFactory(nullptr)
 		, m_pComponentFactory(nullptr)
 		, m_pMessageFactory(nullptr)
+		, m_pImGuiLayer(nullptr)
 		, m_lastFrameTime(0.0f)
 		, m_isRunning(true)
 		, m_hasLostFocus(false)
@@ -87,11 +86,15 @@ namespace Exelius
 		EXELIUS_DELETE(m_pResourceFactory);
 		EXELIUS_DELETE(m_pMessageFactory);
 
-		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
+		EXE_ASSERT(m_pImGuiLayer);
+		m_layerStack.PopOverlayLayer(m_pImGuiLayer);
+		EXELIUS_DELETE(m_pImGuiLayer);
+
+		Renderer::GetInstance()->GetWindow().GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
 		InputManager::DestroySingleton();
 
-		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().RemoveObserver(*this);
-		RenderManager::DestroySingleton();
+		Renderer::GetInstance()->GetWindow().GetEventMessenger().RemoveObserver(*this);
+		Renderer::DestroySingleton();
 
 		ResourceLoader::DestroySingleton();
 
@@ -141,7 +144,7 @@ namespace Exelius
 		// Config File - Open & Parse
 		//-----------------------------------------------
 		
-		//PoolTester* pTest = new PoolTester();                                                                 <== Test code... to be removed
+		//PoolTester* pTest = new PoolTester();																				<== Test code... to be removed
 
 		// Read in the config file. This uses the logging system,
 		// which is why the PreInit exists for the LoggingManager.
@@ -189,14 +192,18 @@ namespace Exelius
 		// Rendering - Initialization
 		//-----------------------------------------------
 
-		m_pImGuiLayer = EXELIUS_NEW(ImGuiLayer());
-		m_layerStack.PushOverlayLayer(m_pImGuiLayer);
-
 		if (!InitializeRenderManager(configFile))
 			return false;
 
 		// TODO: This SUCKS
-		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*this);
+		Renderer::GetInstance()->GetWindow().GetEventMessenger().AddObserver(*this);
+
+		//-----------------------------------------------
+		// Dear ImGui Layer - Initialization
+		//-----------------------------------------------
+
+		m_pImGuiLayer = EXELIUS_NEW(ImGuiLayer());
+		m_layerStack.PushOverlayLayer(m_pImGuiLayer);
 
 		//-----------------------------------------------
 		// Input - Initialization
@@ -258,58 +265,60 @@ namespace Exelius
 		auto previousTime = eastl::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
-			auto lastFrameTime = eastl::chrono::high_resolution_clock::now();
-			eastl::chrono::duration<float> deltaTime = lastFrameTime - previousTime;
-			previousTime = lastFrameTime;
-			Time::DeltaTime.SetFromSeconds(deltaTime.count());
-
-			if (numFramesSinceAVG < kNumFramesToAVG)
+			if (!m_hasLostFocus)
 			{
-				accumulatedDeltaTime += Time::DeltaTime;
-				++numFramesSinceAVG;
-			}
-			else
-			{
-				float avgFrameRate = accumulatedDeltaTime / (float)kNumFramesToAVG;
-				m_pApplicationLog->Info("FPS: {}", 1.0f / avgFrameRate);
-				numFramesSinceAVG = 0;
-				accumulatedDeltaTime = 0.0f;
-			}
+				auto lastFrameTime = eastl::chrono::high_resolution_clock::now();
+				eastl::chrono::duration<float> deltaTime = lastFrameTime - previousTime;
+				previousTime = lastFrameTime;
+				Time::DeltaTime.SetFromSeconds(deltaTime.count());
 
-			// Dispatch Messages
-			MessageServer::GetInstance()->DispatchMessages();
+				if (numFramesSinceAVG < kNumFramesToAVG)
+				{
+					accumulatedDeltaTime += Time::DeltaTime;
+					++numFramesSinceAVG;
+				}
+				else
+				{
+					float avgFrameRate = accumulatedDeltaTime / (float)kNumFramesToAVG;
+					m_pApplicationLog->Info("FPS: {}", 1.0f / avgFrameRate);
+					numFramesSinceAVG = 0;
+					accumulatedDeltaTime = 0.0f;
+				}
 
-			// Poll Window Events.
-			RenderManager::GetInstance()->Update();
+				// Dispatch Messages
+				MessageServer::GetInstance()->DispatchMessages();
 
-			// Update Components.
-			GameObjectSystem::GetInstance()->Update();
+				// Update Components.
+				GameObjectSystem::GetInstance()->Update();
 
-			for (Layer* pLayer : m_layerStack)
-				pLayer->OnUpdate();
-
-			// TODO: Move to render thread?
-			m_pImGuiLayer->Begin();
-			{
+				// Handle Layers.
 				for (Layer* pLayer : m_layerStack)
-					pLayer->OnImGuiRender();
+					pLayer->OnUpdate();
+
+				for (Layer* pLayer : m_layerStack)
+					pLayer->OnRender();
+
+				// TODO: Move to render thread?
+				EXE_ASSERT(m_pImGuiLayer);
+				m_pImGuiLayer->Begin();
+				{
+					for (Layer* pLayer : m_layerStack)
+						pLayer->OnImGuiRender();
+				}
+				m_pImGuiLayer->End();
+
+				// Refresh Input State.
+				InputManager::GetInstance()->NextFrame();
+
+				// Queue all renderable Components.
+				GameObjectSystem::GetInstance()->Render();
+
+				// Deallocate any resources necessary.
+				ResourceLoader::GetInstance()->ProcessUnloadQueue();
 			}
-			m_pImGuiLayer->End();
 
-			// Client Update.
-			Update();
-
-			// Refresh Input State.
-			InputManager::GetInstance()->NextFrame();
-
-			// Queue all renderable Components.
-			GameObjectSystem::GetInstance()->Render();
-
-			// Push render list to render thread.
-			RenderManager::GetInstance()->EndRenderFrame();
-
-			// Deallocate any resources necessary.
-			ResourceLoader::GetInstance()->ProcessUnloadQueue();
+			// Poll Window Events
+			Renderer::GetInstance()->Update();
 		}
 	}
 
@@ -392,6 +401,18 @@ namespace Exelius
 			CloseApplication();
 			evnt.m_isHandled = true;
 		}
+		else if (evnt.GetEventType() == EventType::WindowResized)
+		{
+			WindowResizedEvent* pWinResized = static_cast<WindowResizedEvent*>(&evnt);
+			if (pWinResized->GetWidth() == 0 || pWinResized->GetHeight() == 0)
+			{
+				m_hasLostFocus = true;
+				return;
+			}
+
+			m_hasLostFocus = false;
+			Renderer::GetInstance()->OnWindowResize(pWinResized->GetWidth(), pWinResized->GetHeight());
+		}
 
 		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
 		{
@@ -454,9 +475,8 @@ namespace Exelius
 			m_pApplicationLog->Warn("Failed to populate window data correctly. Please verify config file.");
 		}
 
-		RenderManager::SetSingleton(EXELIUS_NEW(RenderManager()));
-		EXE_ASSERT(RenderManager::GetInstance());
-		if (!RenderManager::GetInstance()->Initialize(windowTitle, windowSize, isVSyncEnabled))
+		Renderer::SetSingleton(EXELIUS_NEW(Renderer(windowTitle, windowSize)));
+		if (!Renderer::GetInstance())
 		{
 			m_pApplicationLog->Fatal("Exelius::RenderManager failed to initialize.");
 			return false;
@@ -484,7 +504,7 @@ namespace Exelius
 
 		// Attach the event observer to the window to handle window events.
 		// TODO: I don't like this very much.
-		RenderManager::GetInstance()->GetWindow()->GetEventMessenger().AddObserver(*InputManager::GetInstance());
+		Renderer::GetInstance()->GetWindow().GetEventMessenger().AddObserver(*InputManager::GetInstance());
 
 		return true;
 	}

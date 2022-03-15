@@ -131,12 +131,6 @@ namespace Exelius
 		virtual void SetMessageFactory();
 
 		/// <summary>
-		/// Client Update Loop Hook. Clients are required to define this function
-		/// to access the update loop of the engine.
-		/// </summary>
-		virtual void Update() {}
-
-		/// <summary>
 		/// OS event handler. Handles the events that the platform sends.
 		/// This function should not be inhereted, engine determines how OS events are handled.
 		/// Example: SFML pollevent().

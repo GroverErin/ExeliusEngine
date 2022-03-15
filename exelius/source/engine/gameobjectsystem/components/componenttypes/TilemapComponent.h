@@ -2,8 +2,6 @@
 #include "source/engine/gameobjectsystem/components/Component.h"
 #include "source/resource/ResourceHelpers.h"
 
-#include "source/render/RenderCommand.h"
-
 #include <EASTL/vector.h>
 
 /// <summary>

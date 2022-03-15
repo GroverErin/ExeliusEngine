@@ -139,6 +139,13 @@ namespace Exelius
 					SetWheelState(ScrollWheelDirection::WheelDown);
 				break;
 			}
+		case EventType::MouseMoved:
+		{
+			MouseMovedEvent* pMouseMovedEvent = static_cast<MouseMovedEvent*>(&evnt);
+			m_mouseX = pMouseMovedEvent->GetX();
+			m_mouseY = pMouseMovedEvent->GetY();
+			break;
+		}
 		default:
 			{
 				//Unhandled event.

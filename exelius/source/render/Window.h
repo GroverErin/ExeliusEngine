@@ -24,16 +24,14 @@ namespace Exelius
 	{
 		ImplWindow m_impl;
 	public:
-		_Window() = default;
-
 		/// <summary>
 		/// The purpose of this constructor is to pass the window parameters to the Implementation Window.
 		/// </summary>
 		/// <param name="title">The name of the window to be opened.</param>
 		/// <param name="width">The width of the window to be opened.</param>
 		/// <param name="height">The height of the window to be opened.</param>
-		_Window(const eastl::string& title, const Vector2u& windowSize)
-			: m_impl(title, windowSize)
+		_Window(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
+			: m_impl(title, windowSize, isVSyncEnabled)
 		{
 			//
 		}
@@ -66,9 +64,9 @@ namespace Exelius
 		OSEventMessenger& GetEventMessenger() { return m_impl.GetEventMessenger(); }
 
 		#undef CreateWindow // Defined in WinUser.h :(
-		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize)
+		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
 		{
-			m_impl.CreateWindow(title, windowSize);
+			m_impl.CreateWindow(title, windowSize, isVSyncEnabled);
 		}
 
 		Vector2u GetWindowSize() const

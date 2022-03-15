@@ -27,11 +27,13 @@ function GenerateDependencyProjects()
         local dependencyRootFolder = defaultSettings.DependencyScriptLocation .. "/" .. dependency.location .. "/"
         log.Log("[Premake] Generating Dependancy Project '" .. dependency.location .. "' at: " .. dependencyRootFolder)
 
+        filter {}
         if dependency.GenerateDependencyProject ~= nil then
             dependency.GenerateDependencyProject(dependencyRootFolder)
         else
             log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no GenerateDependencyProject function defined.")
         end
+        filter {}
     end
     group("")
 end
@@ -66,12 +68,14 @@ function exeliusDependencyGenerator.IncludeDependencies()
         local dependencyRootFolder = defaultSettings.DependencyScriptLocation .. "/" .. dependency.location .. "/"
         log.Log("[Premake] Including Dependancy Project '" .. dependency.location .. "' from: " .. dependencyRootFolder)
 
+        filter {}
         if dependency.IncludeDependency ~= nil then
             log.Log("[Premake] Including '" .. dependency.location .. "'.")
             dependency.IncludeDependency(dependencyRootFolder)
         else
             log.Warn("[Premake] Dependency [" .. dependency.location .. "] has no IncludeDependency function defined.")
         end
+        filter {}
     end
 end
 
@@ -80,14 +84,14 @@ function exeliusDependencyGenerator.LinkDependencies()
         local dependencyRootFolder = defaultSettings.DependencyScriptLocation .. "/" .. dependency.location .. "/"
         log.Log("[Premake] Linking Dependancy Project '" .. dependency.location .. "' from: " .. dependencyRootFolder)
 
+        filter {}
         if dependency.LinkDependency ~= nil then
-            filter {}
             log.Log("[Premake] Linking '" .. dependency.location .. "'.")
             dependency.LinkDependency(dependencyRootFolder)
-            filter {}
         else
             log.Log("[Premake] Dependency [" .. dependency.location .. "] has no LinkDependency function defined. It may be header only.")
         end
+        filter {}
     end
 end
 

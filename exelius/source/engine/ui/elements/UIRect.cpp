@@ -1,8 +1,6 @@
 #include "EXEPCH.h"
 #include "UIRect.h"
 
-#include "source/render/RenderManager.h"
-
 #include <EASTL/array.h>
 
 /// <summary>

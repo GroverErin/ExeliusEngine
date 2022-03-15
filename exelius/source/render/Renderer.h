@@ -4,6 +4,7 @@
 #include "source/utility/generic/Color.h"
 #include "source/render/camera/OrthographicCamera.h"
 #include "source/utility/generic/SmartPointers.h"
+#include "source/render/Window.h"
 
 #include <glm/glm.hpp>
 
@@ -25,13 +26,16 @@ namespace Exelius
 		};
 
 		SceneData m_sceneData;
+		Window m_window;
 
 		UniquePtr<SceneData> s_pSceneData;
 		RendererAPI* m_pRendererAPI;
 
 	public:
-		Renderer();
+		Renderer(eastl::string& windowTitle, const Vector2u& windowSize, bool isVSyncEnabled = true);
 		~Renderer();
+
+		void Update();
 
 		void OnWindowResize(uint32_t width, uint32_t height);
 
@@ -45,6 +49,8 @@ namespace Exelius
 		void DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t count = 0);
 
 		void Clear();
+
+		Window& GetWindow() { return m_window; }
 	private:
 
 		void Initialize();

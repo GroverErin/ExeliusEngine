@@ -2,7 +2,6 @@
 #include "source/engine/gameobjectsystem/components/Component.h"
 #include "source/resource/ResourceHelpers.h"
 #include "source/utility/math/Rectangle.h"
-#include "source/render/RenderCommand.h"
 
 #include "source/engine/ui/UIElement.h"
 
@@ -20,8 +19,6 @@ namespace Exelius
 
 
 		ResourceID m_textureID;
-
-		eastl::array<RenderCommand, 9> m_commands;
 		Vector2f m_dimensions;
 	public:
 		DEFINE_COMPONENT(UIComponent);

@@ -1,6 +1,6 @@
 #include "EXEPCH.h"
 #include "AudioResource.h"
-#include "source/os/interface/graphics/Audio.h"
+#include "source/os/interface/Audio.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

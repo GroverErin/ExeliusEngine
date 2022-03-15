@@ -1,6 +1,5 @@
 #include "EXEPCH.h"
 #include "UIImage.h"
-#include "source/render/RenderManager.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.

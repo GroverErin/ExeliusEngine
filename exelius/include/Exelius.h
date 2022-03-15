@@ -15,3 +15,11 @@
 #include "source/engine/gameobjectsystem/GameObject.h"
 #include "source/utility/math/Rectangle.h"
 #include "source/utility/generic/Time.h"
+
+#include "source/render/Texture.h"
+#include "source/render/VertexArray.h"
+#include "source/render/Shader.h"
+#include "source/render/camera/OrthographicCamera.h"
+#include "source/render/camera/OrthographicCameraController.h"
+#include "source/render/Renderer2D.h"
+#include "source/render/Renderer.h"

@@ -5,7 +5,6 @@
 
 #include "source/engine/resources/resourcetypes/TextFileResource.h"
 #include "source/engine/resources/resourcetypes/TextureResource.h"
-#include "source/engine/resources/resourcetypes/SpritesheetResource.h"
 #include "source/engine/resources/resourcetypes/FontResource.h"
 #include "source/engine/resources/resourcetypes/AudioResource.h"
 #include "source/engine/resources/resourcetypes/tilemap/TilemapResource.h"
@@ -39,11 +38,6 @@ namespace Exelius
 		case ResourceType::kTexture:
 			{
 				pNewResource = new TextureResource(resourceID);
-				break;
-			}
-		case ResourceType::kSpritesheet:
-			{
-				pNewResource = new SpritesheetResource(resourceID);
 				break;
 			}
 		case ResourceType::kFont:
@@ -85,10 +79,6 @@ namespace Exelius
 		else if (fileExtension == "png" || fileExtension == "jpg" || fileExtension == "bmp")
 		{
 			return ResourceType::kTexture;
-		}
-		else if (fileExtension == "spsh")
-		{
-			return ResourceType::kSpritesheet;
 		}
 		else if (fileExtension == "font")
 		{

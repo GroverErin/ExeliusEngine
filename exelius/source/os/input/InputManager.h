@@ -23,6 +23,9 @@ namespace Exelius
 		eastl::array<bool, static_cast<size_t>(MouseCode::kCount)> m_mouseButtonState;
 		eastl::array<bool, static_cast<size_t>(MouseCode::kCount)> m_previousMouseButtonState;
 		eastl::array<bool, static_cast<size_t>(ScrollWheelDirection::WheelNone)> m_wheelState;
+
+		float m_mouseX;
+		float m_mouseY;
 	public:
 		InputManager()
 			: m_inputManagerLog("InputManager")
@@ -31,6 +34,8 @@ namespace Exelius
 			, m_mouseButtonState({})
 			, m_previousMouseButtonState({})
 			, m_wheelState({})
+			, m_mouseX(0.0f)
+			, m_mouseY(0.0f)
 		{
 			//
 		}
@@ -106,6 +111,9 @@ namespace Exelius
 		/// <param name="direction">Direction to check.</param>
 		/// <returns>True if scrolled in that direction, false if not.</returns>
 		bool DidScrollInDirection(ScrollWheelDirection direction) const;
+
+		float GetMouseX() const { return m_mouseX; }
+		float GetMouseY() const { return m_mouseY; }
 
 		/// <summary>
 		/// Sets the previous button to the current button states.

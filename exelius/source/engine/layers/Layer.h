@@ -23,7 +23,10 @@ namespace Exelius
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
+
+		// On Update and On Render are not necessary, but helps with organization.
 		virtual void OnUpdate() {}
+		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event&) {}
 

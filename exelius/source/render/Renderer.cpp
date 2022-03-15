@@ -1,6 +1,7 @@
 #include "EXEPCH.h"
 #include "Renderer.h"
 #include "source/render/RendererAPI.h"
+#include "source/render/Renderer2D.h"
 #include "source/render/Shader.h"
 #include "source/render/VertexArray.h"
 
@@ -9,8 +10,9 @@
 /// </summary>
 namespace Exelius
 {
-	Renderer::Renderer()
-		: m_pRendererAPI(nullptr)
+	Renderer::Renderer(eastl::string& windowTitle, const Vector2u& windowSize, bool isVSyncEnabled)
+		: m_window(windowTitle, windowSize, isVSyncEnabled)
+		, m_pRendererAPI(nullptr)
 	{
 		Initialize();
 	}
@@ -18,6 +20,11 @@ namespace Exelius
 	Renderer::~Renderer()
 	{
 		Shutdown();
+	}
+
+	void Renderer::Update()
+	{
+		m_window.Update();
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -66,13 +73,20 @@ namespace Exelius
 
 	void Renderer::Initialize()
 	{
+		m_window.InitializeRenderContext();
+
 		m_pRendererAPI = EXELIUS_NEW(RendererAPI());
 		EXE_ASSERT(m_pRendererAPI);
 		m_pRendererAPI->Initialize();
+
+		Renderer2D::SetSingleton(EXELIUS_NEW(Renderer2D()));
+		EXE_ASSERT(Renderer2D::GetInstance());
+		Renderer2D::GetInstance()->Initialize();
 	}
 
 	void Renderer::Shutdown()
 	{
 		EXELIUS_DELETE(m_pRendererAPI);
+		Renderer2D::DestroySingleton();
 	}
 }

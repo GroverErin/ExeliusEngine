@@ -35,3 +35,12 @@
 [submodule "tools/thirdparty/stb"]
 	path = tools/thirdparty/stb
 	url = https://github.com/nothings/stb
+[submodule "tools/thirdparty/entt"]
+	path = tools/thirdparty/entt
+	url = https://github.com/skypjack/entt
+[submodule "tools/thirdparty/imguizmo"]
+	path = tools/thirdparty/imguizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "tools/thirdparty/imguinodeeditor"]
+	path = tools/thirdparty/imguinodeeditor
+	url = https://github.com/thedmd/imgui-node-editor

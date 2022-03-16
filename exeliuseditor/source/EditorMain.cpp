@@ -3,9 +3,14 @@
 
 #include "editorapplication/EditorLayer.h"
 
-class ExeliusEditor final
-	: public Exelius::Application
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
+namespace Exelius
 {
+	class ExeliusEditor final
+		: public Application
+	{
 	public:
 		ExeliusEditor()
 			: Application()
@@ -20,6 +25,7 @@ class ExeliusEditor final
 			return true;
 		}
 
-};
+	};
 
-Exelius::Application* Exelius::CreateApplication() { return new ExeliusEditor(); }
+	Application* CreateApplication() { return new ExeliusEditor(); }
+}

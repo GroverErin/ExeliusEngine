@@ -16,8 +16,8 @@ namespace Exelius
 		ImplFramebuffer m_impl;
 	public:
 
-		_Framebuffer()
-			: m_impl()
+		_Framebuffer(const FramebufferSpecification& spec)
+			: m_impl(spec)
 		{
 			//
 		}

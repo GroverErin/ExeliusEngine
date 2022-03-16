@@ -10,6 +10,9 @@
 #include "source/render/UniformBuffer.h"
 #include "source/render/SubTexture.h"
 
+// TODO: This is NOT within the render engine layer... maybe Renderer should be base class and Renderer2D should exist in Engine layer
+#include "source/engine/scene/Components.h"
+
 #include <EASTL/array.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -336,13 +339,13 @@ namespace Exelius
 		DrawRotatedQuad(position, size, rotation, texture->GetTexture(), tilingFactor, tintColor);
 	}
 
-	//void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
-	//{
-	//	if (src.Texture)
-	//		DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
-	//	else
-	//		DrawQuad(transform, src.Color, entityID);
-	//}
+	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	{
+		if (src.Texture)
+			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
+		else
+			DrawQuad(transform, src.Color, entityID);
+	}
 
 	void Renderer2D::ResetStats()
 	{

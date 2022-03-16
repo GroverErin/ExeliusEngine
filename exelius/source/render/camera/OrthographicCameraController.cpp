@@ -21,23 +21,23 @@ namespace Exelius
 
 	void OrthographicCameraController::OnUpdate()
 	{
-		if (IsKeyPressed(KeyCode::A))
+		if (IsKeyDown(KeyCode::A))
 		{
 			m_cameraPosition.x -= cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 			m_cameraPosition.y -= sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 		}
-		else if (IsKeyPressed(KeyCode::D))
+		else if (IsKeyDown(KeyCode::D))
 		{
 			m_cameraPosition.x += cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 			m_cameraPosition.y += sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 		}
 
-		if (IsKeyPressed(KeyCode::W))
+		if (IsKeyDown(KeyCode::W))
 		{
 			m_cameraPosition.x += -sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 			m_cameraPosition.y += cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 		}
-		else if (IsKeyPressed(KeyCode::S))
+		else if (IsKeyDown(KeyCode::S))
 		{
 			m_cameraPosition.x -= -sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
 			m_cameraPosition.y -= cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * Time::DeltaTime;
@@ -45,9 +45,9 @@ namespace Exelius
 
 		if (m_rotation)
 		{
-			if (IsKeyPressed(KeyCode::Q))
+			if (IsKeyDown(KeyCode::Q))
 				m_cameraRotation += m_cameraRotationSpeed * Time::DeltaTime;
-			if (IsKeyPressed(KeyCode::E))
+			if (IsKeyDown(KeyCode::E))
 				m_cameraRotation -= m_cameraRotationSpeed * Time::DeltaTime;
 
 			if (m_cameraRotation > 180.0f)

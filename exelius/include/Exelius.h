@@ -5,6 +5,7 @@
 //		 THIS FILE SHOULD BE TOTALLY EMPTY IF POSSIBLE.
 #include "source/precompilation/EXEPCH.h"
 #include "source/engine/layers/Layer.h"
+#include "source/engine/Application.h"
 #include "source/engine/gameobjectsystem/GameObjectSystem.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/TransformComponent.h"
 #include "source/engine/gameobjectsystem/components/componenttypes/SpriteComponent.h"
@@ -19,6 +20,7 @@
 #include "source/render/Texture.h"
 #include "source/render/VertexArray.h"
 #include "source/render/Shader.h"
+#include "source/render/Framebuffer.h"
 #include "source/render/camera/OrthographicCamera.h"
 #include "source/render/camera/OrthographicCameraController.h"
 #include "source/render/Renderer2D.h"

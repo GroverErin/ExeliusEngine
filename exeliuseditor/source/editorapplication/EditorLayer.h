@@ -3,25 +3,36 @@
 
 #include <glm/glm.hpp>
 
-class EditorLayer : public Exelius::Layer
+/// <summary>
+/// Engine namespace. Everything owned by the engine will be inside this namespace.
+/// </summary>
+namespace Exelius
 {
-	Exelius::OrthographicCameraController m_CameraController;
+	class EditorLayer : public Layer
+	{
+		OrthographicCameraController m_CameraController;
 
-	// Temp
-	Exelius::SharedPtr<Exelius::VertexArray> m_SquareVA;
-	Exelius::SharedPtr<Exelius::Shader> m_FlatColorShader;
+		// Temp
+		SharedPtr<VertexArray> m_SquareVA;
+		SharedPtr<Shader> m_FlatColorShader;
+		SharedPtr<Framebuffer> m_FrameBuffer;
 
-	Exelius::SharedPtr<Exelius::Texture> m_CheckerboardTexture;
+		SharedPtr<Texture> m_CheckerboardTexture;
 
-	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
-public:
-	EditorLayer();
-	virtual ~EditorLayer() = default;
+		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
+		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
-	virtual void OnAttach() override;
-	virtual void OnDetach() override;
+		bool m_viewportFocused = false;
+		bool m_viewportHovered = false;
+	public:
+		EditorLayer();
+		virtual ~EditorLayer() = default;
 
-	void OnUpdate() override;
-	virtual void OnImGuiRender() override;
-	void OnEvent(Exelius::Event & e) override;
-};
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
+
+		void OnUpdate() override;
+		virtual void OnImGuiRender() override;
+		void OnEvent(Event& e) override;
+	};
+}

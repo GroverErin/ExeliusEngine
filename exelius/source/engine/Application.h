@@ -144,6 +144,8 @@ namespace Exelius
 		/// </summary>
 		void CloseApplication();
 
+		ImGuiLayer* GetImGuiLayer() const { return m_pImGuiLayer; }
+
 	private:
 		
 		/// <summary>

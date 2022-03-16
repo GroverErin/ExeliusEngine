@@ -164,7 +164,7 @@ namespace Exelius
 	{
 		uint32_t m_width = 0;
 		uint32_t m_height = 0;
-		FramebufferAttachmentSpecification m_attachments;
+		FramebufferAttachmentSpecification m_attachmentSpec;
 		uint32_t m_samples = 1;
 
 		bool m_swapChainTarget = false;

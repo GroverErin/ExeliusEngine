@@ -28,7 +28,7 @@
 
 #include "source/engine/layers/Layer.h"
 
-#include "source/os/events/ApplicationEvents.h" // TODO: Remove this.
+#include "source/os/events/ApplicationEvents.h"
 
 #include "source/utility/generic/Time.h"
 
@@ -298,15 +298,6 @@ namespace Exelius
 				for (Layer* pLayer : m_layerStack)
 					pLayer->OnRender();
 
-				// TODO: Move to render thread?
-				EXE_ASSERT(m_pImGuiLayer);
-				m_pImGuiLayer->Begin();
-				{
-					for (Layer* pLayer : m_layerStack)
-						pLayer->OnImGuiRender();
-				}
-				m_pImGuiLayer->End();
-
 				// Refresh Input State.
 				InputManager::GetInstance()->NextFrame();
 
@@ -316,6 +307,15 @@ namespace Exelius
 				// Deallocate any resources necessary.
 				ResourceLoader::GetInstance()->ProcessUnloadQueue();
 			}
+
+			// TODO: Move to render thread?
+			EXE_ASSERT(m_pImGuiLayer);
+			m_pImGuiLayer->Begin();
+			{
+				for (Layer* pLayer : m_layerStack)
+					pLayer->OnImGuiRender();
+			}
+			m_pImGuiLayer->End();
 
 			// Poll Window Events
 			Renderer::GetInstance()->Update();

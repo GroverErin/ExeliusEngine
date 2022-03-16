@@ -16,6 +16,7 @@ namespace Exelius
 	FORWARD_DECLARE(RendererAPI);
 	FORWARD_DECLARE(Texture);
 	class SubTexture;
+	struct SpriteRendererComponent;
 
 	class Renderer2D
 		: public Singleton<Renderer2D>
@@ -62,7 +63,7 @@ namespace Exelius
 		void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 		void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const SharedPtr<SubTexture>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
-		//void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
+		void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
 
 		void ResetStats();
 		Statistics GetStats();

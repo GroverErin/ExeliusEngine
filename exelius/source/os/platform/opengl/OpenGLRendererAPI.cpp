@@ -26,7 +26,8 @@ namespace Exelius
 		case GL_DEBUG_SEVERITY_LOW:          HZ_CORE_WARN(message); return;
 		case GL_DEBUG_SEVERITY_NOTIFICATION: HZ_CORE_TRACE(message); return;
 		}*/
-
+		// TODO:
+		printf(message);
 		EXE_ASSERT(false);
 	}
 

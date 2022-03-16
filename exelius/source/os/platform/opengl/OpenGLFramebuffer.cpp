@@ -93,8 +93,9 @@ namespace Exelius
 	}
 
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
+		: m_specification(spec)
 	{
-		for (auto spec : m_specification.m_attachments.m_attachments)
+		for (auto spec : m_specification.m_attachmentSpec.m_attachments)
 		{
 			if (!Utils::IsDepthFormat(spec.m_textureFormat))
 				m_colorAttachmentSpecifications.emplace_back(spec);

@@ -69,16 +69,9 @@ namespace Exelius
 			if (ImGui::MenuItem("Delete GameObject"))
 				isGameObjectDeleted = true;
 
-			ImGui::EndPopup();
-		}
+			// TODO: Add renaming functionality here.
 
-		if (opened)
-		{
-			ImGuiTreeNodeFlags flags2 = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-			bool opened2 = ImGui::TreeNodeEx((void*)9817239, flags2, tag.c_str());
-			if (opened2)
-				ImGui::TreePop();
-			ImGui::TreePop();
+			ImGui::EndPopup();
 		}
 
 		if (isGameObjectDeleted)

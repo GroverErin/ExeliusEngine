@@ -13,12 +13,11 @@ namespace Exelius
 	class OpenGLVertexArray
 	{
 		uint32_t m_rendererID;
-		uint32_t m_vertexBufferIndex = 0;
-		std::vector<SharedPtr<VertexBuffer>> m_vertexBuffers;
+		uint32_t m_vertexBufferIndex;
+		eastl::vector<SharedPtr<VertexBuffer>> m_vertexBuffers;
 		SharedPtr<IndexBuffer> m_indexBuffer;
 
 	public:
-
 		OpenGLVertexArray();
 		~OpenGLVertexArray();
 
@@ -28,7 +27,7 @@ namespace Exelius
 		void AddVertexBuffer(const SharedPtr<VertexBuffer>& vertexBuffer);
 		void SetIndexBuffer(const SharedPtr<IndexBuffer>& indexBuffer);
 
-		const std::vector<SharedPtr<VertexBuffer>>& GetVertexBuffers() const;
+		const eastl::vector<SharedPtr<VertexBuffer>>& GetVertexBuffers() const;
 		const SharedPtr<IndexBuffer>& GetIndexBuffer() const;
 	};
 }

@@ -22,14 +22,14 @@ namespace Exelius
 {
 	static uint8_t s_GLFWWindowCount = 0;
 
-	static void GLFWErrorCallback(int error, const char* description)
+	static void GLFWErrorCallback(int, const char* msg)
 	{
+		EXE_LOG_CATEGORY_FATAL("OpenGL", msg);
 		EXE_ASSERT(false);
 	}
 
 	OpenGLWindow::OpenGLWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
-		: m_graphicsInterfaceLog("GraphicsInterface")
-		, m_pRenderContext(nullptr)
+		: m_pRenderContext(nullptr)
 		, m_pWindow(nullptr)
 		, m_isVSync(isVSyncEnabled)
 	{
@@ -47,7 +47,7 @@ namespace Exelius
 		m_windowData.m_title = title;
 		m_windowData.m_windowSize = windowSize;
 
-		m_graphicsInterfaceLog.Info("Creating OpenGL Window: {0} ({1}, {2})", m_windowData.m_title.c_str(), m_windowData.m_windowSize.w, m_windowData.m_windowSize.h);
+		EXE_LOG_CATEGORY_INFO("OpenGL", "Creating OpenGL Window: {0} ({1}, {2})", m_windowData.m_title.c_str(), m_windowData.m_windowSize.w, m_windowData.m_windowSize.h);
 
 		if (s_GLFWWindowCount == 0)
 		{
@@ -106,7 +106,7 @@ namespace Exelius
 			});
 
 		// Set GLFW Keyboard Event Callbacks
-		glfwSetKeyCallback(m_pWindow, [](GLFWwindow* pWindow, int key, int scancode, int action, int mods)
+		glfwSetKeyCallback(m_pWindow, [](GLFWwindow* pWindow, int key, int, int action, int)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(pWindow);
 
@@ -137,7 +137,7 @@ namespace Exelius
 			});
 
 		// Set GLFW Mouse Event Callbacks
-		glfwSetMouseButtonCallback(m_pWindow, [](GLFWwindow* pWindow, int button, int action, int mods)
+		glfwSetMouseButtonCallback(m_pWindow, [](GLFWwindow* pWindow, int button, int action, int)
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(pWindow);
 

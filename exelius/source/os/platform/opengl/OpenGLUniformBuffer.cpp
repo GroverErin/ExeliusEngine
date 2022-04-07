@@ -9,6 +9,7 @@
 namespace Exelius
 {
 	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t size, uint32_t binding)
+		: m_rendererID(0)
 	{
 		glCreateBuffers(1, &m_rendererID);
 		glNamedBufferData(m_rendererID, size, nullptr, GL_DYNAMIC_DRAW); // TODO: investigate usage hint

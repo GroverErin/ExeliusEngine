@@ -8,6 +8,7 @@
 #include "source/engine/resources/resourcetypes/FontResource.h"
 #include "source/engine/resources/resourcetypes/AudioResource.h"
 #include "source/engine/resources/resourcetypes/tilemap/TilemapResource.h"
+#include "source/engine/resources/resourcetypes/ShaderResource.h"
 
 #include "source/utility/io/File.h"
 
@@ -27,7 +28,7 @@ namespace Exelius
 		{
 		case ResourceType::kInvalid:
 			{
-				m_resourceManagerLog.Warn("Resource cannot be created: Invalid or Unsupported Resource Type.");
+				EXE_LOG_CATEGORY_WARN("ExeliusResourceFactory", "Resource '{0}' cannot be created: Invalid or Unsupported Resource Type.", resourceID.Get().c_str());
 				break;
 			}
 		case ResourceType::kTextFile:
@@ -55,6 +56,11 @@ namespace Exelius
 				pNewResource = new TilemapResource(resourceID);
 				break;
 			}
+		case ResourceType::kShader:
+		{
+			pNewResource = new ShaderResource(resourceID);
+			break;
+		}
 		}
 
 		return pNewResource;
@@ -68,11 +74,11 @@ namespace Exelius
 
 		if (fileExtension.empty())
 		{
-			m_resourceManagerLog.Warn("Could not parse resource extention.");
+			EXE_LOG_CATEGORY_WARN("ResourceManager", "Could not parse resource extention.");
 			return ResourceType::kInvalid;
 		}
 
-		if (fileExtension == "txt" || fileExtension == "json")
+		if (fileExtension == "txt" || fileExtension == "json" || fileExtension == "excene")
 		{
 			return ResourceType::kTextFile;
 		}
@@ -91,6 +97,10 @@ namespace Exelius
 		else if (fileExtension == "tmx")
 		{
 			return ResourceType::kTilemap;
+		}
+		else if (fileExtension == "glsl")
+		{
+			return ResourceType::kShader;
 		}
 
 		return ResourceType::kInvalid;

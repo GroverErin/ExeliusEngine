@@ -76,18 +76,24 @@ namespace Exelius
 		if (m_file.good())
 			return false;
 
-		Log log;
-
-		log.Info("File is not valid.");
+		EXE_LOG_INFO("File is not valid.");
 
 		if (m_file.bad())
-			log.Warn("I/O error while reading");
+		{
+			EXE_LOG_WARN("I/O error while reading");
+		}
 		else if (m_file.eof())
-			log.Warn("End of file reached successfully");
+		{
+			EXE_LOG_WARN("End of file reached successfully");
+		}
 		else if (m_file.fail())
-			log.Warn("Non-integer data encountered. Possible incorrect file path.");
+		{
+			EXE_LOG_WARN("Non-integer data encountered. Possible incorrect file path.");
+		}
 		else
-			log.Warn("An unknown error has occurred. Bit Flag States:\nGoodbit '{}'\nBadbit '{}'\nEOFbit '{}'\nFailbit '{}'", m_file.goodbit, m_file.badbit, m_file.eofbit, m_file.failbit);
+		{
+			EXE_LOG_WARN("An unknown error has occurred. Bit Flag States:\nGoodbit '{}'\nBadbit '{}'\nEOFbit '{}'\nFailbit '{}'", m_file.goodbit, m_file.badbit, m_file.eofbit, m_file.failbit);
+		}
 
 		return false;
 	}
@@ -128,8 +134,7 @@ namespace Exelius
 	{
 		if (access == AccessPermission::kReadOnly && (create == CreationType::kCreateFile || create == CreationType::kOverwriteFile))
 		{
-			Log log;
-			log.Error("Invalid access and creation combination: Trying to create or overwrite a file with read only access.");
+			EXE_LOG_ERROR("Invalid access and creation combination: Trying to create or overwrite a file with read only access.");
 			return false;
 		}
 
@@ -140,10 +145,10 @@ namespace Exelius
 	{
 		if (!VerifyAccessPermissions(access, create))
 			return false;
-		Log log;
+
 		if (IsValid())
 		{
-			log.Warn("Attempting to open a file that is already valid.");
+			EXE_LOG_WARN("Attempting to open a file that is already valid.");
 			Close();
 		}
 
@@ -172,7 +177,7 @@ namespace Exelius
 			}
 			default:
 			{
-				log.Error("Invalid access flag.");
+				EXE_LOG_ERROR("Invalid access flag.");
 				break;
 			}
 		}
@@ -194,7 +199,7 @@ namespace Exelius
 			{
 				if (!FileExists(filePath))
 				{
-					log.Error("File Not Found: '{}'", filePath.c_str());
+					EXE_LOG_ERROR("File Not Found: '{}'", filePath.c_str());
 					return false;
 				}
 				break;
@@ -210,7 +215,7 @@ namespace Exelius
 			}
 			default:
 			{
-				log.Error("Invalid creation flag.");
+				EXE_LOG_ERROR("Invalid creation flag.");
 				return false;
 			}
 		}
@@ -219,7 +224,7 @@ namespace Exelius
 
 		if (!IsValid())
 		{
-			log.Warn("Failed File: {}", filePath.c_str());
+			EXE_LOG_WARN("Failed File: {}", filePath.c_str());
 			return false;
 		}
 

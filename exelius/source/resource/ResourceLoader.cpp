@@ -17,8 +17,7 @@ namespace Exelius
 	/// Constructor default initializes member data.
 	/// </summary>
 	ResourceLoader::ResourceLoader()
-		: m_resourceLoaderLog("ResourceLoader")
-		, m_pResourceFactory(nullptr)
+		: m_pResourceFactory(nullptr)
 		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		, m_quitThread(false)
 		, m_successfulThreadShutdown(false)
@@ -164,12 +163,12 @@ namespace Exelius
 		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		EXE_ASSERT(m_loaderThread.joinable());
 
-		m_resourceLoaderLog.Trace("Queueing Resource: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Queueing Resource: {}", resourceID.Get().c_str());
 
 		// Attempt to create a resource entry.
 		if (m_resourceDatabase.CreateEntry(resourceID))
 		{
-			m_resourceLoaderLog.Trace("Created new resource entry.");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Created new resource entry.");
 
 			m_listenerMapLock.lock();
 			m_deferredResourceListenersMap[resourceID].emplace_back(pListener);
@@ -177,7 +176,7 @@ namespace Exelius
 		}
 		else if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoaded)
 		{
-			m_resourceLoaderLog.Trace("Resource already loaded.");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Resource already loaded.");
 
 			// This may seem unnecessary, but it is a catch in case no listener was passed in.
 			if (!pListener.expired())
@@ -187,13 +186,13 @@ namespace Exelius
 		}
 		else if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
-			m_resourceLoaderLog.Trace("Resource already queued.");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Resource already queued.");
 			m_resourceDatabase.IncrementEntryRefCount(resourceID);
 			return; // Bail here. We do NOT want to change the status of the resource.
 		}
 		else
 		{
-			m_resourceLoaderLog.Warn("Resource was unloaded or unloading. SEE TODO in ResourceLoader.cpp.");
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Resource was unloaded or unloading. SEE TODO in ResourceLoader.cpp.");
 			/// TODO:
 			///		It is possible that neither of the 2 branches were entered.
 			///		This means that the Resource exists in the database && its
@@ -220,7 +219,7 @@ namespace Exelius
 		if (signalLoaderThread)
 			SignalLoaderThread();
 
-		m_resourceLoaderLog.Trace("QueueLoad Complete.");
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "QueueLoad Complete.");
 		#else
 		LoadNow(resourceID, pListener);
 		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
@@ -255,12 +254,12 @@ namespace Exelius
 	void ResourceLoader::LoadNow(const ResourceID& resourceID, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Loading Resource On Main Thread: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Loading Resource On Main Thread: {}", resourceID.Get().c_str());
 
 		// Check if the resource is already in the resource database.
 		if (m_resourceDatabase.CreateEntry(resourceID))
 		{
-			m_resourceLoaderLog.Trace("Created new resource entry.");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Created new resource entry.");
 
 			#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 			m_listenerMapLock.lock();
@@ -272,7 +271,7 @@ namespace Exelius
 		}
 		else if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoaded)
 		{
-			m_resourceLoaderLog.Trace("Resource already loaded.");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Resource already loaded.");
 
 			// This may seem unnecessary, but it is a catch in case no listener was passed in.
 			if (!pListener.expired())
@@ -282,19 +281,54 @@ namespace Exelius
 		}
 		else if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
-			m_resourceLoaderLog.Trace("Resource already queued.");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Resource already queued.");
 			// TODO: We may want to consider removing the queued load
 			//		 then forcing the load here.
 			return; // Bail here. We do NOT want to change the status of the resource.
 		}
 
 		m_resourceDatabase.SetEntryLoadStatus(resourceID, ResourceLoadStatus::kLoading);
-		LoadResource(resourceID);
+		LoadResource(resourceID); // TODO: Make this a boolean so we can bail on failure.
 
 		if (!pListener.expired()) // This may seem unnecessary, but it is a catch in case no listener was passed in.
 			pListener.lock()->OnResourceLoaded(resourceID);
 
-		m_resourceLoaderLog.Trace("Load Complete.");
+		//EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Load Complete.");
+	}
+
+	void ResourceLoader::CreateNewResource(const ResourceID& resourceID)
+	{
+		// We should never create a resource that already exists.
+		// TODO: Consider making this fail gracefully.
+		EXE_ASSERT(!IsResourceAcquirable(resourceID));
+
+		if (!m_resourceDatabase.CreateEntry(resourceID))
+		{
+			EXE_LOG_CATEGORY_FATAL("ResourceLoader", "A resource tried to be created when it already exists!");
+			EXE_ASSERT(false);
+		}
+
+		Resource* pNewResource = m_pResourceFactory->CreateResource(resourceID);
+		m_resourceDatabase.SetEntryResource(resourceID, pNewResource);
+		m_resourceDatabase.SetEntryLoadStatus(resourceID, ResourceLoadStatus::kLoaded);
+	}
+
+	void ResourceLoader::SaveResource(const ResourceID& resourceID)
+	{
+		Resource* pResource = m_resourceDatabase.GetEntryResource(resourceID);
+		if (!pResource)
+			return;
+
+		eastl::vector<std::byte> data = pResource->Save();
+
+		if (m_useRawAssets)
+		{
+			return SaveToDisk(resourceID, data);
+		}
+		else
+		{
+			return SaveToZip(resourceID, data);
+		}
 	}
 
 	/// <summary>
@@ -354,12 +388,12 @@ namespace Exelius
 	void ResourceLoader::ReloadResource(const ResourceID& resourceID, bool forceLoad, ResourceListenerPtr pListener)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Reloading: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Reloading: {}", resourceID.Get().c_str());
 
 		// Check if the resource is not already loaded.
 		if (m_resourceDatabase.GetEntryLoadStatus(resourceID) != ResourceLoadStatus::kLoaded)
 		{
-			m_resourceLoaderLog.Warn("Attempted to Reload Resource that is not loaded. Queueing/Loading now.");
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Attempted to Reload Resource that is not loaded. Queueing/Loading now.");
 
 			if (forceLoad)
 				LoadNow(resourceID, pListener);
@@ -378,7 +412,7 @@ namespace Exelius
 		else
 			QueueLoad(resourceID, true, pListener);
 
-		m_resourceLoaderLog.Trace("Reload Complete.");
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Reload Complete.");
 	}
 
 	/// <summary>
@@ -395,7 +429,7 @@ namespace Exelius
 
 		if (m_resourceDatabase.GetEntryLoadStatus(resourceID) == ResourceLoadStatus::kLoading)
 		{
-			m_resourceLoaderLog.Info("Resource Request Denied: Resource Still Loading.");
+			EXE_LOG_CATEGORY_INFO("ResourceLoader", "Resource Request Denied: Resource Still Loading.");
 			return nullptr;
 		}
 
@@ -403,13 +437,13 @@ namespace Exelius
 
 		if (!pResource && forceLoad)
 		{
-			m_resourceLoaderLog.Info("Forcing Resource Creation and Retrieving.");
+			EXE_LOG_CATEGORY_INFO("ResourceLoader", "Forcing Resource Creation and Retrieving.");
 			LoadNow(resourceID);
 			return GetResource(resourceID, false); // Should be guaranteed, but false will prevent infinite recursion.
 		}
 		else if (!pResource)
 		{
-			m_resourceLoaderLog.Info("Resource not found.");
+			EXE_LOG_CATEGORY_INFO("ResourceLoader", "Resource not found.");
 			return nullptr;
 		}
 
@@ -426,10 +460,10 @@ namespace Exelius
 	void ResourceLoader::LockResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Locking Resource: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Locking Resource: {}", resourceID.Get().c_str());
 
 		m_resourceDatabase.IncrementEntryLockCount(resourceID);
-		m_resourceLoaderLog.Trace("Resource Locked.");
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Resource Locked.");
 	}
 
 	/// <summary>
@@ -445,7 +479,7 @@ namespace Exelius
 	void ResourceLoader::UnlockResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Unlocking Resource: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Unlocking Resource: {}", resourceID.Get().c_str());
 
 		// Decrement the reference count of this resource.
 		// If there is no longer any references to this resource, then unload it.
@@ -461,7 +495,7 @@ namespace Exelius
 	{
 		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 		EXE_ASSERT(m_loaderThread.joinable());
-		m_resourceLoaderLog.Trace("Signaling Loader Thread.");
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Signaling Loader Thread.");
 
 		m_signalThread.notify_one();
 		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
@@ -480,7 +514,7 @@ namespace Exelius
 		std::mutex waitMutex;
 		std::unique_lock<std::mutex> waitLock(waitMutex);
 
-		m_resourceLoaderLog.Info("Waiting for response from LoaderThread.");
+		EXE_LOG_CATEGORY_INFO("ResourceLoader", "Waiting for response from LoaderThread.");
 		m_signalThread.wait(waitLock, [this]()
 		{
 			return !m_quitThread || m_successfulThreadShutdown;
@@ -531,7 +565,7 @@ namespace Exelius
 	void ResourceLoader::ProcessResourceQueue()
 	{
 		#if !FORCE_SINGLE_THREADED_RESOURCE_LOADER
-		m_resourceLoaderLog.Info("Instantiating Resource Loader Thread.");
+		EXE_LOG_CATEGORY_INFO("ResourceLoader", "Instantiating Resource Loader Thread.");
 		std::mutex waitMutex;
 
 		// TODO: Consider if this is the best container to use here.
@@ -554,7 +588,7 @@ namespace Exelius
 				return m_quitThread || !empty;
 			});
 
-			m_resourceLoaderLog.Trace("Loader Thread Received Signal");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Loader Thread Received Signal");
 
 			// Don't do any work if we're exiting.
 			if (m_quitThread)
@@ -572,7 +606,7 @@ namespace Exelius
 			// Process the queue
 			while (!processingQueue.empty())
 			{
-				m_resourceLoaderLog.Trace("Loader Thread Loading: {}", processingQueue.front().Get().c_str());
+				EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Loader Thread Loading: {}", processingQueue.front().Get().c_str());
 				LoadResource(processingQueue.front());
 
 				// Notify all the listeners that we are done loading.
@@ -585,18 +619,18 @@ namespace Exelius
 				}
 				processingResourceListenersMap[processingQueue.front()].clear();
 
-				m_resourceLoaderLog.Trace("Loader Thread Loading Complete.");
+				EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Loader Thread Loading Complete.");
 				processingQueue.pop_front();
 			}
 
 			// Done loading this pass, so signal the main thread in case it is waiting.
 			m_signalThread.notify_one();
-			m_resourceLoaderLog.Trace("Signaled Main Thread: Queue Finished");
+			EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Signaled Main Thread: Queue Finished");
 		}
 
 		// Let the main thread know we are fully exiting in case they are waiting.
 		m_successfulThreadShutdown = true;
-		m_resourceLoaderLog.Info("Signaled Main Thread: Thread Terminating.");
+		EXE_LOG_CATEGORY_INFO("ResourceLoader", "Signaled Main Thread: Thread Terminating.");
 		m_signalThread.notify_one();
 		#endif // !FORCE_SINGLE_THREADED_RESOURCE_LOADER
 	}
@@ -609,7 +643,7 @@ namespace Exelius
 	void ResourceLoader::LoadResource(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Loading Resource Internally: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Loading Resource Internally: {}", resourceID.Get().c_str());
 
 		// TODO:
 		//	Remove use of vector maybe?
@@ -617,20 +651,22 @@ namespace Exelius
 
 		if (rawData.empty())
 		{
-			m_resourceLoaderLog.Warn("Raw file data was empty.");
-
-			// TODO:
-			//	This may present an issue with this resource having references to it.
-
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Raw file data was empty.");
 			m_resourceDatabase.UnloadEntry(resourceID);
+			m_resourceDatabase.DecrementEntryRefCount(resourceID);
+			// TODO: Can the resource state be set to unloading here? Reasonable?
+			//m_resourceDatabase.SetEntryLoadStatus(resourceID, ResourceLoadStatus::kUnloading);
 			return;
 		}
 
 		Resource* pResource = m_pResourceFactory->CreateResource(resourceID);
 		if (!pResource)
 		{
-			m_resourceLoaderLog.Warn("Failed to create resource from resource factory.");
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Failed to create resource from resource factory.");
 			m_resourceDatabase.UnloadEntry(resourceID);
+			m_resourceDatabase.DecrementEntryRefCount(resourceID);
+			// TODO: Can the resource state be set to unloading here? Reasonable?
+			//m_resourceDatabase.SetEntryLoadStatus(resourceID, ResourceLoadStatus::kUnloading);
 			return;
 		}
 
@@ -640,14 +676,17 @@ namespace Exelius
 		}
 		else
 		{
-			m_resourceLoaderLog.Warn("Failed to load resource from raw data.");
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Failed to load resource from raw data.");
 			m_resourceDatabase.UnloadEntry(resourceID);
+			m_resourceDatabase.DecrementEntryRefCount(resourceID);
+			// TODO: Can the resource state be set to unloading here? Reasonable?
+			//m_resourceDatabase.SetEntryLoadStatus(resourceID, ResourceLoadStatus::kUnloading);
 			return;
 		}
 
 		m_resourceDatabase.SetEntryLoadStatus(resourceID, ResourceLoadStatus::kLoaded);
 
-		m_resourceLoaderLog.Trace("Completed Loading Internally.");
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Completed Loading Internally.");
 	}
 
 	/// <summary>
@@ -659,7 +698,7 @@ namespace Exelius
 	eastl::vector<std::byte> ResourceLoader::LoadRawData(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceLoaderLog.Trace("Loading Resource Raw Data: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceLoader", "Loading Resource Raw Data: {}", resourceID.Get().c_str());
 
 		if (m_useRawAssets)
 		{
@@ -684,7 +723,7 @@ namespace Exelius
 		File resourceFile;
 		if (!resourceFile.Open(strPath, File::AccessPermission::kReadOnly, File::CreationType::kOpenFile))
 		{
-			m_resourceLoaderLog.Warn("Failed to open file: {}", strPath.c_str());
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Failed to open file: {}", strPath.c_str());
 			return eastl::vector<std::byte>();
 		}
 
@@ -693,7 +732,7 @@ namespace Exelius
 
 		if (readBytes != resourceFile.GetSize())
 		{
-			m_resourceLoaderLog.Warn("Failed to read '{}'. Read {} of {} bytes.", strPath.c_str(), readBytes, resourceFile.GetSize());
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Failed to read '{}'. Read {} of {} bytes.", strPath.c_str(), readBytes, resourceFile.GetSize());
 			return eastl::vector<std::byte>();
 		}
 
@@ -713,5 +752,26 @@ namespace Exelius
 		// TODO: Do this.
 
 		return eastl::vector<std::byte>();
+	}
+
+	void ResourceLoader::SaveToDisk(const ResourceID& resourceID, const eastl::vector<std::byte>& data)
+	{
+		EXE_ASSERT(resourceID.IsValid());
+
+		eastl::string strPath = resourceID.Get();
+
+		File resourceFile;
+		if (!resourceFile.Open(strPath, File::AccessPermission::kWriteOnly, File::CreationType::kOpenOrCreateFile))
+		{
+			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Failed to open file: {}", strPath.c_str());
+			return;
+		}
+
+		resourceFile.Write(data);
+	}
+
+	void ResourceLoader::SaveToZip(const ResourceID&, const eastl::vector<std::byte>&)
+	{
+		// TODO: Do this.
 	}
 }

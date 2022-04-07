@@ -20,12 +20,15 @@ namespace Exelius
 
     Resource::LoadResult TextureResource::Load(eastl::vector<std::byte>&& data)
     {
-        delete m_pTexture;
+        m_pTexture = EXELIUS_NEW(Texture(eastl::move(data)));
+        if (!m_pTexture)
+        {
+            EXE_LOG_CATEGORY_WARN("TextureResource", "Failed to load resource, texture was not successfully created.");
+            EXELIUS_DELETE(m_pTexture);
+            return LoadResult::kFailed;
+        }
 
-        //m_pTexture = new Texture();
-        //if (m_pTexture->LoadFromMemory(data.data(), data.size()))
-            //return LoadResult::kKeptRawData;
-        return LoadResult::kFailed;
+        return LoadResult::kKeptRawData;
     }
 
     void TextureResource::Unload()

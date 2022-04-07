@@ -1,6 +1,5 @@
 #pragma once
 #include "source/utility/containers/Vector2.h"
-#include "source/debug/Log.h"
 
 #include <rapidjson/document.h>
 #include <EASTL/vector.h>
@@ -17,7 +16,6 @@ namespace Exelius
 
 	class ConfigFile
 	{
-		Log m_defaultLog;
 		const char* m_pFileName;
 		rapidjson::Document m_parsedData;
 		bool m_isOpen;

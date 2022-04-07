@@ -6,10 +6,6 @@
 
 #include "source/engine/resources/ExeliusResourceFactory.h"
 
-#include "source/engine/gameobjectsystem/GameObjectSystem.h"
-
-#include "source/engine/gameobjectsystem/components/ExeliusComponentFactory.h"
-
 #include "source/messages/MessageServer.h"
 
 #include "source/messages/exeliusmessages/ExeliusMessageFactory.h"
@@ -22,15 +18,18 @@
 
 #include "source/resource/ResourceLoader.h"
 
-#include "source/render/Renderer.h"
+#include "source/engine/renderer/Renderer2D.h"
 
 #include "source/os/input/InputManager.h"
 
 #include "source/engine/layers/Layer.h"
 
+#include "source/engine/layers/LayerStack.h"
+
 #include "source/os/events/ApplicationEvents.h"
 
-#include "source/utility/generic/Time.h"
+#include "source/utility/generic/Timing.h"
+#include "include/Time.h"
 
 // ---------------------------------------------------------------------------------------------------------------
 // TEST
@@ -66,10 +65,9 @@ namespace Exelius
 	/// to inject into the main loop.
 	/// </summary>
 	Application::Application()
-		: m_pApplicationLog(nullptr)
-		, m_pResourceFactory(nullptr)
-		, m_pComponentFactory(nullptr)
+		: m_pResourceFactory(nullptr)
 		, m_pMessageFactory(nullptr)
+		, m_pLayerStack(nullptr)
 		, m_pImGuiLayer(nullptr)
 		, m_lastFrameTime(0.0f)
 		, m_isRunning(true)
@@ -80,25 +78,22 @@ namespace Exelius
 
 	Application::~Application()
 	{
-		GameObjectSystem::DestroySingleton();
-
-		EXELIUS_DELETE(m_pComponentFactory);
 		EXELIUS_DELETE(m_pResourceFactory);
 		EXELIUS_DELETE(m_pMessageFactory);
 
 		EXE_ASSERT(m_pImGuiLayer);
-		m_layerStack.PopOverlayLayer(m_pImGuiLayer);
+		m_pLayerStack->PopOverlayLayer(m_pImGuiLayer);
 		EXELIUS_DELETE(m_pImGuiLayer);
 
-		Renderer::GetInstance()->GetWindow().GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
+		EXELIUS_DELETE(m_pLayerStack);
+
+		Renderer2D::GetInstance()->GetWindow().GetEventMessenger().RemoveObserver(*InputManager::GetInstance());
 		InputManager::DestroySingleton();
 
-		Renderer::GetInstance()->GetWindow().GetEventMessenger().RemoveObserver(*this);
-		Renderer::DestroySingleton();
+		Renderer2D::GetInstance()->GetWindow().GetEventMessenger().RemoveObserver(*this);
+		Renderer2D::DestroySingleton();
 
 		ResourceLoader::DestroySingleton();
-
-		EXELIUS_DELETE(m_pApplicationLog);
 
 		NetworkingManager::DestroySingleton();
 
@@ -136,10 +131,6 @@ namespace Exelius
 
 	bool Application::InitializeExelius()
 	{
-		// We instantiate this log here so that the config file warn messege will appear if needed.
-		m_pApplicationLog = EXELIUS_NEW(Log("Application"));
-		EXE_ASSERT(m_pApplicationLog);
-
 		//-----------------------------------------------
 		// Config File - Open & Parse
 		//-----------------------------------------------
@@ -151,7 +142,7 @@ namespace Exelius
 		ConfigFile configFile;
 		if (!configFile.OpenConfigFile())
 		{
-			m_pApplicationLog->Warn("Failed to open config file. Exelius will initialize with default settings.");
+			EXE_LOG_CATEGORY_WARN("Application", "Failed to open config file. Exelius will initialize with default settings.");
 		}
 
 		//-----------------------------------------------
@@ -183,39 +174,15 @@ namespace Exelius
 		SetMessageFactory();
 		EXE_ASSERT(m_pMessageFactory);
 
-		NetworkingManager::SetSingleton(EXELIUS_NEW(NetworkingManager()));
+		/*NetworkingManager::SetSingleton(EXELIUS_NEW(NetworkingManager()));
 		EXE_ASSERT(NetworkingManager::GetInstance());
 		if (!NetworkingManager::GetInstance()->Initialize(m_pMessageFactory))
-			return false;
-
-		//-----------------------------------------------
-		// Rendering - Initialization
-		//-----------------------------------------------
-
-		if (!InitializeRenderManager(configFile))
-			return false;
-
-		// TODO: This SUCKS
-		Renderer::GetInstance()->GetWindow().GetEventMessenger().AddObserver(*this);
-
-		//-----------------------------------------------
-		// Dear ImGui Layer - Initialization
-		//-----------------------------------------------
-
-		m_pImGuiLayer = EXELIUS_NEW(ImGuiLayer());
-		m_layerStack.PushOverlayLayer(m_pImGuiLayer);
-
-		//-----------------------------------------------
-		// Input - Initialization
-		//-----------------------------------------------
-
-		if (!InitializeInputManager(configFile))
-			return false;
+			return false;*/
 
 		//-----------------------------------------------
 		// Resource Factory - Initialization
 		//-----------------------------------------------
-		
+
 		SetResourceFactory();
 		EXE_ASSERT(m_pResourceFactory);
 
@@ -227,19 +194,29 @@ namespace Exelius
 			return false;
 
 		//-----------------------------------------------
-		// Component Factory - Initialization
-		//-----------------------------------------------
-		
-		// This will call either the default (Exelius)
-		// version, or the client's if defined.
-		SetComponentFactory();
-		EXE_ASSERT(m_pComponentFactory);
-
-		//-----------------------------------------------
-		// Gameobject & Component System - Initialization
+		// Rendering - Initialization
 		//-----------------------------------------------
 
-		if (!InitializeGameObjectSystem(configFile))
+		if (!InitializeRenderManager(configFile))
+			return false;
+
+		// TODO: This SUCKS
+		Renderer2D::GetInstance()->GetWindow().GetEventMessenger().AddObserver(*this);
+
+		//-----------------------------------------------
+		// Dear ImGui Layer - Initialization
+		//-----------------------------------------------
+
+		m_pLayerStack = EXELIUS_NEW(LayerStack());
+
+		m_pImGuiLayer = EXELIUS_NEW(ImGuiLayer());
+		m_pLayerStack->PushOverlayLayer(m_pImGuiLayer);
+
+		//-----------------------------------------------
+		// Input - Initialization
+		//-----------------------------------------------
+
+		if (!InitializeInputManager(configFile))
 			return false;
 
 		//-----------------------------------------------
@@ -255,54 +232,18 @@ namespace Exelius
 	/// </summary>
 	void Application::Run()
 	{
-		EXE_ASSERT(m_pApplicationLog);
-
-		constexpr int kNumFramesToAVG = 6000;
-		int numFramesSinceAVG = 0;
-		float accumulatedDeltaTime = 0.0f;
-
-		//Log log;
-		auto previousTime = eastl::chrono::high_resolution_clock::now();
 		while (m_isRunning)
 		{
+			Time.RestartDeltaTime();
+
 			if (!m_hasLostFocus)
 			{
-				auto lastFrameTime = eastl::chrono::high_resolution_clock::now();
-				eastl::chrono::duration<float> deltaTime = lastFrameTime - previousTime;
-				previousTime = lastFrameTime;
-				Time::DeltaTime.SetFromSeconds(deltaTime.count());
-
-				if (numFramesSinceAVG < kNumFramesToAVG)
-				{
-					accumulatedDeltaTime += Time::DeltaTime;
-					++numFramesSinceAVG;
-				}
-				else
-				{
-					float avgFrameRate = accumulatedDeltaTime / (float)kNumFramesToAVG;
-					m_pApplicationLog->Info("FPS: {}", 1.0f / avgFrameRate);
-					numFramesSinceAVG = 0;
-					accumulatedDeltaTime = 0.0f;
-				}
-
 				// Dispatch Messages
 				MessageServer::GetInstance()->DispatchMessages();
 
-				// Update Components.
-				GameObjectSystem::GetInstance()->Update();
-
 				// Handle Layers.
-				for (Layer* pLayer : m_layerStack)
+				for (Layer* pLayer : *m_pLayerStack)
 					pLayer->OnUpdate();
-
-				for (Layer* pLayer : m_layerStack)
-					pLayer->OnRender();
-
-				// Refresh Input State.
-				InputManager::GetInstance()->NextFrame();
-
-				// Queue all renderable Components.
-				GameObjectSystem::GetInstance()->Render();
 
 				// Deallocate any resources necessary.
 				ResourceLoader::GetInstance()->ProcessUnloadQueue();
@@ -312,33 +253,18 @@ namespace Exelius
 			EXE_ASSERT(m_pImGuiLayer);
 			m_pImGuiLayer->Begin();
 			{
-				for (Layer* pLayer : m_layerStack)
+				for (Layer* pLayer : *m_pLayerStack)
 					pLayer->OnImGuiRender();
 			}
 			m_pImGuiLayer->End();
 
-			// Poll Window Events
-			Renderer::GetInstance()->Update();
-		}
-	}
+			// Refresh Input State.
+			InputManager::GetInstance()->NextFrame();
 
-	/// <summary>
-	/// Sets the component factory to use when creating GameObjects
-	/// and Components. 
-	/// 
-	/// NOTE:
-	///		This will override any engine specific components unless
-	///		the client's defined ComponentFactory inherets from
-	///		ExeliusComponentFactory and calls it's CreateComponent()
-	///		function.
-	/// 
-	///	Example:
-	///		case default:
-	///			return Exelius::ExeliusComponentFactory::CreateComponent(componentType, pOwningObject, componentData);
-	/// </summary>
-	void Application::SetComponentFactory()
-	{
-		m_pComponentFactory = EXELIUS_NEW(ExeliusComponentFactory());
+			// Poll Window Events
+			Renderer2D::GetInstance()->Update();
+
+		}
 	}
 
 	/// <summary>
@@ -361,12 +287,12 @@ namespace Exelius
 
 	void Application::PushLayer(Layer* pLayer)
 	{
-		m_layerStack.PushLayer(pLayer);
+		m_pLayerStack->PushLayer(pLayer);
 	}
 
 	void Application::PushOverlayLayer(Layer* pOverlayLayer)
 	{
-		m_layerStack.PushOverlayLayer(pOverlayLayer);
+		m_pLayerStack->PushOverlayLayer(pOverlayLayer);
 	}
 
 	/// <summary>
@@ -411,10 +337,17 @@ namespace Exelius
 			}
 
 			m_hasLostFocus = false;
-			Renderer::GetInstance()->OnWindowResize(pWinResized->GetWidth(), pWinResized->GetHeight());
+			// Refresh input to prevent carried over inputs from out of focus events.
+			// This is because input polling still exists when the window is minimized
+			// even though the engine does nothing with that input. Upon return, we want
+			// to make sure that we begin with a clean state.
+			// This is caused by the ordering of Input->NextFrame and Window->Update in
+			// the application Update loop.
+			InputManager::GetInstance()->NextFrame();
+			Renderer2D::GetInstance()->OnWindowResize(pWinResized->GetWidth(), pWinResized->GetHeight());
 		}
 
-		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
+		for (auto it = m_pLayerStack->rbegin(); it != m_pLayerStack->rend(); ++it)
 		{
 			if (evnt.m_isHandled)
 				break;
@@ -437,20 +370,18 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeLogManager(const ConfigFile& configFile) const
 	{
-		EXE_ASSERT(m_pApplicationLog);
-
 		FileLogDefinition fileDefinition;
 		ConsoleLogDefinition consoleDefinition;
 		eastl::vector<LogData> logData;
 
 		if (!configFile.PopulateLogData(fileDefinition, consoleDefinition, logData))
 		{
-			m_pApplicationLog->Warn("Failed to populate log data correctly. Please verify config file.");
+			EXE_LOG_CATEGORY_WARN("Application", "Failed to populate log data correctly. Please verify config file.");
 		}
 
 		if (!LogManager::GetInstance()->Initialize(fileDefinition, consoleDefinition, logData))
 		{
-			m_pApplicationLog->Fatal("Exelius::LogManager::Initialize Failed.");
+			EXE_LOG_CATEGORY_FATAL("Application", "Exelius::LogManager::Initialize Failed.");
 			return false;
 		}
 
@@ -464,21 +395,19 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeRenderManager(const ConfigFile& configFile) const
 	{
-		EXE_ASSERT(m_pApplicationLog);
-
 		eastl::string windowTitle("ExeliusApplication");
 		Vector2u windowSize({ 720, 640 });
 		bool isVSyncEnabled = false;
 
 		if (!configFile.PopulateWindowData(windowTitle, windowSize, isVSyncEnabled))
 		{
-			m_pApplicationLog->Warn("Failed to populate window data correctly. Please verify config file.");
+			EXE_LOG_CATEGORY_WARN("Application", "Failed to populate window data correctly. Please verify config file.");
 		}
 
-		Renderer::SetSingleton(EXELIUS_NEW(Renderer(windowTitle, windowSize)));
-		if (!Renderer::GetInstance())
+		Renderer2D::SetSingleton(EXELIUS_NEW(Renderer2D(windowTitle, windowSize, isVSyncEnabled)));
+		if (!Renderer2D::GetInstance())
 		{
-			m_pApplicationLog->Fatal("Exelius::RenderManager failed to initialize.");
+			EXE_LOG_CATEGORY_FATAL("Application", "Exelius::Renderer failed to initialize.");
 			return false;
 		}
 
@@ -492,19 +421,17 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeInputManager([[maybe_unused]] const ConfigFile& configFile) const
 	{
-		EXE_ASSERT(m_pApplicationLog);
-
 		InputManager::SetSingleton(EXELIUS_NEW(InputManager()));
 		EXE_ASSERT(InputManager::GetInstance());
 		if (!InputManager::GetInstance()->Initialize())
 		{
-			m_pApplicationLog->Fatal("Exelius::InputManager failed to initialize.");
+			EXE_LOG_CATEGORY_FATAL("Application", "Exelius::InputManager failed to initialize.");
 			return false;
 		}
 
 		// Attach the event observer to the window to handle window events.
 		// TODO: I don't like this very much.
-		Renderer::GetInstance()->GetWindow().GetEventMessenger().AddObserver(*InputManager::GetInstance());
+		Renderer2D::GetInstance()->GetWindow().GetEventMessenger().AddObserver(*InputManager::GetInstance());
 
 		return true;
 	}
@@ -516,34 +443,12 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeResourceLoader([[maybe_unused]] const ConfigFile& configFile) const
 	{
-		EXE_ASSERT(m_pApplicationLog);
-
 		// Create Resource Manager Singleton.
 		ResourceLoader::SetSingleton(EXELIUS_NEW(ResourceLoader()));
 		EXE_ASSERT(ResourceLoader::GetInstance());
 		if (!ResourceLoader::GetInstance()->Initialize(m_pResourceFactory, "EngineResources/", true))
 		{
-			m_pApplicationLog->Fatal("Exelius::ResourceLoader failed to initialize.");
-			return false;
-		}
-
-		return true;
-	}
-
-	/// <summary>
-	/// Initialize the GameObject System using the config file data if necessary.
-	/// </summary>
-	/// <param name="configFile">- The pre-parsed config file.</param>
-	/// <returns>True on success, false otherwise.</returns>
-	bool Application::InitializeGameObjectSystem([[maybe_unused]] const ConfigFile& configFile) const
-	{
-		EXE_ASSERT(m_pApplicationLog);
-
-		GameObjectSystem::SetSingleton(EXELIUS_NEW(GameObjectSystem()));
-		EXE_ASSERT(GameObjectSystem::GetInstance());
-		if (!GameObjectSystem::GetInstance()->Initialize(m_pComponentFactory))
-		{
-			m_pApplicationLog->Fatal("Exelius::GameObjectSystem failed to initialize.");
+			EXE_LOG_CATEGORY_FATAL("Application", "Exelius::ResourceLoader failed to initialize.");
 			return false;
 		}
 

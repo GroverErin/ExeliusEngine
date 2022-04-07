@@ -1,6 +1,9 @@
 #pragma once
 #include "source/os/platform/PlatformForwardDeclarations.h"
 
+#include <EASTL/vector.h>
+#include <cstddef>
+
 // TODO: Remove
 typedef unsigned int GLenum;
 
@@ -14,17 +17,16 @@ namespace Exelius
 	class OpenGLTexture
 	{
 		eastl::string m_path;
-		bool m_isLoaded = false;
+		bool m_isLoaded;
 		uint32_t m_width;
 		uint32_t m_height;
 		uint32_t m_rendererID;
 		GLenum m_internalFormat;
 		GLenum m_dataFormat;
+
 	public:
 		OpenGLTexture(uint32_t width, uint32_t height);
-
-		OpenGLTexture(const eastl::string& path);
-
+		OpenGLTexture(eastl::vector<std::byte>&& data);
 		~OpenGLTexture();
 
 		uint32_t GetWidth() const;

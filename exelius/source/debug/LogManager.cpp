@@ -214,7 +214,7 @@ namespace Exelius
 
 		// Create the definition of a file log that rotates between 3 files with a max size of 5mb,
 		// cabable of being used by multiple threads.
-		m_logDefinitions[1] = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("Logs/Exelius.log", 1048576 * 5, 3, true);
+		m_logDefinitions[1] = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/exelius.log", 1048576 * 5, 3, true);
 
 		// Sets the pattern attribute of the console log.
 		// The pattern symbols are defined here: https://github.com/gabime/spdlog/wiki/3.-Custom-formatting

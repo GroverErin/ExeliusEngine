@@ -1,5 +1,6 @@
 #pragma once
 #include <EASTL/string.h>
+#include <glm/glm.hpp>
 #include <cstdint>
 
 /// <summary>
@@ -59,6 +60,19 @@ namespace Exelius
 		}
 
 		/// <summary>
+		/// Construct with glm::vec4 construct.
+		/// </summary>
+		/// <param name="red">Vec4 containing the float representations of RGBA.</param>
+		constexpr Color(const glm::vec4& color)
+			: r((uint8_t)(color.r * 255))
+			, g((uint8_t)(color.g * 255))
+			, b((uint8_t)(color.b * 255))
+			, a((uint8_t)(color.a * 255))
+		{
+			//
+		}
+
+		/// <summary>
 		/// Get a color using a single hexadecimal value.
 		/// White = 0xFF'FF'FF'FF
 		///			   R  G  B  A
@@ -103,7 +117,7 @@ namespace Exelius
 				return{ std::uint8_t(r), std::uint8_t(g), std::uint8_t(b), std::uint8_t(a) };
 			}
 
-			// TODO: Logger::log(str + ": not a valid colour string", Logger::Type::Error);
+			// TODO: Logger::log(str + ": not a valid color string", Logger::Type::Error);
 			return {};
 		}
 
@@ -115,6 +129,15 @@ namespace Exelius
 		{
 			const uint32_t hexColor = (a) | (b << 8) | (g << 16) | (r << 24);
 			return hexColor;
+		}
+
+		/// <summary>
+		/// Return the color as a glm::vec4.
+		/// </summary>
+		/// <returns>Hexadecimal value used to create a color.</returns>
+		glm::vec4 GetColorVector()
+		{
+			return glm::vec4{ (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)a / 255.0f };
 		}
 
 		/// <summary>

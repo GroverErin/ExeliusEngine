@@ -25,8 +25,7 @@ namespace Exelius
 
 		if (!m_pSFMLSoundBuffer->loadFromMemory(pData, dataSize))
 		{
-			Log log("GraphicsInterface");
-			log.Warn("Failed to load an SFML Sound Buffer from memory.");
+			EXE_LOG_CATEGORY_WARN("SFML", "Failed to load an SFML Sound Buffer from memory.");
 
 			delete m_pSFMLSoundBuffer;
 			m_pSFMLSoundBuffer = nullptr;
@@ -51,8 +50,7 @@ namespace Exelius
 
 		if (!m_pSFMLMusic->openFromMemory(pData, dataSize))
 		{
-			Log log("GraphicsInterface");
-			log.Warn("Failed to load an SFML Music from memory.");
+			EXE_LOG_CATEGORY_WARN("SFML", "Failed to load an SFML Music from memory.");
 
 			delete m_pSFMLMusic;
 			m_pSFMLMusic = nullptr;

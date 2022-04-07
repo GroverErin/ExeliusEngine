@@ -2,6 +2,8 @@
 #include "source/os/platform/PlatformForwardDeclarations.h"
 
 #include <EASTL/string.h>
+#include <EASTL/vector.h>
+#include <cstddef>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -25,8 +27,8 @@ namespace Exelius
 			//
 		}
 
-		_Texture(const eastl::string& path)
-			: m_impl(path)
+		_Texture(eastl::vector<std::byte>&& data)
+			: m_impl(eastl::move(data))
 		{
 			//
 		}
@@ -45,13 +47,7 @@ namespace Exelius
 	};
 }
 
-#if EXELIUS_RENDERER == SFML_RENDERER
-	#include "source/os/platform/sfml/SFMLTexture.h"
-	namespace Exelius
-	{
-		using Texture = _Texture<SFMLTexture>;
-	}
-#elif EXELIUS_RENDERER == OPENGL_RENDERER
+#if EXELIUS_RENDERER == OPENGL_RENDERER
 	#include "source/os/platform/opengl/OpenGLTexture.h"
 	namespace Exelius
 	{

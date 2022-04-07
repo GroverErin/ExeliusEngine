@@ -63,13 +63,7 @@ namespace Exelius
 
 		const eastl::string& Get() const { EXE_ASSERT(IsValid()); return (*m_pString); }
 
-		bool IsValid() const
-		{
-			if (m_pString != nullptr)
-				return m_pString != nullptr;
-			
-			return m_pString != nullptr;
-		}
+		bool IsValid() const { return m_pString != nullptr; }
 
 		StringIntern& operator=(const StringIntern& right)
 		{

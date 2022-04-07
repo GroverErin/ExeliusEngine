@@ -8,7 +8,6 @@
 namespace Exelius
 {
 	ResourceDatabase::ResourceDatabase()
-		: m_resourceDatabaseLog("ResourceDatabase")
 	{
 		//
 	}
@@ -52,7 +51,7 @@ namespace Exelius
 
 		for (auto& resourceID : m_activeUnloader)
 		{
-			m_resourceDatabaseLog.Info("Unloading Resource: {}", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Unloading Resource: {}", resourceID.Get().c_str());
 			if (!IsFound(resourceID))
 				continue;
 
@@ -70,7 +69,7 @@ namespace Exelius
 			m_resourceMap.erase(resourceID);
 			m_mapLock.unlock();
 
-			m_resourceDatabaseLog.Info("Unloaded Resource '{}'", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Unloaded Resource '{}'", resourceID.Get().c_str());
 		}
 		m_activeUnloader.clear();
 	}
@@ -89,7 +88,7 @@ namespace Exelius
 		if (!pResourceEntry)
 		{
 			m_mapLock.unlock();
-			m_resourceDatabaseLog.Info("Unable to increment reference count on ResourceEntry '{}'", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Unable to increment reference count on ResourceEntry '{}'", resourceID.Get().c_str());
 			return;
 		}
 
@@ -113,7 +112,7 @@ namespace Exelius
 		if (!pResourceEntry)
 		{
 			m_mapLock.unlock();
-			m_resourceDatabaseLog.Info("Unable to decrement reference count on ResourceEntry '{}'", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Unable to decrement reference count on ResourceEntry '{}'", resourceID.Get().c_str());
 			return true; // Return true because there cannot be refs or locks on a non-existant entry.
 		}
 
@@ -138,7 +137,7 @@ namespace Exelius
 		if (!pResourceEntry)
 		{
 			m_mapLock.unlock();
-			m_resourceDatabaseLog.Info("Unable to increment lock count on ResourceEntry '{}'", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Unable to increment lock count on ResourceEntry '{}'", resourceID.Get().c_str());
 			return;
 		}
 
@@ -162,7 +161,7 @@ namespace Exelius
 		if (!pResourceEntry)
 		{
 			m_mapLock.unlock();
-			m_resourceDatabaseLog.Info("Unable to decrement lock count on ResourceEntry '{}'", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Unable to decrement lock count on ResourceEntry '{}'", resourceID.Get().c_str());
 			return true; // Return true because there cannot be refs or locks on a non-existant entry.
 		}
 
@@ -256,7 +255,7 @@ namespace Exelius
 		if (IsFound(resourceID))
 		{
 			m_mapLock.unlock();
-			m_resourceDatabaseLog.Info("Resource Entry for {} already exists.", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Resource Entry for {} already exists.", resourceID.Get().c_str());
 			return false;
 		}
 
@@ -274,7 +273,7 @@ namespace Exelius
 	void ResourceDatabase::UnloadEntry(const ResourceID& resourceID)
 	{
 		EXE_ASSERT(resourceID.IsValid());
-		m_resourceDatabaseLog.Trace("Adding resource to unload queue: {}", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_TRACE("ResourceDatabase", "Adding resource to unload queue: {}", resourceID.Get().c_str());
 
 		m_unloaderLock.lock();
 		// TODO:
@@ -329,14 +328,14 @@ namespace Exelius
 		ResourceEntry* pResourceEntry = GetEntry(resourceID);
 		if (!pResourceEntry)
 		{
-			m_resourceDatabaseLog.Warn("Unable to get Resource from ResourceEntry '{}'", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_WARN("ResourceDatabase", "Unable to get Resource from ResourceEntry '{}'", resourceID.Get().c_str());
 			return nullptr;
 		}
 
 		Resource* pResource = pResourceEntry->GetResource();
 		if (!pResource)
 		{
-			m_resourceDatabaseLog.Warn("Resource from ResourceEntry '{}' was nullptr.", resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_WARN("ResourceDatabase", "Resource from ResourceEntry '{}' was nullptr.", resourceID.Get().c_str());
 			return nullptr;
 		}
 
@@ -373,7 +372,7 @@ namespace Exelius
 		if (IsFound(resourceID))
 			return &m_resourceMap.at(resourceID);
 
-		m_resourceDatabaseLog.Warn("Resource Entry '{}' does not exist in database.", resourceID.Get().c_str());
+		EXE_LOG_CATEGORY_WARN("ResourceDatabase", "Resource Entry '{}' does not exist in database.", resourceID.Get().c_str());
 		return nullptr;
 	}
 
@@ -383,16 +382,16 @@ namespace Exelius
 	/// </summary>
 	void ResourceDatabase::UnloadAll()
 	{
-		m_resourceDatabaseLog.Trace("Beginning Unload All Resources.");
+		EXE_LOG_CATEGORY_TRACE("ResourceDatabase", "Beginning Unload All Resources.");
 
 		if (!m_unloadQueue.empty())
 		{
-			m_resourceDatabaseLog.Trace("The unloading queue was not empty and should be.");
+			EXE_LOG_CATEGORY_TRACE("ResourceDatabase", "The unloading queue was not empty and should be.");
 		}
 
 		for (auto& resourcePair : m_resourceMap)
 		{
-			m_resourceDatabaseLog.Trace("Unloading Resource: {}", resourcePair.first.Get().c_str());
+			EXE_LOG_CATEGORY_TRACE("ResourceDatabase", "Unloading Resource: {}", resourcePair.first.Get().c_str());
 			Resource* pResource = resourcePair.second.GetResource();
 			resourcePair.second.SetStatus(ResourceLoadStatus::kUnloading);
 			if (pResource)
@@ -404,6 +403,6 @@ namespace Exelius
 
 		m_resourceMap.clear();
 
-		m_resourceDatabaseLog.Info("Completed Unload All Resources.");
+		EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Completed Unload All Resources.");
 	}
 }

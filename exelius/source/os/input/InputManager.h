@@ -3,7 +3,6 @@
 #include "source/os/events/EventManagement.h"
 #include "source/os/input/MouseCodes.h"
 #include "source/os/input/KeyCodes.h"
-#include "source/debug/Log.h"
 
 #include <EASTL/array.h>
 
@@ -15,8 +14,6 @@ namespace Exelius
 	class InputManager
 		: public Singleton<InputManager>, public OSEventObserver
 	{
-		Log m_inputManagerLog;
-
 		eastl::array<bool, static_cast<size_t>(KeyCode::kCount)> m_keyState;
 		eastl::array<bool, static_cast<size_t>(KeyCode::kCount)> m_previousKeyState;
 
@@ -24,12 +21,11 @@ namespace Exelius
 		eastl::array<bool, static_cast<size_t>(MouseCode::kCount)> m_previousMouseButtonState;
 		eastl::array<bool, static_cast<size_t>(ScrollWheelDirection::WheelNone)> m_wheelState;
 
-		float m_mouseX;
-		float m_mouseY;
+		double m_mouseX;
+		double m_mouseY;
 	public:
 		InputManager()
-			: m_inputManagerLog("InputManager")
-			, m_keyState({})
+			: m_keyState({})
 			, m_previousKeyState({})
 			, m_mouseButtonState({})
 			, m_previousMouseButtonState({})
@@ -112,8 +108,8 @@ namespace Exelius
 		/// <returns>True if scrolled in that direction, false if not.</returns>
 		bool DidScrollInDirection(ScrollWheelDirection direction) const;
 
-		float GetMouseX() const { return m_mouseX; }
-		float GetMouseY() const { return m_mouseY; }
+		double GetMouseX() const { return m_mouseX; }
+		double GetMouseY() const { return m_mouseY; }
 
 		/// <summary>
 		/// Sets the previous button to the current button states.

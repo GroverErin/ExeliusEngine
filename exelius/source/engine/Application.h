@@ -3,7 +3,6 @@
 #include "source/utility/generic/Singleton.h"
 #include "source/os/events/EventManagement.h"
 
-#include "source/engine/layers/LayerStack.h"
 #include "source/engine/layers/imgui/ImGuiLayer.h"
 
 #include <EASTL/string.h>
@@ -13,11 +12,10 @@
 /// </summary>
 namespace Exelius
 {
-	class Log;
 	class ResourceFactory;
-	class ComponentFactory;
 	class MessageFactory;
 	class ConfigFile;
+	class LayerStack;
 
 	/// <summary>
 	/// The application class is to be inhereted by the client,
@@ -26,14 +24,11 @@ namespace Exelius
 	class Application
 		: public Singleton<Application>, public OSEventObserver
 	{
-		Log* m_pApplicationLog; // Needs to be pointer because it is created after LogManager Init();
-
 	protected:
 		ResourceFactory* m_pResourceFactory;
-		ComponentFactory* m_pComponentFactory;
 		MessageFactory* m_pMessageFactory;
 
-		LayerStack m_layerStack;
+		LayerStack* m_pLayerStack;
 		ImGuiLayer* m_pImGuiLayer;
 	private:
 		float m_lastFrameTime;
@@ -79,22 +74,6 @@ namespace Exelius
 		///		This is called AFTER the engine has initialized.
 		/// </summary>
 		virtual bool Initialize() { return true; }
-
-		/// <summary>
-		/// Sets the component factory to use when creating GameObjects
-		/// and Components. 
-		/// 
-		/// NOTE:
-		///		This will override any engine specific components unless
-		///		the client's defined ComponentFactory inherets from
-		///		ExeliusComponentFactory and calls it's CreateComponent()
-		///		function.
-		/// 
-		///	Example:
-		///		case default:
-		///			return Exelius::ExeliusComponentFactory::CreateComponent(componentType, pOwningObject, componentData);
-		/// </summary>
-		virtual void SetComponentFactory();
 
 		/// <summary>
 		/// Sets the resource factory to use when creating Resources.
@@ -175,13 +154,6 @@ namespace Exelius
 		/// <param name="configFile">- The pre-parsed config file.</param>
 		/// <returns>True on success, false otherwise.</returns>
 		bool InitializeResourceLoader(const ConfigFile& configFile) const;
-
-		/// <summary>
-		/// Initialize the GameObject System using the config file data if necessary.
-		/// </summary>
-		/// <param name="configFile">- The pre-parsed config file.</param>
-		/// <returns>True on success, false otherwise.</returns>
-		bool InitializeGameObjectSystem(const ConfigFile& configFile) const;
 	};
 
 	/// <summary>

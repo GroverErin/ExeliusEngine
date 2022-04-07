@@ -43,12 +43,12 @@ namespace Exelius
 		EXE_ASSERT(InputManager::GetInstance());
 		return InputManager::GetInstance()->IsMouseButtonReleased(button);
 	}
-	float GetMouseX()
+	double GetMouseX()
 	{
 		EXE_ASSERT(InputManager::GetInstance());
 		return InputManager::GetInstance()->GetMouseX();
 	}
-	float GetMouseY()
+	double GetMouseY()
 	{
 		EXE_ASSERT(InputManager::GetInstance());
 		return InputManager::GetInstance()->GetMouseY();

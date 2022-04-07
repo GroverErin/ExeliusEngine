@@ -11,29 +11,40 @@
 namespace Exelius
 {
 	void OpenGLMessageCallback(
-		GLenum source,
-		GLenum type,
-		GLuint id,
+		GLenum,
+		GLenum,
+		GLuint,
 		GLenum severity,
-		GLsizei length,
+		GLsizei,
 		const GLchar* message,
-		const void* userParam)
+		const void*)
 	{
-		/*switch (severity)
+		switch (severity)
 		{
-		case GL_DEBUG_SEVERITY_HIGH:         HZ_CORE_CRITICAL(message); return;
-		case GL_DEBUG_SEVERITY_MEDIUM:       HZ_CORE_ERROR(message); return;
-		case GL_DEBUG_SEVERITY_LOW:          HZ_CORE_WARN(message); return;
-		case GL_DEBUG_SEVERITY_NOTIFICATION: HZ_CORE_TRACE(message); return;
-		}*/
-		// TODO:
-		printf(message);
+			case GL_DEBUG_SEVERITY_HIGH:
+			{
+				EXE_LOG_CATEGORY_FATAL("OpenGL", message);
+				return;
+			}
+			case GL_DEBUG_SEVERITY_MEDIUM:
+			{
+				EXE_LOG_CATEGORY_ERROR("OpenGL", message);
+				return;
+			}
+			case GL_DEBUG_SEVERITY_LOW:
+			{
+				EXE_LOG_CATEGORY_WARN("OpenGL", message);
+				return;
+			}
+			case GL_DEBUG_SEVERITY_NOTIFICATION:
+			{
+				EXE_LOG_CATEGORY_TRACE("OpenGL", message);
+				return;
+			}
+		}
+		
+		EXE_LOG_CATEGORY_FATAL("OpenGL", message);
 		EXE_ASSERT(false);
-	}
-
-	OpenGLRendererAPI::OpenGLRendererAPI()
-	{
-		//
 	}
 
 	void OpenGLRendererAPI::Initialize()
@@ -50,6 +61,7 @@ namespace Exelius
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_LINE_SMOOTH);
 	}
 
 	void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -59,7 +71,8 @@ namespace Exelius
 
 	void OpenGLRendererAPI::SetClearColor(Color color)
 	{
-		glClearColor(color.r, color.g, color.b, color.a);
+		glm::vec4 colorVec = color.GetColorVector();
+		glClearColor(colorVec.r, colorVec.g, colorVec.b, colorVec.a);
 	}
 
 	void OpenGLRendererAPI::Clear()
@@ -69,8 +82,19 @@ namespace Exelius
 
 	void OpenGLRendererAPI::DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t indexCount)
 	{
+		vertexArray->Bind();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void OpenGLRendererAPI::DrawLines(const SharedPtr<VertexArray>& vertexArray, uint32_t vertexCount)
+	{
+		vertexArray->Bind();
+		glDrawArrays(GL_LINES, 0, vertexCount);
+	}
+
+	void OpenGLRendererAPI::SetLineWidth(float width)
+	{
+		glLineWidth(width);
 	}
 }

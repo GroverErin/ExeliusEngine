@@ -9,18 +9,19 @@ namespace Exelius
 	class Event;
 	class MouseScrolledEvent;
 
-	class EditorCamera : public Camera
+	class EditorCamera
+		: public Camera
 	{
-		float m_FOV = 45.0f;
-		float m_aspectRatio = 1.778f;
-		float m_nearClip = 0.1f;
-		float m_farClip = 1000.0f;
-
 		glm::mat4 m_viewMatrix;
 		glm::vec3 m_position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_focalPoint = { 0.0f, 0.0f, 0.0f };
 
 		glm::vec2 m_initialMousePosition = { 0.0f, 0.0f };
+
+		float m_FOV = 45.0f;
+		float m_aspectRatio = 1.778f;
+		float m_nearClip = 0.1f;
+		float m_farClip = 1000.0f;
 
 		float m_distance = 10.0f;
 		float m_pitch = 0.0f;

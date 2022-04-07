@@ -12,14 +12,14 @@ namespace Exelius
 {
 	class OpenGLFramebuffer
 	{
-		uint32_t m_rendererID = 0;
+		uint32_t m_rendererID;
 		FramebufferSpecification m_specification;
 
 		eastl::vector<FramebufferTextureSpecification> m_colorAttachmentSpecifications;
-		FramebufferTextureSpecification m_depthAttachmentSpecification = FramebufferTextureFormat::None;
+		FramebufferTextureSpecification m_depthAttachmentSpecification;
 
 		eastl::vector<uint32_t> m_colorAttachments;
-		uint32_t m_depthAttachment = 0;
+		uint32_t m_depthAttachment;
 	public:
 		OpenGLFramebuffer(const FramebufferSpecification& spec);
 		~OpenGLFramebuffer();
@@ -37,5 +37,12 @@ namespace Exelius
 		uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const { EXE_ASSERT(index < m_colorAttachments.size()); return m_colorAttachments[index]; }
 
 		const FramebufferSpecification& GetSpecification() const { return m_specification; }
+
+	private:
+		void CreateTextures(bool isMultisampled, uint32_t* outID, uint32_t count);
+
+		void BindTexture(bool isMultisampled, uint32_t id);
+
+		bool IsDepthFormat(FramebufferTextureFormat format);
 	};
 }

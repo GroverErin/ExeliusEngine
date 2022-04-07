@@ -11,8 +11,12 @@
 namespace Exelius
 {
 	OpenGLTexture::OpenGLTexture(uint32_t width, uint32_t height)
-		: m_width(width)
+		: m_isLoaded(true)
+		, m_width(width)
 		, m_height(height)
+		, m_rendererID(0)
+		, m_internalFormat(0)
+		, m_dataFormat(0)
 	{
 		m_internalFormat = GL_RGBA8;
 		m_dataFormat = GL_RGBA;
@@ -27,17 +31,23 @@ namespace Exelius
 		glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	OpenGLTexture::OpenGLTexture(const eastl::string& path)
+	OpenGLTexture::OpenGLTexture(eastl::vector<std::byte>&& data)
+		: m_isLoaded(false)
+		, m_width(0)
+		, m_height(0)
+		, m_rendererID(0)
+		, m_internalFormat(0)
+		, m_dataFormat(0)
 	{
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
-		stbi_uc* data = nullptr;
+		stbi_uc* stbiData = nullptr;
 		{
-			//HZ_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std::string&)");
-			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+			stbiData = (stbi_uc*)(data.data());
+			stbiData = stbi_load_from_memory(stbiData, data.size(), &width, &height, &channels, 0);
 		}
 
-		if (data)
+		if (stbiData)
 		{
 			m_isLoaded = true;
 
@@ -59,7 +69,11 @@ namespace Exelius
 			m_internalFormat = internalFormat;
 			m_dataFormat = dataFormat;
 
-			//HZ_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
+			if (!(internalFormat & dataFormat))
+			{
+				EXE_LOG_CATEGORY_FATAL("OpenGLTexture", "Format not supported!");
+				EXE_ASSERT(false);
+			}
 
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_rendererID);
 			glTextureStorage2D(m_rendererID, 1, internalFormat, m_width, m_height);
@@ -70,9 +84,9 @@ namespace Exelius
 			glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-			glTextureSubImage2D(m_rendererID, 0, 0, 0, m_width, m_height, dataFormat, GL_UNSIGNED_BYTE, data);
+			glTextureSubImage2D(m_rendererID, 0, 0, 0, m_width, m_height, dataFormat, GL_UNSIGNED_BYTE, stbiData);
 
-			stbi_image_free(data);
+			stbi_image_free(stbiData);
 		}
 	}
 
@@ -110,7 +124,7 @@ namespace Exelius
 
 	bool OpenGLTexture::IsLoaded() const
 	{
-		return false;
+		return m_isLoaded;
 	}
 
 	bool OpenGLTexture::operator==(const Texture& other) const

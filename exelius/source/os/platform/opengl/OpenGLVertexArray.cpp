@@ -33,6 +33,8 @@ namespace Exelius
 	}
 
 	OpenGLVertexArray::OpenGLVertexArray()
+		: m_rendererID(0)
+		, m_vertexBufferIndex(0)
 	{
 		glCreateVertexArrays(1, &m_rendererID);
 	}
@@ -97,7 +99,7 @@ namespace Exelius
 				case ShaderDataType::Mat3:
 				case ShaderDataType::Mat4:
 				{
-					uint8_t count = element.GetComponentCount();
+					uint32_t count = element.GetComponentCount();
 					for (uint8_t i = 0; i < count; ++i)
 					{
 						glEnableVertexAttribArray(m_vertexBufferIndex);
@@ -128,7 +130,7 @@ namespace Exelius
 		m_indexBuffer = indexBuffer;
 	}
 
-	const std::vector<SharedPtr<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const
+	const eastl::vector<SharedPtr<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const
 	{
 		return m_vertexBuffers;
 	}

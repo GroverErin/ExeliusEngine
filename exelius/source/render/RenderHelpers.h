@@ -155,7 +155,10 @@ namespace Exelius
 	{
 		FramebufferAttachmentSpecification() = default;
 		FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
-			: m_attachments(attachments) {}
+			: m_attachments(attachments)
+		{
+			//
+		}
 
 		eastl::vector<FramebufferTextureSpecification> m_attachments;
 	};

@@ -1,5 +1,4 @@
 #include <include/ExeliusMain.h>
-#include <include/Log.h>
 
 #include "editorapplication/EditorLayer.h"
 

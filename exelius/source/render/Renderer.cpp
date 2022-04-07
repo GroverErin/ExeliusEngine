@@ -1,7 +1,6 @@
 #include "EXEPCH.h"
 #include "Renderer.h"
 #include "source/render/RendererAPI.h"
-#include "source/render/Renderer2D.h"
 #include "source/render/Shader.h"
 #include "source/render/VertexArray.h"
 
@@ -42,33 +41,19 @@ namespace Exelius
 		m_pRendererAPI->SetClearColor(color);
 	}
 
-	void Renderer::BeginScene(OrthographicCamera& camera)
-	{
-		m_sceneData.m_viewProjectionMatrix = camera.GetViewProjectionMatrix();
-	}
-
-	void Renderer::EndScene()
-	{
-	}
-
-	void Renderer::Submit(const SharedPtr<Shader>& shader, const SharedPtr<VertexArray>& vertexArray, const glm::mat4& transform)
-	{
-		shader->Bind();
-		shader->SetMat4("u_viewProjection", m_sceneData.m_viewProjectionMatrix);
-		shader->SetMat4("u_transform", transform);
-
-		vertexArray->Bind();
-		DrawIndexed(vertexArray);
-	}
-
-	void Renderer::DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t count)
-	{
-		m_pRendererAPI->DrawIndexed(vertexArray, count);
-	}
-
 	void Renderer::Clear()
 	{
 		m_pRendererAPI->Clear();
+	}
+
+	void Renderer::ResetRenderStats()
+	{
+		memset(&m_stats, 0, sizeof(RenderStatistics));
+	}
+
+	Renderer::RenderStatistics Renderer::GetRenderStats()
+	{
+		return m_stats;
 	}
 
 	void Renderer::Initialize()
@@ -78,15 +63,10 @@ namespace Exelius
 		m_pRendererAPI = EXELIUS_NEW(RendererAPI());
 		EXE_ASSERT(m_pRendererAPI);
 		m_pRendererAPI->Initialize();
-
-		Renderer2D::SetSingleton(EXELIUS_NEW(Renderer2D()));
-		EXE_ASSERT(Renderer2D::GetInstance());
-		Renderer2D::GetInstance()->Initialize();
 	}
 
 	void Renderer::Shutdown()
 	{
 		EXELIUS_DELETE(m_pRendererAPI);
-		Renderer2D::DestroySingleton();
 	}
 }

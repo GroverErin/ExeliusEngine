@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="128" height="192" tilewidth="8" tileheight="8" infinite="0" nextlayerid="2" nextobjectid="1">
- <tileset firstgid="1" source="../tilesets/zelda_overworld.tsx"/>
- <layer id="1" name="Tile Layer 1" width="128" height="192">
-  <data encoding="base64" compression="zlib">
-   eJzt18tqFEEUANCaqBNQwY3gD/j4D8WlCmYt6D8I/k+y9B1j/AFB8G80unDho5pYpFN2TXXPpHsGOQcuN5lXd9e9t3omBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+ZwezEN7HOGzlD7N1n1U/ezG+ZXm38Pi6YpM1tb8e840YN1v5Vpi+B+7MhsXXcLy+R+G4xik3j+10PN70xfcljrNqbKpU+5fzEF7FeBvjTYx3MQ7m0/dAaR9qTqErvoSTHqjF5Rg/Ytz9+3kH2XHGzJsor/3r+cla7a+hB2r7UJ8eSPOd/9+ue6r9ha3pYl0W9WVX7dv3ybwHxp6T2j60aF9IPdDUuqnz7dnp/9v9kmrfHK/dZ2PmqXXNUZ675r59/8x7YOx1qu1D+eufhdM90NQ8r3UeqfZP49/P42c+inElxpMYj0fMU+qao1LO577r+/J+j885q1zah/LXNT1xOP+3B4bU/sW8/zqtmtdR+/Yc1SL/npzvA1NH7fhpXyj1wMUYl8LiuV9mnTb599+i+3medwqP983Lvr/0u3zo8316oInP549zae5L61Q7j6F5bKW5r8116flaXvb9Td/sVj6363d7/nypB/L6p31gUe27rqN2HkPXaWwfY/yK1/M76+e03ikPneep9onSvNXmsImt7RDOxfgUyvf+tD4/593rtGzuu0+M7Wq8yPtxDR5sn+7ndH4pD53nqfaJ0r7QZ794GK95J8a1Bd8D0/rc2+5ep1Wur88+MbZ8/s/6/jXW3K+az2r+xz7fseXzX5ubsfOq+8aQ4yw7/0cTnu8fGngRvg==
-  </data>
- </layer>
-</map>

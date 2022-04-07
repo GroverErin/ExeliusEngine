@@ -19,7 +19,6 @@ namespace Exelius
 		, m_status(ResourceLoadStatus::kInvalid)
 		, m_refCount(1)
 		, m_lockCount(0)
-		, m_resourceDatabaseLog("ResourceDatabase")
 	{
 		//
 	}
@@ -33,15 +32,23 @@ namespace Exelius
 		if (m_refCount + m_lockCount > 0)
 		{
 			if (m_pResource)
-				m_resourceDatabaseLog.Warn("Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
+			{
+				EXE_LOG_CATEGORY_WARN("ResourceDatabase", "Destroying resource '{}' that has REFCOUNT: {}, and LOCKCOUNT: {}", m_pResource->GetResourceID().Get().c_str(), m_refCount, m_lockCount);
+			}
 			else
-				m_resourceDatabaseLog.Warn("Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+			{
+				EXE_LOG_CATEGORY_WARN("ResourceDatabase", "Destroying nullptr resource that has REFCOUNT: {}, and LOCKCOUNT: {}", m_refCount, m_lockCount);
+			}
 		}
 
 		if (m_pResource)
-			m_resourceDatabaseLog.Info("Destroying resource '{}'.", m_pResource->GetResourceID().Get().c_str());
+		{
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Destroying resource '{}'.", m_pResource->GetResourceID().Get().c_str());
+		}
 		else
-			m_resourceDatabaseLog.Info("Destroying nullptr resource.");
+		{
+			EXE_LOG_CATEGORY_INFO("ResourceDatabase", "Destroying nullptr resource.");
+		}
 
 		delete m_pResource;
 		m_pResource = nullptr;
@@ -72,7 +79,7 @@ namespace Exelius
 			// before setting the status to unloading (unless it is the
 			// intended purpose to catch this kind of error!) otherwise
 			// this branch will trigger unintentionally.
-			m_resourceDatabaseLog.Fatal("Attempting to get a resource that is unloading.");
+			EXE_LOG_CATEGORY_FATAL("ResourceDatabase", "Attempting to get a resource that is unloading.");
 		}
 		else if (m_status == ResourceLoadStatus::kLoading)
 		{
@@ -91,7 +98,7 @@ namespace Exelius
 			// by incrementing the refcount, so that the refcount is not reduced to 0.
 			// A potential solution is: unknown.
 			//IncrementRefCount();
-			m_resourceDatabaseLog.Fatal("Attempting to get a resource that is loading.");
+			EXE_LOG_CATEGORY_FATAL("ResourceDatabase", "Attempting to get a resource that is loading.");
 		}
 		return nullptr;
 	}
@@ -129,7 +136,7 @@ namespace Exelius
 
 		if (m_refCount < 0)
 		{
-			m_resourceDatabaseLog.Warn("ResourceEntry Ref Count below 0. Resource is being Over Released.");
+			EXE_LOG_CATEGORY_WARN("ResourceDatabase", "ResourceEntry Ref Count below 0. Resource is being Over Released.");
 			m_refCount = 0;
 		}
 
@@ -156,7 +163,7 @@ namespace Exelius
 
 		if (m_lockCount < 0)
 		{
-			m_resourceDatabaseLog.Warn("ResourceEntry Lock Count below 0. Resource is being Over Unlocked.");
+			EXE_LOG_CATEGORY_WARN("ResourceDatabase", "ResourceEntry Lock Count below 0. Resource is being Over Unlocked.");
 			m_lockCount = 0;
 		}
 

@@ -25,7 +25,7 @@ namespace Exelius
 
 		if (!configFile.Open(m_pFileName, File::AccessPermission::kReadOnly, File::CreationType::kOpenFile))
 		{
-			m_defaultLog.Warn("Failed to open '{}'.", m_pFileName);
+			EXE_LOG_WARN("Failed to open '{}'.", m_pFileName);
 			m_isOpen = false;
 			return false;
 		}
@@ -36,7 +36,7 @@ namespace Exelius
 
 		if (readBytes != configFile.GetSize())
 		{
-			m_defaultLog.Warn("Failed to read '{}'. Read {} of {} bytes.", m_pFileName, readBytes, configFile.GetSize());
+			EXE_LOG_WARN("Failed to read '{}'. Read {} of {} bytes.", m_pFileName, readBytes, configFile.GetSize());
 			m_isOpen = false;
 			return false;
 		}
@@ -46,7 +46,7 @@ namespace Exelius
 		if (m_parsedData.Parse(stringData.c_str()).HasParseError())
 		{
 			auto errorCode = m_parsedData.GetParseError();
-			m_defaultLog.Warn("Failed to Parse JSON for file '{}'. Error Code: {}", m_pFileName, errorCode);
+			EXE_LOG_WARN("Failed to Parse JSON for file '{}'. Error Code: {}", m_pFileName, errorCode);
 			m_isOpen = false;
 			return false;
 		}
@@ -60,29 +60,29 @@ namespace Exelius
 	{
 		if (!m_isOpen)
 		{
-			m_defaultLog.Error("Failed to populate log data: Config File is not open or parsed correctly.");
+			EXE_LOG_ERROR("Failed to populate log data: Config File is not open or parsed correctly.");
 			return false;
 		}
 
 		bool populationResult = true;
 		if (!PopulateFileLogDefinition(fileLog))
 		{
-			m_defaultLog.Warn("Failed to populate the file log definition. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate the file log definition. Some defaults may have been used.");
 			populationResult = false;
 		}
 		if (!PopulateConsoleLogDefiniton(consoleLog))
 		{
-			m_defaultLog.Warn("Failed to populate the console log definition. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate the console log definition. Some defaults may have been used.");
 			populationResult = false;
 		}
 		if (!PopulateLogs(logData, "EngineLogs"))
 		{
-			m_defaultLog.Warn("Failed to populate Engine logs correctly. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate Engine logs correctly. Some defaults may have been used.");
 			populationResult = false;
 		}
 		if (!PopulateLogs(logData, "ClientLogs"))
 		{
-			m_defaultLog.Warn("Failed to populate Client logs. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate Client logs. Some defaults may have been used.");
 			populationResult = false;
 		}
 
@@ -93,24 +93,24 @@ namespace Exelius
 	{
 		if (!m_isOpen)
 		{
-			m_defaultLog.Error("Failed to populate window data: Config File is not open or parsed correctly.");
+			EXE_LOG_ERROR("Failed to populate window data: Config File is not open or parsed correctly.");
 			return false;
 		}
 
 		bool populationResult = true;
 		if (!PopulateWindowTitle(windowTitle))
 		{
-			m_defaultLog.Warn("Failed to populate window title. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate window title. Some defaults may have been used.");
 			populationResult = false;
 		}
 		if (!PopulateWindowSize(windowSize))
 		{
-			m_defaultLog.Warn("Failed to populate the window size. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate the window size. Some defaults may have been used.");
 			populationResult = false;
 		}
 		if (!PopulateWindowVSync(isVSyncEnabled))
 		{
-			m_defaultLog.Warn("Failed to populate window vsync setting. Some defaults may have been used.");
+			EXE_LOG_WARN("Failed to populate window vsync setting. Some defaults may have been used.");
 			populationResult = false;
 		}
 
@@ -126,40 +126,40 @@ namespace Exelius
 		// Traverse tree to "Log".
 		if (!m_parsedData.HasMember("Log"))
 		{
-			m_defaultLog.Warn("'Log' member not found in config file.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'Log' member not found in config file.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
 			return false;
 		}
 		if (!m_parsedData["Log"].IsObject())
 		{
-			m_defaultLog.Warn("'Log' member in config file is not an Object.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'Log' member in config file is not an Object.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
 			return false;
 		}
 
 		// Traverse tree to "Definitions".
 		if (!m_parsedData["Log"].HasMember("Definitions"))
 		{
-			m_defaultLog.Warn("'Definitions' member not found in 'Log'.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'Definitions' member not found in 'Log'.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
 			return false;
 		}
 		auto definitionsMember = m_parsedData["Log"].FindMember("Definitions");
 		EXE_ASSERT(definitionsMember != m_parsedData["Log"].MemberEnd());
 		if (!definitionsMember->value.IsObject())
 		{
-			m_defaultLog.Warn("'Definitions' member in 'Log' is not an Object.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'Definitions' member in 'Log' is not an Object.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
 			return false;
 		}
 
 		// Traverse tree to "File".
 		if (!definitionsMember->value.HasMember("File"))
 		{
-			m_defaultLog.Warn("'File' member not found in 'Definitions'.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'File' member not found in 'Definitions'.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
 			return false;
 		}
 		auto fileMember = definitionsMember->value.FindMember("File");
 		EXE_ASSERT(fileMember != definitionsMember->value.MemberEnd());
 		if (!fileMember->value.IsObject())
 		{
-			m_defaultLog.Warn("'File' member in 'Definitions' is not an Object.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'File' member in 'Definitions' is not an Object.\nDefaulting Pattern to: {}\nDefaulting Output Directory to: {}\nDefaulting Max File Size to: {}\nDefaulting Num Files to: {}\nDefaulting File Rotation to: {}", fileLog.m_pattern.c_str(), fileLog.m_outputDirectory.c_str(), fileLog.m_maxFileSize, fileLog.m_numFiles, fileLog.m_rotateOnOpen);
 			return false;
 		}
 
@@ -170,7 +170,7 @@ namespace Exelius
 		}
 		else
 		{
-			m_defaultLog.Warn("'Pattern' member in 'File' was not found or is not a string. Defaulting Pattern to: {}", fileLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Pattern' member in 'File' was not found or is not a string. Defaulting Pattern to: {}", fileLog.m_pattern.c_str());
 			successResult = false;
 		}
 
@@ -180,7 +180,7 @@ namespace Exelius
 		}
 		else
 		{
-			m_defaultLog.Warn("'OutDir' member in 'File' was not found or is not a string. Defaulting Output Directory to: {}", fileLog.m_outputDirectory.c_str());
+			EXE_LOG_WARN("'OutDir' member in 'File' was not found or is not a string. Defaulting Output Directory to: {}", fileLog.m_outputDirectory.c_str());
 			successResult = false;
 		}
 
@@ -190,7 +190,7 @@ namespace Exelius
 		}
 		else
 		{
-			m_defaultLog.Warn("'MaxSize' member in 'File' was not found or is not an unsigned integer type. Defaulting Max File Size to: {}", fileLog.m_maxFileSize);
+			EXE_LOG_WARN("'MaxSize' member in 'File' was not found or is not an unsigned integer type. Defaulting Max File Size to: {}", fileLog.m_maxFileSize);
 			successResult = false;
 		}
 
@@ -200,7 +200,7 @@ namespace Exelius
 		}
 		else
 		{
-			m_defaultLog.Warn("'NumFiles' member in 'File' was not found or is not an unsigned integer type. Defaulting Num Files to: {}", fileLog.m_numFiles);
+			EXE_LOG_WARN("'NumFiles' member in 'File' was not found or is not an unsigned integer type. Defaulting Num Files to: {}", fileLog.m_numFiles);
 			successResult = false;
 		}
 
@@ -210,7 +210,7 @@ namespace Exelius
 		}
 		else
 		{
-			m_defaultLog.Warn("'RotateOnOpen' member in 'File' was not found or is not a boolean type. Defaulting File Rotation to: {}", fileLog.m_rotateOnOpen);
+			EXE_LOG_WARN("'RotateOnOpen' member in 'File' was not found or is not a boolean type. Defaulting File Rotation to: {}", fileLog.m_rotateOnOpen);
 			successResult = false;
 		}
 
@@ -222,40 +222,40 @@ namespace Exelius
 		// Traverse tree to "Log".
 		if (!m_parsedData.HasMember("Log"))
 		{
-			m_defaultLog.Warn("'Log' member not found in config file. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Log' member not found in config file. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			return false;
 		}
 		if (!m_parsedData["Log"].IsObject())
 		{
-			m_defaultLog.Warn("'Log' member in config file is not an Object. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Log' member in config file is not an Object. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			return false;
 		}
 
 		// Traverse tree to "Definitions".
 		if (!m_parsedData["Log"].HasMember("Definitions"))
 		{
-			m_defaultLog.Warn("'Definitions' member not found in 'Log'. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Definitions' member not found in 'Log'. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			return false;
 		}
 		auto definitionsMember = m_parsedData["Log"].FindMember("Definitions");
 		EXE_ASSERT(definitionsMember != m_parsedData["Log"].MemberEnd());
 		if (!definitionsMember->value.IsObject())
 		{
-			m_defaultLog.Warn("'Definitions' member in 'Log' is not an Object. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Definitions' member in 'Log' is not an Object. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			return false;
 		}
 
 		// Traverse tree to "Console".
 		if (!definitionsMember->value.HasMember("Console"))
 		{
-			m_defaultLog.Warn("'Console' member not found in 'Definitions'. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Console' member not found in 'Definitions'. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			return false;
 		}
 		auto consoleMember = definitionsMember->value.FindMember("Console");
 		EXE_ASSERT(consoleMember != definitionsMember->value.MemberEnd());
 		if (!consoleMember->value.IsObject())
 		{
-			m_defaultLog.Warn("'Console' member in 'Definitions' is not an Object. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Console' member in 'Definitions' is not an Object. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			return false;
 		}
 
@@ -266,7 +266,7 @@ namespace Exelius
 		}
 		else
 		{
-			m_defaultLog.Warn("'Pattern' member in 'Console' was not found or is not a string. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
+			EXE_LOG_WARN("'Pattern' member in 'Console' was not found or is not a string. Defaulting Pattern to: {}", consoleLog.m_pattern.c_str());
 			successResult = false;
 		}
 
@@ -278,26 +278,26 @@ namespace Exelius
 		// Traverse tree to "Log".
 		if (!m_parsedData.HasMember("Log"))
 		{
-			m_defaultLog.Warn("'Log' member not found in config file.");
+			EXE_LOG_WARN("'Log' member not found in config file.");
 			return false;
 		}
 		if (!m_parsedData["Log"].IsObject())
 		{
-			m_defaultLog.Warn("'Log' member in config file is not an Object.");
+			EXE_LOG_WARN("'Log' member in config file is not an Object.");
 			return false;
 		}
 
 		// Traverse tree to Category Name.
 		if (!m_parsedData["Log"].HasMember(pCategoryName))
 		{
-			m_defaultLog.Warn("'{}' member not found in 'Log'.", pCategoryName);
+			EXE_LOG_WARN("'{}' member not found in 'Log'.", pCategoryName);
 			return false;
 		}
 		auto logCategoryMember = m_parsedData["Log"].FindMember(pCategoryName);
 		EXE_ASSERT(logCategoryMember != m_parsedData["Log"].MemberEnd());
 		if (!logCategoryMember->value.IsArray())
 		{
-			m_defaultLog.Warn("'{}' member in 'Log' is not an Array.", pCategoryName);
+			EXE_LOG_WARN("'{}' member in 'Log' is not an Array.", pCategoryName);
 			return false;
 		}
 
@@ -307,48 +307,48 @@ namespace Exelius
 		{
 			if (!logCategoryMember->value[i].IsObject())
 			{
-				m_defaultLog.Warn("Member at index {} in '{}' is not an Object.", static_cast<size_t>(i), pCategoryName);
+				EXE_LOG_WARN("Member at index {} in '{}' is not an Object.", static_cast<size_t>(i), pCategoryName);
 				successResult = false;
 			}
 			if (!logCategoryMember->value[i].HasMember("Name"))
 			{
-				m_defaultLog.Warn("Object at index {} in '{}' has no member 'Name'. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, "UnnamedLog" + std::to_string(static_cast<size_t>(i)));
+				EXE_LOG_WARN("Object at index {} in '{}' has no member 'Name'. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, "UnnamedLog" + std::to_string(static_cast<size_t>(i)));
 				successResult = false;
 			}
 			if (!logCategoryMember->value[i].FindMember("Name")->value.IsString())
 			{
-				m_defaultLog.Warn("'Name' member of Object at index {} in '{}' is not a string. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, "UnnamedLog" + std::to_string(static_cast<size_t>(i)));
+				EXE_LOG_WARN("'Name' member of Object at index {} in '{}' is not a string. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, "UnnamedLog" + std::to_string(static_cast<size_t>(i)));
 				successResult = false;
 			}
 			if (!logCategoryMember->value[i].HasMember("LogLocation"))
 			{
-				m_defaultLog.Warn("Object at index {} in '{}' has no member 'LogLocation'. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLocation::kConsole));
+				EXE_LOG_WARN("Object at index {} in '{}' has no member 'LogLocation'. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLocation::kConsole));
 				successResult = false;
 			}
 			if (!logCategoryMember->value[i].FindMember("LogLocation")->value.IsUint())
 			{
-				m_defaultLog.Warn("'LogLocation' member of Object at index {} in '{}' is not an unsigned integer type. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLocation::kConsole));
+				EXE_LOG_WARN("'LogLocation' member of Object at index {} in '{}' is not an unsigned integer type. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLocation::kConsole));
 				successResult = false;
 			}
 			if (!logCategoryMember->value[i].HasMember("LogLevel"))
 			{
-				m_defaultLog.Warn("Object at index {} in '{}' has no member 'LogLevel'. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLevel::kTrace));
+				EXE_LOG_WARN("Object at index {} in '{}' has no member 'LogLevel'. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLevel::kTrace));
 				successResult = false;
 			}
 			if (!logCategoryMember->value[i].FindMember("LogLevel")->value.IsUint())
 			{
-				m_defaultLog.Warn("'LogLevel' member of Object at index {} in '{}' is not an unsigned integer type. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLevel::kTrace));
+				EXE_LOG_WARN("'LogLevel' member of Object at index {} in '{}' is not an unsigned integer type. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLevel::kTrace));
 				successResult = false;
 			}
 
-			LogData log;
-			log.m_logName = logCategoryMember->value[i].FindMember("Name")->value.GetString();
+			LogData newLogData;
+			newLogData.m_logName = logCategoryMember->value[i].FindMember("Name")->value.GetString();
 
 			unsigned int logLocation = logCategoryMember->value[i].FindMember("LogLocation")->value.GetUint();
 			if (static_cast<LogLocation>(logLocation) >= LogLocation::kMax)
 			{
 				logLocation = (static_cast<int>(LogLocation::kMax) - 1);
-				m_defaultLog.Warn("'LogLocation' member of Object at index {} in '{}' is out of bounds. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLocation::kConsole));
+				EXE_LOG_WARN("'LogLocation' member of Object at index {} in '{}' is out of bounds. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLocation::kConsole));
 				successResult = false;
 			}
 
@@ -357,14 +357,14 @@ namespace Exelius
 			if (static_cast<LogLevel>(logLevel) >= LogLevel::kMax)
 			{
 				logLevel = static_cast<int>(LogLevel::kFatal);
-				m_defaultLog.Warn("'LogLevel' member of Object at index {} in '{}' is out of bounds. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLevel::kFatal));
+				EXE_LOG_WARN("'LogLevel' member of Object at index {} in '{}' is out of bounds. Defaulting to: {}", static_cast<size_t>(i), pCategoryName, static_cast<int>(LogLevel::kFatal));
 				successResult = false;
 			}
 
-			log.m_logLocation = static_cast<LogLocation>(logLocation);
-			log.m_logLevel = static_cast<LogLevel>(logLevel);
+			newLogData.m_logLocation = static_cast<LogLocation>(logLocation);
+			newLogData.m_logLevel = static_cast<LogLevel>(logLevel);
 
-			logData.emplace_back(log);
+			logData.emplace_back(newLogData);
 		}
 
 		return successResult;
@@ -375,26 +375,26 @@ namespace Exelius
 		// Traverse tree to "Window".
 		if (!m_parsedData.HasMember("Window"))
 		{
-			m_defaultLog.Warn("'Window' member not found in config file. Defaulting Window Title to: {}", windowTitle.c_str());
+			EXE_LOG_WARN("'Window' member not found in config file. Defaulting Window Title to: {}", windowTitle.c_str());
 			return false;
 		}
 		if (!m_parsedData["Window"].IsObject())
 		{
-			m_defaultLog.Warn("'Window' member in config file is not an Object. Defaulting Window Title to: {}", windowTitle.c_str());
+			EXE_LOG_WARN("'Window' member in config file is not an Object. Defaulting Window Title to: {}", windowTitle.c_str());
 			return false;
 		}
 
 		// Traverse tree to "WindowTitle".
 		if (!m_parsedData["Window"].HasMember("WindowTitle"))
 		{
-			m_defaultLog.Warn("'WindowTitle' member not found in 'Window'. Defaulting Window Title to: {}", windowTitle.c_str());
+			EXE_LOG_WARN("'WindowTitle' member not found in 'Window'. Defaulting Window Title to: {}", windowTitle.c_str());
 			return false;
 		}
 		auto windowTitleMember = m_parsedData["Window"].FindMember("WindowTitle");
 		EXE_ASSERT(windowTitleMember != m_parsedData["Window"].MemberEnd());
 		if (!windowTitleMember->value.IsString())
 		{
-			m_defaultLog.Warn("'WindowTitle' is not a String. Defaulting Window Title to: {}", windowTitle.c_str());
+			EXE_LOG_WARN("'WindowTitle' is not a String. Defaulting Window Title to: {}", windowTitle.c_str());
 			return false;
 		}
 
@@ -408,40 +408,40 @@ namespace Exelius
 		// Traverse tree to "Window".
 		if (!m_parsedData.HasMember("Window"))
 		{
-			m_defaultLog.Warn("'Window' member not found in config file. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'Window' member not found in config file. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
 			return false;
 		}
 		if (!m_parsedData["Window"].IsObject())
 		{
-			m_defaultLog.Warn("'Window' member in config file is not an Object. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'Window' member in config file is not an Object. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
 			return false;
 		}
 
 		// Traverse tree to "WindowWidth".
 		if (!m_parsedData["Window"].HasMember("WindowWidth"))
 		{
-			m_defaultLog.Warn("'WindowWidth' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowWidth' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
 			return false;
 		}
 		auto windowWidthMember = m_parsedData["Window"].FindMember("WindowWidth");
 		EXE_ASSERT(windowWidthMember != m_parsedData["Window"].MemberEnd());
 		if (!windowWidthMember->value.IsUint())
 		{
-			m_defaultLog.Warn("'WindowWidth' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowWidth' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
 			return false;
 		}
 
 		// Traverse tree to "WindowHeight".
 		if (!m_parsedData["Window"].HasMember("WindowHeight"))
 		{
-			m_defaultLog.Warn("'WindowHeight' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowHeight' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
 			return false;
 		}
 		auto windowHeightMember = m_parsedData["Window"].FindMember("WindowHeight");
 		EXE_ASSERT(windowHeightMember != m_parsedData["Window"].MemberEnd());
 		if (!windowHeightMember->value.IsUint())
 		{
-			m_defaultLog.Warn("'WindowHeight' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowHeight' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
 			return false;
 		}
 
@@ -456,26 +456,26 @@ namespace Exelius
 		// Traverse tree to "Window".
 		if (!m_parsedData.HasMember("Window"))
 		{
-			m_defaultLog.Warn("'Window' member not found in config file. Defaulting VSync to: {}", isVsyncEnabled);
+			EXE_LOG_WARN("'Window' member not found in config file. Defaulting VSync to: {}", isVsyncEnabled);
 			return false;
 		}
 		if (!m_parsedData["Window"].IsObject())
 		{
-			m_defaultLog.Warn("'Window' member in config file is not an Object. Defaulting VSync to: {}", isVsyncEnabled);
+			EXE_LOG_WARN("'Window' member in config file is not an Object. Defaulting VSync to: {}", isVsyncEnabled);
 			return false;
 		}
 
 		// Traverse tree to "VSyncEnabled".
 		if (!m_parsedData["Window"].HasMember("VSyncEnabled"))
 		{
-			m_defaultLog.Warn("'VSyncEnabled' member not found in 'Window'. Defaulting VSync to: {}", isVsyncEnabled);
+			EXE_LOG_WARN("'VSyncEnabled' member not found in 'Window'. Defaulting VSync to: {}", isVsyncEnabled);
 			return false;
 		}
 		auto vsyncMember = m_parsedData["Window"].FindMember("VSyncEnabled");
 		EXE_ASSERT(vsyncMember != m_parsedData["Window"].MemberEnd());
 		if (!vsyncMember->value.IsBool())
 		{
-			m_defaultLog.Warn("'VSyncEnabled' is not a boolean type. Defaulting VSync to: {}", isVsyncEnabled);
+			EXE_LOG_WARN("'VSyncEnabled' is not a boolean type. Defaulting VSync to: {}", isVsyncEnabled);
 			return false;
 		}
 

@@ -1,38 +1,75 @@
 #pragma once
-#include "include/Exelius.h"
+#include <include/Exelius.h>
+
+#include "Panels/SceneViewPanel.h"
+#include "Panels/SceneHierarchyPanel.h"
+#include "Panels/InspectorPanel.h"
+#include "Panels/DebugPanel.h"
 
 #include <glm/glm.hpp>
+#include <filesystem>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
-	class EditorLayer : public Layer
+	class KeyPressedEvent;
+	class MouseButtonPressedEvent;
+	class Scene;
+
+	class EditorLayer
+		: public Layer
 	{
-		OrthographicCameraController m_CameraController;
+		enum class SceneState
+		{
+			Edit = 0,
+			Play = 1
+		};
+		SceneState m_sceneState;
 
-		// Temp
-		SharedPtr<VertexArray> m_SquareVA;
-		SharedPtr<Shader> m_FlatColorShader;
-		SharedPtr<Framebuffer> m_FrameBuffer;
+		std::filesystem::path m_editorScenePath;
+		EditorCamera m_editorCamera;
 
-		SharedPtr<Texture> m_CheckerboardTexture;
+		SharedPtr<Scene> m_pActiveScene;
+		SharedPtr<Scene> m_pEditorScene;
 
-		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
-		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+		bool m_isEditorActive;
 
-		bool m_viewportFocused = false;
-		bool m_viewportHovered = false;
+		SceneViewPanel m_sceneViewPanel;
+		SceneHierarchyPanel m_sceneHierarchyPanel;
+		InspectorPanel m_inspectorPanel;
+		DebugPanel m_debugPanel;
+
 	public:
 		EditorLayer();
 		virtual ~EditorLayer() = default;
 
-		virtual void OnAttach() override;
-		virtual void OnDetach() override;
+		virtual void OnAttach() final override;
+		void OnUpdate() final override;
+		virtual void OnImGuiRender() final override;
+		void OnEvent(Event& evnt) final override;
 
-		void OnUpdate() override;
-		virtual void OnImGuiRender() override;
-		void OnEvent(Event& e) override;
+		void OpenScene(const std::filesystem::path& path);
+	private:
+		void ResizeSceneView();
+
+		void InitializeImGuiDockspace();
+		void DrawMenuToolbar();
+
+		bool OnKeyPressed(KeyPressedEvent& evnt);
+		bool OnMouseButtonPressed(MouseButtonPressedEvent& evnt);
+
+		void NewScene();
+
+		void OpenScene();
+
+		void SaveScene();
+		void SaveSceneAs();
+
+		void OnScenePlay();
+		void OnSceneStop();
+
+		void OnDuplicateGameObject();
 	};
 }

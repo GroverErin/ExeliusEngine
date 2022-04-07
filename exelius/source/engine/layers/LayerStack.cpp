@@ -7,13 +7,15 @@
 /// </summary>
 namespace Exelius
 {
+	LayerStack::LayerStack()
+		: m_layerInsertIndex(0)
+	{
+		//
+	}
+
 	LayerStack::~LayerStack()
 	{
-		for (Layer* pLayer : m_layers)
-		{
-			pLayer->OnDetach();
-			EXELIUS_DELETE(pLayer);
-		}
+		ClearLayerStack();
 	}
 
 	void LayerStack::PushLayer(Layer* pLayer)
@@ -56,5 +58,15 @@ namespace Exelius
 			pOverlayLayer->OnDetach();
 			m_layers.erase(found);
 		}
+	}
+	
+	void LayerStack::ClearLayerStack()
+	{
+		for (Layer* pLayer : m_layers)
+		{
+			pLayer->OnDetach();
+			EXELIUS_DELETE(pLayer);
+		}
+		m_layers.clear();
 	}
 }

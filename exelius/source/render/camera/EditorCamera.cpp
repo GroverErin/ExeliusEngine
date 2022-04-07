@@ -24,17 +24,17 @@ namespace Exelius
 
 	void EditorCamera::OnUpdate()
 	{
-		if (IsKeyPressed(KeyCode::LAlt))
+		if (IsKeyDown(KeyCode::LAlt))
 		{
 			const glm::vec2& mouse{ GetMouseX(), GetMouseY() };
 			glm::vec2 delta = (mouse - m_initialMousePosition) * 0.003f;
 			m_initialMousePosition = mouse;
 
-			if (IsMouseButtonPressed(MouseCode::Middle))
+			if (IsMouseButtonDown(MouseCode::Middle))
 				MousePan(delta);
-			else if (IsMouseButtonPressed(MouseCode::Left))
+			else if (IsMouseButtonDown(MouseCode::Left))
 				MouseRotate(delta);
-			else if (IsMouseButtonPressed(MouseCode::Right))
+			else if (IsMouseButtonDown(MouseCode::Right))
 				MouseZoom(delta.y);
 		}
 
@@ -88,7 +88,7 @@ namespace Exelius
 
 	bool EditorCamera::OnMouseScroll(MouseScrolledEvent& evnt)
 	{
-		float delta = evnt.GetWheelYDelta() * 0.1f;
+		float delta = (float)evnt.GetWheelYDelta() * 0.1f;
 		MouseZoom(delta);
 		UpdateView();
 		return false;

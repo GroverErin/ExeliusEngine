@@ -36,7 +36,7 @@ namespace Exelius
         eastl::string text = eastl::string((const char*)data.begin(), (const char*)data.end());
         if (text.empty())
         {
-            m_resourceManagerLog.Warn("Failed to write data to Tilemap Resource.");
+            EXE_LOG_CATEGORY_WARN("Tilemap", "Failed to write data to Tilemap Resource.");
             return LoadResult::kFailed;
         }
 
@@ -95,9 +95,9 @@ namespace Exelius
             //TODO: Logger::log("Invalid map version value, map not loaded.", Logger::Type::Error);
             return ResetTilemapData();
         }
-        
-        m_version.majorVersion = std::stoi(attribString.substr(0, pointPos).c_str()); // TODO: Can I avoid .c_str() here?
-        m_version.minorVersion = std::stoi(attribString.substr(pointPos + 1).c_str());
+
+        m_version.majorVersion = (uint16_t)std::stoi(attribString.substr(0, pointPos).c_str()); // TODO: Can I avoid .c_str() here?
+        m_version.minorVersion = (uint16_t)std::stoi(attribString.substr(pointPos + 1).c_str());
 
         attribString = mapNode.attribute("orientation").as_string();
         if (attribString.empty())

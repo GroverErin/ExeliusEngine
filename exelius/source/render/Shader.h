@@ -18,8 +18,8 @@ namespace Exelius
 		ImplShader m_impl;
 	public:
 
-		_Shader(const eastl::string& filepath)
-			: m_impl(filepath)
+		_Shader(const eastl::string& filepath, const eastl::string& shaderSource)
+			: m_impl(filepath, shaderSource)
 		{
 			//
 		}

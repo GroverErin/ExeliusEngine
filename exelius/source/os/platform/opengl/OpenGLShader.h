@@ -15,6 +15,9 @@ namespace Exelius
 {
 	class OpenGLShader
 	{
+		// TODO: This should NOT be hardcoded.
+		static constexpr const char* s_kCacheDirectory = "assets/cache/shader/opengl";
+
 		uint32_t m_rendererID;
 		eastl::string m_filepath;
 		eastl::string m_name;
@@ -24,7 +27,7 @@ namespace Exelius
 
 		eastl::unordered_map<GLenum, eastl::string> m_openGLSourceCode;
 	public:
-		OpenGLShader(const eastl::string& filepath);
+		OpenGLShader(const eastl::string& filepath, const eastl::string& shaderSource);
 
 		OpenGLShader(const eastl::string& name, const eastl::string& vertexSrc, const eastl::string& fragmentSrc);
 
@@ -55,7 +58,10 @@ namespace Exelius
 		void UploadUniformMat4(const eastl::string& name, const glm::mat4& matrix);
 
 	private:
-		eastl::string ReadFile(const eastl::string& filepath);
+		void CreateCacheDirectoryIfNeeded();
+		const char* GLShaderStageCachedOpenGLFileExtension(uint32_t stage);
+		const char* GLShaderStageCachedVulkanFileExtension(uint32_t stage);
+
 		eastl::unordered_map<GLenum, eastl::string> PreProcess(const eastl::string& source);
 
 		void CompileOrGetVulkanBinaries(const eastl::unordered_map<GLenum, eastl::string>& shaderSources);

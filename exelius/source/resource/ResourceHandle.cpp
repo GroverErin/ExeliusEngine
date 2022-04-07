@@ -35,7 +35,6 @@ namespace Exelius
 	ResourceHandle::ResourceHandle(const ResourceID& resourceID, bool loadResource)
 		: m_resourceID(resourceID)
 		, m_resourceHeld(false)
-		, m_resourceLoaderLog("ResourceLoader")
 	{
 		// Check if the resource is already loaded.
 		if (!TryToAcquireResource() && loadResource)
@@ -77,6 +76,50 @@ namespace Exelius
 		return pResource;
 	}
 
+	bool ResourceHandle::CreateNew(const ResourceID& resourceID)
+	{
+		if (m_resourceHeld)
+		{
+			EXE_LOG_CATEGORY_WARN("ResourceHandle", "Unable to create new resource in used resource handle. Release the current resource first.");
+			return false;
+		}
+
+		if (!resourceID.IsValid())
+		{
+			EXE_LOG_CATEGORY_WARN("ResourceHandle", "Unable to create new resource. ResourceID is invalid.");
+			return false;
+		}
+
+		if (ResourceLoader::GetInstance()->IsResourceAcquirable(resourceID))
+		{
+			EXE_LOG_CATEGORY_WARN("ResourceHandle", "Unable to create new resource. Resource already exists.");
+			return false;
+		}
+
+		ResourceLoader::GetInstance()->CreateNewResource(resourceID);
+
+		SetResourceID(resourceID);
+		if (!TryToAcquireResource())
+		{
+			EXE_LOG_CATEGORY_WARN("ResourceHandle", "Unable to acquire new resource.");
+			return false;
+		}
+
+		// Here we were able to acquire the resource, but we have unintentionally
+		// incremented the ref count twice. Once for when the resource is created, and
+		// another for the TryToAcquireResource() call. There are probably a ton of ways to
+		// solve this, but the easiest way for now, is to decrement the ref count once here.
+		// We should still own another reference to this resource, so this should be fine.
+		ResourceLoader::GetInstance()->ReleaseResource(m_resourceID);
+
+		return true;
+	}
+
+	void ResourceHandle::SaveResource()
+	{
+		ResourceLoader::GetInstance()->SaveResource(m_resourceID);
+	}
+
 	/// <summary>
 	/// Queues the resource for the loader thread to load if
 	/// the resource has not already been loaded. This function
@@ -88,13 +131,13 @@ namespace Exelius
 	{
 		if (m_resourceHeld)
 		{
-			m_resourceLoaderLog.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceHandle", "Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
 			return;
 		}
 
 		if (!m_resourceID.IsValid())
 		{
-			m_resourceLoaderLog.Info("Resource cannot be Queued for load, resource ID is invalid or not set.");
+			EXE_LOG_CATEGORY_INFO("ResourceHandle", "Resource cannot be Queued for load, resource ID is invalid or not set.");
 			return;
 		}
 
@@ -118,13 +161,13 @@ namespace Exelius
 	{
 		if (m_resourceHeld)
 		{
-			m_resourceLoaderLog.Info("Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceHandle", "Resource with id '{}' cannot be loaded, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
 			return;
 		}
 
 		if (!m_resourceID.IsValid())
 		{
-			m_resourceLoaderLog.Info("Resource cannot be loaded, resource ID is invalid or not set.");
+			EXE_LOG_CATEGORY_INFO("ResourceHandle", "Resource cannot be loaded, resource ID is invalid or not set.");
 			return;
 		}
 
@@ -211,7 +254,7 @@ namespace Exelius
 	{
 		if (m_resourceHeld)
 		{
-			m_resourceLoaderLog.Info("Resource with id '{}' cannot be acquired, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
+			EXE_LOG_CATEGORY_INFO("ResourceHandle", "Resource with id '{}' cannot be acquired, this ResourceHandle already holds a resource.", m_resourceID.Get().c_str());
 			return false;
 		}
 
@@ -222,7 +265,7 @@ namespace Exelius
 
 		if (!ResourceLoader::GetInstance()->IsResourceAcquirable(m_resourceID))
 		{
-			m_resourceLoaderLog.Trace("Resource cannot be acquired, resource not available.");
+			EXE_LOG_CATEGORY_TRACE("ResourceHandle", "Resource cannot be acquired, resource not available.");
 			return false;
 		}
 

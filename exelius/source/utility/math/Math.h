@@ -1,7 +1,9 @@
 #pragma once
 
 #include "source/utility/containers/Vector2.h"
-#include "EASTL/string.h"
+#include <EASTL/string.h>
+
+#include <glm/glm.hpp>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -88,4 +90,6 @@ namespace Exelius
 	{
 		return HashString<ReturnType>(eastl::string(pName));
 	}
+
+	bool DecomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "source/os/platform/PlatformForwardDeclarations.h"
-#include "source/utility/generic/Color.h"
 #include "source/utility/generic/SmartPointers.h"
+#include "source/utility/generic/Color.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -36,16 +36,14 @@ namespace Exelius
 		void Clear() { m_impl.Clear(); }
 
 		void DrawIndexed(const SharedPtr<VertexArray>& vertexArray, uint32_t indexCount = 0) { m_impl.DrawIndexed(vertexArray, indexCount); }
+
+		void DrawLines(const SharedPtr<VertexArray>& vertexArray, uint32_t vertexCount) { m_impl.DrawLines(vertexArray, vertexCount); }
+
+		void SetLineWidth(float width) { m_impl.SetLineWidth(width); }
 	};
 }
 
-#if EXELIUS_RENDERER == SFML_RENDERER
-	#include "source/os/platform/sfml/SFMLRendererAPI.h"
-	namespace Exelius
-	{
-		using RendererAPI = _RendererAPI<SFMLRendererAPI>;
-	}
-#elif EXELIUS_RENDERER == OPENGL_RENDERER
+#if EXELIUS_RENDERER == OPENGL_RENDERER
 	#include "source/os/platform/opengl/OpenGLRendererAPI.h"
 	namespace Exelius
 	{

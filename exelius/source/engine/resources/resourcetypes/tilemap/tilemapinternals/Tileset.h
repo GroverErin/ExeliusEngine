@@ -84,7 +84,7 @@ namespace Exelius
         struct Terrain final
         {
             eastl::string name;
-            std::uint32_t tileID = -1;
+            std::uint32_t tileID = (uint32_t)-1;
             eastl::vector<Property> properties;
         };
 

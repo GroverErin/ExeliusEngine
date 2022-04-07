@@ -20,8 +20,6 @@ namespace Exelius
 		void Begin();
 		void End();
 
-		void EnableDarkTheme();
-
 		void ShouldBlockEvents(bool shouldBlock) { m_blockEvents = shouldBlock; }
 	};
 }

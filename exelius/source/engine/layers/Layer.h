@@ -11,6 +11,7 @@ namespace Exelius
 	class Layer
 	{
 	protected:
+		// TODO: Consider stripping this from release builds.
 		eastl::string m_layerName;
 	public:
 		Layer(const eastl::string& layerName = "Unnamed Layer")
@@ -24,12 +25,11 @@ namespace Exelius
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 
-		// On Update and On Render are not necessary, but helps with organization.
 		virtual void OnUpdate() {}
-		virtual void OnRender() {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event&) {}
 
+		// TODO: Consider stripping this from release builds.
 		inline const eastl::string& GetLayerName() const { return m_layerName; }
 	};
 }

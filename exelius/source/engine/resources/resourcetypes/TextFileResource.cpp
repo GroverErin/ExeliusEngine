@@ -17,10 +17,18 @@ namespace Exelius
         m_text = eastl::string((const char*)data.begin(), (const char*)data.end());
         if (m_text.empty())
         {
-            m_resourceManagerLog.Warn("Failed to write data to TextFile Resource.");
+            EXE_LOG_CATEGORY_WARN("ResourceManager", "Failed to write data to TextFile Resource.");
             return LoadResult::kFailed;
         }
 
         return LoadResult::kKeptRawData;
+    }
+
+    eastl::vector<std::byte> TextFileResource::Save()
+    {
+        eastl::vector<std::byte> data(m_text.size() + 1);
+        eastl::transform(m_text.begin(), m_text.end(), data.begin(),
+            [](char c) {return std::byte(c); });
+        return data;
     }
 }

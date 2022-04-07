@@ -1,6 +1,6 @@
 #pragma once
 #include "source/os/platform/PlatformForwardDeclarations.h"
-#include "source/utility/generic/SmartPointers.h"
+#include "source/resource/ResourceHandle.h"
 
 #include <glm/glm.hpp>
 
@@ -13,15 +13,15 @@ namespace Exelius
 
 	class SubTexture
 	{
-		SharedPtr<Texture> m_pTexture;
+		ResourceHandle m_textureResource;
 		glm::vec2 m_textureCoordinates[4];
 
 	public:
-		SubTexture(const SharedPtr<Texture>& pTexture, const glm::vec2& min, const glm::vec2& max);
+		SubTexture(const ResourceID& textureResource, const glm::vec2& min, const glm::vec2& max);
 
-		const SharedPtr<Texture> GetTexture() const { return m_pTexture; }
+		const ResourceID& GetTextureResourceID() const { return m_textureResource.GetID(); }
 		const glm::vec2* GetTextureCoordinates() const { return m_textureCoordinates; }
 
-		static SharedPtr<SubTexture> CreateFromCoordinates(const SharedPtr<Texture>& pTexture, const glm::vec2& coordinates, const glm::vec2& spriteSize);
+		static SharedPtr<SubTexture> CreateFromCoordinates(const ResourceID& textureResource, const glm::vec2& coordinates, const glm::vec2& spriteSize);
 	};
 }

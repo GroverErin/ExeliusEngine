@@ -14,15 +14,15 @@ namespace Exelius
 	class MouseMovedEvent
 		: public Event
 	{
-		int m_mouseX;
-		int m_mouseY;
+		double m_mouseX;
+		double m_mouseY;
 	public:
 		/// <summary>
 		/// Event that occurs when a mouse movement event is detected.
 		/// </summary>
 		/// <param name="x">X position data.</param>
 		/// <param name="y">Y position data.</param>
-		MouseMovedEvent(const int x, const int y)
+		MouseMovedEvent(double x, double y)
 			: m_mouseX(x)
 			, m_mouseY(y)
 		{
@@ -40,7 +40,7 @@ namespace Exelius
 		/// Get the x position data.
 		/// </summary>
 		/// <returns>X position data.</returns>
-		int GetX() const
+		double GetX() const
 		{
 			return m_mouseX;
 		}
@@ -49,7 +49,7 @@ namespace Exelius
 		/// Get the Y position data.
 		/// </summary>
 		/// <returns>Y position data.</returns>
-		int GetY() const
+		double GetY() const
 		{
 			return m_mouseY;
 		}
@@ -110,14 +110,14 @@ namespace Exelius
 	class MouseScrolledEvent
 		: public Event
 	{
-		float m_xDelta;
-		float m_yDelta;
+		double m_xDelta;
+		double m_yDelta;
 	public:
 		/// <summary>
 		/// Event that occurs when a mouse scroll wheel move is detected.
 		/// </summary>
 		/// <param name="delta">Scroll change data.</param>
-		MouseScrolledEvent(const float xDelta, const float yDelta = 0.0f)
+		MouseScrolledEvent(double xDelta, double yDelta = 0.0f)
 			: m_xDelta(xDelta)
 			, m_yDelta(yDelta)
 		{
@@ -135,12 +135,12 @@ namespace Exelius
 		/// Get the positional data for the scroll wheel movement.
 		/// </summary>
 		/// <returns>Scroll change data.</returns>
-		float GetWheelXDelta() const
+		double GetWheelXDelta() const
 		{
 			return m_xDelta;
 		}
 
-		float GetWheelYDelta() const
+		double GetWheelYDelta() const
 		{
 			return m_yDelta;
 		}

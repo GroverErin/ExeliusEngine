@@ -1,7 +1,6 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
 #include "source/resource/ResourceEntry.h"
-#include "source/debug/Log.h"
 
 #include <EASTL/unordered_map.h>
 #include <EASTL/vector.h>
@@ -46,11 +45,6 @@ namespace Exelius
 		/// The mutex that guards the unload queue from data race conditions.
 		/// </summary>
 		std::mutex m_unloaderLock;
-
-		/// <summary>
-		/// ResourceDatabase Log.
-		/// </summary>
-		Log m_resourceDatabaseLog;
 		
 	public:
 		ResourceDatabase();

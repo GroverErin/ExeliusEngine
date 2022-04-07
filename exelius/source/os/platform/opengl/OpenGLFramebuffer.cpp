@@ -10,94 +10,74 @@ namespace Exelius
 {
 	static const uint32_t s_maxFramebufferSize = 8192;
 
-	namespace Utils
+	static GLenum TextureTarget(bool multisampled)
 	{
-		static GLenum TextureTarget(bool multisampled)
-		{
-			return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-		}
-
-		static void CreateTextures(bool multisampled, uint32_t* outID, uint32_t count)
-		{
-			glCreateTextures(TextureTarget(multisampled), count, outID);
-		}
-
-		static void BindTexture(bool multisampled, uint32_t id)
-		{
-			glBindTexture(TextureTarget(multisampled), id);
-		}
-
-		static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
-		{
-			bool multisampled = samples > 1;
-			if (multisampled)
-			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
-			}
-			else
-			{
-				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			}
-
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, TextureTarget(multisampled), id, 0);
-		}
-
-		static void AttachDepthTexture(uint32_t id, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
-		{
-			bool multisampled = samples > 1;
-			if (multisampled)
-			{
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
-			}
-			else
-			{
-				glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			}
-
-			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(multisampled), id, 0);
-		}
-
-		static bool IsDepthFormat(FramebufferTextureFormat format)
-		{
-			switch (format)
-			{
-				case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
-			}
-
-			return false;
-		}
-
-		static GLenum HazelFBTextureFormatToGL(FramebufferTextureFormat format)
-		{
-			switch (format)
-			{
-				case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
-				case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
-			}
-
-			EXE_ASSERT(false);
-			return 0;
-		}
+		return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 	}
 
-	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
-		: m_specification(spec)
+	static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
+	{
+		bool multisampled = samples > 1;
+		if (multisampled)
+		{
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
+		}
+		else
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, TextureTarget(multisampled), id, 0);
+	}
+
+	static void AttachDepthTexture(uint32_t id, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
+	{
+		bool multisampled = samples > 1;
+		if (multisampled)
+		{
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
+		}
+		else
+		{
+			glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(multisampled), id, 0);
+	}
+
+	static GLenum FBTextureFormatToGL(FramebufferTextureFormat format)
+	{
+		switch (format)
+		{
+			case FramebufferTextureFormat::RGBA8: return GL_RGBA8;
+			case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+		}
+
+		EXE_ASSERT(false);
+		return 0;
+	}
+
+	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& specification)
+		: m_rendererID(0)
+		, m_specification(specification)
+		, m_depthAttachmentSpecification(FramebufferTextureFormat::None)
+		, m_depthAttachment(0)
 	{
 		for (auto spec : m_specification.m_attachmentSpec.m_attachments)
 		{
-			if (!Utils::IsDepthFormat(spec.m_textureFormat))
+			if (!IsDepthFormat(spec.m_textureFormat))
 				m_colorAttachmentSpecifications.emplace_back(spec);
 			else
 				m_depthAttachmentSpecification = spec;
@@ -134,32 +114,32 @@ namespace Exelius
 		if (m_colorAttachmentSpecifications.size())
 		{
 			m_colorAttachments.resize(m_colorAttachmentSpecifications.size());
-			Utils::CreateTextures(multisample, m_colorAttachments.data(), m_colorAttachments.size());
+			CreateTextures(multisample, m_colorAttachments.data(), m_colorAttachments.size());
 
 			for (size_t i = 0; i < m_colorAttachments.size(); i++)
 			{
-				Utils::BindTexture(multisample, m_colorAttachments[i]);
+				BindTexture(multisample, m_colorAttachments[i]);
 				switch (m_colorAttachmentSpecifications[i].m_textureFormat)
 				{
-				case FramebufferTextureFormat::RGBA8:
-					Utils::AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_RGBA8, GL_RGBA, m_specification.m_width, m_specification.m_height, i);
-					break;
-				case FramebufferTextureFormat::RED_INTEGER:
-					Utils::AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_R32I, GL_RED_INTEGER, m_specification.m_width, m_specification.m_height, i);
-					break;
+					case FramebufferTextureFormat::RGBA8:
+						AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_RGBA8, GL_RGBA, m_specification.m_width, m_specification.m_height, i);
+						break;
+					case FramebufferTextureFormat::RED_INTEGER:
+						AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_R32I, GL_RED_INTEGER, m_specification.m_width, m_specification.m_height, i);
+						break;
 				}
 			}
 		}
 
 		if (m_depthAttachmentSpecification.m_textureFormat != FramebufferTextureFormat::None)
 		{
-			Utils::CreateTextures(multisample, &m_depthAttachment, 1);
-			Utils::BindTexture(multisample, m_depthAttachment);
+			CreateTextures(multisample, &m_depthAttachment, 1);
+			BindTexture(multisample, m_depthAttachment);
 			switch (m_depthAttachmentSpecification.m_textureFormat)
 			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8:
-				Utils::AttachDepthTexture(m_depthAttachment, m_specification.m_samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_specification.m_width, m_specification.m_height);
-				break;
+				case FramebufferTextureFormat::DEPTH24STENCIL8:
+					AttachDepthTexture(m_depthAttachment, m_specification.m_samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_specification.m_width, m_specification.m_height);
+					break;
 			}
 		}
 
@@ -195,9 +175,10 @@ namespace Exelius
 	{
 		if (width == 0 || height == 0 || width > s_maxFramebufferSize || height > s_maxFramebufferSize)
 		{
-			//HZ_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
+			EXE_LOG_CATEGORY_WARN("OpenGL", "Attempted to rezize framebuffer to {0}, {1}", width, height)
 			return;
 		}
+
 		m_specification.m_width = width;
 		m_specification.m_height = height;
 
@@ -220,6 +201,26 @@ namespace Exelius
 
 		auto& spec = m_colorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(m_colorAttachments[attachmentIndex], 0,
-			Utils::HazelFBTextureFormatToGL(spec.m_textureFormat), GL_INT, &value);
+			FBTextureFormatToGL(spec.m_textureFormat), GL_INT, &value);
+	}
+
+	void OpenGLFramebuffer::CreateTextures(bool isMultisampled, uint32_t* outID, uint32_t count)
+	{
+		glCreateTextures(TextureTarget(isMultisampled), count, outID);
+	}
+
+	void OpenGLFramebuffer::BindTexture(bool isMultisampled, uint32_t id)
+	{
+		glBindTexture(TextureTarget(isMultisampled), id);
+	}
+
+	bool OpenGLFramebuffer::IsDepthFormat(FramebufferTextureFormat format)
+	{
+		switch (format)
+		{
+			case FramebufferTextureFormat::DEPTH24STENCIL8: return true;
+		}
+
+		return false;
 	}
 }

@@ -23,6 +23,9 @@ namespace Exelius
 		virtual LoadResult Load(eastl::vector<std::byte>&& data) final override;
 		virtual void Unload() final override {}
 
+		virtual eastl::vector<std::byte> Save() final override;
+
 		const eastl::string& GetRawText() const { return m_text; }
+		void SetRawText(const eastl::string& rawText) { m_text = rawText; }
 	};
 }

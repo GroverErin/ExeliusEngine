@@ -1,8 +1,6 @@
 #pragma once
 #include "source/os/events/EventManagement.h"
 #include "source/utility/containers/Vector2.h"
-#include "source/utility/math/Rectangle.h"
-#include "source/debug/Log.h"
 
 #include "source/os/platform/PlatformForwardDeclarations.h"
 
@@ -39,8 +37,6 @@ namespace Exelius
 
 		WindowData m_windowData;
 
-		Log m_graphicsInterfaceLog;
-
 		RenderContext* m_pRenderContext;
 
 		GLFWwindow* m_pWindow;
@@ -53,7 +49,6 @@ namespace Exelius
 		OpenGLWindow& operator=(const OpenGLWindow&) = delete;
 		OpenGLWindow& operator=(OpenGLWindow&&) = delete;
 		~OpenGLWindow();
-
 
 #undef CreateWindow // Defined in WinUser.h :(
 		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled);

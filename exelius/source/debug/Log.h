@@ -227,3 +227,18 @@ namespace Exelius
 		const std::shared_ptr<spdlog::logger> GetOrCreateLog() const;
 	};
 }
+
+#define EXE_LOG_TRACE(...) {::Exelius::Log log; log.Trace(__VA_ARGS__);}
+#define EXE_LOG_CATEGORY_TRACE(CATEGORY, ...) {::Exelius::Log log(CATEGORY); log.Trace(__VA_ARGS__);}
+
+#define EXE_LOG_INFO(...) {::Exelius::Log log; log.Info(__VA_ARGS__);}
+#define EXE_LOG_CATEGORY_INFO(CATEGORY, ...) {::Exelius::Log log(CATEGORY); log.Info(__VA_ARGS__);}
+
+#define EXE_LOG_WARN(...) {::Exelius::Log log; log.Warn(__VA_ARGS__);}
+#define EXE_LOG_CATEGORY_WARN(CATEGORY, ...) {::Exelius::Log log(CATEGORY); log.Warn(__VA_ARGS__);}
+
+#define EXE_LOG_ERROR(...) {::Exelius::Log log; log.Error(__VA_ARGS__);}
+#define EXE_LOG_CATEGORY_ERROR(CATEGORY, ...) {::Exelius::Log log(CATEGORY); log.Error(__VA_ARGS__);}
+
+#define EXE_LOG_FATAL(...) {::Exelius::Log log; log.Fatal(__VA_ARGS__);}
+#define EXE_LOG_CATEGORY_FATAL(CATEGORY, ...) {::Exelius::Log log(CATEGORY); log.Fatal(__VA_ARGS__);}

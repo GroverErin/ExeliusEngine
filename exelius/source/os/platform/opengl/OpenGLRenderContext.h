@@ -12,6 +12,8 @@ namespace Exelius
 
 	class OpenGLRenderContext
 	{
+		GLFWwindow* m_pWindow;
+
 	public:
 		OpenGLRenderContext();
 		~OpenGLRenderContext();
@@ -19,8 +21,5 @@ namespace Exelius
 		void Initialize(Window* pWindow);
 
 		void SwapBuffers();
-
-	private:
-		GLFWwindow* m_pWindow;
 	};
 }

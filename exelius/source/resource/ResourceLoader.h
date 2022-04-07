@@ -2,7 +2,6 @@
 #include "source/utility/generic/Singleton.h"
 #include "source/utility/generic/SmartPointers.h"
 #include "source/resource/ResourceDatabase.h"
-#include "source/debug/Log.h"
 
 #include <EASTL/deque.h>
 #include <EASTL/vector.h>
@@ -83,11 +82,6 @@ namespace Exelius
 		/// to listen for a single resource being loaded.
 		/// </summary>
 		using ListenersMap = eastl::unordered_map<ResourceID, ResourceListeners>;
-
-		/// <summary>
-		/// ResourceLoader Log.
-		/// </summary>
-		Log m_resourceLoaderLog;
 
 		/// <summary>
 		/// A map of listeners keyed by resource ID, allowing multiple listeners
@@ -282,6 +276,10 @@ namespace Exelius
 		/// <param name="pListener">- The listener to be notified when a resource has completed the load process.</param>
 		void LoadNow(const ResourceID& resourceID, ResourceListenerPtr pListener = ResourceListenerPtr());
 
+		void CreateNewResource(const ResourceID& resourceID);
+
+		void SaveResource(const ResourceID& resourceID);
+
 		/// <summary>
 		/// Checks the load status of a resource. If it is loading or loaded
 		/// then it is a valid resource to be acquired.
@@ -359,13 +357,13 @@ namespace Exelius
 		/// <summary>
 		/// Retrieve the path the system is using to load engine specific resources.
 		/// </summary>
-		/// <returns>The engine resource filepath.</returns>
+		/// <returns>- The engine resource filepath.</returns>
 		const eastl::string& GetEngineResourcePath() const { return m_engineResourcePath; }
 
 		/// <summary>
 		/// Retrieve the path the system is using to load client specific resources.
 		/// </summary>
-		/// <returns>The client resource filepath.</returns>
+		/// <returns>- The client resource filepath.</returns>
 		const eastl::string& GetClientResourcePath() const { return m_clientResourcePath; }
 
 		/// <summary>
@@ -460,5 +458,9 @@ namespace Exelius
 		/// <param name="resourceID">- The resource to load.</param>
 		/// <returns>The loaded raw data in a vector of bytes. The vector will be empty on failure.</returns>
 		eastl::vector<std::byte> LoadFromZip(const ResourceID& resourceID);
+
+		void SaveToDisk(const ResourceID& resourceID, const eastl::vector<std::byte>& data);
+
+		void SaveToZip(const ResourceID& resourceID, const eastl::vector<std::byte>& data);
 	};
 }

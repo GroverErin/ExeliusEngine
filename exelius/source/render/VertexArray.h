@@ -2,6 +2,8 @@
 #include "source/os/platform/PlatformForwardDeclarations.h"
 #include "source/utility/generic/SmartPointers.h"
 
+#include <EASTL/vector.h>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -31,18 +33,12 @@ namespace Exelius
 		void AddVertexBuffer(const SharedPtr<VertexBuffer>& vertexBuffer) { m_impl.AddVertexBuffer(vertexBuffer); }
 		void SetIndexBuffer(const SharedPtr<IndexBuffer>& indexBuffer) { m_impl.SetIndexBuffer(indexBuffer); }
 
-		const std::vector<SharedPtr<VertexBuffer>>& GetVertexBuffers() const { return m_impl.GetVertexBuffers(); }
+		const eastl::vector<SharedPtr<VertexBuffer>>& GetVertexBuffers() const { return m_impl.GetVertexBuffers(); }
 		const SharedPtr<IndexBuffer>& GetIndexBuffer() const { return m_impl.GetIndexBuffer(); }
 	};
 }
 
-#if EXELIUS_RENDERER == SFML_RENDERER
-	#include "source/os/platform/sfml/SFMLVertexArray.h"
-	namespace Exelius
-	{
-		using VertexArray = _VertexArray<SFMLVertexArray>;
-	}
-#elif EXELIUS_RENDERER == OPENGL_RENDERER
+#if EXELIUS_RENDERER == OPENGL_RENDERER
 	#include "source/os/platform/opengl/OpenGLVertexArray.h"
 	namespace Exelius
 	{

@@ -22,7 +22,7 @@ namespace Exelius
         m_text = eastl::string((const char*)data.begin(), (const char*)data.end());
         if (m_text.empty())
         {
-            m_resourceManagerLog.Warn("Failed to read data in Spritesheet Resource.");
+            EXE_LOG_CATEGORY_WARN("ResourceManager", "Failed to read data in Spritesheet Resource.");
             return LoadResult::kFailed;
         }
 
@@ -30,7 +30,7 @@ namespace Exelius
         rapidjson::Document jsonDoc;
         if (jsonDoc.Parse(m_text.c_str()).HasParseError())
         {
-            m_resourceManagerLog.Error("Failed to Parse JSON.");
+            EXE_LOG_CATEGORY_ERROR("ResourceManager", "Failed to Parse JSON.");
             return LoadResult::kFailed;
         }
 
@@ -41,7 +41,7 @@ namespace Exelius
 
         if (textureMember == jsonDoc.MemberEnd())
         {
-            m_resourceManagerLog.Warn("No Texture field found. Spritesheets must have a texture.");
+            EXE_LOG_CATEGORY_WARN("ResourceManager", "No Texture field found. Spritesheets must have a texture.");
             return LoadResult::kFailed;
         }
 
@@ -92,7 +92,7 @@ namespace Exelius
 
             if (nameOrder == jsonDoc.MemberEnd())
             {
-                m_resourceManagerLog.Warn("Monospaced spritesheets must provide a name table.");
+                EXE_LOG_CATEGORY_WARN("ResourceManager", "Monospaced spritesheets must provide a name table.");
                 return LoadResult::kFailed;
             }
 

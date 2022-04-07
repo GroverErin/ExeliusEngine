@@ -46,12 +46,17 @@ namespace Exelius
 
 		bool Open(const char* pFilePath, AccessPermission access, CreationType create);
 		bool Open(StringIntern filePath, AccessPermission access, CreationType create);
+
 		void Close();
 		size_t Read(eastl::vector<std::byte>& data);
 		size_t Write(const eastl::vector<std::byte>& data);
 
 		bool IsValid() const;
 		size_t GetSize();
+
+		// To be defined in renderer platform code.
+		static eastl::string LaunchOpenFileDialog(const char* pFilters);
+		static eastl::string LaunchSaveFileDialog(const char* pFilters);
 
 		static const eastl::string GetFileExtension(const eastl::string& filepath);
 		static const eastl::string GetFileDirectory(const eastl::string& filepath);

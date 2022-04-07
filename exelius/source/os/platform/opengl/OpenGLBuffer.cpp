@@ -9,6 +9,7 @@
 namespace Exelius
 {
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
+		: m_rendererID(0)
 	{
 		glCreateBuffers(1, &m_rendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
@@ -16,6 +17,7 @@ namespace Exelius
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
+		: m_rendererID(0)
 	{
 		glCreateBuffers(1, &m_rendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
@@ -44,7 +46,8 @@ namespace Exelius
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
-		: m_count(count)
+		: m_rendererID(0)
+		, m_count(count)
 	{
 		glCreateBuffers(1, &m_rendererID);
 

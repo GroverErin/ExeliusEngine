@@ -85,6 +85,15 @@ namespace Exelius
 		static constexpr Type kTilemap = kAudio + 1;
 
 		/// <summary>
+		/// A shader resource type is a resource
+		/// that contains the data needed to
+		/// render to the GPU.
+		/// 
+		/// @see Shader
+		/// </summary>
+		static constexpr Type kShader = kTilemap + 1;
+
+		/// <summary>
 		/// The last resource type to be defined by the engine.
 		/// The client application should increment this type
 		/// in order to define a new type.
@@ -94,8 +103,6 @@ namespace Exelius
 		///		static constexpr Exelius::ResourceType::Type kClientResource = kLastEngineResourceType + 1;
 		/// @endcode
 		/// </summary>
-		static constexpr Type kLastEngineResourceType = kTilemap;
-
-
+		static constexpr Type kLastEngineResourceType = kShader;
 	}
 }

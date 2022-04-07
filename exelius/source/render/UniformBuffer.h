@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cstdint>
 
 /// <summary>
@@ -26,13 +25,7 @@ namespace Exelius
 	};
 }
 
-#if EXELIUS_RENDERER == SFML_RENDERER
-	#include "source/os/platform/sfml/SFMLUniformBuffer.h"
-	namespace Exelius
-	{
-		using UniformBuffer = _UniformBuffer<SFMLUniformBuffer>;
-	}
-#elif EXELIUS_RENDERER == OPENGL_RENDERER
+#if EXELIUS_RENDERER == OPENGL_RENDERER
 	#include "source/os/platform/opengl/OpenGLUniformBuffer.h"
 	namespace Exelius
 	{

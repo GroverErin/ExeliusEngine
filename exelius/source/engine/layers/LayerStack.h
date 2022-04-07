@@ -12,7 +12,7 @@ namespace Exelius
 	class LayerStack
 	{
 	public:
-		LayerStack() = default;
+		LayerStack();
 		~LayerStack();
 
 		void PushLayer(Layer* pLayer);
@@ -21,6 +21,9 @@ namespace Exelius
 		void PushOverlayLayer(Layer* pOverlayLayer);
 		void PopOverlayLayer(Layer* pOverlayLayer);
 
+		void ClearLayerStack();
+
+		// Allow iteration over the "stack"
 		eastl::vector<Layer*>::iterator begin() { return m_layers.begin(); }
 		eastl::vector<Layer*>::iterator end() { return m_layers.end(); }
 
@@ -34,6 +37,6 @@ namespace Exelius
 		eastl::vector<Layer*>::const_reverse_iterator rend() const { return m_layers.rend(); }
 	private:
 		eastl::vector<Layer*> m_layers;
-		unsigned int m_layerInsertIndex = 0;
+		unsigned int m_layerInsertIndex;
 	};
 }

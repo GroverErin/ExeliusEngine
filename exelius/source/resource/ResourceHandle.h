@@ -1,6 +1,5 @@
 #pragma once
 #include "source/resource/ResourceHelpers.h"
-#include "source/debug/Log.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -29,11 +28,6 @@ namespace Exelius
 		/// the reference count for a resource?"
 		/// </summary>
 		bool m_resourceHeld;
-
-		/// <summary>
-		/// ResourceLoader Log.
-		/// </summary>
-		Log m_resourceLoaderLog;
 	public:
 		/// <summary>
 		/// Default construct a resource handle. The default construction
@@ -88,6 +82,10 @@ namespace Exelius
 		{
 			return static_cast<Type*>(Get(forceLoad));
 		}
+
+		bool CreateNew(const ResourceID& resourceID);
+
+		void SaveResource();
 
 		/// <summary>
 		/// Queues the resource for the loader thread to load if

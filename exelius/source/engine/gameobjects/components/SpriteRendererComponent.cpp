@@ -31,8 +31,11 @@ namespace Exelius
 			writer.Key("TilingMultiplier");
 			writer.Double((double)m_textureTilingMultiplier);
 
-			writer.Key("Texture");
-			writer.String(m_textureResource.GetID().Get().c_str(), m_textureResource.GetID().Get().size());
+			if (m_textureResource.GetID().IsValid())
+			{
+				writer.Key("Texture");
+				writer.String(m_textureResource.GetID().Get().c_str(), m_textureResource.GetID().Get().size());
+			}
 		}
 		writer.EndObject(); // End Sprite Renderer Component.
 	}

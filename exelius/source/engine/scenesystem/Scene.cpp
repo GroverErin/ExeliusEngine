@@ -1,10 +1,8 @@
 #include "EXEPCH.h"
 #include "Scene.h"
 
-#include "source/engine/gameobjects/ScriptableObject.h"
 #include "source/engine/gameobjects/GameObject.h"
 #include "source/engine/renderer/Renderer2D.h"
-#include "include/Time.h"
 
 #include "source/engine/gameobjects/components/RigidbodyComponent.h"
 #include "source/engine/gameobjects/components/BoxColliderComponent.h"
@@ -18,15 +16,6 @@
 
 #include "source/engine/resources/resourcetypes/TextFileResource.h"
 
-#include <EASTL/unordered_map.h>
-#include <EASTL/vector.h>
-
-#include <box2d/b2_world.h>
-#include <box2d/b2_body.h>
-#include <box2d/b2_fixture.h>
-#include <box2d/b2_polygon_shape.h>
-#include <box2d/b2_circle_shape.h>
-
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
@@ -35,19 +24,6 @@
 /// </summary>
 namespace Exelius
 {
-	static b2BodyType ConvertRigidbodyTypeToBox2DBody(RigidbodyComponent::BodyType bodyType)
-	{
-		switch (bodyType)
-		{
-			case RigidbodyComponent::BodyType::Static:    return b2_staticBody;
-			case RigidbodyComponent::BodyType::Dynamic:   return b2_dynamicBody;
-			case RigidbodyComponent::BodyType::Kinematic: return b2_kinematicBody;
-		}
-
-		EXE_ASSERT(false);
-		return b2_staticBody;
-	}
-
 	template<typename Component>
 	static void CopyComponent(entt::registry& destinationRegistry, entt::registry& sourceRegistry, const eastl::unordered_map<GUID, entt::entity>& enttMap)
 	{
@@ -99,11 +75,7 @@ namespace Exelius
 	}
 
 	Scene::Scene()
-		: m_pPhysicsWorld(nullptr)
-		, m_globalGravity(0.0f, -9.8f)
-		, m_velocityIterations(6)
-		, m_positionIterations(2)
-		, m_viewportWidth(0)
+		: m_viewportWidth(0)
 		, m_viewportHeight(0)
 	{
 		//
@@ -111,7 +83,7 @@ namespace Exelius
 
 	Scene::~Scene()
 	{
-		EXELIUS_DELETE(m_pPhysicsWorld);
+		//
 	}
 
 	SharedPtr<Scene> Scene::Copy(SharedPtr<Scene> other)
@@ -175,7 +147,7 @@ namespace Exelius
 
 	void Scene::OnRuntimeStart()
 	{
-		InitializeRuntimePhysics();
+		m_physicsSystem.InitializeRuntimePhysics(this);
 		InitializeRuntimeScripts();
 	}
 
@@ -183,14 +155,14 @@ namespace Exelius
 	{
 		UpdateRuntimeScripts();
 
-		UpdateRuntimePhysics();
+		m_physicsSystem.UpdateRuntimePhysics(this);
 
 		RenderSceneForActiveCameras();
 	}
 
 	void Scene::OnRuntimeStop()
 	{
-		EXELIUS_DELETE(m_pPhysicsWorld);
+		m_physicsSystem.StopRuntimePhysics();
 	}
 
 	void Scene::OnUpdateEditor(EditorCamera& camera)
@@ -404,99 +376,9 @@ namespace Exelius
 		return true;
 	}
 
-	void Scene::InitializeRuntimePhysics()
-	{
-		// Create new physics world. Since we are running on a copy of the scene from the editor.
-		m_pPhysicsWorld = EXELIUS_NEW(b2World({ m_globalGravity.x, m_globalGravity.y }));
-
-		auto view = m_registry.view<RigidbodyComponent>();
-		for (auto objectWithRigidBody : view)
-		{
-			GameObject gameObject(objectWithRigidBody, this);
-			TransformComponent& transform = gameObject.GetComponent<TransformComponent>();
-			auto& translation = transform.m_translation;
-			auto& scale = transform.m_scale;
-
-			RigidbodyComponent& rigidBody = gameObject.GetComponent<RigidbodyComponent>();
-
-			// Define the Box2D body def from our RigidBody and Transform.
-			b2BodyDef bodyDef;
-			bodyDef.type = ConvertRigidbodyTypeToBox2DBody(rigidBody.m_bodyType);
-			bodyDef.position.Set(translation.x, translation.y);
-			bodyDef.angle = transform.m_rotation.z;
-
-			// Add the new body to the physics world.
-			b2Body* body = m_pPhysicsWorld->CreateBody(&bodyDef);
-			body->SetFixedRotation(rigidBody.m_isFixedRotation);
-			body->SetGravityScale(rigidBody.m_gravityScale);
-			rigidBody.m_pRuntimeBody = body;
-
-			// If the object has a Box Collider...
-			if (gameObject.HasComponent<BoxColliderComponent>())
-			{
-				BoxColliderComponent& boxCollider = gameObject.GetComponent<BoxColliderComponent>();
-				auto& size = boxCollider.m_size;
-
-				b2PolygonShape boxShape;
-				boxShape.SetAsBox(size.x * scale.x, size.y * scale.y);
-
-				// Define and Add the Box2D Fixture to the body.
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &boxShape;
-				fixtureDef.density = boxCollider.m_density;
-				fixtureDef.friction = boxCollider.m_friction;
-				fixtureDef.restitution = boxCollider.m_restitution;
-				fixtureDef.restitutionThreshold = boxCollider.m_restitutionThreshold;
-				boxCollider.m_pRuntimeFixture = body->CreateFixture(&fixtureDef);
-			}
-
-			// If the object has a Circle Collider...
-			if (gameObject.HasComponent<CircleColliderComponent>())
-			{
-				CircleColliderComponent& circleCollider = gameObject.GetComponent<CircleColliderComponent>();
-				auto& offset = circleCollider.m_offset;
-
-				b2CircleShape circleShape;
-				circleShape.m_p.Set(offset.x, offset.y);
-				circleShape.m_radius = scale.x * circleCollider.m_radius;
-
-				// Define and Add the Box2D Fixture to the body.
-				b2FixtureDef fixtureDef;
-				fixtureDef.shape = &circleShape;
-				fixtureDef.density = circleCollider.m_density;
-				fixtureDef.friction = circleCollider.m_friction;
-				fixtureDef.restitution = circleCollider.m_restitution;
-				fixtureDef.restitutionThreshold = circleCollider.m_restitutionThreshold;
-				circleCollider.m_pRuntimeFixture = body->CreateFixture(&fixtureDef);
-			}
-		}
-	}
-
 	void Scene::InitializeRuntimeScripts()
 	{
 		// TODO: Lua Scripts
-	}
-
-	void Scene::UpdateRuntimePhysics()
-	{
-		m_pPhysicsWorld->Step(Time.DeltaTime, m_velocityIterations, m_positionIterations);
-
-		// Retrieve gameobject transforms from Box2D after the simulation.
-		auto view = m_registry.view<RigidbodyComponent>();
-		for (auto gameObjectWithRigidBody : view)
-		{
-			GameObject gameObject = { gameObjectWithRigidBody, this };
-			TransformComponent& transform = gameObject.GetComponent<TransformComponent>();
-			auto& translation = transform.m_translation;
-			RigidbodyComponent& rigidBody = gameObject.GetComponent<RigidbodyComponent>();
-
-			// Update the transform with Box2D simulated values.
-			b2Body* body = (b2Body*)rigidBody.m_pRuntimeBody;
-			const auto& position = body->GetPosition();
-			translation.x = position.x;
-			translation.y = position.y;
-			transform.m_rotation.z = body->GetAngle();
-		}
 	}
 
 	void Scene::UpdateRuntimeScripts()

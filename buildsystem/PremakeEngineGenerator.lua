@@ -59,6 +59,17 @@ function SetWindowsPostBuildCommands()
             [[copy "%{wks.location}tools\templates\engine_config.ini" "%{cfg.targetdir}\engine_config.ini" /y /a]], -- Copy the ini into the final build directory.
             [[copy "%{wks.location}tools\templates\engine_config.ini" "engine_config.ini" /y /a]], -- Copy the ini into the debuggers directory.
             [[xcopy "assets" "%{cfg.targetdir}\assets\" /y /q /e]], -- Copy assets into final build directory.
+        }
+
+    filter {"platforms:x64 or x86_64"}
+        postbuildcommands
+        {
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
+        }
+
+    filter {"platforms:x86 or Win32"}
+        postbuildcommands
+        {
             [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin32" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
         }
     filter {}

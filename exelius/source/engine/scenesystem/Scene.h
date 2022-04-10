@@ -1,13 +1,11 @@
 #pragma once
 #include "source/utility/generic/GUID.h"
 #include "source/resource/ResourceHandle.h"
+#include "source/engine/physics/PhysicsSystem.h"
 
 #include <EASTL/string.h>
-#include <EASTL/unordered_map.h>
+#include <EASTL/vector.h>
 #include <entt/entt.hpp>
-#include <glm/glm.hpp>
-
-class b2World;
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -23,14 +21,10 @@ namespace Exelius
 		
 		ResourceHandle m_sceneResource;
 
-		// Physics members.
-		b2World* m_pPhysicsWorld;
-		glm::vec2 m_globalGravity;
-		int32_t m_velocityIterations;
-		int32_t m_positionIterations;
-
 		// ENTT
 		entt::registry m_registry;
+
+		PhysicsSystem m_physicsSystem;
 
 		// TODO: Remove these, as they belong to Cameras
 		uint32_t m_viewportWidth;
@@ -74,11 +68,7 @@ namespace Exelius
 
 	private:
 
-		void InitializeRuntimePhysics();
-
 		void InitializeRuntimeScripts();
-
-		void UpdateRuntimePhysics();
 
 		void UpdateRuntimeScripts();
 

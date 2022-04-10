@@ -44,3 +44,6 @@
 [submodule "tools/thirdparty/imguinodeeditor"]
 	path = tools/thirdparty/imguinodeeditor
 	url = https://github.com/thedmd/imgui-node-editor
+[submodule "tools/thirdparty/lua"]
+	path = tools/thirdparty/lua
+	url = https://github.com/lua/lua

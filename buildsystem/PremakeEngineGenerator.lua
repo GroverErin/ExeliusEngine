@@ -11,8 +11,6 @@ function GenerateWindowsWorkspace()
         configurations
         {
             "Debug",    -- Contains no compiler optimized code and no packaged assets. (Slow and Heavy)
-            "ASan",     -- Same as Debug, with Address Sanitizer.(EXTREMELY Slow and Heavy)
-            "Test",     -- Contains compiler optimized code and no packaged assets. (Fast and Heavy)
             "Release"   -- Contains compiler optimized code and packaged assets. (Fast and Light)
         }
 

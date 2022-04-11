@@ -327,8 +327,6 @@ function sfml.IncludeDependency(dependencyRootFolder)
     {
         "SFML_STATIC",
         "EXELIUS_AUDIO=SFML_AUDIO"
-        --"SFML_RENDERER",
-        --"EXELIUS_RENDERER=SFML_RENDERER"
     }
 end
 

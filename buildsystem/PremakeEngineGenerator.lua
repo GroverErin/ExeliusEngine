@@ -64,13 +64,15 @@ function SetWindowsPostBuildCommands()
     filter {"platforms:x64 or x86_64"}
         postbuildcommands
         {
-            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin" "%{cfg.targetdir}" /y /q /e]], -- Copy Vulkan dll to final build directory
+            [[xcopy "%{wks.location}tools\thirdparty\sfml\extlibs\bin\x64" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
         }
 
     filter {"platforms:x86 or Win32"}
         postbuildcommands
         {
-            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin32" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin32" "%{cfg.targetdir}" /y /q /e]], -- Copy Vulkan dll to final build directory
+            [[xcopy "%{wks.location}tools\thirdparty\sfml\extlibs\bin\x86" "%{cfg.targetdir}" /y /q /e]]
         }
     filter {}
 end

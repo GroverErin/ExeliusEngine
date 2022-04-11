@@ -11,6 +11,8 @@ function lua.GenerateDependencyProject(dependencyRootFolder)
 
         location(dependencyRootFolder)
 
+        warnings("Off")
+
         filter {"system:linux"}
             pic("On")
 
@@ -20,6 +22,10 @@ function lua.GenerateDependencyProject(dependencyRootFolder)
         {
             "%{prj.location}/*.c",
             "%{prj.location}/*.h"
+        }
+        removefiles
+        {
+            "%{prj.location}/onelua.c",
         }
 
         includedirs

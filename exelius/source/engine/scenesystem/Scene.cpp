@@ -19,6 +19,14 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
+//extern "C"
+//{
+//	#include <lua.h>
+//	#include <lualib.h>
+//	#include <lauxlib.h>
+//	#include <luaconf.h>
+//}
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>

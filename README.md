@@ -20,6 +20,8 @@ Exelius currently supports the following platforms:
   - Linux (Tested with Ubuntu 20.04 and gcc)
   - Raspberry Pi 4 (Tested with PiOS x64 and gcc)
 
+Note: Windows is the active development platform, and the other platforms may not always be in a working state.
+
 |[Installation](#installation) |[Goals](#goals)         |[Learn](#learn)                |[Acknowledgements](#acknowledgements)              |[Gallery](#screenshots)    |
 |:-----------------------------|------------------------|-------------------------------|---------------------------------------------------|---------------------------|
 |[Windows](#windows)           |[Plans & Trello](#plans)|[FAQ](#faq)                    |[Author and Contributors](#author-and-contributors)|[Screenshots](#screenshots)|
@@ -42,38 +44,38 @@ ___
 ## Plans
 ### Trello Board
 Check out the [Trello Board](https://trello.com/b/AYUYeK4x) to see the specific roadmap for this project.
-You can also see the overall progress, as well as the features currently in production.
+You can also see the overall progress, as well as the features currently in production. The Trello has much more detailed goals.
 ### Complete/Testing
   - Windows Build System
   - Linux Build System
   - Raspberry Pi x64 Build System (Tested with PiOS x64 and gcc)
-  - 2D Rendering on Separate Dedicated Thread
+  - 2D Rendering ~~on Separate Dedicated Thread~~
   - Resource Managed - Reference counted assets.
   - Fast & Flexible Debug Logging System
-  - Game Object and Component System (ECS and Inheretance Hybrid)
+  - Game Object and Component System (ECS using ENTT)
   - Keyboard and Gamepad Input
   - Engine Configuration from Data
   - File Saving & Loading
   - Improved/Rewritten Build system
   - Memory Manager
   - Thread Pool/Job System
-### Upcoming
-Summer/Fall 2021 goals:
-  - GUI Layer
   - Message/Event System (To prep for networking)
-  - Networking Layer
-### Future
+  - Networking Layer (Currently unfinished)
+  - Utility Tools and Math Layer (GLM)
+  - Runtime Editor w/ Hot-reloading and debugging
+### Upcoming
 Spring 2022 goals:
-  - Profiler
+  - GUI Layer
   - Scripting (Lua and Native C++)
   - Flipbook/Sprite Animations
   - Tilemaps
-Stretch goals:
-  - New Project Generation and Templates
-  - Utility Tools and Math Layer
-  - Texture Atlasing
   - Audio
-  - [Runtime Editor w/ Hot-reloading and debugging](https://youtu.be/Qbt-1rcSqZc)
+### Future
+Spring 2022 goals:
+  - Profiler
+  - Finish Networking
+  - New Project Generation and Templates
+  - Texture Atlasing
   - [Visual Node Graph Scripting](https://youtu.be/pnjDL-axeIU)
   - [Visual Code Block Scripting](https://developers.google.com/blockly/)
   - [Lighting & Shading](https://youtu.be/K4Gr1sXnl9A)
@@ -133,7 +135,7 @@ ___
 The plan is to start including some tutorials once the engine is in a more finalized state. Engine... final... pffffft.
 ### Documentation
 This will be the documentation for the engine. Use of [Doxygen](https://www.doxygen.nl/index.html) is intended here, possibly to generate the github Wiki as well.
-It won't happen for a while longer, as I don't really feel like regenerating the docs for every commit. The source code itself is fairly well commented, but if you
+It won't happen for a while longer, as I don't really feel like regenerating the docs for every commit. The source code itself is fairly well commented/named, but if you
 have questions feel free to reach out to me.
 ___
 ## Acknowledgements
@@ -147,22 +149,34 @@ ___
   - [Yan "The Cherno" Chernikov](https://www.youtube.com/c/TheChernoProject/featured) — YouTube series that I've used to evaluate different design decisions. See note below on this.
   - Jason Gregory — Wrote the book [Game Engine Architecture](https://www.gameenginebook.com), which I have "skimmed" cover to cover. Never met Jason though...
 
-  Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project.
-  
+  Note on "The Cherno": There are some design decisions that are very similar between the Exelius and Hazel Engines. My intention is not to claim this code as my own, and I have compiled a list of his ideas that I have liked and used in my project. In the near future, I will be marking every file that contains code that I had written while following his tutorials with a comment block.
+
     - The design of the core Application class and how it hooks into a client application. I have made changes to his original method to allow much simpler hooking for users.
-    - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and have made it python 2.7 compatable (that might change though).
-    - I am currently using his event system to handle window events from SFML. I will be stripping this system out shortly, to be replaced with an entirely new system.
-    - I might use his LayerStack design for applications. I haven't yet, but I am exploring the idea and the implications it would have in Exelius.
+    - I wrote my python build system by following the build system found in his project. I have made quite a few changes to this, and will continue to make further changes. My end goal for the build system is to extract it into its own project, so I can use it as a tool to build future projects.
+    - I am currently using his rendering API. I have very little graphics knowledge, and I have spent a lot of time watching his tutorials and learning from his code in this area. I have changed it quite significantly, but the fundamental design is ultimately his.
+    - I have used his LayerStack design for render layering. I tried to do it a different way on my own, and it just didn't work out the way I had hoped. His method is more clear to the users, and also more sustainable.
 ### Third-Party Tools
 Here is a list of all the third party tools currently being used by Exelius. The goal is to make this list as short as possible. Other libraries may be included but are currently unused.
   - [Premake 5](https://premake.github.io) — Used for the build system.
-  - [SFML](https://www.sfml-dev.org) — Used for window creation, rendering, and input events.
+  - [Box2D](https://github.com/erincatto/box2d) - Used for Physics and Collision detection.
+  - [ENTT](https://github.com/skypjack/entt) - Used as the main ECS system.
+  - [GLAD](https://glad.dav1d.de/) - For OpenGL Rendering.
+  - [GLFW](https://github.com/glfw/glfw) - Also for OpenGL Rendering.
+  - [GLM](https://github.com/g-truc/glm) - For 3D math.
+  - [SFML](https://www.sfml-dev.org) — Used for audio. (To be replaced with raw OpenAL)
+  - [OpenAL](https://github.com/kcat/openal-soft) - Currently Unused. (To replace SFML Audio)
   - [EASTL](https://github.com/electronicarts/EASTL) — Used as the main STL for Exelius.
-  - [rapidjson](https://github.com/Tencent/rapidjson) — Used to parse gameobjects and the config file (which should not be json but whatever... subject to change blah blah).
-  - [spdlog](https://github.com/gabime/spdlog) — Used for multithreaded debug logging to console and files.
-  - [Dear ImGui](https://github.com/ocornut/imgui) — Not currently used. Will be used to create an editor GUI. This will be separate from the in-game (retained) gui.
+  - [pugixml](https://github.com/zeux/pugixml) - Used to parse XML files. Particularly, [Tiled](https://www.mapeditor.org/) `.tmx` and `.tsx` files.
+  - [rapidjson](https://github.com/Tencent/rapidjson) — Used to parse gameobjects, scenes, and the config file (which should not be json but whatever... subject to change blah blah).
+  - [spdlog](https://github.com/gabime/spdlog) — Used for multithreaded debug logging to console and files. (To be removed in favor of an ImGUI console).
+  - [Dear ImGui](https://github.com/ocornut/imgui) — For the editor GUI or anything I feel like... ImGui is amazing.
+  - [ImGui Node Editor](https://github.com/thedmd/imgui-node-editor) - Currently Unused. (Possible Future Visual Scritpting)
+  - [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo) - Currently Unused. (To be used in the editor)
+  - [Lua](https://github.com/lua/lua) - Used as the main scripting language.
+  - [Sol2](https://github.com/ThePhD/sol2) - Used as a helper for the Lua Scripting.
+  - [stb](https://github.com/nothings/stb) - Used to load images and textures. Will also be used to load fonts, and likely other resources.
   - [zlib](https://github.com/madler/zlib) — Not currently used. Will be used to pack and unpack assets in the resource system.
 ___
 ## Gallery
 ### Screenshots
-Not really much to see at the moment... unless you really like to look at log messages on a console.
+Coming Soon! :D

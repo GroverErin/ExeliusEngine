@@ -47,3 +47,6 @@
 [submodule "tools/thirdparty/lua"]
 	path = tools/thirdparty/lua
 	url = https://github.com/lua/lua
+[submodule "tools/thirdparty/sol2"]
+	path = tools/thirdparty/sol2
+	url = https://github.com/ThePhD/sol2

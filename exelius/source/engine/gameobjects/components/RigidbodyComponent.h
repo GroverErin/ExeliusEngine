@@ -1,6 +1,5 @@
 #pragma once
 #include "source/engine/gameobjects/Component.h"
-#include "source/utility/generic/Macros.h"
 
 #include <EASTL/string.h>
 

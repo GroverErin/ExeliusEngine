@@ -10,6 +10,11 @@ function sol2.IncludeDependency(dependencyRootFolder)
         dependencyRootFolder .. "single/"
     }
 
+    defines
+        {
+            "SOL_ALL_SAFETIES_ON"
+        }
+
     filter {"system:windows"}
         files
         {

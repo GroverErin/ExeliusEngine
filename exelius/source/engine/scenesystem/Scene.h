@@ -2,6 +2,7 @@
 #include "source/utility/generic/GUID.h"
 #include "source/resource/ResourceHandle.h"
 #include "source/engine/physics/PhysicsSystem.h"
+#include "source/engine/scripting/ScriptingSystem.h"
 
 #include <EASTL/string.h>
 #include <EASTL/vector.h>
@@ -25,6 +26,7 @@ namespace Exelius
 		entt::registry m_registry;
 
 		PhysicsSystem m_physicsSystem;
+		ScriptingSystem m_scriptingSystem;
 
 		// TODO: Remove these, as they belong to Cameras
 		uint32_t m_viewportWidth;
@@ -67,10 +69,6 @@ namespace Exelius
 		bool DeserializeScene(const ResourceID& sceneResourceID);
 
 	private:
-
-		void InitializeRuntimeScripts();
-
-		void UpdateRuntimeScripts();
 
 		void RenderSceneForActiveCameras();
 

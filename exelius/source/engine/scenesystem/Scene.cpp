@@ -13,6 +13,7 @@
 #include "source/engine/gameobjects/components/CameraComponent.h"
 #include "source/engine/gameobjects/components/CircleColliderComponent.h"
 #include "source/engine/gameobjects/components/CircleRendererComponent.h"
+#include "source/engine/gameobjects/components/LuaScriptComponent.h"
 
 #include "source/engine/resources/resourcetypes/TextFileResource.h"
 
@@ -61,6 +62,7 @@ namespace Exelius
 		CopyComponent<RigidbodyComponent>(destinationRegistry, sourceRegistry, enttMap);
 		CopyComponent<BoxColliderComponent>(destinationRegistry, sourceRegistry, enttMap);
 		CopyComponent<CircleColliderComponent>(destinationRegistry, sourceRegistry, enttMap);
+		CopyComponent<LuaScriptComponent>(destinationRegistry, sourceRegistry, enttMap);
 	}
 
 	template<typename Component>
@@ -80,6 +82,7 @@ namespace Exelius
 		CopyExistingComponent<RigidbodyComponent>(destinationGameObject, sourceGameObject);
 		CopyExistingComponent<BoxColliderComponent>(destinationGameObject, sourceGameObject);
 		CopyExistingComponent<CircleColliderComponent>(destinationGameObject, sourceGameObject);
+		CopyExistingComponent<LuaScriptComponent>(destinationGameObject, sourceGameObject);
 	}
 
 	Scene::Scene()
@@ -157,12 +160,12 @@ namespace Exelius
 	void Scene::OnRuntimeStart()
 	{
 		m_physicsSystem.InitializeRuntimePhysics(this);
-		InitializeRuntimeScripts();
+		m_scriptingSystem.InitializeRuntimeScripting(this);
 	}
 
 	void Scene::OnRuntimeUpdate()
 	{
-		UpdateRuntimeScripts();
+		m_scriptingSystem.UpdateRuntimeScripting(this);
 
 		m_physicsSystem.UpdateRuntimePhysics(this);
 
@@ -171,6 +174,7 @@ namespace Exelius
 
 	void Scene::OnRuntimeStop()
 	{
+		m_scriptingSystem.StopRuntimeScripting();
 		m_physicsSystem.StopRuntimePhysics();
 	}
 
@@ -379,20 +383,17 @@ namespace Exelius
 				CircleColliderComponent& circleCollider = loadedObject.AddComponent<CircleColliderComponent>();
 				circleCollider.DeserializeComponent(circleColliderComponentMember->value);
 			}
+
+			const auto luaScriptComponentMember = gameObject.FindMember("LuaScriptComponent");
+			if (luaScriptComponentMember != gameObject.MemberEnd())
+			{
+				LuaScriptComponent& luaScript = loadedObject.AddComponent<LuaScriptComponent>();
+				luaScript.DeserializeComponent(luaScriptComponentMember->value);
+			}
 		}
 
 		EXE_LOG_CATEGORY_INFO("SceneDeserialization", "Scene '{}' Deserialized Successfully!", sceneResourceID.Get().c_str());
 		return true;
-	}
-
-	void Scene::InitializeRuntimeScripts()
-	{
-		// TODO: Lua Scripts
-	}
-
-	void Scene::UpdateRuntimeScripts()
-	{
-		// TODO: Lua Scripts
 	}
 
 	void Scene::RenderSceneForActiveCameras()
@@ -492,6 +493,12 @@ namespace Exelius
 			{
 				CircleColliderComponent& circleColliderComponent = gameObject.GetComponent<CircleColliderComponent>();
 				circleColliderComponent.SerializeComponent(writer);
+			}
+
+			if (gameObject.HasComponent<LuaScriptComponent>())
+			{
+				LuaScriptComponent& luaScriptComponent = gameObject.GetComponent<LuaScriptComponent>();
+				luaScriptComponent.SerializeComponent(writer);
 			}
 		}
 		writer.EndObject(); // End New GameObject.

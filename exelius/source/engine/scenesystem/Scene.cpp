@@ -91,7 +91,8 @@ namespace Exelius
 
 	Scene::~Scene()
 	{
-		//
+		if (m_sceneResource.IsReferenceHeld())
+			m_sceneResource.Release();
 	}
 
 	SharedPtr<Scene> Scene::Copy(SharedPtr<Scene> other)

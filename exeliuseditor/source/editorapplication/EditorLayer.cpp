@@ -105,9 +105,11 @@ namespace Exelius
 			return;
 		}
 
+		ResourceHandle sceneToLoad(path.string().c_str());
+		if (!sceneToLoad.IsReferenceHeld())
+			sceneToLoad.LoadNow();
 		SharedPtr<Scene> newScene = MakeShared<Scene>();
 
-		ResourceLoader::GetInstance()->LoadNow(path.string().c_str());
 		if (newScene->DeserializeScene(path.string().c_str()))
 		{
 			m_pEditorScene = newScene;
@@ -271,6 +273,7 @@ namespace Exelius
 	void EditorLayer::NewScene()
 	{
 		m_pActiveScene = MakeShared<Scene>();
+		m_pEditorScene = m_pActiveScene;
 		glm::vec2 sceneViewportSize = m_sceneViewPanel.GetSize();
 		m_pActiveScene->OnViewportResize((uint32_t)sceneViewportSize.x, (uint32_t)sceneViewportSize.y);
 		m_sceneHierarchyPanel.SetContext(m_pActiveScene);

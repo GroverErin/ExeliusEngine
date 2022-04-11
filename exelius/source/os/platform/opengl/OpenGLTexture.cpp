@@ -44,7 +44,7 @@ namespace Exelius
 		stbi_uc* stbiData = nullptr;
 		{
 			stbiData = (stbi_uc*)(data.data());
-			stbiData = stbi_load_from_memory(stbiData, data.size(), &width, &height, &channels, 0);
+			stbiData = stbi_load_from_memory(stbiData, (int)data.size(), &width, &height, &channels, 0);
 		}
 
 		if (stbiData)

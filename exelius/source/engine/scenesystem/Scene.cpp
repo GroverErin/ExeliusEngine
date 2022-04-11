@@ -449,7 +449,7 @@ namespace Exelius
 			if (gameObject.HasComponent<NameComponent>())
 			{
 				writer.Key("NameComponent");
-				writer.String(gameObject.GetName().c_str(), gameObject.GetName().size());
+				writer.String(gameObject.GetName().c_str(), (rapidjson::SizeType)(gameObject.GetName().size()));
 			}
 
 			if (gameObject.HasComponent<TransformComponent>())

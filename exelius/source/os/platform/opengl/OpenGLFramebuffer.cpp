@@ -89,7 +89,7 @@ namespace Exelius
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
 		glDeleteFramebuffers(1, &m_rendererID);
-		glDeleteTextures(m_colorAttachments.size(), m_colorAttachments.data());
+		glDeleteTextures((GLsizei)m_colorAttachments.size(), m_colorAttachments.data());
 		glDeleteTextures(1, &m_depthAttachment);
 	}
 
@@ -98,7 +98,7 @@ namespace Exelius
 		if (m_rendererID)
 		{
 			glDeleteFramebuffers(1, &m_rendererID);
-			glDeleteTextures(m_colorAttachments.size(), m_colorAttachments.data());
+			glDeleteTextures((GLsizei)m_colorAttachments.size(), m_colorAttachments.data());
 			glDeleteTextures(1, &m_depthAttachment);
 
 			m_colorAttachments.clear();
@@ -114,7 +114,7 @@ namespace Exelius
 		if (m_colorAttachmentSpecifications.size())
 		{
 			m_colorAttachments.resize(m_colorAttachmentSpecifications.size());
-			CreateTextures(multisample, m_colorAttachments.data(), m_colorAttachments.size());
+			CreateTextures(multisample, m_colorAttachments.data(), (uint32_t)m_colorAttachments.size());
 
 			for (size_t i = 0; i < m_colorAttachments.size(); i++)
 			{
@@ -122,10 +122,10 @@ namespace Exelius
 				switch (m_colorAttachmentSpecifications[i].m_textureFormat)
 				{
 					case FramebufferTextureFormat::RGBA8:
-						AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_RGBA8, GL_RGBA, m_specification.m_width, m_specification.m_height, i);
+						AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_RGBA8, GL_RGBA, m_specification.m_width, m_specification.m_height, (int)i);
 						break;
 					case FramebufferTextureFormat::RED_INTEGER:
-						AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_R32I, GL_RED_INTEGER, m_specification.m_width, m_specification.m_height, i);
+						AttachColorTexture(m_colorAttachments[i], m_specification.m_samples, GL_R32I, GL_RED_INTEGER, m_specification.m_width, m_specification.m_height, (int)i);
 						break;
 				}
 			}
@@ -147,7 +147,7 @@ namespace Exelius
 		{
 			EXE_ASSERT(m_colorAttachments.size() <= 4);
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-			glDrawBuffers(m_colorAttachments.size(), buffers);
+			glDrawBuffers((GLsizei)m_colorAttachments.size(), buffers);
 		}
 		else if (m_colorAttachments.empty())
 		{

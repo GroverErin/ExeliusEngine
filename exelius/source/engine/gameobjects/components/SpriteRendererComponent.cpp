@@ -34,7 +34,7 @@ namespace Exelius
 			if (m_textureResource.GetID().IsValid())
 			{
 				writer.Key("Texture");
-				writer.String(m_textureResource.GetID().Get().c_str(), m_textureResource.GetID().Get().size());
+				writer.String(m_textureResource.GetID().Get().c_str(), (rapidjson::SizeType)(m_textureResource.GetID().Get().size()));
 			}
 		}
 		writer.EndObject(); // End Sprite Renderer Component.

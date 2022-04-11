@@ -50,12 +50,12 @@ namespace Exelius
 		GameObject gameObjectB = GameObject{ objectB, m_pOwningScene };
 	}
 
-	void ContactListener::PreSolve(b2Contact* pContact, const b2Manifold* pOldManifold)
+	void ContactListener::PreSolve(b2Contact*, const b2Manifold*)
 	{
 		EXE_ASSERT(m_pOwningScene);
 	}
 
-	void ContactListener::PostSolve(b2Contact* pContact, const b2ContactImpulse* pImpulse)
+	void ContactListener::PostSolve(b2Contact*, const b2ContactImpulse*)
 	{
 		EXE_ASSERT(m_pOwningScene);
 	}

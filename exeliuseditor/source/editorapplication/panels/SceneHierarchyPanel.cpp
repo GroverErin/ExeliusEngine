@@ -57,7 +57,7 @@ namespace Exelius
 
 		ImGuiTreeNodeFlags flags = ((m_selectedGameObject == gameObject) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-		bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)gameObject, flags, tag.c_str());
+		ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)gameObject, flags, tag.c_str());
 		if (ImGui::IsItemClicked())
 		{
 			m_selectedGameObject = gameObject;

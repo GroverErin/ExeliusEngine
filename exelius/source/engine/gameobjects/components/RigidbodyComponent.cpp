@@ -13,7 +13,7 @@ namespace Exelius
 		{
 			writer.Key("BodyType");
 			eastl::string bodyString = RigidbodyBodyTypeToString(m_bodyType);
-			writer.String(bodyString.c_str(), bodyString.size());
+			writer.String(bodyString.c_str(), (rapidjson::SizeType)bodyString.size());
 
 			writer.Key("IsFixedRotation");
 			writer.Bool(m_isFixedRotation);

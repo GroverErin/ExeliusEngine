@@ -392,7 +392,7 @@ namespace Exelius
 	{
 		m_pQuadVertexArray = MakeShared<VertexArray>();
 
-		m_pQuadVertexBuffer = MakeShared<VertexBuffer>(s_kMaxVertices * sizeof(QuadVertex));
+		m_pQuadVertexBuffer = MakeShared<VertexBuffer>(s_kMaxVertices * (uint32_t)sizeof(QuadVertex));
 		m_pQuadVertexBuffer->SetLayout(
 			{
 				{ ShaderDataType::Float3,	"a_position" },
@@ -413,7 +413,7 @@ namespace Exelius
 	{
 		m_pCircleVertexArray = MakeShared<VertexArray>();
 
-		m_pCircleVertexBuffer = MakeShared<VertexBuffer>(s_kMaxVertices * sizeof(CircleVertex));
+		m_pCircleVertexBuffer = MakeShared<VertexBuffer>(s_kMaxVertices * (uint32_t)sizeof(CircleVertex));
 		m_pCircleVertexBuffer->SetLayout(
 			{
 				{ ShaderDataType::Float3,	"a_worldPosition" },
@@ -433,7 +433,7 @@ namespace Exelius
 	{
 		m_pLineVertexArray = MakeShared<VertexArray>();
 
-		m_pLineVertexBuffer = MakeShared<VertexBuffer>(s_kMaxVertices * sizeof(LineVertex));
+		m_pLineVertexBuffer = MakeShared<VertexBuffer>(s_kMaxVertices * (uint32_t)sizeof(LineVertex));
 		m_pLineVertexBuffer->SetLayout(
 			{
 				{ ShaderDataType::Float3,	"a_position" },

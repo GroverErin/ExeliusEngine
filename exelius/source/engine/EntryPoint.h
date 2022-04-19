@@ -8,26 +8,46 @@
 
 extern Exelius::Application* Exelius::CreateApplication();
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+namespace Exelius
 {
+	int Main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+	{
 #ifdef LINUX
-	XInitThreads();
+		XInitThreads();
 #endif
-	Exelius::Application::SetSingleton(Exelius::CreateApplication());
-	auto* pApp = Exelius::Application::GetInstance();
-	EXE_ASSERT(pApp);
+		Exelius::Application::SetSingleton(Exelius::CreateApplication());
+		auto* pApp = Exelius::Application::GetInstance();
+		EXE_ASSERT(pApp);
 
-	if (!pApp->PreInitializeExelius())
-		return 1;
-	if (!pApp->InitializeExelius())
-		return 1;
+		if (!pApp->PreInitializeExelius())
+			return 1;
+		if (!pApp->InitializeExelius())
+			return 1;
 
-	pApp->Run();
+		pApp->Run();
 
-	pApp->DestroySingleton();
+		pApp->DestroySingleton();
 
-	return 0;
+		return 0;
+	}
 }
+
+#ifdef EXE_RELEASE
+	#ifdef EXE_WINDOWS
+		#include <Windows.h>
+
+		int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrevious, PSTR cmdline, int cmdshow)
+		{
+			return Exelius::Main(__argc, __argv);
+		}
+	#endif
+#else
+	int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+	{
+		return Exelius::Main(argc, argv);
+	}
+#endif // EXE_RELEASE
+
 
 /// <summary>
 /// Generates a class that acts as the hook into the engine.

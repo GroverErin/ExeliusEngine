@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 
 from buildsystem.PythonConsoleLog import Log as log
@@ -12,6 +13,10 @@ class VulkanSetup:
     def Validate(self):
         if (not self.__CheckVulkanSDK()):
             log.Error("Vulkan SDK not installed correctly.")
+            return
+
+        if (not self.__CopyVulkanSDKReleaseLibs()):
+            log.Error("Unable to Copy Vulkan Release Libs.")
             return
             
         if (not self.__CheckVulkanSDKDebugLibs()):
@@ -71,4 +76,18 @@ class VulkanSetup:
             log.Info(f"Vulkan SDK debug libs installed at {os.path.abspath(const.VULKAN_SDK_PATH)}")
         else:
             log.Info(f"Vulkan SDK debug libs located at {os.path.abspath(const.VULKAN_SDK_PATH)}")
+        return True
+
+    @classmethod
+    def __CopyVulkanSDKReleaseLibs(self):
+        vulkanSDK = os.environ.get(const.VULKAN_ENVIRONMENT_VARIABLE)
+        vulkanSDKX86Path = vulkanSDK + "/Bin32/"
+        vulkanSDKX64Path = vulkanSDK + "/Bin/"
+
+        os.makedirs(os.path.dirname(const.VULKAN_RELEASE_DLL_INSTALL_PATH + "Bin32/"), exist_ok=True)
+        os.makedirs(os.path.dirname(const.VULKAN_RELEASE_DLL_INSTALL_PATH + "Bin/"), exist_ok=True)
+
+        for libName in const.VULKAN_RELEASE_DLLS:
+            shutil.copy(vulkanSDKX86Path + libName, const.VULKAN_RELEASE_DLL_INSTALL_PATH + "Bin32/")
+            shutil.copy(vulkanSDKX64Path + libName, const.VULKAN_RELEASE_DLL_INSTALL_PATH + "Bin/")
         return True

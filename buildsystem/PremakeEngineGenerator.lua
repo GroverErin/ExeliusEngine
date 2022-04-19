@@ -62,15 +62,35 @@ function SetWindowsPostBuildCommands()
     filter {"platforms:x64 or x86_64"}
         postbuildcommands
         {
-            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin" "%{cfg.targetdir}" /y /q /e]], -- Copy Vulkan dll to final build directory
             [[xcopy "%{wks.location}tools\thirdparty\sfml\extlibs\bin\x64" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
+        }
+
+    filter {"platforms:x64 or x86_64", "configurations:Release"}
+        postbuildcommands
+        {
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Release\Bin" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
+        }
+    filter {"platforms:x64 or x86_64", "configurations:Debug"}
+        postbuildcommands
+        {
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Debug\Bin" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
         }
 
     filter {"platforms:x86 or Win32"}
         postbuildcommands
         {
-            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Bin32" "%{cfg.targetdir}" /y /q /e]], -- Copy Vulkan dll to final build directory
             [[xcopy "%{wks.location}tools\thirdparty\sfml\extlibs\bin\x86" "%{cfg.targetdir}" /y /q /e]]
+        }
+
+    filter {"platforms:x86 or Win32", "configurations:Release"}
+        postbuildcommands
+        {
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Release\Bin32" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
+        }
+    filter {"platforms:x86 or Win32", "configurations:Debug"}
+        postbuildcommands
+        {
+            [[xcopy "%{wks.location}tools\thirdparty\vulkan\Debug\Bin32" "%{cfg.targetdir}" /y /q /e]] -- Copy Vulkan dll to final build directory
         }
     filter {}
 end
@@ -137,7 +157,12 @@ function exeliusGenerator.GenerateEditorProject()
         log.Log("[Premake] Generating Editor at Path: " .. pathToLog)
 
         location(editorPath)
-        kind("ConsoleApp")
+
+        filter {"configurations:Release"}
+            kind("WindowedApp")
+        filter {"configurations:Debug"}
+            kind("ConsoleApp")
+        filter {}
 
         files
         {

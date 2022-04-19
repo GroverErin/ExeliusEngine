@@ -14,22 +14,27 @@ function vulkan.IncludeDependency(dependencyRootFolder)
         vulkanSDKPath .. "/Include/"
     }
 
-    filter {"architecture:x86"}
+    filter {"architecture:x86", "configurations:Release"}
         libdirs
         {
-            vulkanSDKPath .. "/Lib32/",
-            dependencyRootFolder .. "Lib32/"--,
-            --dependencyRootFolder .. "Bin32/"
+            vulkanSDKPath .. "/Lib32/"
         }
-
-    filter {"architecture:x86_64"}
+    filter {"architecture:x86", "configurations:Debug"}
         libdirs
         {
-            vulkanSDKPath .. "/Lib/",
-            dependencyRootFolder .. "Lib/"--,
-            --dependencyRootFolder .. "Bin/"
+            dependencyRootFolder .. "Debug/Lib32/"
         }
 
+    filter {"architecture:x86_64", "configurations:Release"}
+        libdirs
+        {
+            vulkanSDKPath .. "/Lib/"
+        }
+    filter {"architecture:x86_64", "configurations:Debug"}
+        libdirs
+        {
+            dependencyRootFolder .. "Debug/Lib/"
+        }
     filter {}
 end
 

@@ -47,14 +47,16 @@ namespace Exelius
 	{
 		m_resourceID = other.m_resourceID;
 		m_resourceHeld = other.m_resourceHeld;
-		ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+		if (m_resourceHeld && m_resourceID.IsValid())
+			ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
 	}
 
 	ResourceHandle& ResourceHandle::operator=(const ResourceHandle& other)
 	{
 		m_resourceID = other.m_resourceID;
 		m_resourceHeld = other.m_resourceHeld;
-		ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+		if (m_resourceHeld && m_resourceID.IsValid())
+			ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
 		return *this;
 	}
 

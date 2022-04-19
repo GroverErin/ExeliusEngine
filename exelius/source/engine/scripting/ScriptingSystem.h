@@ -14,7 +14,7 @@ namespace Exelius
 
 	class ScriptingSystem
 	{
-		sol::state* m_pluaState;
+		sol::state* m_pLuaState;
 	public:
 		ScriptingSystem();
 		~ScriptingSystem();
@@ -23,6 +23,6 @@ namespace Exelius
 
 		void UpdateRuntimeScripting(Scene* pOwningScene);
 
-		void StopRuntimeScripting();
+		void StopRuntimeScripting(Scene* pOwningScen);
 	};
 }

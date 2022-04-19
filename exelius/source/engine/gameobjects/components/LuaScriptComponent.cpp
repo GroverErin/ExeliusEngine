@@ -1,10 +1,32 @@
 #include "EXEPCH.h"
 #include "LuaScriptComponent.h"
 
+#include "source/engine/resources/resourcetypes/TextFileResource.h"
+
+#include <sol/sol.hpp>
+
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
 {
+	void LuaScriptComponent::InitializeScript(sol::state* pLuaState)
+	{
+		EXE_ASSERT(pLuaState);
+
+		if (!m_scriptResource.IsReferenceHeld())
+			m_scriptResource.LoadNow();
+
+		TextFileResource* pScriptResource = m_scriptResource.GetAs<TextFileResource>();
+		if (!pScriptResource)
+		{
+			EXE_LOG_CATEGORY_WARN("ScriptSystem", "Failed to initialize script '{}'", m_scriptResource.GetID().Get().c_str());
+			return;
+		}
+
+		m_scriptData = pLuaState->script(pScriptResource->GetRawText().c_str());
+		EXE_ASSERT(m_scriptData.valid());
+	}
+
 	void LuaScriptComponent::SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer)
 	{
 		writer.Key("LuaScriptComponent");

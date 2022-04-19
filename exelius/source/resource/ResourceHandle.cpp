@@ -43,6 +43,21 @@ namespace Exelius
 		}
 	}
 
+	ResourceHandle::ResourceHandle(const ResourceHandle& other)
+	{
+		m_resourceID = other.m_resourceID;
+		m_resourceHeld = other.m_resourceHeld;
+		ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+	}
+
+	ResourceHandle& ResourceHandle::operator=(const ResourceHandle& other)
+	{
+		m_resourceID = other.m_resourceID;
+		m_resourceHeld = other.m_resourceHeld;
+		ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+		return *this;
+	}
+
 	/// <summary>
 	/// Destroying the ResourceHandle will automatically release the
 	/// resource if it has not already been done manually.

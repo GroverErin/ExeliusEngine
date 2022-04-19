@@ -241,6 +241,20 @@ namespace Exelius
 				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f);
 			});
 
+		DrawComponent<LuaScriptComponent>("Lua Script", gameObject, [](LuaScriptComponent& component)
+			{
+				char buffer[256]; // TODO: This limit should be imposed in the actual component.
+				memset(buffer, 0, sizeof(buffer));
+				if (component.m_scriptResource.IsReferenceHeld())
+					std::strncpy(buffer, component.m_scriptResource.GetID().Get().c_str(), sizeof(buffer));
+
+				if (ImGui::InputText("Script", buffer, sizeof(buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+				{
+					component.m_scriptResource.SetResourceID(buffer);
+					component.m_scriptResource.LoadNow(); // Should Acquire here.
+				}
+			});
+
 		ImGui::Separator();
 
 		DrawAddComponentPanel(gameObject);
@@ -328,6 +342,14 @@ namespace Exelius
 			componentVector.emplace_back("Circle Collider", [](GameObject gameObject)
 				{
 					gameObject.AddComponent<CircleColliderComponent>();
+					drawAddComponentList = false;
+					selectedIndex = -1;
+				});
+
+		if (!gameObject.HasComponent<LuaScriptComponent>())
+			componentVector.emplace_back("Lua Script", [](GameObject gameObject)
+				{
+					gameObject.AddComponent<LuaScriptComponent>();
 					drawAddComponentList = false;
 					selectedIndex = -1;
 				});

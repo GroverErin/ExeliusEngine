@@ -78,7 +78,7 @@ namespace Exelius
 			return ResourceType::kInvalid;
 		}
 
-		if (fileExtension == "txt" || fileExtension == "json" || fileExtension == "excene")
+		if (fileExtension == "txt" || fileExtension == "json" || fileExtension == "excene" || fileExtension == "lua")
 		{
 			return ResourceType::kTextFile;
 		}

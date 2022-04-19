@@ -23,6 +23,7 @@
 #include "source/engine/gameobjects/components/CameraComponent.h"
 #include "source/engine/gameobjects/components/CircleColliderComponent.h"
 #include "source/engine/gameobjects/components/CircleRendererComponent.h"
+#include "source/engine/gameobjects/components/LuaScriptComponent.h"
 
 #include "source/engine/resources/resourcetypes/TextureResource.h"
 

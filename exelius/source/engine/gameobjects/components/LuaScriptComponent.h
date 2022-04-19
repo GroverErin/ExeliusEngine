@@ -2,6 +2,12 @@
 #include "source/engine/gameobjects/Component.h"
 #include "source/resource/ResourceHandle.h"
 
+#include <sol/table.hpp>
+namespace sol
+{
+	class state;
+}
+
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
 namespace Exelius
@@ -10,6 +16,10 @@ namespace Exelius
 		: public Component
 	{
 		ResourceHandle m_scriptResource;
+
+		sol::table m_scriptData;
+
+		void InitializeScript(sol::state* pLuaState);
 
 		virtual void SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer) final override;
 

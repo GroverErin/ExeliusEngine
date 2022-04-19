@@ -50,9 +50,9 @@ namespace Exelius
 		/// <param name="resourceID">- The resource ID the handle is meant to refer to.</param>
 		/// <param name="loadResource">- If the resource should be loaded. Default is false.</param>
 		ResourceHandle(const ResourceID& resourceID, bool loadResource = false);
-		ResourceHandle(const ResourceHandle&) = default;
+		ResourceHandle(const ResourceHandle& other);
 		ResourceHandle(ResourceHandle&&) = delete;
-		ResourceHandle& operator=(const ResourceHandle&) = default;
+		ResourceHandle& operator=(const ResourceHandle& other);
 		ResourceHandle& operator=(ResourceHandle&&) = delete;
 
 		/// <summary>

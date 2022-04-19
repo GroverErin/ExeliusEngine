@@ -174,7 +174,7 @@ namespace Exelius
 
 	void Scene::OnRuntimeStop()
 	{
-		m_scriptingSystem.StopRuntimeScripting();
+		m_scriptingSystem.StopRuntimeScripting(this);
 		m_physicsSystem.StopRuntimePhysics();
 	}
 

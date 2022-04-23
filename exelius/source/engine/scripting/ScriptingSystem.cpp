@@ -6,6 +6,8 @@
 #include "source/engine/gameobjects/components/LuaScriptComponent.h"
 #include "source/engine/resources/resourcetypes/TextFileResource.h"
 
+#include "include/Input.h"
+
 #include <sol/sol.hpp>
 
 /// <summary>
@@ -31,6 +33,13 @@ namespace Exelius
 		EXE_ASSERT(m_pLuaState);
 		m_pLuaState->open_libraries(sol::lib::base, sol::lib::package, sol::lib::table, sol::lib::string);
 
+		m_pLuaState->new_enum<KeyCode>("KeyCode", { {"A", KeyCode::A } });
+
+		sol::table inputTable = m_pLuaState->create_named_table("Input");
+		inputTable.set_function("IsKeyDown", IsKeyDown);
+		inputTable.set_function("IsKeyPressed", IsKeyPressed);
+		inputTable.set_function("IsKeyReleased", IsKeyReleased);
+
 		auto view = pOwningScene->GetAllGameObjectsWith<LuaScriptComponent>();
 		for (auto objectWithScript : view)
 		{
@@ -42,7 +51,14 @@ namespace Exelius
 			sol::function fn = luaScript.m_scriptData["OnInitialize"];
 
 			if (fn)
-				fn(luaScript.m_scriptData);
+			{
+				sol::protected_function_result result = fn(luaScript.m_scriptData);
+				if (!result.valid())
+				{
+					sol::error err = result;
+					EXE_LOG_CATEGORY_ERROR("Lua", err.what());
+				}
+			}
 		}
 	}
 
@@ -60,7 +76,14 @@ namespace Exelius
 			sol::function fn = luaScript.m_scriptData["OnUpdate"];
 
 			if (fn)
-				fn(luaScript.m_scriptData);
+			{
+				sol::protected_function_result result = fn(luaScript.m_scriptData);
+				if (!result.valid())
+				{
+					sol::error err = result;
+					EXE_LOG_CATEGORY_ERROR("Lua", err.what());
+				}
+			}
 		}
 	}
 
@@ -81,7 +104,14 @@ namespace Exelius
 			sol::function fn = luaScript.m_scriptData["OnDestroy"];
 
 			if (fn)
-				fn(luaScript.m_scriptData);
+			{
+				sol::protected_function_result result = fn(luaScript.m_scriptData);
+				if (!result.valid())
+				{
+					sol::error err = result;
+					EXE_LOG_CATEGORY_ERROR("Lua", err.what());
+				}
+			}
 
 			// TODO: This is a hack.
 			luaScript.m_scriptData.abandon();

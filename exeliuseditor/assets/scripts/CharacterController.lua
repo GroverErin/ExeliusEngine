@@ -17,6 +17,12 @@ end
 -- Called when the runtime scene is updated.
 function CharacterController:OnUpdate()
     print('OnUpdate Called!');
+    print (keyCode.A);
+    if (Input:IsKeyReleased(KeyCode.A)) then
+        print('A is pressed');
+    else
+        print('A is not pressed');
+    end
     --self:MovePlayer();
 end
 

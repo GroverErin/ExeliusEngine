@@ -18,7 +18,6 @@ namespace Exelius
 		Color m_color;
 
 		SpriteRendererComponent() = default;
-		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 		SpriteRendererComponent(const glm::vec4& color);
 
 		virtual void SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer) final override;

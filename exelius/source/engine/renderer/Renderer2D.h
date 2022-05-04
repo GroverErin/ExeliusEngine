@@ -114,7 +114,7 @@ namespace Exelius
 		UniformBuffer* m_pCameraUniformBuffer;
 	public:
 
-		Renderer2D(eastl::string& windowTitle, const Vector2u& windowSize, bool isVSyncEnabled = true);
+		Renderer2D(const WindowProperties& windowProperties);
 		~Renderer2D();
 
 		void Initialize();

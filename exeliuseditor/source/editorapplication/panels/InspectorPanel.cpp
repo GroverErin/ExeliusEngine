@@ -1,4 +1,5 @@
 #include "InspectorPanel.h"
+#include "include/Exelius.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -13,12 +14,14 @@
 /// </summary>
 namespace Exelius
 {
-	void InspectorPanel::OnImGuiRender(GameObject gameObject)
+	void InspectorPanel::OnImGuiRender(GameObject gameObject, const SharedPtr<Scene>& pScene)
 	{
 		ImGui::Begin("Inspector");
 		{
+
+
 			if (gameObject)
-				DrawComponents(gameObject);
+				DrawComponents(gameObject, pScene);
 		}
 		ImGui::End();
 	}
@@ -66,7 +69,7 @@ namespace Exelius
 		}
 	}
 
-	void InspectorPanel::DrawComponents(GameObject gameObject)
+	void InspectorPanel::DrawComponents(GameObject gameObject, const SharedPtr<Scene>& pScene)
 	{
 		if (!gameObject.HasComponent<NameComponent>())
 		{
@@ -82,6 +85,72 @@ namespace Exelius
 		{
 			EXE_LOG_CATEGORY_FATAL("ExeliusEditor", "GameObject found wth no TransformComponent");
 			EXE_ASSERT(false);
+		}
+
+		ImRect windowRect = {
+			{ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowPos().y + ImGui::GetWindowContentRegionMin().y},
+			{ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x, ImGui::GetWindowPos().y + ImGui::GetWindowContentRegionMax().y}
+		};
+
+		if (ImGui::BeginDragDropTargetCustom(windowRect, ImGui::GetCurrentWindow()->ID))
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Asset"))
+			{
+				const wchar_t* path = (const wchar_t*)payload->Data;
+				std::filesystem::path assetPath = std::filesystem::path("assets") / path;
+
+				if (File::GetFileExtension(assetPath.string().c_str()) == "lua")
+				{
+					if (!gameObject.HasComponent<LuaScriptComponent>())
+						gameObject.AddComponent<LuaScriptComponent>();
+
+					LuaScriptComponent& component = gameObject.GetComponent<LuaScriptComponent>();
+
+					// If it IS loaded, then the reference count would have been incremented.
+					// Otherwise, we need to load it (which would increment the ref count).
+					ResourceHandle newScript(assetPath.string().c_str(), true); // New resource may or may not be loaded.
+
+					// If it is loaded and is a valid resource for this component.
+					if (newScript.GetAs<TextFileResource>())
+					{
+						// Check if the component already has a resource acquired, and release it if so.
+						component.m_scriptResource.Release();
+
+						// Then move the new resource into the component (move avoids double increment).
+						component.m_scriptResource = eastl::move(newScript);
+					}
+					else // Resource is NOT valid for this component, or the load failed.
+					{
+						EXE_LOG_CATEGORY_WARN("Editor", "Lua Script cannot accept '{}' as a Script.", newScript.GetID().Get().c_str());
+					}
+				}
+				else if (File::GetFileExtension(assetPath.string().c_str()) == "png" || File::GetFileExtension(assetPath.string().c_str()) == "jpg" || File::GetFileExtension(assetPath.string().c_str()) == "bmp")
+				{
+					if (!gameObject.HasComponent<SpriteRendererComponent>())
+						gameObject.AddComponent<SpriteRendererComponent>();
+
+					SpriteRendererComponent& component = gameObject.GetComponent<SpriteRendererComponent>();
+
+					// If it IS loaded, then the reference count would have been incremented.
+					// Otherwise, we need to load it (which would increment the ref count).
+					ResourceHandle newTexture(assetPath.string().c_str(), true); // New resource may or may not be loaded.
+
+					// If it is loaded and is a valid resource for this component.
+					if (newTexture.GetAs<TextureResource>())
+					{
+						// Check if the component already has a resource acquired, and release it if so.
+						component.m_textureResource.Release();
+
+						// Then move the new resource into the component (move avoids double increment).
+						component.m_textureResource = eastl::move(newTexture);
+					}
+					else // Resource is NOT valid for this component, or the load failed.
+					{
+						EXE_LOG_CATEGORY_WARN("Editor", "Sprite Renderer cannot accept '{}' as a Texture.", newTexture.GetID().Get().c_str());
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
 		}
 
 		eastl::string& name = gameObject.GetComponent<NameComponent>().m_name;
@@ -107,7 +176,7 @@ namespace Exelius
 				DrawVector3("Scale", component.m_scale);
 			}, false);
 
-		DrawComponent<CameraComponent>("Camera", gameObject, [](CameraComponent& component)
+		DrawComponent<CameraComponent>("Camera", gameObject, [pScene](CameraComponent& component)
 			{
 				auto& camera = component.m_camera;
 
@@ -164,6 +233,59 @@ namespace Exelius
 
 					ImGui::Checkbox("Fixed Aspect Ratio", &component.m_isFixedAspectRatio);
 				}
+
+				ImGui::PushID("Viewport Rect");
+
+				ImGui::Columns(2);
+				ImGui::SetColumnWidth(0, 100);
+				ImGui::Text("Viewport Position");
+				ImGui::NextColumn();
+
+				ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+
+				ImGui::Text(" X ");
+
+				ImGui::SameLine();
+				ImGui::DragFloat("##ViewportX", &component.m_viewportRect.x, 0.05f, 0.0f, 0.0f, "%.2f");
+				ImGui::PopItemWidth();
+				ImGui::SameLine();
+
+				ImGui::Text(" Y ");
+
+				ImGui::SameLine();
+				ImGui::DragFloat("##ViewportY", &component.m_viewportRect.y, 0.05f, 0.0f, 0.0f, "%.2f");
+				ImGui::PopItemWidth();
+				ImGui::Columns(1);
+
+				ImGui::Columns(2);
+				ImGui::SetColumnWidth(0, 100);
+				ImGui::Text("Viewport Size");
+				ImGui::NextColumn();
+
+				ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+
+				ImGui::Text("Width");
+
+				ImGui::SameLine();
+				ImGui::DragFloat("##ViewportW", &component.m_viewportRect.z, 0.05f, 0.01f, 1.0f, "%.2f");
+				ImGui::PopItemWidth();
+				ImGui::SameLine();
+
+				ImGui::Text("Height");
+
+				ImGui::SameLine();
+				ImGui::DragFloat("##ViewportH", &component.m_viewportRect.w, 0.05f, 0.01f, 1.0f, "%.2f");
+				ImGui::PopItemWidth();
+
+				ImGui::PopID();
+
+				uint32_t width = pScene->GetViewportWidth();
+				uint32_t height = pScene->GetViewportHeight();
+
+				width = (uint32_t)(width * component.m_viewportRect.z);
+				height = (uint32_t)(height * component.m_viewportRect.w);
+
+				component.m_camera.SetViewportSize(component.m_viewportRect.z, component.m_viewportRect.w);
 			});
 
 		DrawComponent<SpriteRendererComponent>("Sprite Renderer", gameObject, [](SpriteRendererComponent& component)
@@ -174,14 +296,58 @@ namespace Exelius
 
 				char buffer[256]; // TODO: This limit should be imposed in the actual component.
 				memset(buffer, 0, sizeof(buffer));
-				if (component.m_textureResource.IsReferenceHeld())
+
+				if (component.m_textureResource.GetID().IsValid())
 					std::strncpy(buffer, component.m_textureResource.GetID().Get().c_str(), sizeof(buffer));
 
 				if (ImGui::InputText("Texture", buffer, sizeof(buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
 				{
-					component.m_textureResource.SetResourceID(buffer);
-					component.m_textureResource.LoadNow(); // Should Acquire here.
+					// If it IS loaded, then the reference count would have been incremented.
+					// Otherwise, we need to load it (which would increment the ref count).
+					ResourceHandle newTexture(buffer, true); // New resource may or may not be loaded.
+
+					// If it is loaded and is a valid resource for this component.
+					if (newTexture.GetAs<TextureResource>())
+					{
+						// Check if the component already has a resource acquired, and release it if so.
+						component.m_textureResource.Release();
+
+						// Then move the new resource into the component (move avoids double increment).
+						component.m_textureResource = eastl::move(newTexture);
+					}
+					else // Resource is NOT valid for this component, or the load failed.
+					{
+						EXE_LOG_CATEGORY_WARN("Editor", "Sprite Renderer cannot accept '{}' as a Texture.", newTexture.GetID().Get().c_str());
+					}
 				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Asset"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path texturePath = std::filesystem::path("assets") / path;
+
+						// If it IS loaded, then the reference count would have been incremented.
+						// Otherwise, we need to load it (which would increment the ref count).
+						ResourceHandle newTexture(texturePath.string().c_str(), true);
+
+						// If it is loaded and is a valid resource for this component.
+						if (newTexture.GetAs<TextureResource>())
+						{
+							// Check if the component already has a resource acquired, and release it if so.
+							component.m_textureResource.Release();
+
+							// Then move the new resource into the component (move avoids double increment).
+							component.m_textureResource = eastl::move(newTexture);
+						}
+						else
+						{
+							EXE_LOG_CATEGORY_WARN("Editor", "Sprite Renderer cannot accept '{}' as a Texture.", texturePath.string().c_str());
+						}
+					}
+				ImGui::EndDragDropTarget();
+			}
 
 				ImGui::DragFloat("Tiling Multiplier", &component.m_textureTilingMultiplier, 0.1f, 0.0f, 100.0f);
 			});
@@ -219,6 +385,12 @@ namespace Exelius
 				}
 
 				ImGui::Checkbox("Is Fixed Rotation", &component.m_isFixedRotation);
+				ImGui::Checkbox("Is Effected By Gravity", &component.m_isEffectedByGravity);
+
+				if (component.m_isEffectedByGravity)
+				{
+					ImGui::DragFloat("Gravity Scale", &component.m_gravityScale, 0.1f, -FLT_MAX, FLT_MAX, "%.1f");
+				}
 			});
 
 		DrawComponent<BoxColliderComponent>("Box Collider", gameObject, [](BoxColliderComponent& component)
@@ -229,6 +401,7 @@ namespace Exelius
 				ImGui::DragFloat("Friction", &component.m_friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.m_restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f);
+				ImGui::Checkbox("Is Sensor", &component.m_isSensor);
 			});
 
 		DrawComponent<CircleColliderComponent>("Circle Collider", gameObject, [](CircleColliderComponent& component)
@@ -239,19 +412,63 @@ namespace Exelius
 				ImGui::DragFloat("Friction", &component.m_friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.m_restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f);
+				ImGui::Checkbox("Is Sensor", &component.m_isSensor);
 			});
 
 		DrawComponent<LuaScriptComponent>("Lua Script", gameObject, [](LuaScriptComponent& component)
 			{
 				char buffer[256]; // TODO: This limit should be imposed in the actual component.
 				memset(buffer, 0, sizeof(buffer));
-				if (component.m_scriptResource.IsReferenceHeld())
+				if (component.m_scriptResource.GetID().IsValid())
 					std::strncpy(buffer, component.m_scriptResource.GetID().Get().c_str(), sizeof(buffer));
 
 				if (ImGui::InputText("Script", buffer, sizeof(buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
 				{
-					component.m_scriptResource.SetResourceID(buffer);
-					component.m_scriptResource.LoadNow(); // Should Acquire here.
+					// If it IS loaded, then the reference count would have been incremented.
+					// Otherwise, we need to load it (which would increment the ref count).
+					ResourceHandle newScript(buffer, true); // New resource may or may not be loaded.
+
+					// If it is loaded and is a valid resource for this component.
+					if (newScript.GetAs<TextFileResource>())
+					{
+						// Check if the component already has a resource acquired, and release it if so.
+						component.m_scriptResource.Release();
+
+						// Then move the new resource into the component (move avoids double increment).
+						component.m_scriptResource = eastl::move(newScript);
+					}
+					else // Resource is NOT valid for this component, or the load failed.
+					{
+						EXE_LOG_CATEGORY_WARN("Editor", "Lua Script cannot accept '{}' as a Script.", newScript.GetID().Get().c_str());
+					}
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Asset"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path texturePath = std::filesystem::path("assets") / path;
+
+						// If it IS loaded, then the reference count would have been incremented.
+						// Otherwise, we need to load it (which would increment the ref count).
+						ResourceHandle newScript(texturePath.string().c_str(), true); // New resource may or may not be loaded.
+
+						// If it is loaded and is a valid resource for this component.
+						if (newScript.GetAs<TextFileResource>())
+						{
+							// Check if the component already has a resource acquired, and release it if so.
+							component.m_scriptResource.Release();
+
+							// Then move the new resource into the component (move avoids double increment).
+							component.m_scriptResource = eastl::move(newScript);
+						}
+						else // Resource is NOT valid for this component, or the load failed.
+						{
+							EXE_LOG_CATEGORY_WARN("Editor", "Lua Script cannot accept '{}' as a Script.", newScript.GetID().Get().c_str());
+						}
+					}
+					ImGui::EndDragDropTarget();
 				}
 			});
 
@@ -333,6 +550,9 @@ namespace Exelius
 		if (!gameObject.HasComponent<BoxColliderComponent>())
 			componentVector.emplace_back("Box Collider", [](GameObject gameObject)
 				{
+					if (!gameObject.HasComponent<RigidbodyComponent>())
+						gameObject.AddComponent<RigidbodyComponent>();
+
 					gameObject.AddComponent<BoxColliderComponent>();
 					drawAddComponentList = false;
 					selectedIndex = -1;
@@ -341,6 +561,9 @@ namespace Exelius
 		if (!gameObject.HasComponent<CircleColliderComponent>())
 			componentVector.emplace_back("Circle Collider", [](GameObject gameObject)
 				{
+					if (!gameObject.HasComponent<RigidbodyComponent>())
+						gameObject.AddComponent<RigidbodyComponent>();
+
 					gameObject.AddComponent<CircleColliderComponent>();
 					drawAddComponentList = false;
 					selectedIndex = -1;

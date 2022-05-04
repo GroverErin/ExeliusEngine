@@ -8,6 +8,8 @@
 /// </summary>
 namespace Exelius
 {
+	class EditorLayer;
+
 	class SceneViewPanel
 	{
 		SharedPtr<Framebuffer> m_pFramebuffer;
@@ -25,7 +27,7 @@ namespace Exelius
 
 		void InitializePanel();
 
-		void OnImGuiRender();
+		void OnImGuiRender(EditorLayer* pSceneOwner);
 
 		void BeginRenderSceneView();
 		void EndRenderSceneView();

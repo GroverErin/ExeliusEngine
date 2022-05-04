@@ -3,6 +3,8 @@
 #include "source/engine/scenesystem/Scene.h"
 #include "source/engine/gameobjects/GameObject.h"
 
+#include "source/engine/physics/PhysicsSystem.h"
+
 #include <box2d/b2_contact.h>
 
 #include <entt/entt.hpp>
@@ -27,11 +29,17 @@ namespace Exelius
 		b2Body* pBodyA = pFixtureA->GetBody();
 		b2Body* pBodyB = pFixtureB->GetBody();
 
-		auto objectA = static_cast<entt::entity>(pBodyA->GetUserData().pointer);
-		auto objectB = static_cast<entt::entity>(pBodyB->GetUserData().pointer);
+		entt::entity objectA = static_cast<entt::entity>(pBodyA->GetUserData().pointer);
+		entt::entity objectB = static_cast<entt::entity>(pBodyB->GetUserData().pointer);
 
-		GameObject gameObjectA = GameObject{ objectA, m_pOwningScene };
-		GameObject gameObjectB = GameObject{ objectB, m_pOwningScene };
+		GameObject gameObjectA(objectA, m_pOwningScene);
+		GameObject gameObjectB(objectB, m_pOwningScene);
+
+		CollisionData collisionA(gameObjectA, gameObjectB, true);
+		CollisionData collisionB(gameObjectB, gameObjectA, true);
+
+		m_pOwningScene->GetPhysicsSystem().OnContact(collisionA);
+		m_pOwningScene->GetPhysicsSystem().OnContact(collisionB);
 	}
 
 	void ContactListener::EndContact(b2Contact* pContact)
@@ -43,11 +51,17 @@ namespace Exelius
 		b2Body* pBodyA = pFixtureA->GetBody();
 		b2Body* pBodyB = pFixtureB->GetBody();
 
-		auto objectA = static_cast<entt::entity>(pBodyA->GetUserData().pointer);
-		auto objectB = static_cast<entt::entity>(pBodyB->GetUserData().pointer);
+		entt::entity objectA = static_cast<entt::entity>(pBodyA->GetUserData().pointer);
+		entt::entity objectB = static_cast<entt::entity>(pBodyB->GetUserData().pointer);
 
-		GameObject gameObjectA = GameObject{ objectA, m_pOwningScene };
-		GameObject gameObjectB = GameObject{ objectB, m_pOwningScene };
+		GameObject gameObjectA(objectA, m_pOwningScene);
+		GameObject gameObjectB(objectB, m_pOwningScene);
+
+		CollisionData collisionA(gameObjectA, gameObjectB, false);
+		CollisionData collisionB(gameObjectB, gameObjectA, false);
+
+		m_pOwningScene->GetPhysicsSystem().OnContact(collisionA);
+		m_pOwningScene->GetPhysicsSystem().OnContact(collisionB);
 	}
 
 	void ContactListener::PreSolve(b2Contact*, const b2Manifold*)

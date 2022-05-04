@@ -1,4 +1,5 @@
 #include "SceneViewPanel.h"
+#include "editorapplication/EditorLayer.h"
 
 #include <imgui.h>
 #include <filesystem>
@@ -28,15 +29,16 @@ namespace Exelius
 			FramebufferTextureFormat::Depth
 		};
 
-		fbSpec.m_width = 1280;
-		fbSpec.m_height = 720;
+		fbSpec.m_width = Renderer2D::GetInstance()->GetWindow().GetWindowSize().x;
+		fbSpec.m_height = Renderer2D::GetInstance()->GetWindow().GetWindowSize().y;
 		m_pFramebuffer = MakeShared<Framebuffer>(fbSpec);
 	}
 
-	void SceneViewPanel::OnImGuiRender()
+	void SceneViewPanel::OnImGuiRender(EditorLayer* pSceneOwner)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Scene View");
+
 		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
 		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
 		auto viewportOffset = ImGui::GetWindowPos();
@@ -52,6 +54,17 @@ namespace Exelius
 
 		uint64_t textureID = m_pFramebuffer->GetColorAttachmentRendererID();
 		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_sceneViewSize.x, m_sceneViewSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Asset"))
+			{
+				const wchar_t* path = (const wchar_t*)payload->Data;
+				if (pSceneOwner)
+					pSceneOwner->OpenScene(std::filesystem::path("assets") / path);
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();

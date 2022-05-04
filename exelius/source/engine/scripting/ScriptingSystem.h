@@ -11,6 +11,7 @@ namespace sol
 namespace Exelius
 {
 	class Scene;
+	class GameObject;
 
 	class ScriptingSystem
 	{
@@ -23,6 +24,27 @@ namespace Exelius
 
 		void UpdateRuntimeScripting(Scene* pOwningScene);
 
-		void StopRuntimeScripting(Scene* pOwningScen);
+		void StopRuntimeScripting(Scene* pOwningScene);
+
+		void TryAddRuntimeScript(GameObject owningGameObject);
+
+	private:
+		void SetGlobalInputTable();
+
+		void SetGlobalTimeTable();
+
+		void SetGlobalLogTable();
+
+		void SetGlobalMathTable();
+
+		void SetGlobalUtilities();
+
+		void SetupLuaComponents();
+
+		void SetupLuaGameObject(Scene* pOwningScene);
+
+		void SetupLuaPhysics(Scene* pOwningScene);
+
+		void InitializeScriptComponents(Scene* pOwningScene);
 	};
 }

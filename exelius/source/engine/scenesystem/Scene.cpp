@@ -1,6 +1,8 @@
 #include "EXEPCH.h"
 #include "Scene.h"
 
+#include "source/engine/physics/PhysicsSystem.h"
+#include "source/engine/scripting/ScriptingSystem.h"
 #include "source/engine/gameobjects/GameObject.h"
 #include "source/engine/renderer/Renderer2D.h"
 
@@ -86,16 +88,23 @@ namespace Exelius
 	}
 
 	Scene::Scene()
-		: m_viewportWidth(0)
+		: m_pPhysicsSystem(nullptr)
+		, m_pScriptingSystem(nullptr)
+		, m_viewportWidth(0)
 		, m_viewportHeight(0)
 	{
-		//
+		m_pPhysicsSystem = EXELIUS_NEW(PhysicsSystem(this));
+		m_pScriptingSystem = EXELIUS_NEW(ScriptingSystem());
 	}
 
 	Scene::~Scene()
 	{
+		OnRuntimeStop();
 		if (m_sceneResource.IsReferenceHeld())
 			m_sceneResource.Release();
+
+		EXELIUS_DELETE(m_pPhysicsSystem);
+		EXELIUS_DELETE(m_pScriptingSystem);
 	}
 
 	SharedPtr<Scene> Scene::Copy(SharedPtr<Scene> other)
@@ -144,12 +153,24 @@ namespace Exelius
 		return gameObject;
 	}
 
-	void Scene::DuplicateGameObject(GameObject gameObject)
+	GameObject Scene::DuplicateGameObject(GameObject gameObject, const eastl::string& name)
 	{
-		eastl::string name = gameObject.GetName();
-		GameObject newGameObject = CreateGameObject(name);
+		EXE_ASSERT(m_pPhysicsSystem);
+		EXE_ASSERT(m_pScriptingSystem);
+
+		eastl::string newName = name;
+		if (newName.empty())
+			newName = gameObject.GetName();
+		GameObject newGameObject = CreateGameObject(newName);
 
 		CopyExistingComponents(newGameObject, gameObject);
+
+		m_pPhysicsSystem->TryAddRuntimeBody(newGameObject);
+		m_pPhysicsSystem->TryAddRuntimeBoxCollider(newGameObject);
+		m_pPhysicsSystem->TryAddRuntimeCircleCollider(newGameObject);
+		m_pScriptingSystem->TryAddRuntimeScript(newGameObject);
+
+		return newGameObject;
 	}
 
 	void Scene::DestroyGameObject(GameObject gameObject)
@@ -159,23 +180,31 @@ namespace Exelius
 
 	void Scene::OnRuntimeStart()
 	{
-		m_physicsSystem.InitializeRuntimePhysics(this);
-		m_scriptingSystem.InitializeRuntimeScripting(this);
+		EXE_ASSERT(m_pPhysicsSystem);
+		EXE_ASSERT(m_pScriptingSystem);
+
+		m_pPhysicsSystem->InitializeRuntimePhysics();
+		m_pScriptingSystem->InitializeRuntimeScripting(this);
 	}
 
 	void Scene::OnRuntimeUpdate()
 	{
-		m_scriptingSystem.UpdateRuntimeScripting(this);
+		EXE_ASSERT(m_pPhysicsSystem);
+		EXE_ASSERT(m_pScriptingSystem);
 
-		m_physicsSystem.UpdateRuntimePhysics(this);
+		m_pScriptingSystem->UpdateRuntimeScripting(this);
+		m_pPhysicsSystem->UpdateRuntimePhysics();
 
 		RenderSceneForActiveCameras();
 	}
 
 	void Scene::OnRuntimeStop()
 	{
-		m_scriptingSystem.StopRuntimeScripting(this);
-		m_physicsSystem.StopRuntimePhysics();
+		EXE_ASSERT(m_pPhysicsSystem);
+		EXE_ASSERT(m_pScriptingSystem);
+
+		m_pScriptingSystem->StopRuntimeScripting(this);
+		m_pPhysicsSystem->StopRuntimePhysics();
 	}
 
 	void Scene::OnUpdateEditor(EditorCamera& camera)
@@ -437,7 +466,7 @@ namespace Exelius
 		}
 	}
 
-	static void SerializeGameObject(rapidjson::Writer<rapidjson::StringBuffer>& writer, GameObject gameObject)
+	static void InternalSerializeGameObject(rapidjson::Writer<rapidjson::StringBuffer>& writer, GameObject gameObject)
 	{
 		writer.StartObject(); // Start New GameObject.
 		{
@@ -520,7 +549,7 @@ namespace Exelius
 				GameObject gameObject = { gameObjectGUID, this };
 				if (!gameObject)
 					return;
-				SerializeGameObject(writer, gameObject);
+				InternalSerializeGameObject(writer, gameObject);
 			});
 
 		writer.EndArray(); // End "GameObjects" Array.
@@ -528,5 +557,159 @@ namespace Exelius
 		writer.EndObject(); // End JSON Object.
 
 		return buffer.GetString();
+	}
+
+	eastl::string Scene::SerializeGameObject(GameObject gameObject)
+	{
+		rapidjson::StringBuffer buffer;
+
+		rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+		writer.StartObject(); // Start JSON Object.
+		writer.Key("Prefab");
+		InternalSerializeGameObject(writer, gameObject);
+		writer.EndObject(); // End JSON Object.
+
+		return buffer.GetString();
+	}
+
+	GameObject Scene::DeserializeGameObject(const ResourceID& prefabResourceID)
+	{
+		EXE_ASSERT(m_pPhysicsSystem);
+		EXE_ASSERT(m_pScriptingSystem);
+
+		EXE_LOG_CATEGORY_INFO("PrefabDeserialization", "Attempting to deserialize Prefab: '{}'", prefabResourceID.Get().c_str());
+
+		if (!prefabResourceID.IsValid())
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "Failed to deserialize Prefab. ResourceID was invalid.");
+			return {};
+		}
+
+		// Resource will be temporarily acquired.
+		ResourceHandle prefabResource(prefabResourceID);
+
+		if (!prefabResource.IsReferenceHeld())
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "Failed to deserialize Prefab. Not Loaded.");
+			return {};
+		}
+
+		TextFileResource* pTextFileResource = prefabResource.GetAs<TextFileResource>();
+
+		// We expect a preloaded resource. Bail otherwise.
+		if (!pTextFileResource)
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "Failed to deserialize Prefab. Prefab Resource was not loaded.");
+			return {};
+		}
+
+		eastl::string rawText = pTextFileResource->GetRawText();
+
+		// Parse the text as JSON data.
+		rapidjson::Document jsonDoc;
+		if (jsonDoc.Parse(rawText.c_str()).HasParseError())
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "Failed to Parse JSON text: rapidjson error '{0}'", jsonDoc.GetParseError());
+			return {};
+		}
+
+		auto prefabMember = jsonDoc.FindMember("Prefab");
+
+		if (prefabMember == jsonDoc.MemberEnd())
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "No 'Prefab' root node found.");
+			return {};
+		}
+
+		EXE_ASSERT(prefabMember->value.IsObject());
+
+		const auto guidComponentMember = prefabMember->value.FindMember("GUIDComponent");
+		if (guidComponentMember == prefabMember->value.MemberEnd())
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "GameObject found with no GUID.");
+			return {};
+		}
+		EXE_ASSERT(guidComponentMember->value.IsNumber());
+		GUID objectGUID = guidComponentMember->value.GetUint64();
+
+		const auto nameComponentMember = prefabMember->value.FindMember("NameComponent");
+		if (nameComponentMember == prefabMember->value.MemberEnd())
+		{
+			EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "GameObject found with no Name.");
+			return {};
+		}
+		EXE_ASSERT(nameComponentMember->value.IsString());
+		eastl::string objectName = nameComponentMember->value.GetString();
+
+		GameObject loadedObject = CreateGameObjectWithGUID(objectGUID, objectName);
+
+		{
+			const auto transformComponentMember = prefabMember->value.FindMember("TransformComponent");
+			if (transformComponentMember == prefabMember->value.MemberEnd())
+			{
+				EXE_LOG_CATEGORY_ERROR("PrefabDeserialization", "GameObject found with no Transform.");
+				return {};
+			}
+			EXE_ASSERT(transformComponentMember->value.IsArray());
+
+			TransformComponent& transformComponent = loadedObject.GetComponent<TransformComponent>();
+			transformComponent.DeserializeComponent(transformComponentMember->value);
+		}
+
+		const auto cameraComponentMember = prefabMember->value.FindMember("CameraComponent");
+		if (cameraComponentMember != prefabMember->value.MemberEnd())
+		{
+			CameraComponent& cameraComponent = loadedObject.AddComponent<CameraComponent>();
+			cameraComponent.DeserializeComponent(cameraComponentMember->value);
+		}
+
+		const auto spriteComponentMember = prefabMember->value.FindMember("SpriteRendererComponent");
+		if (spriteComponentMember != prefabMember->value.MemberEnd())
+		{
+			SpriteRendererComponent& spriteComponent = loadedObject.AddComponent<SpriteRendererComponent>();
+			spriteComponent.DeserializeComponent(spriteComponentMember->value);
+		}
+
+		const auto circleRendererComponentMember = prefabMember->value.FindMember("CircleRendererComponent");
+		if (circleRendererComponentMember != prefabMember->value.MemberEnd())
+		{
+			CircleRendererComponent& circleRendererComponent = loadedObject.AddComponent<CircleRendererComponent>();
+			circleRendererComponent.DeserializeComponent(circleRendererComponentMember->value);
+		}
+
+		const auto rigidbodyComponentMember = prefabMember->value.FindMember("RigidbodyComponent");
+		if (rigidbodyComponentMember != prefabMember->value.MemberEnd())
+		{
+			RigidbodyComponent& rigidbodyComponent = loadedObject.AddComponent<RigidbodyComponent>();
+			rigidbodyComponent.DeserializeComponent(rigidbodyComponentMember->value);
+			m_pPhysicsSystem->TryAddRuntimeBody(loadedObject);
+		}
+
+		const auto boxColliderComponentMember = prefabMember->value.FindMember("BoxColliderComponent");
+		if (boxColliderComponentMember != prefabMember->value.MemberEnd())
+		{
+			BoxColliderComponent& boxCollider = loadedObject.AddComponent<BoxColliderComponent>();
+			boxCollider.DeserializeComponent(boxColliderComponentMember->value);
+			m_pPhysicsSystem->TryAddRuntimeBoxCollider(loadedObject);
+		}
+
+		const auto circleColliderComponentMember = prefabMember->value.FindMember("CircleColliderComponent");
+		if (circleColliderComponentMember != prefabMember->value.MemberEnd())
+		{
+			CircleColliderComponent& circleCollider = loadedObject.AddComponent<CircleColliderComponent>();
+			circleCollider.DeserializeComponent(circleColliderComponentMember->value);
+			m_pPhysicsSystem->TryAddRuntimeCircleCollider(loadedObject);
+		}
+
+		const auto luaScriptComponentMember = prefabMember->value.FindMember("LuaScriptComponent");
+		if (luaScriptComponentMember != prefabMember->value.MemberEnd())
+		{
+			LuaScriptComponent& luaScript = loadedObject.AddComponent<LuaScriptComponent>();
+			luaScript.DeserializeComponent(luaScriptComponentMember->value);
+			m_pScriptingSystem->TryAddRuntimeScript(loadedObject);
+		}
+
+		EXE_LOG_CATEGORY_INFO("PrefabDeserialization", "Prefab '{}' Deserialized Successfully!", prefabResourceID.Get().c_str());
+		return loadedObject;
 	}
 }

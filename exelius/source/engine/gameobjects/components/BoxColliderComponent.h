@@ -20,11 +20,12 @@ namespace Exelius
 		float m_restitution = 0.0f;
 		float m_restitutionThreshold = 0.5f;
 
+		bool m_isSensor = false;
+
 		// Storage for runtime
 		void* m_pRuntimeFixture = nullptr;
 
 		BoxColliderComponent() = default;
-		BoxColliderComponent(const BoxColliderComponent&) = default;
 
 		virtual void SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer) final override;
 

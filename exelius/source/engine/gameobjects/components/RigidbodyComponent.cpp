@@ -18,6 +18,9 @@ namespace Exelius
 			writer.Key("IsFixedRotation");
 			writer.Bool(m_isFixedRotation);
 
+			writer.Key("IsEffectedByGravity");
+			writer.Bool(m_isEffectedByGravity);
+
 			writer.Key("GravityScale");
 			writer.Double((double)m_gravityScale);
 		}
@@ -28,6 +31,7 @@ namespace Exelius
     {
         m_bodyType = RigidbodyBodyTypeFromString(componentValue.FindMember("BodyType")->value.GetString());
         m_isFixedRotation = componentValue.FindMember("IsFixedRotation")->value.GetBool();
+		m_isEffectedByGravity = componentValue.FindMember("IsEffectedByGravity")->value.GetBool();
         m_gravityScale = componentValue.FindMember("GravityScale")->value.GetFloat();
     }
 

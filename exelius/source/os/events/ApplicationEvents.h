@@ -54,6 +54,52 @@ namespace Exelius
 	};
 
 	/// <summary>
+	/// Event that occurs when the window is moved.
+	/// </summary>
+	class WindowMovedEvent
+		: public Event
+	{
+		unsigned int m_x;
+		unsigned int m_y;
+	public:
+		/// <summary>
+		/// Event that occurs when the window is resized.
+		/// </summary>
+		WindowMovedEvent(unsigned int x, unsigned int y)
+			: m_x(x), m_y(y)
+		{
+			//
+		}
+		WindowMovedEvent() = delete;
+		WindowMovedEvent(const WindowMovedEvent&) = delete;
+		WindowMovedEvent(WindowMovedEvent&&) = delete;
+		WindowMovedEvent& operator=(const WindowMovedEvent&) = delete;
+		WindowMovedEvent& operator=(WindowMovedEvent&&) = delete;
+		virtual ~WindowMovedEvent() = default;
+
+		/// <summary>
+		/// Get the x data of the window.
+		/// </summary>
+		/// <returns>Window x data.</returns>
+		unsigned int GetX() const
+		{
+			return m_x;
+		}
+
+		/// <summary>
+		/// Get the y data of the window.
+		/// </summary>
+		/// <returns>Window y data.</returns>
+		unsigned int GetY() const
+		{
+			return m_y;
+		}
+
+		EVENT_CLASS_TYPE(WindowMoved)
+		EVENT_CLASS_CATEGORY(EventCategory::Application)
+	};
+
+	/// <summary>
 	/// Event that occurs when the window is closed.
 	/// </summary>
 	class WindowClosedEvent

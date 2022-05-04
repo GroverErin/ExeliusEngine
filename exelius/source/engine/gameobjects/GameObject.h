@@ -39,7 +39,7 @@ namespace Exelius
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{
-			EXE_ASSERT(!HasComponent<T>());
+			EXE_ASSERT(!HasComponent<T>()); // Component already exists!
 			T& component = m_pOwningScene->m_registry.emplace<T>(m_gameObjectID, std::forward<Args>(args)...);
 			component.OnComponentAdded(m_pOwningScene);
 			return component;
@@ -48,6 +48,7 @@ namespace Exelius
 		template<typename T, typename... Args>
 		T& AddOrReplaceComponent(Args&&... args)
 		{
+			EXE_ASSERT(m_pOwningScene);
 			T& component = m_pOwningScene->m_registry.emplace_or_replace<T>(m_gameObjectID, std::forward<Args>(args)...);
 			component.OnComponentAdded(m_pOwningScene);
 			return component;
@@ -63,7 +64,12 @@ namespace Exelius
 		template<typename T>
 		bool HasComponent()
 		{
-			return m_pOwningScene->m_registry.all_of<T>(m_gameObjectID);
+			if (!m_pOwningScene)
+				return false;
+			if (m_pOwningScene->m_registry.valid(m_gameObjectID))
+				return m_pOwningScene->m_registry.all_of<T>(m_gameObjectID);
+
+			return false;
 		}
 
 		template<typename T>

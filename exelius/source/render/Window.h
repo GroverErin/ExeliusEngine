@@ -1,10 +1,6 @@
 #pragma once
-#include "source/utility/containers/Vector2.h"
-#include "source/os/events/EventManagement.h"
-
 #include "source/os/platform/PlatformForwardDeclarations.h"
-
-#include <EASTL/string.h>
+#include "source/render/WindowProperties.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -30,8 +26,8 @@ namespace Exelius
 		/// <param name="title">The name of the window to be opened.</param>
 		/// <param name="width">The width of the window to be opened.</param>
 		/// <param name="height">The height of the window to be opened.</param>
-		_Window(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
-			: m_impl(title, windowSize, isVSyncEnabled)
+		_Window(const WindowProperties& windowProperties)
+			: m_impl(windowProperties)
 		{
 			//
 		}
@@ -57,6 +53,23 @@ namespace Exelius
 		/// <returns></returns>
 		bool IsVSync() const { return m_impl.IsVSync(); }
 
+		void SetFullscreen(bool setFullscreen = true) { m_impl.SetFullscreen(setFullscreen); }
+		bool IsFullscreen() const { return m_impl.IsFullscreen(); }
+
+		void MinimizeWindow() { m_impl.MinimizeWindow(); }
+
+		// Does nothing on fullscreen windows.
+		void MaximizeWindow() { m_impl.MaximizeWindow(); }
+
+		void RestoreWindow() { m_impl.RestoreWindow(); }
+
+		// This is NOT the same as Fullscreen. A window can be fullscreen but not maximized (ie minimized/iconified).
+		bool IsMaximized() const { return m_impl.IsMaximized(); }
+
+		void CloseWindow() { m_impl.CloseWindow(); }
+
+		const WindowProperties& GetWindowProperties() const { return m_impl.GetWindowProperties(); }
+
 		/// <summary>
 		/// Gets the implmentations OS Event messenger.
 		/// </summary>
@@ -64,12 +77,17 @@ namespace Exelius
 		OSEventMessenger& GetEventMessenger() { return m_impl.GetEventMessenger(); }
 
 		#undef CreateWindow // Defined in WinUser.h :(
-		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled)
+		bool CreateWindow(WindowProperties windowProperties)
 		{
-			m_impl.CreateWindow(title, windowSize, isVSyncEnabled);
+			m_impl.CreateWindow(windowProperties);
 		}
 
-		Vector2u GetWindowSize() const
+		const glm::vec2& GetWindowPosition() const
+		{
+			return m_impl.GetWindowPosition();
+		}
+
+		const glm::vec2& GetWindowSize() const
 		{
 			return m_impl.GetWindowSize();
 		}

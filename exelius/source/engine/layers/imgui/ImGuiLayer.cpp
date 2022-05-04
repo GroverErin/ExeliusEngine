@@ -36,15 +36,20 @@ namespace Exelius
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;		// Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;		// Enable Multi-Viewport / Platform Windows
 
+		const WindowProperties& windowProperties = Renderer2D::GetInstance()->GetWindow().GetWindowProperties();
+
 		float fontSize = 18.0f; // TODO: Make Tunable
-		io.Fonts->AddFontFromFileTTF("assets/fonts/audiowide.ttf", fontSize); // TODO: Make Tunable and use resource manager
-		io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/audiowide.ttf", fontSize); // TODO: Make Tunable and use resource manager
+		io.Fonts->AddFontFromFileTTF("assets/fonts/audiowide.ttf", windowProperties.m_DPIScale.x * fontSize); // TODO: Make Tunable and use resource manager
+		io.FontDefault = io.Fonts->Fonts.back();
+
+
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsClassic();
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
+		style.ScaleAllSizes(windowProperties.m_DPIScale.x);
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			style.WindowRounding = 0.0f;
@@ -80,19 +85,34 @@ namespace Exelius
 		}
 	}
 
-	void ImGuiLayer::Begin()
+	bool ImGuiLayer::Begin()
 	{
+		{
+			//int monitors_count = 0;
+			//GLFWmonitor** glfw_monitors = glfwGetMonitors(&monitors_count);
+			//for (int n = 0; n < monitors_count; n++)
+			//{
+			//	// Warning: the validity of monitor DPI information on Windows depends on the application DPI awareness settings, which generally needs to be set in the manifest or at runtime.
+			//	float x_scale, y_scale;
+			//	glfwGetMonitorContentScale(glfw_monitors[n], &x_scale, &y_scale);
+
+			//	if (x_scale < 0.1f)
+			//		return false;
+			//}
+		}
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
+		return true;
 	}
 
 	void ImGuiLayer::End()
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		OpenGLWindow& window = Renderer2D::GetInstance()->GetWindow().GetNativeWindow();
-		io.DisplaySize = ImVec2((float)window.GetWindowSize().w, (float)window.GetWindowSize().h);
+		io.DisplaySize = ImVec2((float)window.GetWindowSize().x, (float)window.GetWindowSize().y);
 
 		// Rendering
 		ImGui::Render();

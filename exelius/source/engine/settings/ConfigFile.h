@@ -1,5 +1,6 @@
 #pragma once
 #include "source/utility/containers/Vector2.h"
+#include "source/render/WindowProperties.h"
 
 #include <rapidjson/document.h>
 #include <EASTL/vector.h>
@@ -27,7 +28,7 @@ namespace Exelius
 
 		bool PopulateLogData(FileLogDefinition& fileLog, ConsoleLogDefinition& consoleLog, eastl::vector<LogData>& logData) const;
 
-		bool PopulateWindowData(eastl::string& windowTitle, Vector2u& windowSize, bool& isVSyncEnabled) const;
+		bool PopulateWindowData(WindowProperties& windowProperties) const;
 
 	private:
 		bool PopulateFileLogDefinition(FileLogDefinition& fileLog) const;
@@ -38,7 +39,7 @@ namespace Exelius
 
 		bool PopulateWindowTitle(eastl::string& windowTitle) const;
 
-		bool PopulateWindowSize(Vector2u& windowSize) const;
+		bool PopulateWindowSize(glm::vec2& windowSize) const;
 
 		bool PopulateWindowVSync(bool& isVsyncEnabled) const;
 	};

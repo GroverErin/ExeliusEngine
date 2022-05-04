@@ -16,7 +16,6 @@ namespace Exelius
 		glm::vec3 m_scale = { 1.0f, 1.0f, 1.0f };
 
 		TransformComponent() = default;
-		TransformComponent(const TransformComponent&) = default;
 		TransformComponent(const glm::vec3& translation);
 
 		glm::mat4 GetTransform() const;

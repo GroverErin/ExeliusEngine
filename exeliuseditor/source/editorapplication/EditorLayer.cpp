@@ -3,6 +3,7 @@
 
 #include <source/utility/math/Math.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -63,14 +64,18 @@ namespace Exelius
 
 		DrawMenuToolbar();
 		static bool showDemo = true;
-		ImGui::ShowDemoWindow(&showDemo);
 
 		m_sceneHierarchyPanel.OnImGuiRender();
 		GameObject selectedGameObject = m_sceneHierarchyPanel.GetSelectedGameObject();
-		m_inspectorPanel.OnImGuiRender(selectedGameObject);
+		m_inspectorPanel.OnImGuiRender(selectedGameObject, m_pActiveScene);
 		GameObject hoveredGameObject = m_sceneViewPanel.GetHoveredGameObject();
+#ifdef EXE_DEBUG
+		ImGui::ShowDemoWindow(&showDemo);
 		m_debugPanel.OnImGuiRender(hoveredGameObject);
-		m_sceneViewPanel.OnImGuiRender();
+#endif // EXE_DEBUG
+
+		m_sceneViewPanel.OnImGuiRender(this);
+		m_assetPanel.OnImGuiRender(m_pActiveScene);
 
 		ImGui::End(); // End Dockspace
 	}
@@ -137,28 +142,41 @@ namespace Exelius
 	// This code is taken almost directly from the ImGui Demo Window.
 	void EditorLayer::InitializeImGuiDockspace()
 	{
+		static bool opt_padding = false;
 		static bool dockspaceOpen = true;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		if (dockspaceOpen)
 		{
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->Pos);
-			ImGui::SetNextWindowSize(viewport->Size);
+			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
+		/*else
+		{
+			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
+		}*/
 
 		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		//ImGui::Begin("Exelius Editor Dockspace", &dockspaceOpen, window_flags);
+		//ImGui::PopStyleVar();
+
+		//if (!opt_padding)
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Exelius Editor Dockspace", &dockspaceOpen, window_flags);
-		ImGui::PopStyleVar();
+		//if (!opt_padding)
+			ImGui::PopStyleVar();
 
 		if (dockspaceOpen)
 			ImGui::PopStyleVar(2);
@@ -209,6 +227,32 @@ namespace Exelius
 					OnSceneStop();
 				break;
 			}
+
+			/*ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+			ImGui::PopStyleVar();
+
+			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+
+			if (Renderer2D::GetInstance()->GetWindow().IsFullscreen())
+			{
+				if (ImGui::Button("_", ImVec2{ lineHeight, lineHeight }))
+				{
+					Renderer2D::GetInstance()->GetWindow().MinimizeWindow();
+				}
+				if (ImGui::Button("[]", ImVec2{ lineHeight, lineHeight }))
+				{
+					if (Renderer2D::GetInstance()->GetWindow().IsFullscreen())
+						Renderer2D::GetInstance()->GetWindow().SetFullscreen(false);
+					else
+						Renderer2D::GetInstance()->GetWindow().SetFullscreen(true);
+				}
+				if (ImGui::Button("X", ImVec2{ lineHeight, lineHeight }))
+				{
+					Renderer2D::GetInstance()->GetWindow().CloseWindow();
+				}
+			}*/
 
 			ImGui::EndMenuBar();
 		}

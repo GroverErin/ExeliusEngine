@@ -9,10 +9,10 @@ namespace Exelius
 	class InspectorPanel
 	{
 	public:
-		void OnImGuiRender(GameObject gameObject);
+		void OnImGuiRender(GameObject gameObject, const SharedPtr<Scene>& scene);
 
 	private:
-		void DrawComponents(GameObject gameObject);
+		void DrawComponents(GameObject gameObject, const SharedPtr<Scene>& scene);
 
 		void DrawAddComponentPanel(GameObject gameObject);
 

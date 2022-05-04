@@ -130,6 +130,20 @@ namespace Exelius
 		return eastl::string();
 	}
 
+	const eastl::string File::GetFileName(const eastl::string& filepath, bool includeExtension)
+	{
+		const size_t lastSlashIndex = filepath.find_last_of('\\');
+		if (eastl::string::npos != lastSlashIndex)
+		{
+			eastl::string fileName = filepath.substr(lastSlashIndex + 1);
+
+			if (includeExtension)
+				return fileName;
+			return fileName.substr(0, fileName.find_last_of('.'));
+		}
+		return eastl::string();
+	}
+
 	bool File::VerifyAccessPermissions(AccessPermission access, CreationType create) const
 	{
 		if (access == AccessPermission::kReadOnly && (create == CreationType::kCreateFile || create == CreationType::kOverwriteFile))

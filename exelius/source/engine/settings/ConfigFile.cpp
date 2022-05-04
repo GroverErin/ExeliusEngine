@@ -89,7 +89,7 @@ namespace Exelius
 		return populationResult;
 	}
 
-	bool ConfigFile::PopulateWindowData(eastl::string& windowTitle, Vector2u& windowSize, bool& isVSyncEnabled) const
+	bool ConfigFile::PopulateWindowData(WindowProperties& windowProperties) const
 	{
 		if (!m_isOpen)
 		{
@@ -98,17 +98,17 @@ namespace Exelius
 		}
 
 		bool populationResult = true;
-		if (!PopulateWindowTitle(windowTitle))
+		if (!PopulateWindowTitle(windowProperties.m_title))
 		{
 			EXE_LOG_WARN("Failed to populate window title. Some defaults may have been used.");
 			populationResult = false;
 		}
-		if (!PopulateWindowSize(windowSize))
+		if (!PopulateWindowSize(windowProperties.m_windowSize))
 		{
 			EXE_LOG_WARN("Failed to populate the window size. Some defaults may have been used.");
 			populationResult = false;
 		}
-		if (!PopulateWindowVSync(isVSyncEnabled))
+		if (!PopulateWindowVSync(windowProperties.m_isVSync))
 		{
 			EXE_LOG_WARN("Failed to populate window vsync setting. Some defaults may have been used.");
 			populationResult = false;
@@ -403,50 +403,50 @@ namespace Exelius
 		return true;
 	}
 
-	bool ConfigFile::PopulateWindowSize(Vector2u& windowSize) const
+	bool ConfigFile::PopulateWindowSize(glm::vec2& windowSize) const
 	{
 		// Traverse tree to "Window".
 		if (!m_parsedData.HasMember("Window"))
 		{
-			EXE_LOG_WARN("'Window' member not found in config file. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'Window' member not found in config file. Defaulting Window Size to: ({}, {})", windowSize.x, windowSize.y);
 			return false;
 		}
 		if (!m_parsedData["Window"].IsObject())
 		{
-			EXE_LOG_WARN("'Window' member in config file is not an Object. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'Window' member in config file is not an Object. Defaulting Window Size to: ({}, {})", windowSize.x, windowSize.y);
 			return false;
 		}
 
 		// Traverse tree to "WindowWidth".
 		if (!m_parsedData["Window"].HasMember("WindowWidth"))
 		{
-			EXE_LOG_WARN("'WindowWidth' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowWidth' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.x, windowSize.y);
 			return false;
 		}
 		auto windowWidthMember = m_parsedData["Window"].FindMember("WindowWidth");
 		EXE_ASSERT(windowWidthMember != m_parsedData["Window"].MemberEnd());
 		if (!windowWidthMember->value.IsUint())
 		{
-			EXE_LOG_WARN("'WindowWidth' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowWidth' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.x, windowSize.y);
 			return false;
 		}
 
 		// Traverse tree to "WindowHeight".
 		if (!m_parsedData["Window"].HasMember("WindowHeight"))
 		{
-			EXE_LOG_WARN("'WindowHeight' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowHeight' member not found in 'Window'. Defaulting Window Size to: ({}, {})", windowSize.x, windowSize.y);
 			return false;
 		}
 		auto windowHeightMember = m_parsedData["Window"].FindMember("WindowHeight");
 		EXE_ASSERT(windowHeightMember != m_parsedData["Window"].MemberEnd());
 		if (!windowHeightMember->value.IsUint())
 		{
-			EXE_LOG_WARN("'WindowHeight' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.w, windowSize.h);
+			EXE_LOG_WARN("'WindowHeight' is not an unsigned int type. Defaulting Window Size to: ({}, {})", windowSize.x, windowSize.y);
 			return false;
 		}
 
-		windowSize.w = windowWidthMember->value.GetUint();
-		windowSize.h = windowHeightMember->value.GetUint();
+		windowSize.x = windowWidthMember->value.GetFloat();
+		windowSize.y = windowHeightMember->value.GetFloat();
 
 		return true;
 	}

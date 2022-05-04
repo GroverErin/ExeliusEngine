@@ -14,7 +14,6 @@ namespace Exelius
 		eastl::string m_name;
 
 		NameComponent() = default;
-		NameComponent(const NameComponent&) = default;
 		NameComponent(const eastl::string& name)
 			: m_name(name)
 		{

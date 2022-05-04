@@ -26,6 +26,7 @@
 #include "source/engine/gameobjects/components/LuaScriptComponent.h"
 
 #include "source/engine/resources/resourcetypes/TextureResource.h"
+#include "source/engine/resources/resourcetypes/TextFileResource.h"
 
 #include "source/engine/renderer/Renderer2D.h"
 

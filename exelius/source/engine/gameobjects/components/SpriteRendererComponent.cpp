@@ -1,5 +1,6 @@
 #include "EXEPCH.h"
 #include "SpriteRendererComponent.h"
+#include "source/resource/ResourceHandle.h"
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -31,7 +32,7 @@ namespace Exelius
 			writer.Key("TilingMultiplier");
 			writer.Double((double)m_textureTilingMultiplier);
 
-			if (m_textureResource.GetID().IsValid())
+			if (m_textureResource.IsReferenceHeld())
 			{
 				writer.Key("Texture");
 				writer.String(m_textureResource.GetID().Get().c_str(), (rapidjson::SizeType)(m_textureResource.GetID().Get().size()));
@@ -51,6 +52,7 @@ namespace Exelius
 
 		if (componentValue.FindMember("Texture") != componentValue.MemberEnd())
 		{
+			EXE_ASSERT(!m_textureResource.IsReferenceHeld()); // Deserializing into an existing component shouldn't be possible.
 			m_textureResource.SetResourceID(componentValue.FindMember("Texture")->value.GetString());
 			m_textureResource.LoadNow();
 		}

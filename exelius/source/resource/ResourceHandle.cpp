@@ -40,23 +40,40 @@ namespace Exelius
 		if (!TryToAcquireResource() && loadResource)
 		{
 			ResourceLoader::GetInstance()->LoadNow(resourceID);
+			if (ResourceLoader::GetInstance()->IsResourceAcquirable(resourceID))
+				m_resourceHeld = true;
 		}
 	}
 
 	ResourceHandle::ResourceHandle(const ResourceHandle& other)
 	{
 		m_resourceID = other.m_resourceID;
-		m_resourceHeld = other.m_resourceHeld;
-		if (m_resourceHeld && m_resourceID.IsValid())
-			ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+		m_resourceHeld = false;
+		TryToAcquireResource();
+	}
+
+	ResourceHandle::ResourceHandle(ResourceHandle&& other) noexcept
+	{
+		m_resourceID = other.m_resourceID;
+		m_resourceHeld = false;
+		TryToAcquireResource();
+		other.Release();
 	}
 
 	ResourceHandle& ResourceHandle::operator=(const ResourceHandle& other)
 	{
 		m_resourceID = other.m_resourceID;
-		m_resourceHeld = other.m_resourceHeld;
-		if (m_resourceHeld && m_resourceID.IsValid())
-			ResourceLoader::GetInstance()->AcquireResource(m_resourceID);
+		m_resourceHeld = false;
+		TryToAcquireResource();
+		return *this;
+	}
+
+	ResourceHandle& ResourceHandle::operator=(ResourceHandle&& other) noexcept
+	{
+		m_resourceID = other.m_resourceID;
+		m_resourceHeld = false;
+		TryToAcquireResource();
+		other.Release();
 		return *this;
 	}
 
@@ -245,7 +262,8 @@ namespace Exelius
 	/// </summary>
 	void ResourceHandle::LockResource()
 	{
-		ResourceLoader::GetInstance()->LockResource(m_resourceID);
+		if (m_resourceID.IsValid())
+			ResourceLoader::GetInstance()->LockResource(m_resourceID);
 	}
 
 	/// <summary>
@@ -260,7 +278,8 @@ namespace Exelius
 	/// </summary>
 	void ResourceHandle::UnlockResource()
 	{
-		ResourceLoader::GetInstance()->UnlockResource(m_resourceID);
+		if (m_resourceID.IsValid())
+			ResourceLoader::GetInstance()->UnlockResource(m_resourceID);
 	}
 
 	/// <summary>

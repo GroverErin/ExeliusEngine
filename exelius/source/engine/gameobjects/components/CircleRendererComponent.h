@@ -15,7 +15,6 @@ namespace Exelius
 		Color m_color;
 
 		CircleRendererComponent() = default;
-		CircleRendererComponent(const CircleRendererComponent&) = default;
 
 		virtual void SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer) final override;
 

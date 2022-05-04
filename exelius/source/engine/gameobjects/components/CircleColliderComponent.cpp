@@ -33,6 +33,9 @@ namespace Exelius
 
 			writer.Key("RestitutionThreshold");
 			writer.Double((double)m_restitutionThreshold);
+
+			writer.Key("IsSensor");
+			writer.Bool(m_isSensor);
 		}
 		writer.EndObject(); // End Circle Collider Component.
 	}
@@ -48,5 +51,7 @@ namespace Exelius
 		m_friction = componentValue.FindMember("Friction")->value.GetFloat();
 		m_restitution = componentValue.FindMember("Restitution")->value.GetFloat();
 		m_restitutionThreshold = componentValue.FindMember("RestitutionThreshold")->value.GetFloat();
+
+		m_isSensor = componentValue.FindMember("IsSensor")->value.GetBool();
     }
 }

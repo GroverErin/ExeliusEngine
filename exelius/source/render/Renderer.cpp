@@ -9,8 +9,8 @@
 /// </summary>
 namespace Exelius
 {
-	Renderer::Renderer(eastl::string& windowTitle, const Vector2u& windowSize, bool isVSyncEnabled)
-		: m_window(windowTitle, windowSize, isVSyncEnabled)
+	Renderer::Renderer(const WindowProperties& windowProperties)
+		: m_window(windowProperties)
 		, m_pRendererAPI(nullptr)
 	{
 		Initialize();

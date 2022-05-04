@@ -48,6 +48,9 @@ namespace Exelius
 			writer.Key("IsActive");
 			writer.Bool(m_isActive);
 
+			writer.Key("IsPrimary");
+			writer.Bool(m_isPrimary);
+
 			writer.Key("IsFixedAspectRatio");
 			writer.Bool(m_isFixedAspectRatio);
 		}
@@ -67,6 +70,8 @@ namespace Exelius
 		m_camera.SetOrthographicFarClip(componentValue.FindMember("OrthographicFar")->value.GetFloat());
 
 		m_isActive = componentValue.FindMember("IsActive")->value.GetBool();
+		if (componentValue.FindMember("IsPrimary") != componentValue.MemberEnd())
+			m_isPrimary = componentValue.FindMember("IsPrimary")->value.GetBool();
 		m_isFixedAspectRatio = componentValue.FindMember("IsFixedAspectRatio")->value.GetBool();
 	}
 }

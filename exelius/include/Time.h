@@ -12,6 +12,7 @@ namespace Exelius
 	class GameTime
 	{
 		friend class Application;
+		friend class ScriptingSystem;
 
 		class TimeScaler
 		{
@@ -22,6 +23,9 @@ namespace Exelius
 
 		public:
 			operator float() const;
+			float operator *(float left);
+			float operator +(float left);
+			float operator -(float left);
 
 		private:
 			TimeScaler(bool useElapsedTime, bool isTimescaled);

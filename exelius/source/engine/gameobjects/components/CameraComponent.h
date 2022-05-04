@@ -13,10 +13,10 @@ namespace Exelius
 		SceneCamera m_camera;
 		glm::vec4 m_viewportRect = { 0.0f, 0.0f, 1.0f, 1.0f };
 		bool m_isActive = true;
+		bool m_isPrimary = true;
 		bool m_isFixedAspectRatio = false;
 
 		CameraComponent() = default;
-		CameraComponent(const CameraComponent&) = default;
 
 		virtual void OnComponentAdded(Scene* pOwningScene) final override;
 

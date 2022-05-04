@@ -17,7 +17,7 @@ namespace Exelius
 		virtual void OnDetach() final override;
 		virtual void OnEvent(Event& evnt) final override;
 
-		void Begin();
+		bool Begin();
 		void End();
 
 		void ShouldBlockEvents(bool shouldBlock) { m_blockEvents = shouldBlock; }

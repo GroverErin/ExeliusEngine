@@ -51,9 +51,9 @@ namespace Exelius
 		/// <param name="loadResource">- If the resource should be loaded. Default is false.</param>
 		ResourceHandle(const ResourceID& resourceID, bool loadResource = false);
 		ResourceHandle(const ResourceHandle& other);
-		ResourceHandle(ResourceHandle&&) = delete;
+		ResourceHandle(ResourceHandle&& other) noexcept;
 		ResourceHandle& operator=(const ResourceHandle& other);
-		ResourceHandle& operator=(ResourceHandle&&) = delete;
+		ResourceHandle& operator=(ResourceHandle&& other) noexcept;
 
 		/// <summary>
 		/// Destroying the ResourceHandle will automatically release the
@@ -80,7 +80,7 @@ namespace Exelius
 		template <class Type>
 		Type* GetAs(bool forceLoad = false)
 		{
-			return static_cast<Type*>(Get(forceLoad));
+			return dynamic_cast<Type*>(Get(forceLoad));
 		}
 
 		bool CreateNew(const ResourceID& resourceID);

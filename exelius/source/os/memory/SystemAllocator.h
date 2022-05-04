@@ -20,6 +20,9 @@ namespace Exelius
 		//	return aligned_alloc(memoryAlignment, sizeToAllocate);
 		//#endif // EXE_WINDOWS
 			void* ptr = malloc(sizeToAllocate);
+			EXE_ASSERT(ptr);
+			if (!ptr)
+				return nullptr;
 			memset(ptr, 0, sizeToAllocate);
 			return ptr;
 		}

@@ -12,11 +12,11 @@
 namespace Exelius
 {
 	class Scene;
+	class GameObject;
 
 	struct Component
 	{
 		Component() = default;
-		Component(const Component&) = default;
 		virtual ~Component() = default;
 
 		virtual void OnComponentAdded(Scene* pOwningScene) { EXE_ASSERT(pOwningScene); }

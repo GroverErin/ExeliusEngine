@@ -60,6 +60,7 @@ namespace Exelius
 
 		static const eastl::string GetFileExtension(const eastl::string& filepath);
 		static const eastl::string GetFileDirectory(const eastl::string& filepath);
+		static const eastl::string GetFileName(const eastl::string& filepath, bool includeExtension = false);
 
 	private:
 		bool VerifyAccessPermissions(AccessPermission access, CreationType create) const;

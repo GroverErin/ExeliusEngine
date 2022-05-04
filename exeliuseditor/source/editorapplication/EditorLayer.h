@@ -1,10 +1,11 @@
 #pragma once
 #include <include/Exelius.h>
 
-#include "Panels/SceneViewPanel.h"
-#include "Panels/SceneHierarchyPanel.h"
-#include "Panels/InspectorPanel.h"
-#include "Panels/DebugPanel.h"
+#include "panels/SceneViewPanel.h"
+#include "panels/SceneHierarchyPanel.h"
+#include "panels/InspectorPanel.h"
+#include "panels/DebugPanel.h"
+#include "panels/AssetPanel.h"
 
 #include <glm/glm.hpp>
 #include <filesystem>
@@ -40,6 +41,7 @@ namespace Exelius
 		SceneHierarchyPanel m_sceneHierarchyPanel;
 		InspectorPanel m_inspectorPanel;
 		DebugPanel m_debugPanel;
+		AssetPanel m_assetPanel;
 
 	public:
 		EditorLayer();

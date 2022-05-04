@@ -14,7 +14,6 @@ namespace Exelius
 
 		GUIDComponent() = default;
 		GUIDComponent(GUID newGUID) : m_GUID(newGUID) {}
-		GUIDComponent(const GUIDComponent&) = default;
 
 		virtual void SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>&) final override { }
 

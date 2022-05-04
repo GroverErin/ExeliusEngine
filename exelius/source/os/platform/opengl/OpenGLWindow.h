@@ -1,10 +1,6 @@
 #pragma once
-#include "source/os/events/EventManagement.h"
-#include "source/utility/containers/Vector2.h"
-
 #include "source/os/platform/PlatformForwardDeclarations.h"
-
-#include <EASTL/string.h>
+#include "source/render/WindowProperties.h"
 
 struct GLFWwindow;
 
@@ -27,23 +23,12 @@ namespace Exelius
 	/// </summary>
 	class OpenGLWindow
 	{
-		struct WindowData
-		{
-			eastl::string m_title;
-			Vector2u m_windowSize;
-			bool m_isVSync = false;
-			OSEventMessenger m_messenger;
-		};
-
-		WindowData m_windowData;
-
+		WindowProperties m_windowProperties;
 		RenderContext* m_pRenderContext;
-
 		GLFWwindow* m_pWindow;
-		bool m_isVSync;
 
 	public:
-		OpenGLWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled);
+		OpenGLWindow(const WindowProperties& windowProperties);
 		OpenGLWindow(const OpenGLWindow&) = delete;
 		OpenGLWindow(OpenGLWindow&&) = delete;
 		OpenGLWindow& operator=(const OpenGLWindow&) = delete;
@@ -51,19 +36,33 @@ namespace Exelius
 		~OpenGLWindow();
 
 #undef CreateWindow // Defined in WinUser.h :(
-		bool CreateWindow(const eastl::string& title, const Vector2u& windowSize, bool isVSyncEnabled);
+		bool CreateWindow(const WindowProperties& windowProperties);
 
 		void InitializeRenderContext(Window* pAbstractWindow);
 
 		void Update();
 
-		Vector2u GetWindowSize() const;
+		const glm::vec2& GetWindowSize() const;
+		const glm::vec2& GetWindowPosition() const;
 
 		void SetVSync(bool isEnabled);
 
 		bool IsVSync() const;
 
-		OSEventMessenger& GetEventMessenger() { return m_windowData.m_messenger; }
+		void SetFullscreen(bool setFullscreen);
+		bool IsFullscreen() const { return m_windowProperties.m_isFullscreen; }
+
+		void MinimizeWindow();
+		void MaximizeWindow();
+		void RestoreWindow();
+
+		void CloseWindow();
+
+		bool IsMaximized() const { return m_windowProperties.m_isMaximized; }
+
+		const WindowProperties& GetWindowProperties() const { return m_windowProperties; }
+
+		OSEventMessenger& GetEventMessenger() { EXE_ASSERT(m_windowProperties.m_pMessenger); return *m_windowProperties.m_pMessenger; } // TODO: Don't return reference maybe?
 
 		void Shutdown();
 

@@ -33,7 +33,7 @@ namespace Exelius
 
 	void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
-		EXE_ASSERT(width > 0 && height > 0);
+		EXE_ASSERT(width > 0.0f && height > 0.0f);
 		m_aspectRatio = (float)width / (float)height;
 		RecalculateProjection();
 	}
@@ -48,12 +48,9 @@ namespace Exelius
 		{
 			float orthoLeft = -m_orthographicSize * m_aspectRatio * 0.5f;
 			float orthoRight = m_orthographicSize * m_aspectRatio * 0.5f;
-			float orthoBottom = -m_orthographicSize * 0.5f;
-			float orthoTop = m_orthographicSize * 0.5f;
-
+			float orthoBottom = -m_orthographicSize  * 0.5f;
+			float orthoTop = m_orthographicSize  * 0.5f;
 			m_projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop, m_orthographicNear, m_orthographicFar);
 		}
-
 	}
-
 }

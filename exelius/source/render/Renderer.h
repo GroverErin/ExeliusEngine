@@ -29,7 +29,7 @@ namespace Exelius
 	protected:
 		Renderer::RenderStatistics m_stats;
 	public:
-		Renderer(eastl::string& windowTitle, const Vector2u& windowSize, bool isVSyncEnabled = true);
+		Renderer(const WindowProperties& windowProperties);
 		virtual ~Renderer();
 
 		void Update();

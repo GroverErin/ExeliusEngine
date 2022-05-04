@@ -44,6 +44,21 @@ namespace Exelius
 		return s_timeData.m_unscaledDeltaTime;
 	}
 
+	float GameTime::TimeScaler::operator*(float left)
+	{
+		return operator float() * left;
+	}
+
+	float GameTime::TimeScaler::operator+(float left)
+	{
+		return operator float() + left;
+	}
+
+	float GameTime::TimeScaler::operator-(float left)
+	{
+		return left - operator float();
+	}
+
 	GameTime::GameTime()
 		: DeltaTime(false, true)
 		, DeltaTimeUnscaled(false, false)

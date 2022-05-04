@@ -1,8 +1,6 @@
 #pragma once
 #include "source/utility/generic/GUID.h"
 #include "source/resource/ResourceHandle.h"
-#include "source/engine/physics/PhysicsSystem.h"
-#include "source/engine/scripting/ScriptingSystem.h"
 
 #include <EASTL/string.h>
 #include <EASTL/vector.h>
@@ -15,7 +13,8 @@ namespace Exelius
 {
 	class GameObject;
 	class EditorCamera;
-
+	class PhysicsSystem;
+	class ScriptingSystem;
 	class Scene
 	{
 		friend class GameObject;
@@ -25,8 +24,8 @@ namespace Exelius
 		// ENTT
 		entt::registry m_registry;
 
-		PhysicsSystem m_physicsSystem;
-		ScriptingSystem m_scriptingSystem;
+		PhysicsSystem* m_pPhysicsSystem;
+		ScriptingSystem* m_pScriptingSystem;
 
 		// TODO: Remove these, as they belong to Cameras
 		uint32_t m_viewportWidth;
@@ -41,7 +40,7 @@ namespace Exelius
 		GameObject CreateGameObject(const eastl::string& name = eastl::string());
 		GameObject CreateGameObjectWithGUID(GUID id, const eastl::string& name = eastl::string());
 		
-		void DuplicateGameObject(GameObject gameObject);
+		GameObject DuplicateGameObject(GameObject gameObject, const eastl::string& name = eastl::string());
 
 		void DestroyGameObject(GameObject gameObject);
 
@@ -67,6 +66,12 @@ namespace Exelius
 
 		// Here, we will not LOAD a resource, it is expected to be loaded already.
 		bool DeserializeScene(const ResourceID& sceneResourceID);
+
+		eastl::string SerializeGameObject(GameObject gameObject);
+		GameObject DeserializeGameObject(const ResourceID& prefabResourceID);
+
+		PhysicsSystem& GetPhysicsSystem() { return *m_pPhysicsSystem; }
+		ScriptingSystem& GetScriptingSystem() { return *m_pScriptingSystem; }
 
 	private:
 

@@ -11,7 +11,9 @@ namespace Exelius
 		ImGui::Begin("Debug");
 
 		eastl::string gameObjectName = "None";
-		if (hoveredGameObject)
+
+		// We have to do this annoying check because when scenes start and stop, this gameobject doesn't get cleared.
+		if (hoveredGameObject && hoveredGameObject.HasComponent<NameComponent>())
 			gameObjectName = hoveredGameObject.GetComponent<NameComponent>().m_name;
 		ImGui::Text("Hovered GameObject: %s", gameObjectName.c_str());
 

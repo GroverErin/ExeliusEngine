@@ -251,13 +251,14 @@ namespace Exelius
 
 			// TODO: Move to render thread?
 			EXE_ASSERT(m_pImGuiLayer);
-			m_pImGuiLayer->Begin();
+			if (m_pImGuiLayer->Begin())
 			{
-				for (Layer* pLayer : *m_pLayerStack)
-					pLayer->OnImGuiRender();
+				{
+					for (Layer* pLayer : *m_pLayerStack)
+						pLayer->OnImGuiRender();
+				}
+				m_pImGuiLayer->End();
 			}
-			m_pImGuiLayer->End();
-
 			// Refresh Input State.
 			InputManager::GetInstance()->NextFrame();
 
@@ -395,16 +396,14 @@ namespace Exelius
 	/// <returns>True on success, false otherwise.</returns>
 	bool Application::InitializeRenderManager(const ConfigFile& configFile) const
 	{
-		eastl::string windowTitle("ExeliusApplication");
-		Vector2u windowSize({ 720, 640 });
-		bool isVSyncEnabled = false;
+		WindowProperties windowProperties;
 
-		if (!configFile.PopulateWindowData(windowTitle, windowSize, isVSyncEnabled))
+		if (!configFile.PopulateWindowData(windowProperties))
 		{
 			EXE_LOG_CATEGORY_WARN("Application", "Failed to populate window data correctly. Please verify config file.");
 		}
 
-		Renderer2D::SetSingleton(EXELIUS_NEW(Renderer2D(windowTitle, windowSize, isVSyncEnabled)));
+		Renderer2D::SetSingleton(EXELIUS_NEW(Renderer2D(windowProperties)));
 		if (!Renderer2D::GetInstance())
 		{
 			EXE_LOG_CATEGORY_FATAL("Application", "Exelius::Renderer failed to initialize.");

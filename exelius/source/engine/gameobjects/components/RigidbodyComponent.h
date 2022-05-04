@@ -21,6 +21,7 @@ namespace Exelius
 		BodyType m_bodyType = BodyType::Static;
 		bool m_isFixedRotation = false;
 		void* m_pRuntimeBody = nullptr;
+		bool m_isEffectedByGravity = true;
 		float m_gravityScale = 1.0f;
 
 		RigidbodyComponent() = default;

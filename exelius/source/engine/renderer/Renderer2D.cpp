@@ -22,8 +22,8 @@
 /// </summary>
 namespace Exelius
 {
-	Renderer2D::Renderer2D(eastl::string& windowTitle, const Vector2u& windowSize, bool isVSyncEnabled)
-		: Renderer(windowTitle, windowSize, isVSyncEnabled)
+	Renderer2D::Renderer2D(const WindowProperties& windowProperties)
+		: Renderer(windowProperties)
 		, m_pRendererAPI(nullptr)
 		, m_pQuadVertexArray(nullptr)
 		, m_pQuadVertexBuffer(nullptr)

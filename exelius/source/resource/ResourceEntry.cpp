@@ -133,7 +133,7 @@ namespace Exelius
 	bool ResourceEntry::DecrementRefCount()
 	{
 		--m_refCount;
-		
+
 		if (m_refCount < 0)
 		{
 			EXE_LOG_CATEGORY_WARN("ResourceDatabase", "ResourceEntry Ref Count below 0. Resource is being Over Released.");

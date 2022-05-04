@@ -12,6 +12,8 @@ namespace sol
 /// </summary>
 namespace Exelius
 {
+	class GameObject;
+
 	struct LuaScriptComponent
 		: public Component
 	{
@@ -19,7 +21,7 @@ namespace Exelius
 
 		sol::table m_scriptData;
 
-		void InitializeScript(sol::state* pLuaState);
+		void InitializeScript(sol::state* pLuaState, GameObject gameObject);
 
 		virtual void SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer) final override;
 

@@ -16,6 +16,8 @@ namespace Exelius
 
     TextureResource::~TextureResource()
     {
+        if (m_pTexture)
+            m_pTexture->Unbind();
     }
 
     Resource::LoadResult TextureResource::Load(eastl::vector<std::byte>&& data)

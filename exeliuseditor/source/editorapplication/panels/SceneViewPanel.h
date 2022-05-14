@@ -1,6 +1,7 @@
 #pragma once
-#include <include/Exelius.h>
+#include "EditorPanel.h"
 
+#include <include/Exelius.h>
 #include <glm/glm.hpp>
 
 /// <summary>
@@ -8,10 +9,11 @@
 /// </summary>
 namespace Exelius
 {
-	class EditorLayer;
-
 	class SceneViewPanel
+		: public EditorPanel
 	{
+		EditorCamera m_editorCamera;
+
 		SharedPtr<Framebuffer> m_pFramebuffer;
 
 		GameObject m_hoveredGameObject;
@@ -19,27 +21,28 @@ namespace Exelius
 		glm::vec2 m_sceneViewSize;
 		glm::vec2 m_sceneViewBounds[2];
 
-		bool m_isSceneViewFocused;
-		bool m_isSceneViewHovered;
-
 	public:
-		SceneViewPanel();
+		SceneViewPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene);
 
-		void InitializePanel();
+		virtual void InitializePanel() final override;
 
-		void OnImGuiRender(EditorLayer* pSceneOwner);
+		virtual void UpdatePanel() final override;
 
+		virtual void OnImGuiRender() final override;
+
+		virtual void OnEvent(Event& evnt) final override;
+
+	private:
 		void BeginRenderSceneView();
 		void EndRenderSceneView();
 
-		void ResizeSceneViewport();
+		void ResizeSceneView();
 
-		void HandleMousePicking(const SharedPtr<Scene>& pActiveScene);
+		void HandleMousePicking();
 
-		GameObject GetHoveredGameObject() { return m_hoveredGameObject; }
+		void RenderPhysicsColliders();
 
-		bool IsSceneViewHovered() const { return m_isSceneViewHovered; }
-
-		const glm::vec2& GetSize() const { return m_sceneViewSize; }
+		bool OnMouseButtonPressed(MouseButtonPressedEvent& evnt);
+		bool OnKeyPressed(KeyPressedEvent& evnt);
 	};
 }

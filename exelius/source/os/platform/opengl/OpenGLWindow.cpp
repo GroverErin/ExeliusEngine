@@ -88,6 +88,9 @@ namespace Exelius
 		if (!m_windowProperties.m_hasDecorators)
 			glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
+		//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+
 		if (m_windowProperties.m_isFullscreen)
 			m_pWindow = glfwCreateWindow((int)m_windowProperties.m_windowSize.x, (int)m_windowProperties.m_windowSize.y, m_windowProperties.m_title.c_str(), glfwGetPrimaryMonitor(), nullptr);
 		else
@@ -207,7 +210,7 @@ namespace Exelius
 					windowProperties.m_isMaximized = false;
 			});
 
-		glfwSetMonitorCallback([](GLFWmonitor*, int)
+		/*glfwSetMonitorCallback([](GLFWmonitor*, int)
 			{
 				int count;
 				GLFWmonitor** ppMonitors = glfwGetMonitors(&count);
@@ -216,7 +219,7 @@ namespace Exelius
 				{
 					Application::GetInstance()->CloseApplication();
 				}
-			});
+			});*/
 
 		//-------------------------------------------------------------------------------------------------------------------
 		// Set GLFW Keyboard Event Callbacks

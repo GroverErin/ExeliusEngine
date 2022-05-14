@@ -19,6 +19,8 @@ namespace Exelius
 	{
 		ResourceHandle m_scriptResource;
 
+		bool m_didInitialize = false;
+
 		sol::table m_scriptData;
 
 		void InitializeScript(sol::state* pLuaState, GameObject gameObject);

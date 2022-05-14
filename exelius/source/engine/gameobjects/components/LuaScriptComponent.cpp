@@ -15,6 +15,9 @@ namespace Exelius
 	{
 		EXE_ASSERT(pLuaState);
 
+		if (!m_scriptResource.GetID().IsValid())
+			return;
+
 		if (!m_scriptResource.IsReferenceHeld())
 			m_scriptResource.LoadNow(); // TODO: The script should be loaded already.
 
@@ -31,6 +34,8 @@ namespace Exelius
 		m_scriptData["gameObject"] = gameObject;
 
 		EXE_ASSERT(m_scriptData.valid());
+
+		m_didInitialize = true;
 	}
 
 	void LuaScriptComponent::SerializeComponent(rapidjson::Writer<rapidjson::StringBuffer>& writer)

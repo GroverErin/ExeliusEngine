@@ -155,6 +155,9 @@ namespace Exelius
 
 		void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int m_gameObjectGUID);
 
+		// TODO: Remove?
+		void DrawRawVertexRect(const eastl::array<glm::vec4, 4>& vertices, Color color);
+
 		float GetLineWidth();
 		void SetLineWidth(float width);
 

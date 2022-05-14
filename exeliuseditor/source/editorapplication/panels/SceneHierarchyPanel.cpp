@@ -1,4 +1,6 @@
 #include "SceneHierarchyPanel.h"
+#include "editorapplication/EditorLayer.h"
+#include "include/Input.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -9,21 +11,29 @@
 /// </summary>
 namespace Exelius
 {
-	SceneHierarchyPanel::SceneHierarchyPanel()
-		: m_pSceneContext(nullptr)
+	SceneHierarchyPanel::SceneHierarchyPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene)
+		: EditorPanel(pEditorLayer, pActiveScene, "Scene Hierarchy")
+		, m_isRenamingGameObject(false)
 	{
 		//
 	}
 
-	void SceneHierarchyPanel::SetContext(const SharedPtr<Scene>& context)
+	void SceneHierarchyPanel::InitializePanel()
 	{
-		m_pSceneContext = context;
-		m_selectedGameObject = {}; // Clear the selected object.
+	}
+
+	void SceneHierarchyPanel::UpdatePanel()
+	{
+		if (m_selectedGameObject != m_pEditorLayer->GetSelectedGameObject())
+			m_selectedGameObject = m_pEditorLayer->GetSelectedGameObject();
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Scene Hierarchy");
+
+		m_isPanelSelected = ImGui::IsWindowFocused();
+		m_isPanelHovered = ImGui::IsWindowHovered();
 
 		ImRect windowRect = {
 			{ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowPos().y + ImGui::GetWindowContentRegionMin().y},
@@ -44,7 +54,7 @@ namespace Exelius
 				TextFileResource* pTextFile = newPrefab.GetAs<TextFileResource>();
 
 				// If it is loaded and is a valid resource for this component.
-				if (!pTextFile || !m_pSceneContext->DeserializeGameObject(prefabPath.string().c_str()))
+				if (!pTextFile || !m_pActiveScene->DeserializeGameObject(prefabPath.string().c_str()))
 				{
 					EXE_LOG_CATEGORY_WARN("Editor", "Scene Hierarchy cannot accept '{}' as a prefab.", newPrefab.GetID().Get().c_str());
 				}
@@ -52,21 +62,25 @@ namespace Exelius
 			ImGui::EndDragDropTarget();
 		}
 
-		if (m_pSceneContext)
+		if (m_pActiveScene)
 		{
-			for (auto gameObject : m_pSceneContext->GetAllGameObjects())
+			for (auto gameObject : m_pActiveScene->GetAllGameObjects())
 			{
 				DrawGameObjectNodeTree(gameObject);
 			}
 
 			if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+			{
 				m_selectedGameObject = {};
+				m_renamingGameObject = {};
+				m_isRenamingGameObject = false;
+			}
 
 			// Right-click on blank space
 			if (ImGui::BeginPopupContextWindow(0, 1, false))
 			{
 				if (ImGui::MenuItem("Create Empty GameObject"))
-					m_pSceneContext->CreateGameObject("GameObject");
+					m_pActiveScene->CreateGameObject("GameObject");
 
 				ImGui::EndPopup();
 			}
@@ -75,19 +89,69 @@ namespace Exelius
 		ImGui::End();
 	}
 
-	void SceneHierarchyPanel::SetSelectedGameObject(GameObject gameObject)
+	void SceneHierarchyPanel::OnEvent(Event& evnt)
 	{
-		m_selectedGameObject = gameObject;
+		if (!m_isPanelSelected && !m_isPanelHovered)
+			return;
+
+
+		if (evnt.GetEventType() == EventType::KeyPressed)
+		{
+			KeyPressedEvent* pKeyPressed = static_cast<KeyPressedEvent*>(&evnt);
+			evnt.m_isHandled = false;
+
+			bool control = IsKeyDown(KeyCode::LControl) || IsKeyDown(KeyCode::RControl);
+			//bool shift = IsKeyDown(KeyCode::LShift) || IsKeyDown(KeyCode::RShift);
+
+			switch (pKeyPressed->GetKeyCode())
+			{
+				// Scene Commands
+				case KeyCode::D:
+				{
+					if (control)
+					{
+						DuplicateGameObject();
+						evnt.m_isHandled = true;
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	void SceneHierarchyPanel::DrawGameObjectNodeTree(GameObject gameObject)
 	{
 		auto& tag = gameObject.GetComponent<NameComponent>().m_name;
+		ImGuiTreeNodeFlags flags = ((m_selectedGameObject == gameObject && m_renamingGameObject != gameObject) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 
-		ImGuiTreeNodeFlags flags = ((m_selectedGameObject == gameObject) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
-		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-		if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)gameObject, flags, tag.c_str()))
-			ImGui::TreePop(); // Without this, crash occurs when arrow is clicked.
+		if (m_isRenamingGameObject && gameObject == m_renamingGameObject)
+		{
+			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)gameObject, flags, ""))
+				ImGui::TreePop(); // Without this, crash occurs when arrow is clicked.
+
+			char buffer[256]; // TODO: This limit should be imposed in the actual component.
+			memset(buffer, 0, sizeof(buffer));
+			std::strncpy(buffer, tag.c_str(), sizeof(buffer));
+
+			// Take up the entire width.
+			ImGui::SameLine();
+			ImGui::PushItemWidth(-1);
+			// ImGui hides anything after '##'
+			if (ImGui::InputText("##NameComponent", buffer, sizeof(buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				gameObject.GetComponent<NameComponent>().m_name = eastl::string(buffer);
+				m_isRenamingGameObject = false;
+				m_renamingGameObject = {};
+			}
+			ImGui::PopItemWidth();
+		}
+		else
+		{
+			flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+			flags |= ImGuiTreeNodeFlags_SpanFullWidth;
+			if (ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)gameObject, flags, tag.c_str()))
+				ImGui::TreePop(); // Without this, crash occurs when arrow is clicked.
+		}
 
 		if (ImGui::BeginDragDropSource())
 		{
@@ -95,27 +159,51 @@ namespace Exelius
 			ImGui::EndDragDropSource();
 		}
 
-		if (ImGui::IsItemClicked())
+		if (ImGui::IsItemClicked() && gameObject != m_renamingGameObject)
 		{
 			m_selectedGameObject = gameObject;
+			m_pEditorLayer->SetSelectedGameObject(m_selectedGameObject);
+			m_renamingGameObject = {};
+			m_isRenamingGameObject = false;
 		}
 
 		bool isGameObjectDeleted = false;
+
 		if (ImGui::BeginPopupContextItem())
 		{
 			if (ImGui::MenuItem("Delete GameObject"))
 				isGameObjectDeleted = true;
 
-			// TODO: Add renaming functionality here.
+			if (ImGui::MenuItem("Rename GameObject"))
+			{
+				m_isRenamingGameObject = true;
+				m_renamingGameObject = gameObject;
+			}
+
+			if (ImGui::MenuItem("Duplicate GameObject"))
+				m_pActiveScene->DuplicateGameObject(gameObject, tag + " (Copy)");
+
+			if (ImGui::MenuItem("Save As Prefab"))
+				m_pEditorLayer->SetPrefabGameObjectToSave(gameObject);
 
 			ImGui::EndPopup();
 		}
 
 		if (isGameObjectDeleted)
 		{
-			m_pSceneContext->DestroyGameObject(gameObject);
+			m_pActiveScene->DestroyGameObject(gameObject);
 			if (m_selectedGameObject == gameObject)
 				m_selectedGameObject = {};
+			m_pEditorLayer->SetSelectedGameObject(m_selectedGameObject);
 		}
+	}
+
+	void SceneHierarchyPanel::DuplicateGameObject()
+	{
+		if (m_pEditorLayer->GetEditorState() != EditorState::Edit)
+			return;
+
+		if (m_selectedGameObject)
+			m_pActiveScene->DuplicateGameObject(m_selectedGameObject);
 	}
 }

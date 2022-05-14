@@ -1,4 +1,6 @@
 #include "DebugPanel.h"
+#include "editorapplication/EditorLayer.h"
+
 #include <imgui.h>
 
 /// <summary>
@@ -6,11 +8,22 @@
 /// </summary>
 namespace Exelius
 {
-	void DebugPanel::OnImGuiRender(GameObject hoveredGameObject)
+	DebugPanel::DebugPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene)
+		: EditorPanel(pEditorLayer, pActiveScene, "Debug", false)
+	{
+		//
+	}
+
+	void DebugPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Debug");
 
+		m_isPanelSelected = ImGui::IsWindowFocused();
+		m_isPanelHovered = ImGui::IsWindowHovered();
+
 		eastl::string gameObjectName = "None";
+
+		GameObject hoveredGameObject = m_pEditorLayer->GetHoveredGameObject();
 
 		// We have to do this annoying check because when scenes start and stop, this gameobject doesn't get cleared.
 		if (hoveredGameObject && hoveredGameObject.HasComponent<NameComponent>())
@@ -21,6 +34,15 @@ namespace Exelius
 		float dt = Time.DeltaTime * 1000.0f;
 		ImGui::Text("DeltaTime: %.3f", dt);
 		ImGui::Text("FPS: %.1f", 1.0f / Time.DeltaTime);
+
+		ImGui::Separator();
+		float udt = Time.DeltaTimeUnscaled * 1000.0f;
+		ImGui::Text("Unscaled DeltaTime: %.3f", udt);
+		ImGui::Text("Unscaled FPS: %.1f", 1.0f / Time.DeltaTimeUnscaled);
+
+		ImGui::Separator();
+		float et = Time.ElapsedTime;
+		ImGui::Text("Elapsed Game Time: %.3f", et);
 
 		ImGui::Separator();
 		auto stats = Renderer2D::GetInstance()->GetRenderStats();

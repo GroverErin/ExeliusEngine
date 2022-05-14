@@ -24,8 +24,8 @@ namespace Exelius
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_rendererID);
 		glTextureStorage2D(m_rendererID, 1, m_internalFormat, m_width, m_height);
 
-		glTextureParameteri(m_rendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_rendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_rendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(m_rendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_rendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -92,7 +92,7 @@ namespace Exelius
 
 	OpenGLTexture::~OpenGLTexture()
 	{
-		glDeleteTextures(1, &m_rendererID);
+		//glDeleteTextures(1, &m_rendererID);
 	}
 
 	uint32_t OpenGLTexture::GetWidth() const
@@ -120,6 +120,11 @@ namespace Exelius
 	void OpenGLTexture::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_rendererID);
+	}
+
+	void OpenGLTexture::Unbind() const
+	{
+		glDeleteTextures(1, &m_rendererID);
 	}
 
 	bool OpenGLTexture::IsLoaded() const

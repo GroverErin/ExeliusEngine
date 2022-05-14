@@ -53,6 +53,14 @@ namespace Exelius
 
 			writer.Key("IsFixedAspectRatio");
 			writer.Bool(m_isFixedAspectRatio);
+
+			writer.Key("ViewportRect");
+			writer.StartArray();
+			writer.Double((double)m_viewportRect.x);
+			writer.Double((double)m_viewportRect.y);
+			writer.Double((double)m_viewportRect.z);
+			writer.Double((double)m_viewportRect.w);
+			writer.EndArray();
 		}
 		writer.EndObject(); // End Camera Component.
 	}
@@ -73,5 +81,16 @@ namespace Exelius
 		if (componentValue.FindMember("IsPrimary") != componentValue.MemberEnd())
 			m_isPrimary = componentValue.FindMember("IsPrimary")->value.GetBool();
 		m_isFixedAspectRatio = componentValue.FindMember("IsFixedAspectRatio")->value.GetBool();
+
+		if (componentValue.FindMember("ViewportRect") != componentValue.MemberEnd())
+		{
+			auto& viewportRect = componentValue.FindMember("ViewportRect")->value;
+			EXE_ASSERT(viewportRect.IsArray());
+
+			m_viewportRect.x = viewportRect.GetArray()[0].GetFloat();
+			m_viewportRect.y = viewportRect.GetArray()[1].GetFloat();
+			m_viewportRect.z = viewportRect.GetArray()[2].GetFloat();
+			m_viewportRect.w = viewportRect.GetArray()[3].GetFloat();
+		}
 	}
 }

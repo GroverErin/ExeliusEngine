@@ -32,21 +32,21 @@ namespace Exelius
 	}
 }
 
-#ifdef EXE_RELEASE
-	#ifdef EXE_WINDOWS
-		#include <Windows.h>
-
-		int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrevious, PSTR cmdline, int cmdshow)
-		{
-			return Exelius::Main(__argc, __argv);
-		}
-	#endif
-#else
+//#ifdef EXE_RELEASE
+//	#ifdef EXE_WINDOWS
+//		#include <Windows.h>
+//
+//		int APIENTRY WinMain([[maybe_unused]] HINSTANCE hInst, [[maybe_unused]] HINSTANCE hInstPrevious, [[maybe_unused]] PSTR cmdline, [[maybe_unused]] int cmdshow)
+//		{
+//			return Exelius::Main(__argc, __argv);
+//		}
+//	#endif
+//#else
 	int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 	{
 		return Exelius::Main(argc, argv);
 	}
-#endif // EXE_RELEASE
+//#endif // EXE_RELEASE
 
 
 /// <summary>

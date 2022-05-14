@@ -264,7 +264,6 @@ namespace Exelius
 
 			// Poll Window Events
 			Renderer2D::GetInstance()->Update();
-
 		}
 	}
 

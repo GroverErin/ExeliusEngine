@@ -20,6 +20,9 @@ namespace Exelius
 		bool Begin();
 		void End();
 
-		void ShouldBlockEvents(bool shouldBlock) { m_blockEvents = shouldBlock; }
+		void ShouldBlockEvents(bool shouldBlock)
+		{
+			m_blockEvents = shouldBlock;
+		}
 	};
 }

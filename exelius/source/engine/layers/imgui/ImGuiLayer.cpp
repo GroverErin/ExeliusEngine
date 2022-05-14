@@ -22,7 +22,7 @@ namespace Exelius
 {
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
-		, m_blockEvents(true)
+		, m_blockEvents(false)
 	{
 		//
 	}
@@ -87,20 +87,6 @@ namespace Exelius
 
 	bool ImGuiLayer::Begin()
 	{
-		{
-			//int monitors_count = 0;
-			//GLFWmonitor** glfw_monitors = glfwGetMonitors(&monitors_count);
-			//for (int n = 0; n < monitors_count; n++)
-			//{
-			//	// Warning: the validity of monitor DPI information on Windows depends on the application DPI awareness settings, which generally needs to be set in the manifest or at runtime.
-			//	float x_scale, y_scale;
-			//	glfwGetMonitorContentScale(glfw_monitors[n], &x_scale, &y_scale);
-
-			//	if (x_scale < 0.1f)
-			//		return false;
-			//}
-		}
-
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();

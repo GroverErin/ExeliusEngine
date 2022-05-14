@@ -1,13 +1,9 @@
 #pragma once
 #include <include/Exelius.h>
 
-#include "panels/SceneViewPanel.h"
-#include "panels/SceneHierarchyPanel.h"
-#include "panels/InspectorPanel.h"
-#include "panels/DebugPanel.h"
-#include "panels/AssetPanel.h"
+#include "panels/EditorPanel.h"
+#include "EditorHelpers.h"
 
-#include <glm/glm.hpp>
 #include <filesystem>
 
 /// <summary>
@@ -22,45 +18,57 @@ namespace Exelius
 	class EditorLayer
 		: public Layer
 	{
-		enum class SceneState
-		{
-			Edit = 0,
-			Play = 1
-		};
-		SceneState m_sceneState;
-
 		std::filesystem::path m_editorScenePath;
-		EditorCamera m_editorCamera;
 
 		SharedPtr<Scene> m_pActiveScene;
 		SharedPtr<Scene> m_pEditorScene;
 
-		bool m_isEditorActive;
+		eastl::vector<EditorPanel*> m_editorPanels;
 
-		SceneViewPanel m_sceneViewPanel;
-		SceneHierarchyPanel m_sceneHierarchyPanel;
-		InspectorPanel m_inspectorPanel;
-		DebugPanel m_debugPanel;
-		AssetPanel m_assetPanel;
+		EditorState m_editorState;
+
+		// TODO: Find a better way to allow inter-panel communication.
+		GameObject m_selectedGameObject;
+		GameObject m_hoveredGameObject;
+
+		// This is nasty. But again, I need better inter-panel communication.
+		GameObject m_gameObjectToSaveAsPrefab;
+
+		bool m_drawImGuiDemo;
+		bool m_showPhysicsColliders;
+		bool m_drawStyleEditor;
 
 	public:
+
 		EditorLayer();
 		virtual ~EditorLayer() = default;
 
 		virtual void OnAttach() final override;
+		virtual void OnDetach() final override;
 		void OnUpdate() final override;
 		virtual void OnImGuiRender() final override;
 		void OnEvent(Event& evnt) final override;
 
 		void OpenScene(const std::filesystem::path& path);
+
+		bool ShouldShowPhysicsColliders() const { return m_showPhysicsColliders; }
+
+		EditorState GetEditorState() const { return m_editorState; }
+
+		// TODO: Find a better way to allow inter-panel communication.
+		GameObject GetHoveredGameObject() const { return m_hoveredGameObject; }
+		void SetHoveredGameObject(GameObject hoveredGameObject) { m_hoveredGameObject = hoveredGameObject; }
+		GameObject GetSelectedGameObject() const { return m_selectedGameObject; }
+		void SetSelectedGameObject(GameObject selectedGameObject) { m_selectedGameObject = selectedGameObject; }
+		GameObject GetPrefabGameObjectToSave() const { return m_gameObjectToSaveAsPrefab; }
+		void SetPrefabGameObjectToSave(GameObject prefabGameObject) { m_gameObjectToSaveAsPrefab = prefabGameObject; }
+
 	private:
-		void ResizeSceneView();
 
 		void InitializeImGuiDockspace();
 		void DrawMenuToolbar();
 
 		bool OnKeyPressed(KeyPressedEvent& evnt);
-		bool OnMouseButtonPressed(MouseButtonPressedEvent& evnt);
 
 		void NewScene();
 
@@ -71,7 +79,5 @@ namespace Exelius
 
 		void OnScenePlay();
 		void OnSceneStop();
-
-		void OnDuplicateGameObject();
 	};
 }

@@ -28,6 +28,8 @@ namespace Exelius
 
 		void TryAddRuntimeScript(GameObject owningGameObject);
 
+		void DestroyGameObject(GameObject gameObjectToDestroy);
+
 	private:
 		void SetGlobalInputTable();
 

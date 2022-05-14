@@ -20,7 +20,7 @@ namespace Exelius
 		if (seedLow == 0 && seedHigh == 0)
 		{
 			m_seed[0] = time(nullptr);
-			m_seed[1] = time(nullptr);
+			m_seed[1] = time(nullptr) * m_seed[0];
 		}
 	}
 

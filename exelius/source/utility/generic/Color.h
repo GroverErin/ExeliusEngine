@@ -127,7 +127,8 @@ namespace Exelius
 		/// <returns>Hexadecimal value used to create a color.</returns>
 		constexpr uint32_t GetHex() const
 		{
-			const uint32_t hexColor = (a) | (b << 8) | (g << 16) | (r << 24);
+			//const uint32_t hexColor = (a) | (b << 8) | (g << 16) | (r << 24);
+			const uint32_t hexColor = (r) | (g << 8) | (b << 16) | (a << 24);
 			return hexColor;
 		}
 

@@ -31,6 +31,10 @@
 #include "source/engine/renderer/Renderer2D.h"
 
 #include "source/engine/scenesystem/Scene.h"
+
+#include "source/engine/physics/PhysicsSystem.h"
+#include "source/engine/scripting/ScriptingSystem.h"
+
 #include "source/os/events/MouseEvents.h"
 #include "source/os/events/KeyEvents.h"
 

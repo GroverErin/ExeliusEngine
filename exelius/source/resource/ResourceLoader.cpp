@@ -761,7 +761,7 @@ namespace Exelius
 		eastl::string strPath = resourceID.Get();
 
 		File resourceFile;
-		if (!resourceFile.Open(strPath, File::AccessPermission::kWriteOnly, File::CreationType::kOpenOrCreateFile))
+		if (!resourceFile.Open(strPath, File::AccessPermission::kWriteOnly, File::CreationType::kOverwriteFile))
 		{
 			EXE_LOG_CATEGORY_WARN("ResourceLoader", "Failed to open file: {}", strPath.c_str());
 			return;

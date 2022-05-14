@@ -22,14 +22,6 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
-//extern "C"
-//{
-//	#include <lua.h>
-//	#include <lualib.h>
-//	#include <lauxlib.h>
-//	#include <luaconf.h>
-//}
-
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -120,10 +112,10 @@ namespace Exelius
 
 		// Create entities in new scene
 		auto idView = srcSceneRegistry.view<GUIDComponent>();
-		for (auto e : idView)
+		for (auto gameObject : idView)
 		{
-			GUID id = srcSceneRegistry.get<GUIDComponent>(e).m_GUID;
-			const eastl::string& name = srcSceneRegistry.get<NameComponent>(e).m_name;
+			GUID id = srcSceneRegistry.get<GUIDComponent>(gameObject).m_GUID;
+			const eastl::string& name = srcSceneRegistry.get<NameComponent>(gameObject).m_name;
 			GameObject newGameObject = newScene->CreateGameObjectWithGUID(id, name);
 			enttMap[id] = (entt::entity)newGameObject;
 		}
@@ -175,6 +167,8 @@ namespace Exelius
 
 	void Scene::DestroyGameObject(GameObject gameObject)
 	{
+		if (m_pScriptingSystem && gameObject.HasComponent<LuaScriptComponent>())
+			m_pScriptingSystem->DestroyGameObject(gameObject);
 		m_registry.destroy(gameObject);
 	}
 
@@ -194,8 +188,16 @@ namespace Exelius
 
 		m_pScriptingSystem->UpdateRuntimeScripting(this);
 		m_pPhysicsSystem->UpdateRuntimePhysics();
+	}
 
-		RenderSceneForActiveCameras();
+	void Scene::OnRuntimeRender(SceneCamera& camera, const glm::mat4& transform)
+	{
+		Renderer2D::GetInstance()->Begin2DScene(camera, transform);
+		{
+			SubmitSprites();
+			SubmitCircles();
+		}
+		Renderer2D::GetInstance()->End2DScene();
 	}
 
 	void Scene::OnRuntimeStop()
@@ -577,7 +579,7 @@ namespace Exelius
 		EXE_ASSERT(m_pPhysicsSystem);
 		EXE_ASSERT(m_pScriptingSystem);
 
-		EXE_LOG_CATEGORY_INFO("PrefabDeserialization", "Attempting to deserialize Prefab: '{}'", prefabResourceID.Get().c_str());
+		//EXE_LOG_CATEGORY_INFO("PrefabDeserialization", "Attempting to deserialize Prefab: '{}'", prefabResourceID.Get().c_str());
 
 		if (!prefabResourceID.IsValid())
 		{
@@ -630,7 +632,7 @@ namespace Exelius
 			return {};
 		}
 		EXE_ASSERT(guidComponentMember->value.IsNumber());
-		GUID objectGUID = guidComponentMember->value.GetUint64();
+		GUID objectGUID = GUID();
 
 		const auto nameComponentMember = prefabMember->value.FindMember("NameComponent");
 		if (nameComponentMember == prefabMember->value.MemberEnd())
@@ -709,7 +711,7 @@ namespace Exelius
 			m_pScriptingSystem->TryAddRuntimeScript(loadedObject);
 		}
 
-		EXE_LOG_CATEGORY_INFO("PrefabDeserialization", "Prefab '{}' Deserialized Successfully!", prefabResourceID.Get().c_str());
+		//EXE_LOG_CATEGORY_INFO("PrefabDeserialization", "Prefab '{}' Deserialized Successfully!", prefabResourceID.Get().c_str());
 		return loadedObject;
 	}
 }

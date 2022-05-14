@@ -355,6 +355,18 @@ namespace Exelius
 			DrawQuad(transform, src.m_color, m_gameObjectGUID);
 	}
 
+	void Renderer2D::DrawRawVertexRect(const eastl::array<glm::vec4, 4>& vertices, Color color)
+	{
+		glm::vec3 lineVertices[4];
+		for (size_t i = 0; i < 4; i++)
+			lineVertices[i] = vertices[i];
+
+		DrawLine(lineVertices[0], lineVertices[1], color, -1);
+		DrawLine(lineVertices[1], lineVertices[2], color, -1);
+		DrawLine(lineVertices[2], lineVertices[3], color, -1);
+		DrawLine(lineVertices[3], lineVertices[0], color, -1);
+	}
+
 	float Renderer2D::GetLineWidth()
 	{
 		return m_lineWidth;
@@ -455,7 +467,9 @@ namespace Exelius
 			pTextureResource->SetTexture(EXELIUS_NEW(Texture(1, 1)));
 
 			uint32_t whiteTextureData = 0xffffffff;
-			pTextureResource->GetTexture().SetData(&whiteTextureData, sizeof(uint32_t));
+			Texture* pTexture = pTextureResource->GetTexture();
+			if (pTexture)
+				pTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 		}
 
 		// Set first texture slot to 0
@@ -510,8 +524,13 @@ namespace Exelius
 		{
 			ResourceHandle textureHandle(m_textureSlots[i]);
 			TextureResource* pTextureResource = textureHandle.GetAs<TextureResource>();
-			if (pTextureResource)
-				pTextureResource->GetTexture().Bind(i);
+			if (!pTextureResource)
+				return;
+
+			Texture* pTexture = pTextureResource->GetTexture();
+
+			if (pTexture)
+				pTexture->Bind(i);
 		}
 
 		BindShader(m_quadShaderResource);

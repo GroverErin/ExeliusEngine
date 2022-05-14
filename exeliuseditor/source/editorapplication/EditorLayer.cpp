@@ -1,12 +1,14 @@
 #include "EditorLayer.h"
 #include "include/Input.h"
 
-#include <source/utility/math/Math.h>
-#include <imgui.h>
-#include <imgui_internal.h>
+#include "panels/AssetPanel.h"
+#include "panels/DebugPanel.h"
+#include "panels/GameViewPanel.h"
+#include "panels/InspectorPanel.h"
+#include "panels/SceneHierarchyPanel.h"
+#include "panels/SceneViewPanel.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
 
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
@@ -17,8 +19,10 @@ namespace Exelius
 		: Layer("EditorLayer")
 		, m_pActiveScene(nullptr)
 		, m_pEditorScene(nullptr)
-		, m_isEditorActive(true)
-		, m_sceneState(SceneState::Edit)
+		, m_drawImGuiDemo(false)
+		, m_drawStyleEditor(false)
+		, m_showPhysicsColliders(true)
+		, m_editorState(EditorState::Edit)
 	{
 		//
 	}
@@ -28,34 +32,41 @@ namespace Exelius
 		m_pEditorScene = MakeShared<Scene>();
 		m_pActiveScene = m_pEditorScene;
 
-		m_sceneViewPanel.InitializePanel();
-		m_sceneHierarchyPanel.SetContext(m_pActiveScene);
+		m_editorPanels.emplace_back(EXELIUS_NEW(AssetPanel(this, m_pActiveScene)));
+		m_editorPanels.emplace_back(EXELIUS_NEW(DebugPanel(this, m_pActiveScene)));
+		m_editorPanels.emplace_back(EXELIUS_NEW(GameViewPanel(this, m_pActiveScene)));
+		m_editorPanels.emplace_back(EXELIUS_NEW(InspectorPanel(this, m_pActiveScene)));
+		m_editorPanels.emplace_back(EXELIUS_NEW(SceneHierarchyPanel(this, m_pActiveScene)));
+		m_editorPanels.emplace_back(EXELIUS_NEW(SceneViewPanel(this, m_pActiveScene)));
 
-		m_editorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);
+		for (auto* pPanel : m_editorPanels)
+		{
+			EXE_ASSERT(pPanel);
+
+			pPanel->InitializePanel();
+		}
+	}
+
+	void EditorLayer::OnDetach()
+	{
+		for (auto* pPanel : m_editorPanels)
+		{
+			EXE_ASSERT(pPanel);
+
+			EXELIUS_DELETE(pPanel);
+		}
+		m_editorPanels.clear();
 	}
 
 	void EditorLayer::OnUpdate()
 	{
-		ResizeSceneView();
-		m_sceneViewPanel.BeginRenderSceneView();
-
-		switch (m_sceneState)
+		Renderer2D::GetInstance()->ResetRenderStats();
+		for (auto* pPanel : m_editorPanels)
 		{
-			case SceneState::Edit:
-			{
-				m_editorCamera.OnUpdate();
-				m_pActiveScene->OnUpdateEditor(m_editorCamera);
-				break;
-			}
-			case SceneState::Play:
-			{
-				m_pActiveScene->OnRuntimeUpdate();
-				break;
-			}
+			EXE_ASSERT(pPanel);
+			if (pPanel->IsPanelOpen())
+				pPanel->UpdatePanel();
 		}
-
-		m_sceneViewPanel.HandleMousePicking(m_pActiveScene);
-		m_sceneViewPanel.EndRenderSceneView();
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -63,81 +74,88 @@ namespace Exelius
 		InitializeImGuiDockspace();
 
 		DrawMenuToolbar();
-		static bool showDemo = true;
 
-		m_sceneHierarchyPanel.OnImGuiRender();
-		GameObject selectedGameObject = m_sceneHierarchyPanel.GetSelectedGameObject();
-		m_inspectorPanel.OnImGuiRender(selectedGameObject, m_pActiveScene);
-		GameObject hoveredGameObject = m_sceneViewPanel.GetHoveredGameObject();
-#ifdef EXE_DEBUG
-		ImGui::ShowDemoWindow(&showDemo);
-		m_debugPanel.OnImGuiRender(hoveredGameObject);
-#endif // EXE_DEBUG
+		for (auto* pPanel : m_editorPanels)
+		{
+			EXE_ASSERT(pPanel);
+			if (pPanel->IsPanelOpen())
+				pPanel->OnImGuiRender();
+		}
 
-		m_sceneViewPanel.OnImGuiRender(this);
-		m_assetPanel.OnImGuiRender(m_pActiveScene);
+		if (m_drawImGuiDemo)
+			ImGui::ShowDemoWindow(&m_drawImGuiDemo);
+
+		if (m_drawStyleEditor)
+		{
+			ImGui::Begin("Exelius Editor Theme Customizer", &m_drawStyleEditor);
+			ImGui::ShowStyleEditor(&ImGui::GetStyle());
+			ImGui::End();
+		}
 
 		ImGui::End(); // End Dockspace
 	}
 
-	void EditorLayer::OnEvent(Event& e)
+	void EditorLayer::OnEvent(Event& evnt)
 	{
-		m_editorCamera.OnEvent(e);
-
-		if (e.GetEventType() == EventType::KeyPressed)
+		if (evnt.GetEventType() == EventType::KeyPressed)
 		{
-			KeyPressedEvent* pKeyPressed = static_cast<KeyPressedEvent*>(&e);
-			e.m_isHandled = false;
+			KeyPressedEvent* pKeyPressed = static_cast<KeyPressedEvent*>(&evnt);
+			evnt.m_isHandled = false;
 			OnKeyPressed(*pKeyPressed);
 		}
-		else if (e.GetEventType() == EventType::MouseButtonPressed)
-		{
-			MouseButtonPressedEvent* pMouseButton = static_cast<MouseButtonPressedEvent*>(&e);
 
-			e.m_isHandled = false;
-			OnMouseButtonPressed(*pMouseButton);
+		if (evnt.m_isHandled)
+			return; // Bail because the editor itself used this event.
+
+		for (auto* pPanel : m_editorPanels)
+		{
+			EXE_ASSERT(pPanel);
+			pPanel->OnEvent(evnt);
 		}
 	}
 
 	void EditorLayer::OpenScene(const std::filesystem::path& path)
 	{
-		if (m_sceneState != SceneState::Edit)
+		if (m_editorState != EditorState::Edit)
 			OnSceneStop();
 
-		if (File::GetFileExtension(path.string().c_str()) != "excene")
+		eastl::string fileExtension = File::GetFileExtension(path.string().c_str());
+
+		if (fileExtension != "excene" && fileExtension != "exobj")
 		{
-			// Unable to load non scene file.
+			EXE_LOG_CATEGORY_WARN("Editor", "Unable to load file '{}' as a Scene or Prefab.", path.string().c_str());
 			return;
 		}
 
-		ResourceHandle sceneToLoad(path.string().c_str());
-		if (!sceneToLoad.IsReferenceHeld())
-			sceneToLoad.LoadNow();
-		SharedPtr<Scene> newScene = MakeShared<Scene>();
-
-		if (newScene->DeserializeScene(path.string().c_str()))
+		if (fileExtension == "excene")
 		{
-			m_pEditorScene = newScene;
-			glm::vec2 sceneViewportSize = m_sceneViewPanel.GetSize();
-			m_pEditorScene->OnViewportResize((uint32_t)sceneViewportSize.x, (uint32_t)sceneViewportSize.y);
-			m_sceneHierarchyPanel.SetContext(m_pEditorScene);
-			m_pActiveScene = m_pEditorScene;
-			m_editorScenePath = path;
+			ResourceHandle sceneToLoad(path.string().c_str());
+			if (!sceneToLoad.IsReferenceHeld())
+				sceneToLoad.LoadNow();
+			SharedPtr<Scene> newScene = MakeShared<Scene>();
+
+			if (newScene->DeserializeScene(path.string().c_str()))
+			{
+				m_pEditorScene = newScene;
+				m_pActiveScene = m_pEditorScene;
+				m_editorScenePath = path;
+			}
+		}
+		else
+		{
+			// If it IS loaded, then the reference count would have been incremented.
+			// Otherwise, we need to load it (which would increment the ref count).
+			ResourceHandle newPrefab(path.string().c_str(), true); // New resource may or may not be loaded.
+
+			TextFileResource* pTextFile = newPrefab.GetAs<TextFileResource>();
+
+			// If it is loaded and is a valid resource for this component.
+			if (!pTextFile || !m_pActiveScene->DeserializeGameObject(path.string().c_str()))
+			{
+				EXE_LOG_CATEGORY_WARN("Editor", "Scene Hierarchy cannot accept '{}' as a prefab.", newPrefab.GetID().Get().c_str());
+			}
 		}
 	}
-
-	void EditorLayer::ResizeSceneView()
-	{
-		m_sceneViewPanel.ResizeSceneViewport();
-		glm::vec2 sceneViewportSize = m_sceneViewPanel.GetSize();
-
-		if (sceneViewportSize.x > 0.0f && sceneViewportSize.y > 0.0f)
-		{
-			m_editorCamera.SetViewportSize(sceneViewportSize.x, sceneViewportSize.y);
-			m_pActiveScene->OnViewportResize((uint32_t)sceneViewportSize.x, (uint32_t)sceneViewportSize.y);
-		}
-	}
-
 
 	// This code is taken almost directly from the ImGui Demo Window.
 	void EditorLayer::InitializeImGuiDockspace()
@@ -160,23 +178,13 @@ namespace Exelius
 			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
-		/*else
-		{
-			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
-		}*/
 
 		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		//ImGui::Begin("Exelius Editor Dockspace", &dockspaceOpen, window_flags);
-		//ImGui::PopStyleVar();
-
-		//if (!opt_padding)
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::Begin("Exelius Editor Dockspace", &dockspaceOpen, window_flags);
-		//if (!opt_padding)
-			ImGui::PopStyleVar();
+		ImGui::PopStyleVar();
 
 		if (dockspaceOpen)
 			ImGui::PopStyleVar(2);
@@ -207,8 +215,36 @@ namespace Exelius
 				if (ImGui::MenuItem("Open", "Ctrl+O"))
 					OpenScene();
 
+				if (ImGui::MenuItem("Save", "Ctrl+S"))
+					SaveScene();
+
 				if (ImGui::MenuItem("Save As", "Ctrl+Shift+S"))
 					SaveSceneAs();
+
+				if (ImGui::BeginMenu("Editor Settings"))
+				{
+					if (ImGui::BeginMenu("Panels"))
+					{
+						ImGui::MenuItem("ImGui Demo", "", &m_drawImGuiDemo);
+
+						for (auto* pPanel : m_editorPanels)
+						{
+							EXE_ASSERT(pPanel);
+							if (ImGui::MenuItem(pPanel->GetPanelName(), pPanel->GetPanelHotkey(), pPanel->IsPanelOpen()))
+								pPanel->SetPanelOpen(!pPanel->IsPanelOpen());
+						}
+						ImGui::EndMenu();
+					}
+
+					ImGui::MenuItem("Show Physics Colliders", "", &m_showPhysicsColliders);
+					bool isFullscreen = Renderer2D::GetInstance()->GetWindow().IsFullscreen();
+					if (ImGui::MenuItem("Fullscreen Mode", "", &isFullscreen))
+						Renderer2D::GetInstance()->GetWindow().SetFullscreen(isFullscreen);
+
+					if (ImGui::MenuItem("Open Theme Customizer"))
+						m_drawStyleEditor = true;
+					ImGui::EndMenu();
+				}
 
 				if (ImGui::MenuItem("Exit"))
 					Application::GetInstance()->CloseApplication();
@@ -216,66 +252,46 @@ namespace Exelius
 				ImGui::EndMenu();
 			}
 
-			switch (m_sceneState)
+			switch (m_editorState)
 			{
-			case SceneState::Edit:
+			case EditorState::Edit:
 				if (ImGui::Button("Play"))
 					OnScenePlay();
 				break;
-			case SceneState::Play:
+			case EditorState::Play:
 				if (ImGui::Button("Stop"))
 					OnSceneStop();
 				break;
 			}
 
-			/*ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImGui::PopStyleVar();
-
-			ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
-
-			if (Renderer2D::GetInstance()->GetWindow().IsFullscreen())
-			{
-				if (ImGui::Button("_", ImVec2{ lineHeight, lineHeight }))
-				{
-					Renderer2D::GetInstance()->GetWindow().MinimizeWindow();
-				}
-				if (ImGui::Button("[]", ImVec2{ lineHeight, lineHeight }))
-				{
-					if (Renderer2D::GetInstance()->GetWindow().IsFullscreen())
-						Renderer2D::GetInstance()->GetWindow().SetFullscreen(false);
-					else
-						Renderer2D::GetInstance()->GetWindow().SetFullscreen(true);
-				}
-				if (ImGui::Button("X", ImVec2{ lineHeight, lineHeight }))
-				{
-					Renderer2D::GetInstance()->GetWindow().CloseWindow();
-				}
-			}*/
-
 			ImGui::EndMenuBar();
 		}
 	}
 
-	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+	bool EditorLayer::OnKeyPressed(KeyPressedEvent& evnt)
 	{
 		bool control = IsKeyDown(KeyCode::LControl) || IsKeyDown(KeyCode::RControl);
 		bool shift = IsKeyDown(KeyCode::LShift) || IsKeyDown(KeyCode::RShift);
 
-		switch (e.GetKeyCode())
+		switch (evnt.GetKeyCode())
 		{
 			case KeyCode::N:
 			{
 				if (control)
+				{
 					NewScene();
+					evnt.m_isHandled = true;
+				}
 
 				break;
 			}
 			case KeyCode::O:
 			{
 				if (control)
+				{
 					OpenScene();
+					evnt.m_isHandled = true;
+				}
 
 				break;
 			}
@@ -287,52 +303,49 @@ namespace Exelius
 						SaveSceneAs();
 					else
 						SaveScene();
+
+					evnt.m_isHandled = true;
 				}
 
 				break;
 			}
-
-			// Scene Commands
-			case KeyCode::D:
-			{
-				if (control)
-					OnDuplicateGameObject();
-				break;
-			}
 		}
 
-		return false;
-	}
-
-	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
-	{
-		if (e.GetMouseButton() == MouseCode::Left)
-		{
-			if (m_sceneViewPanel.IsSceneViewHovered() && !IsKeyPressed(KeyCode::LAlt))
-				m_sceneHierarchyPanel.SetSelectedGameObject(m_sceneViewPanel.GetHoveredGameObject());
-		}
 		return false;
 	}
 
 	void EditorLayer::NewScene()
 	{
+		if (m_editorState != EditorState::Edit)
+			return;
+
 		m_pActiveScene = MakeShared<Scene>();
 		m_pEditorScene = m_pActiveScene;
-		glm::vec2 sceneViewportSize = m_sceneViewPanel.GetSize();
-		m_pActiveScene->OnViewportResize((uint32_t)sceneViewportSize.x, (uint32_t)sceneViewportSize.y);
-		m_sceneHierarchyPanel.SetContext(m_pActiveScene);
 		m_editorScenePath = std::filesystem::path();
+
+		m_hoveredGameObject = {};
+		m_selectedGameObject = {};
 	}
 
 	void EditorLayer::OpenScene()
 	{
+		if (m_editorState != EditorState::Edit)
+			return;
+
 		eastl::string filepath = Exelius::File::LaunchOpenFileDialog("Exelius Scene (*.excene)\0*.excene\0");
 		if (!filepath.empty())
+		{
 			OpenScene(std::filesystem::path("assets") / std::filesystem::path(filepath.c_str()));
+			m_hoveredGameObject = {};
+			m_selectedGameObject = {};
+		}
 	}
 
 	void EditorLayer::SaveScene()
 	{
+		if (m_editorState != EditorState::Edit)
+			return;
+
 		if (!m_editorScenePath.empty())
 			m_pActiveScene->SerializeScene();
 		else
@@ -341,6 +354,9 @@ namespace Exelius
 
 	void EditorLayer::SaveSceneAs()
 	{
+		if (m_editorState != EditorState::Edit)
+			return;
+
 		eastl::string filepath = File::LaunchSaveFileDialog("Exelius Scene (*.excene)\0*.excene\0");
 		if (!filepath.empty())
 		{
@@ -350,31 +366,23 @@ namespace Exelius
 
 	void EditorLayer::OnScenePlay()
 	{
-		m_sceneState = SceneState::Play;
+		m_editorState = EditorState::Play;
 
 		m_pActiveScene = Scene::Copy(m_pEditorScene);
 		m_pActiveScene->OnRuntimeStart();
 
-		m_sceneHierarchyPanel.SetContext(m_pActiveScene);
+		m_hoveredGameObject = {};
+		m_selectedGameObject = {};
 	}
 
 	void EditorLayer::OnSceneStop()
 	{
-		m_sceneState = SceneState::Edit;
+		m_editorState = EditorState::Edit;
 		m_pActiveScene->OnRuntimeStop();
 		m_pActiveScene = m_pEditorScene;
 
-		m_sceneHierarchyPanel.SetContext(m_pActiveScene);
-	}
-
-	void Exelius::EditorLayer::OnDuplicateGameObject()
-	{
-		if (m_sceneState != SceneState::Edit)
-			return;
-
-		GameObject selectedGameObject = m_sceneHierarchyPanel.GetSelectedGameObject();
-		if (selectedGameObject)
-			m_pEditorScene->DuplicateGameObject(selectedGameObject);
+		m_hoveredGameObject = {};
+		m_selectedGameObject = {};
 	}
 
 }

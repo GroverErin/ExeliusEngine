@@ -6,6 +6,8 @@
 #include <EASTL/vector.h>
 #include <entt/entt.hpp>
 
+#include <glm/mat4x4.hpp>
+
 /// <summary>
 /// Engine namespace. Everything owned by the engine will be inside this namespace.
 /// </summary>
@@ -13,6 +15,7 @@ namespace Exelius
 {
 	class GameObject;
 	class EditorCamera;
+	class SceneCamera;
 	class PhysicsSystem;
 	class ScriptingSystem;
 	class Scene
@@ -46,6 +49,7 @@ namespace Exelius
 
 		void OnRuntimeStart();
 		void OnRuntimeUpdate();
+		void OnRuntimeRender(SceneCamera& camera, const glm::mat4& transform);
 		void OnRuntimeStop();
 
 		void OnUpdateEditor(EditorCamera& camera);

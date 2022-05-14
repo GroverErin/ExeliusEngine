@@ -1,4 +1,6 @@
 #pragma once
+#include "EditorPanel.h"
+
 #include <include/Exelius.h>
 
 /// <summary>
@@ -7,19 +9,27 @@
 namespace Exelius
 {
 	class SceneHierarchyPanel
+		: public EditorPanel
 	{
-		SharedPtr<Scene> m_pSceneContext;
 		GameObject m_selectedGameObject;
+		GameObject m_renamingGameObject;
+
+		bool m_isRenamingGameObject;
+
 	public:
-		SceneHierarchyPanel();
+		SceneHierarchyPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene);
 
-		void SetContext(const SharedPtr<Scene>& scene);
+		virtual void InitializePanel() final override;
 
-		void OnImGuiRender();
+		virtual void UpdatePanel() final override;
 
-		GameObject GetSelectedGameObject() const { return m_selectedGameObject; }
-		void SetSelectedGameObject(GameObject gameObject);
+		virtual void OnImGuiRender() final override;
+
+		virtual void OnEvent(Event& evnt) final override;
+
 	private:
 		void DrawGameObjectNodeTree(GameObject gameObject);
+
+		void DuplicateGameObject();
 	};
 }

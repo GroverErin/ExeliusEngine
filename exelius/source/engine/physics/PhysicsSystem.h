@@ -15,6 +15,7 @@ namespace Exelius
 {
 	class Scene;
 	class ContactListener;
+	class DebugDraw;
 
 	struct CollisionData
 	{
@@ -39,6 +40,7 @@ namespace Exelius
 		b2World* m_pPhysicsWorld;
 		Scene* m_pOwningScene;
 		ContactListener* m_pContactListener;
+		DebugDraw* m_pDebugDraw;
 		glm::vec2 m_globalGravity;
 		int32_t m_velocityIterations;
 		int32_t m_positionIterations;
@@ -65,5 +67,7 @@ namespace Exelius
 		void AddCollisionCallback(CollisionCallback callback);
 
 		void OnContact(CollisionData collisionData);
+
+		void DebugDrawPhysics();
 	};
 }

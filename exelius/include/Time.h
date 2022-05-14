@@ -41,7 +41,7 @@ namespace Exelius
 		TimeScaler DeltaTimeUnscaled;
 
 		// Total application running time.
-		TimeScaler ElapsedGameTime;
+		TimeScaler ElapsedTime;
 
 		static void SetTimeScale(float newTimeScale = 1.0f);
 

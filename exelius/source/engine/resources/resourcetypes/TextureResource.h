@@ -24,6 +24,6 @@ namespace Exelius
 		virtual void Unload() final override;
 
 		void SetTexture(Texture* pTextureToSet) { m_pTexture = pTextureToSet; }
-		Texture& GetTexture() const { EXE_ASSERT(m_pTexture); return *m_pTexture; }
+		Texture* GetTexture() const { return m_pTexture; }
 	};
 }

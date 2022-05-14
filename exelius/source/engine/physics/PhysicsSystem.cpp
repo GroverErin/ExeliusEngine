@@ -1,6 +1,7 @@
 #include "EXEPCH.h"
 #include "PhysicsSystem.h"
 #include "box2d/ContactListener.h"
+#include "box2d/DebugDraw.h"
 
 #include "source/engine/scenesystem/Scene.h"
 #include "source/engine/gameobjects/GameObject.h"
@@ -39,6 +40,7 @@ namespace Exelius
 		: m_pPhysicsWorld(nullptr)
 		, m_pOwningScene(pOwningScene)
 		, m_pContactListener(nullptr)
+		, m_pDebugDraw(nullptr)
 		, m_globalGravity(0.0f, -9.8f)
 		, m_velocityIterations(6)
 		, m_positionIterations(2)
@@ -62,7 +64,12 @@ namespace Exelius
 		m_pContactListener = EXELIUS_NEW(ContactListener(m_pOwningScene));
 		EXE_ASSERT(m_pContactListener);
 
+		m_pDebugDraw = EXELIUS_NEW(DebugDraw());
+		EXE_ASSERT(m_pDebugDraw);
+		m_pDebugDraw->SetFlags(b2Draw::e_aabbBit | b2Draw::e_shapeBit);
+
 		m_pPhysicsWorld->SetContactListener(m_pContactListener);
+		m_pPhysicsWorld->SetDebugDraw(m_pDebugDraw);
 
 		auto view = m_pOwningScene->GetAllGameObjectsWith<RigidbodyComponent>();
 		for (auto objectWithRigidBody : view)
@@ -101,7 +108,7 @@ namespace Exelius
 				auto& size = boxCollider.m_size;
 
 				b2PolygonShape boxShape;
-				boxShape.SetAsBox(size.x * scale.x, size.y * scale.y);
+				boxShape.SetAsBox(size.x * scale.x, size.y * scale.y, b2Vec2(boxCollider.m_offset.x, boxCollider.m_offset.y), glm::radians(0.0f));
 
 				// Define and Add the Box2D Fixture to the body.
 				b2FixtureDef fixtureDef;
@@ -176,6 +183,7 @@ namespace Exelius
 	{
 		EXELIUS_DELETE(m_pPhysicsWorld);
 		EXELIUS_DELETE(m_pContactListener);
+		EXELIUS_DELETE(m_pDebugDraw);
 		m_pOwningScene = nullptr;
 	}
 
@@ -282,5 +290,11 @@ namespace Exelius
 	void PhysicsSystem::OnContact(CollisionData collisionData)
 	{
 		m_contacts.emplace_back(collisionData);
+	}
+	
+	void PhysicsSystem::DebugDrawPhysics()
+	{
+		if (m_pPhysicsWorld)
+			m_pPhysicsWorld->DebugDraw();
 	}
 }

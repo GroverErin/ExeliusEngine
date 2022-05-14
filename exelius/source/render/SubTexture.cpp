@@ -23,13 +23,16 @@ namespace Exelius
 		if (!textureResourceHandle.IsReferenceHeld())
 			return nullptr; // TODO: Log unable to create.
 
-		TextureResource* pTexture = textureResourceHandle.GetAs<TextureResource>();
+		TextureResource* pTextureResource = textureResourceHandle.GetAs<TextureResource>();
+		if (!pTextureResource)
+			return nullptr;
+
+		Texture* pTexture = pTextureResource->GetTexture();
 		if (!pTexture)
 			return nullptr;
 
-		Texture& texture = pTexture->GetTexture();
-		glm::vec2 min = { (coordinates.x * spriteSize.x) / texture.GetWidth(), (coordinates.y * spriteSize.y) / texture.GetHeight() };
-		glm::vec2 max = { ((coordinates.x + 1) * spriteSize.x) / texture.GetWidth(), ((coordinates.y + 1) * spriteSize.y) / texture.GetHeight() };
+		glm::vec2 min = { (coordinates.x * spriteSize.x) / pTexture->GetWidth(), (coordinates.y * spriteSize.y) / pTexture->GetHeight() };
+		glm::vec2 max = { ((coordinates.x + 1) * spriteSize.x) / pTexture->GetWidth(), ((coordinates.y + 1) * spriteSize.y) / pTexture->GetHeight() };
 		return MakeShared<SubTexture>(textureResource, min, max);
 	}
 }

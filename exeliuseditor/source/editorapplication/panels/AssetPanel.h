@@ -1,6 +1,7 @@
 #pragma once
-#include <include/Exelius.h>
+#include "EditorPanel.h"
 
+#include <include/Exelius.h>
 #include <EASTL/string.h>
 
 /// <summary>
@@ -9,6 +10,7 @@
 namespace Exelius
 {
 	class AssetPanel
+		: public EditorPanel
 	{
 		eastl::string m_currentFilePath;
 
@@ -26,8 +28,10 @@ namespace Exelius
 		ResourceHandle m_unknownFileTypeIcon;
 
 	public:
-		AssetPanel();
+		AssetPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene);
 
-		void OnImGuiRender(const SharedPtr<Scene>& pActiveScene);
+		virtual void UpdatePanel() final override;
+
+		virtual void OnImGuiRender() final override;
 	};
 }

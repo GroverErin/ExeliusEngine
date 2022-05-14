@@ -20,7 +20,6 @@ namespace Exelius
 		float m_timeScale = 1.0f;
 
 		Timer m_deltaTimer;
-		Timer m_elapsedTimer;
 	};
 
 	static GameTimeData s_timeData;
@@ -62,9 +61,9 @@ namespace Exelius
 	GameTime::GameTime()
 		: DeltaTime(false, true)
 		, DeltaTimeUnscaled(false, false)
-		, ElapsedGameTime(true, false)
+		, ElapsedTime(true, false)
 	{
-
+		//
 	}
 
 	void GameTime::SetTimeScale(float newTimeScale /*= 1.0f*/)
@@ -87,6 +86,9 @@ namespace Exelius
 
 		s_timeData.m_deltaTime = time * s_timeData.m_timeScale;
 		s_timeData.m_unscaledDeltaTime = time;
+
+		if (time < 1000) // Prevents startup bug.
+			s_timeData.m_elapsedTime += time;
 
 		s_timeData.m_deltaTimer.Start();
 	}

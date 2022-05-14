@@ -41,6 +41,8 @@ namespace Exelius
 
 		void Bind(uint32_t slot = 0) const { m_impl.Bind(slot); }
 
+		void Unbind() const { m_impl.Unbind(); }
+
 		bool IsLoaded() const { return m_impl.IsLoaded(); }
 
 		bool operator==(const Texture& other) const { return m_impl.operator==(other); }

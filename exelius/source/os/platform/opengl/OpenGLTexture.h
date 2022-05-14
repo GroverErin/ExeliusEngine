@@ -36,6 +36,7 @@ namespace Exelius
 		void SetData(void* data, uint32_t size);
 
 		void Bind(uint32_t slot = 0) const;
+		void Unbind() const;
 
 		bool IsLoaded() const;
 

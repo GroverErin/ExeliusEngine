@@ -1,4 +1,6 @@
 #include "AssetPanel.h"
+#include "editorapplication/EditorLayer.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -9,8 +11,9 @@
 /// </summary>
 namespace Exelius
 {
-	AssetPanel::AssetPanel()
-		: m_currentFilePath("assets")
+	AssetPanel::AssetPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene)
+		: EditorPanel(pEditorLayer, pActiveScene, "Assets")
+		, m_currentFilePath("assets")
 		, m_emptyFolderIcon("assets/textures/editoricons/emptyfoldericon.png")
 		, m_folderIcon("assets/textures/editoricons/foldericon.png")
 		, m_textIcon("assets/textures/editoricons/texticon.png")
@@ -37,9 +40,40 @@ namespace Exelius
 		m_unknownFileTypeIcon.LoadNow();
 	}
 
-	void AssetPanel::OnImGuiRender(const SharedPtr<Scene>& pActiveScene)
+	void AssetPanel::UpdatePanel()
+	{
+		GameObject potentialPrefab = m_pEditorLayer->GetPrefabGameObjectToSave();
+		if (potentialPrefab)
+		{
+			eastl::string prefabFileName = potentialPrefab.GetName() + ".exobj";
+			std::filesystem::path prefabPath = m_currentFilePath.c_str();
+			prefabPath /= prefabFileName.c_str();
+
+			// If it IS loaded, then the reference count would have been incremented.
+			ResourceHandle newPrefab(prefabPath.string().c_str()); // New resource may or may not be loaded.
+
+			if (!newPrefab.CreateNew(prefabPath.string().c_str()))
+				EXE_LOG_CATEGORY_WARN("Editor", "Failed to create prefab resource '{}'", prefabPath.string().c_str());
+
+			if (TextFileResource* pResource = newPrefab.GetAs<TextFileResource>())
+			{
+				pResource->SetRawText(m_pActiveScene->SerializeGameObject(potentialPrefab));
+				newPrefab.SaveResource();
+				m_pEditorLayer->SetPrefabGameObjectToSave({});
+			}
+			else
+			{
+				EXE_LOG_CATEGORY_WARN("Editor", "Failed to create prefab resource '{}'", prefabPath.string().c_str());
+			}
+		}
+	}
+
+	void AssetPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Assets");
+
+		m_isPanelSelected = ImGui::IsWindowFocused();
+		m_isPanelHovered = ImGui::IsWindowHovered();
 
 		ImRect windowRect = {
 			{ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMin().x, ImGui::GetWindowPos().y + ImGui::GetWindowContentRegionMin().y},
@@ -64,7 +98,7 @@ namespace Exelius
 
 				if (TextFileResource* pResource = newPrefab.GetAs<TextFileResource>())
 				{
-					pResource->SetRawText(pActiveScene->SerializeGameObject(*pGameObject));
+					pResource->SetRawText(m_pActiveScene->SerializeGameObject(*pGameObject));
 					newPrefab.SaveResource();
 				}
 				else
@@ -132,12 +166,17 @@ namespace Exelius
 
 			ResourceHandle iconResource(icon);
 
-			TextureResource* pTexture = iconResource.GetAs<TextureResource>();
+			TextureResource* pTextureResource = iconResource.GetAs<TextureResource>();
+			if (!pTextureResource)
+				return;
+
+			Texture* pTexture = pTextureResource->GetTexture();
+
 			if (!pTexture)
 				return;
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			ImGui::ImageButton((ImTextureID)pTexture->GetTexture().GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+			ImGui::ImageButton((ImTextureID)pTexture->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
 
 			if (ImGui::BeginDragDropSource())
 			{
@@ -165,7 +204,7 @@ namespace Exelius
 
 						if (TextFileResource* pResource = newPrefab.GetAs<TextFileResource>())
 						{
-							pResource->SetRawText(pActiveScene->SerializeGameObject(*pGameObject));
+							pResource->SetRawText(m_pActiveScene->SerializeGameObject(*pGameObject));
 							newPrefab.SaveResource();
 						}
 						else
@@ -175,7 +214,7 @@ namespace Exelius
 					}
 					ImGui::EndDragDropTarget();
 				}
-		}
+			}
 
 			ImGui::PopStyleColor();
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -187,6 +226,17 @@ namespace Exelius
 
 				m_currentFilePath = temppath.string().c_str();
 			}
+			if (ImGui::BeginPopupContextItem())
+			{
+				if (ImGui::MenuItem("Delete"))
+				{
+					if (directoryEntry.is_directory())
+						std::filesystem::remove_all(path);
+					std::filesystem::remove(path);
+				}
+				ImGui::EndPopup();
+			}
+
 			ImGui::TextWrapped(filenameString.c_str());
 
 			ImGui::NextColumn();

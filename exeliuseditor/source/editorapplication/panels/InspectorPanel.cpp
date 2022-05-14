@@ -1,5 +1,6 @@
 #include "InspectorPanel.h"
-#include "include/Exelius.h"
+
+#include "editorapplication/EditorLayer.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -14,14 +15,24 @@
 /// </summary>
 namespace Exelius
 {
-	void InspectorPanel::OnImGuiRender(GameObject gameObject, const SharedPtr<Scene>& pScene)
+	InspectorPanel::InspectorPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene)
+		: EditorPanel(pEditorLayer, pActiveScene, "Inspector")
 	{
+		//
+	}
+
+	void InspectorPanel::OnImGuiRender()
+	{
+		EXE_ASSERT(m_pEditorLayer);
+		EXE_ASSERT(m_pActiveScene);
+
 		ImGui::Begin("Inspector");
 		{
-
-
-			if (gameObject)
-				DrawComponents(gameObject, pScene);
+			m_isPanelSelected = ImGui::IsWindowFocused();
+			m_isPanelHovered = ImGui::IsWindowHovered();
+			GameObject selectedGameObject = m_pEditorLayer->GetSelectedGameObject();
+			if (selectedGameObject)
+				DrawComponents(selectedGameObject);
 		}
 		ImGui::End();
 	}
@@ -69,8 +80,11 @@ namespace Exelius
 		}
 	}
 
-	void InspectorPanel::DrawComponents(GameObject gameObject, const SharedPtr<Scene>& pScene)
+	void InspectorPanel::DrawComponents(GameObject gameObject)
 	{
+		EXE_ASSERT(m_pEditorLayer);
+		EXE_ASSERT(m_pActiveScene);
+
 		if (!gameObject.HasComponent<NameComponent>())
 		{
 			EXE_LOG_CATEGORY_FATAL("ExeliusEditor", "GameObject found wth no NameComponent");
@@ -94,7 +108,9 @@ namespace Exelius
 
 		if (ImGui::BeginDragDropTargetCustom(windowRect, ImGui::GetCurrentWindow()->ID))
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Asset"))
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Asset");
+
+			if (payload && m_pEditorLayer->GetEditorState() == EditorState::Edit)
 			{
 				const wchar_t* path = (const wchar_t*)payload->Data;
 				std::filesystem::path assetPath = std::filesystem::path("assets") / path;
@@ -176,13 +192,14 @@ namespace Exelius
 				DrawVector3("Scale", component.m_scale);
 			}, false);
 
-		DrawComponent<CameraComponent>("Camera", gameObject, [pScene](CameraComponent& component)
+		DrawComponent<CameraComponent>("Camera", gameObject, [&](CameraComponent& component)
 			{
 				auto& camera = component.m_camera;
 
+				//ImGui::Checkbox("Is Primary", &component.m_isPrimary);
 				ImGui::Checkbox("Is Active", &component.m_isActive);
 
-				const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
+				/*const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
 				const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];
 				if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
 				{
@@ -200,78 +217,70 @@ namespace Exelius
 					}
 
 					ImGui::EndCombo();
-				}
+				}*/
 
 				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
 				{
 					float perspectiveVerticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());
-					if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov))
+					if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov, 1.0f, -FLT_MAX, FLT_MAX, "%.0f"))
 						camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));
 
 					float perspectiveNear = camera.GetPerspectiveNearClip();
-					if (ImGui::DragFloat("Near", &perspectiveNear))
+					if (ImGui::DragFloat("Near", &perspectiveNear, 10.0f, -FLT_MAX, FLT_MAX, "%.0f"))
 						camera.SetPerspectiveNearClip(perspectiveNear);
 
 					float perspectiveFar = camera.GetPerspectiveFarClip();
-					if (ImGui::DragFloat("Far", &perspectiveFar))
+					if (ImGui::DragFloat("Far", &perspectiveFar, 10.0f, -FLT_MAX, FLT_MAX, "%.0f"))
 						camera.SetPerspectiveFarClip(perspectiveFar);
 				}
 
 				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
 				{
 					float orthoSize = camera.GetOrthographicSize();
-					if (ImGui::DragFloat("Size", &orthoSize))
+					if (ImGui::DragFloat("Size", &orthoSize, 0.1f, -FLT_MAX, FLT_MAX, "%.1f"))
 						camera.SetOrthographicSize(orthoSize);
 
-					float orthoNear = camera.GetOrthographicNearClip();
-					if (ImGui::DragFloat("Near", &orthoNear))
+					/*float orthoNear = camera.GetOrthographicNearClip();
+					if (ImGui::DragFloat("Near", &orthoNear, 1.0f, -FLT_MAX, FLT_MAX, "%.0f"))
 						camera.SetOrthographicNearClip(orthoNear);
 
 					float orthoFar = camera.GetOrthographicFarClip();
-					if (ImGui::DragFloat("Far", &orthoFar))
-						camera.SetOrthographicFarClip(orthoFar);
+					if (ImGui::DragFloat("Far", &orthoFar, 1.0f, -FLT_MAX, FLT_MAX, "%.0f"))
+						camera.SetOrthographicFarClip(orthoFar);*/
 
 					ImGui::Checkbox("Fixed Aspect Ratio", &component.m_isFixedAspectRatio);
 				}
 
 				ImGui::PushID("Viewport Rect");
+				ImGui::Text("Viewport Rect");
 
-				ImGui::Columns(2);
-				ImGui::SetColumnWidth(0, 100);
-				ImGui::Text("Viewport Position");
-				ImGui::NextColumn();
+				ImGui::PushMultiItemsWidths(2, ImGui::CalcItemWidth());
 
-				ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-
-				ImGui::Text(" X ");
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("\tX ");
 
 				ImGui::SameLine();
-				ImGui::DragFloat("##ViewportX", &component.m_viewportRect.x, 0.05f, 0.0f, 0.0f, "%.2f");
+				ImGui::DragFloat("##ViewportX", &component.m_viewportRect.x, 0.05f, 0.0f, 1.0f, "%.2f");
 				ImGui::PopItemWidth();
 				ImGui::SameLine();
 
-				ImGui::Text(" Y ");
+				ImGui::Text("\tY ");
 
 				ImGui::SameLine();
-				ImGui::DragFloat("##ViewportY", &component.m_viewportRect.y, 0.05f, 0.0f, 0.0f, "%.2f");
+				ImGui::DragFloat("##ViewportY", &component.m_viewportRect.y, 0.05f, 0.0f, 1.0f, "%.2f");
 				ImGui::PopItemWidth();
-				ImGui::Columns(1);
 
-				ImGui::Columns(2);
-				ImGui::SetColumnWidth(0, 100);
-				ImGui::Text("Viewport Size");
-				ImGui::NextColumn();
+				ImGui::PushMultiItemsWidths(2, ImGui::CalcItemWidth());
 
-				ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-
-				ImGui::Text("Width");
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("\tW ");
 
 				ImGui::SameLine();
 				ImGui::DragFloat("##ViewportW", &component.m_viewportRect.z, 0.05f, 0.01f, 1.0f, "%.2f");
 				ImGui::PopItemWidth();
 				ImGui::SameLine();
 
-				ImGui::Text("Height");
+				ImGui::Text("\tH ");
 
 				ImGui::SameLine();
 				ImGui::DragFloat("##ViewportH", &component.m_viewportRect.w, 0.05f, 0.01f, 1.0f, "%.2f");
@@ -279,16 +288,16 @@ namespace Exelius
 
 				ImGui::PopID();
 
-				uint32_t width = pScene->GetViewportWidth();
-				uint32_t height = pScene->GetViewportHeight();
+				uint32_t width = m_pActiveScene->GetViewportWidth();
+				uint32_t height = m_pActiveScene->GetViewportHeight();
 
 				width = (uint32_t)(width * component.m_viewportRect.z);
 				height = (uint32_t)(height * component.m_viewportRect.w);
 
-				component.m_camera.SetViewportSize(component.m_viewportRect.z, component.m_viewportRect.w);
+				component.m_camera.SetViewportSize(width, height);
 			});
 
-		DrawComponent<SpriteRendererComponent>("Sprite Renderer", gameObject, [](SpriteRendererComponent& component)
+		DrawComponent<SpriteRendererComponent>("Sprite Renderer", gameObject, [&](SpriteRendererComponent& component)
 			{
 				glm::vec4 color = component.m_color.GetColorVector();
 				ImGui::ColorEdit4("Color", glm::value_ptr(color));
@@ -302,6 +311,9 @@ namespace Exelius
 
 				if (ImGui::InputText("Texture", buffer, sizeof(buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
 				{
+					if (m_pEditorLayer->GetEditorState() != EditorState::Edit)
+						return;
+
 					// If it IS loaded, then the reference count would have been incremented.
 					// Otherwise, we need to load it (which would increment the ref count).
 					ResourceHandle newTexture(buffer, true); // New resource may or may not be loaded.
@@ -320,6 +332,9 @@ namespace Exelius
 						EXE_LOG_CATEGORY_WARN("Editor", "Sprite Renderer cannot accept '{}' as a Texture.", newTexture.GetID().Get().c_str());
 					}
 				}
+
+				if (m_pEditorLayer->GetEditorState() != EditorState::Edit)
+					return;
 
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -349,7 +364,7 @@ namespace Exelius
 				ImGui::EndDragDropTarget();
 			}
 
-				ImGui::DragFloat("Tiling Multiplier", &component.m_textureTilingMultiplier, 0.1f, 0.0f, 100.0f);
+				ImGui::DragFloat("Tiling Multiplier", &component.m_textureTilingMultiplier, 0.1f, 0.0f, 100.0f, "%.1f");
 			});
 
 		DrawComponent<CircleRendererComponent>("Circle Renderer", gameObject, [](CircleRendererComponent& component)
@@ -358,7 +373,7 @@ namespace Exelius
 				ImGui::ColorEdit4("Color", glm::value_ptr(color));
 				component.m_color = color;
 
-				ImGui::DragFloat("Thickness", &component.m_thickness, 0.025f, 0.0f, 1.0f);
+				ImGui::DragFloat("Thickness", &component.m_thickness, 0.025f, 0.0f, 1.0f, "%.3f");
 				ImGui::DragFloat("Fade", &component.m_fade, 0.00025f, 0.0f, 1.0f);
 			});
 
@@ -395,27 +410,27 @@ namespace Exelius
 
 		DrawComponent<BoxColliderComponent>("Box Collider", gameObject, [](BoxColliderComponent& component)
 			{
-				ImGui::DragFloat2("Offset", glm::value_ptr(component.m_offset));
-				ImGui::DragFloat2("Size", glm::value_ptr(component.m_size));
-				ImGui::DragFloat("Density", &component.m_density, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Friction", &component.m_friction, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Restitution", &component.m_restitution, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f);
+				ImGui::DragFloat2("Offset", glm::value_ptr(component.m_offset), 0.1f, -FLT_MAX, FLT_MAX, "%.1f");
+				ImGui::DragFloat2("Size", glm::value_ptr(component.m_size), 0.1f, 0.1f, FLT_MAX, "%.1f");
+				ImGui::DragFloat("Density", &component.m_density, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Friction", &component.m_friction, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Restitution", &component.m_restitution, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f, 1.0f, "%.2f");
 				ImGui::Checkbox("Is Sensor", &component.m_isSensor);
 			});
 
 		DrawComponent<CircleColliderComponent>("Circle Collider", gameObject, [](CircleColliderComponent& component)
 			{
-				ImGui::DragFloat2("Offset", glm::value_ptr(component.m_offset));
-				ImGui::DragFloat("Radius", &component.m_radius);
-				ImGui::DragFloat("Density", &component.m_density, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Friction", &component.m_friction, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Restitution", &component.m_restitution, 0.01f, 0.0f, 1.0f);
-				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f);
+				ImGui::DragFloat2("Offset", glm::value_ptr(component.m_offset), 0.1f, -FLT_MAX, FLT_MAX, "%.1f");
+				ImGui::DragFloat("Radius", &component.m_radius, 0.1f, 0.1f, FLT_MAX, "%.1f");
+				ImGui::DragFloat("Density", &component.m_density, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Friction", &component.m_friction, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Restitution", &component.m_restitution, 0.01f, 0.0f, 1.0f, "%.2f");
+				ImGui::DragFloat("Restitution Threshold", &component.m_restitutionThreshold, 0.01f, 0.0f, 1.0f, "%.2f");
 				ImGui::Checkbox("Is Sensor", &component.m_isSensor);
 			});
 
-		DrawComponent<LuaScriptComponent>("Lua Script", gameObject, [](LuaScriptComponent& component)
+		DrawComponent<LuaScriptComponent>("Lua Script", gameObject, [&](LuaScriptComponent& component)
 			{
 				char buffer[256]; // TODO: This limit should be imposed in the actual component.
 				memset(buffer, 0, sizeof(buffer));
@@ -424,6 +439,9 @@ namespace Exelius
 
 				if (ImGui::InputText("Script", buffer, sizeof(buffer), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
 				{
+					if (m_pEditorLayer->GetEditorState() != EditorState::Edit)
+						return;
+
 					// If it IS loaded, then the reference count would have been incremented.
 					// Otherwise, we need to load it (which would increment the ref count).
 					ResourceHandle newScript(buffer, true); // New resource may or may not be loaded.
@@ -442,6 +460,9 @@ namespace Exelius
 						EXE_LOG_CATEGORY_WARN("Editor", "Lua Script cannot accept '{}' as a Script.", newScript.GetID().Get().c_str());
 					}
 				}
+
+				if (m_pEditorLayer->GetEditorState() != EditorState::Edit)
+					return;
 
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -474,7 +495,8 @@ namespace Exelius
 
 		ImGui::Separator();
 
-		DrawAddComponentPanel(gameObject);
+		if (m_pEditorLayer->GetEditorState() == EditorState::Edit)
+			DrawAddComponentPanel(gameObject);
 	}
 	
 	void InspectorPanel::DrawAddComponentPanel(GameObject gameObject)
@@ -540,18 +562,22 @@ namespace Exelius
 				});
 
 		if (!gameObject.HasComponent<RigidbodyComponent>())
-			componentVector.emplace_back("Rigidbody", [](GameObject gameObject)
+			componentVector.emplace_back("Rigidbody", [&](GameObject gameObject)
 				{
 					gameObject.AddComponent<RigidbodyComponent>();
+					m_pActiveScene->GetPhysicsSystem().TryAddRuntimeBody(gameObject);
 					drawAddComponentList = false;
 					selectedIndex = -1;
 				});
 
 		if (!gameObject.HasComponent<BoxColliderComponent>())
-			componentVector.emplace_back("Box Collider", [](GameObject gameObject)
+			componentVector.emplace_back("Box Collider", [&](GameObject gameObject)
 				{
 					if (!gameObject.HasComponent<RigidbodyComponent>())
+					{
 						gameObject.AddComponent<RigidbodyComponent>();
+						m_pActiveScene->GetPhysicsSystem().TryAddRuntimeBody(gameObject);
+					}
 
 					gameObject.AddComponent<BoxColliderComponent>();
 					drawAddComponentList = false;
@@ -562,7 +588,9 @@ namespace Exelius
 			componentVector.emplace_back("Circle Collider", [](GameObject gameObject)
 				{
 					if (!gameObject.HasComponent<RigidbodyComponent>())
+					{
 						gameObject.AddComponent<RigidbodyComponent>();
+					}
 
 					gameObject.AddComponent<CircleColliderComponent>();
 					drawAddComponentList = false;
@@ -608,6 +636,7 @@ namespace Exelius
 
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
 
+		ImGui::AlignTextToFramePadding();
 		ImGui::Text(" X ");
 
 		ImGui::SameLine();
@@ -615,6 +644,7 @@ namespace Exelius
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
+		ImGui::AlignTextToFramePadding();
 		ImGui::Text(" Y ");
 
 		ImGui::SameLine();
@@ -622,6 +652,7 @@ namespace Exelius
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
+		ImGui::AlignTextToFramePadding();
 		ImGui::Text(" Z ");
 
 		ImGui::SameLine();

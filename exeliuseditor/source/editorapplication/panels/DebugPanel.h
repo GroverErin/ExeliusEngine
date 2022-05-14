@@ -1,4 +1,6 @@
 #pragma once
+#include "EditorPanel.h"
+
 #include <include/Exelius.h>
 
 /// <summary>
@@ -7,9 +9,11 @@
 namespace Exelius
 {
 	class DebugPanel
+		: public EditorPanel
 	{
 	public:
+		DebugPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene);
 
-		void OnImGuiRender(GameObject hoveredGameObject);
+		virtual void OnImGuiRender() final override;
 	};
 }

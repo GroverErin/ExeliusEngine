@@ -159,7 +159,7 @@ function exeliusGenerator.GenerateEditorProject()
         location(editorPath)
 
         filter {"configurations:Release"}
-            kind("WindowedApp")
+            kind("ConsoleApp")
         filter {"configurations:Debug"}
             kind("ConsoleApp")
         filter {}

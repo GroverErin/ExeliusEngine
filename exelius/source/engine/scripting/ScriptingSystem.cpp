@@ -16,6 +16,8 @@
 #include "source/engine/gameobjects/components/LuaScriptComponent.h"
 
 #include "source/engine/resources/resourcetypes/TextFileResource.h"
+#include "source/engine/resources/resourcetypes/TextureResource.h"
+#include "source/render/Texture.h"
 
 #include "include/Input.h"
 #include "include/Time.h"
@@ -27,6 +29,7 @@
 
 #include <box2d/box2d.h>
 #include <sol/sol.hpp>
+#include <EASTL/vector.h>
 
 #define ADD_LUA_KEYCODE(KEY) { #KEY, KeyCode::##KEY }
 
@@ -80,6 +83,26 @@ namespace Exelius
 			GameObject gameObject(objectWithScript, pOwningScene);
 			LuaScriptComponent& luaScript = gameObject.GetComponent<LuaScriptComponent>();
 
+			if (!luaScript.m_didInitialize)
+			{
+				luaScript.InitializeScript(m_pLuaState, gameObject);
+
+				if (!luaScript.m_didInitialize)
+					continue;
+
+				sol::function fn = luaScript.m_scriptData["OnInitialize"];
+
+				if (fn)
+				{
+					sol::protected_function_result result = fn(luaScript.m_scriptData);
+					if (!result.valid())
+					{
+						sol::error err = result;
+						EXE_LOG_CATEGORY_ERROR("Lua", err.what());
+					}
+				}
+			}
+
 			sol::protected_function fn = luaScript.m_scriptData["OnUpdate"];
 
 			if (fn)
@@ -109,22 +132,7 @@ namespace Exelius
 		for (auto objectWithScript : view)
 		{
 			GameObject gameObject(objectWithScript, pOwningScene);
-			LuaScriptComponent& luaScript = gameObject.GetComponent<LuaScriptComponent>();
-
-			sol::protected_function  fn = luaScript.m_scriptData["OnDestroy"];
-
-			if (fn)
-			{
-				sol::protected_function_result result = fn(luaScript.m_scriptData);
-				if (!result.valid())
-				{
-					sol::error err = result;
-					EXE_LOG_CATEGORY_ERROR("Lua", err.what());
-				}
-			}
-
-			// TODO: This is a hack. It prevents a crash that I am not sure about yet.
-			luaScript.m_scriptData.abandon();
+			DestroyGameObject(gameObject);
 		}
 
 		m_pLuaState->collect_garbage();
@@ -144,6 +152,9 @@ namespace Exelius
 
 		luaScript.InitializeScript(m_pLuaState, owningGameObject);
 
+		if (!luaScript.m_didInitialize)
+			return;
+
 		sol::function fn = luaScript.m_scriptData["OnInitialize"];
 
 		if (fn)
@@ -155,6 +166,46 @@ namespace Exelius
 				EXE_LOG_CATEGORY_ERROR("Lua", err.what());
 			}
 		}
+	}
+
+	void ScriptingSystem::DestroyGameObject(GameObject gameObjectToDestroy)
+	{
+		LuaScriptComponent& luaScript = gameObjectToDestroy.GetComponent<LuaScriptComponent>();
+
+		if (!luaScript.m_didInitialize)
+		{
+			luaScript.InitializeScript(m_pLuaState, gameObjectToDestroy);
+
+			if (!luaScript.m_didInitialize)
+				return;
+
+			sol::function fn = luaScript.m_scriptData["OnInitialize"];
+
+			if (fn)
+			{
+				sol::protected_function_result result = fn(luaScript.m_scriptData);
+				if (!result.valid())
+				{
+					sol::error err = result;
+					EXE_LOG_CATEGORY_ERROR("Lua", err.what());
+				}
+			}
+		}
+
+		sol::protected_function  fn = luaScript.m_scriptData["OnDestroy"];
+
+		if (fn)
+		{
+			sol::protected_function_result result = fn(luaScript.m_scriptData);
+			if (!result.valid())
+			{
+				sol::error err = result;
+				EXE_LOG_CATEGORY_ERROR("Lua", err.what());
+			}
+		}
+
+		// TODO: This is a hack. It prevents a crash that I am not sure about yet.
+		luaScript.m_scriptData.abandon();
 	}
 
 	void ScriptingSystem::SetGlobalInputTable()
@@ -311,7 +362,7 @@ namespace Exelius
 
 		timeMetaTable["DeltaTime"] = &Time.DeltaTime;
 		timeMetaTable["DeltaTimeUnscaled"] = &Time.DeltaTimeUnscaled;
-		timeMetaTable["ElapsedGameTime"] = &Time.ElapsedGameTime;
+		timeMetaTable["ElapsedTime"] = &Time.ElapsedTime;
 		timeMetaTable.set_function("SetTimeScale", Time.SetTimeScale);
 
 		timeMetaTable[sol::meta_function::new_index] = [](lua_State* pLuaState) {return luaL_error(pLuaState, "Modifying 'Time' table is restricted."); };
@@ -444,12 +495,71 @@ namespace Exelius
 
 		resourceIDType[sol::meta_function::to_string] = [](ResourceID& id) { return id.Get().c_str(); };
 
+		m_pLuaState->new_usertype<Texture>("Texture", sol::constructors<Texture(uint32_t, uint32_t)>(),
+			"Bind", [](Texture& texture, uint32_t slot) { texture.Bind(slot); },
+			"GetWidth", [](Texture& texture) { return texture.GetWidth(); },
+			"GetHeight", [](Texture& texture) { return texture.GetHeight(); },
+			"GetRendererID", [](Texture& texture) { return texture.GetRendererID(); },
+			"SetData", [](Texture& texture, sol::table data, uint32_t size)
+			{
+				if (size != texture.GetWidth() * texture.GetHeight())
+				{
+					EXE_LOG_CATEGORY_ERROR("Lua", "Data size does not match Texture size!");
+					return;
+				}
+
+				eastl::vector<uint32_t> hexColorData(size, 0xFFFFFFFF);
+				for (auto it = data.begin(); it != data.end(); ++it)
+				{
+					auto firstType = (*it).first.get_type();
+					if (firstType != sol::type::number)
+					{
+						EXE_LOG_CATEGORY_ERROR("Lua", "Texture:SetData(): Invalid key found in data. Data must be in the form of an array.");
+						return;
+					}
+
+					if (!(*it).second.is<Color>())
+					{
+						EXE_LOG_CATEGORY_ERROR("Lua", "Texture:SetData(): Invalid value found in data. Values must be of 'Color' type.");
+						return; // Invalid key entry.
+					}
+
+					if ((*it).first.as<size_t>() >= size)
+					{
+						EXE_LOG_CATEGORY_ERROR("Lua", "Texture:SetData(): Indices larger than the array size. Make sure to start at 0.");
+						return; // Invalid key entry.
+					}
+
+					hexColorData[(*it).first.as<size_t>()] = (*it).second.as<Color>().GetHex();
+				}
+				texture.SetData(hexColorData.data(), size * 4);
+			},
+			"IsLoaded", [](Texture& texture) { return texture.IsLoaded(); }
+		);
+
+		m_pLuaState->new_usertype<TextFileResource>("TextFileResource");
+		m_pLuaState->new_usertype<TextureResource>("TextureResource",
+			"GetTexture", [](TextureResource& resource) { return resource.GetTexture(); },
+			"SetTexture", [](TextureResource& resource, sol::object texture)
+			{
+				if (texture.is<Texture>())
+				{
+					Texture* pTexture = EXELIUS_NEW(Texture(texture.as<Texture>()));
+					resource.SetTexture(pTexture);
+				}
+			}
+		);
+
 		m_pLuaState->new_usertype<ResourceHandle>("ResourceHandle", sol::constructors<ResourceHandle(), ResourceHandle(ResourceID), ResourceHandle(ResourceID, bool)>(),
 			"Release", [](ResourceHandle& handle) { return handle.Release(); },
-			"SetResourceID", [](ResourceHandle& handle, const char* resourceID) { handle.SetResourceID(resourceID); },
+			"SetResourceID", [](ResourceHandle& handle, ResourceID& resourceID) { handle.SetResourceID(resourceID); },
+			"IsReferenceHeld", [](ResourceHandle& handle) { return handle.IsReferenceHeld(); },
 			"LoadNow", [](ResourceHandle& handle) { return handle.LoadNow(); },
 			"LockResource", [](ResourceHandle& handle) { return handle.LockResource(); },
-			"UnlockResource", [](ResourceHandle& handle) { return handle.UnlockResource(); }
+			"UnlockResource", [](ResourceHandle& handle) { return handle.UnlockResource(); },
+			"CreateResource", [](ResourceHandle& handle, ResourceID& resourceID) { return handle.CreateNew(resourceID); },
+			"GetAsTextureResource", [](ResourceHandle& handle) { return handle.GetAs<TextureResource>(); },
+			"GetAsTextFileResource", [](ResourceHandle& handle) { return handle.GetAs<TextFileResource>(); }
 		);
 
 		m_pLuaState->new_usertype<Random>("Random", sol::constructors<Random(), Random(int), Random(int, int)>(),
@@ -546,9 +656,9 @@ namespace Exelius
 			);
 
 		m_pLuaState->new_usertype<CircleRendererComponent>("CircleRendererComponent",
-			"isActive", &CircleRendererComponent::m_color,
-			"isFixedAspectRatio", &CircleRendererComponent::m_fade,
-			"viewportRect", &CircleRendererComponent::m_thickness
+			"color", &CircleRendererComponent::m_color,
+			"fade", &CircleRendererComponent::m_fade,
+			"thickness", &CircleRendererComponent::m_thickness
 			);
 
 		m_pLuaState->new_usertype<LuaScriptComponent>("LuaScriptComponent",
@@ -752,6 +862,9 @@ namespace Exelius
 			LuaScriptComponent& luaScript = gameObject.GetComponent<LuaScriptComponent>();
 
 			luaScript.InitializeScript(m_pLuaState, gameObject);
+
+			if (!luaScript.m_didInitialize)
+				continue;
 
 			sol::function fn = luaScript.m_scriptData["OnInitialize"];
 

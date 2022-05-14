@@ -1,4 +1,6 @@
 #pragma once
+#include "EditorPanel.h"
+
 #include <include/Exelius.h>
 
 /// <summary>
@@ -7,12 +9,15 @@
 namespace Exelius
 {
 	class InspectorPanel
+		: public EditorPanel
 	{
 	public:
-		void OnImGuiRender(GameObject gameObject, const SharedPtr<Scene>& scene);
+		InspectorPanel(EditorLayer* pEditorLayer, const SharedPtr<Scene>& pActiveScene);
+
+		virtual void OnImGuiRender() final override;
 
 	private:
-		void DrawComponents(GameObject gameObject, const SharedPtr<Scene>& scene);
+		void DrawComponents(GameObject gameObject);
 
 		void DrawAddComponentPanel(GameObject gameObject);
 

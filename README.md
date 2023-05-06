@@ -22,6 +22,10 @@ Exelius currently supports the following platforms:
 
 Note: Windows is the active development platform, and the other platforms may not always be in a working state.
 
+<p align="center">
+  <img src="https://github.com/GroverErin/ExeliusEngine/blob/main/tools/images/Exelius_Editor.png?raw=true" alt="Exelius Engine Editor"/>
+</p>
+
 |[Installation](#installation) |[Goals](#goals)         |[Learn](#learn)                |[Acknowledgements](#acknowledgements)              |[Gallery](#screenshots)    |
 |:-----------------------------|------------------------|-------------------------------|---------------------------------------------------|---------------------------|
 |[Windows](#windows)           |[Plans & Trello](#plans)|[FAQ](#faq)                    |[Author and Contributors](#author-and-contributors)|[Screenshots](#screenshots)|

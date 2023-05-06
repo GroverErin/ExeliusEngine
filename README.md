@@ -9,7 +9,7 @@ Exelius is a 2D game engine written primarily with C++, as part of the Academy o
 
 This is the second version of the engine that was written as a part of GAP 301 (Game Engine Programming).
 
-[The most recent release build can be downloaded here.](https://github.com/GroverErin/ExeliusEngine/releases/download/v0.6.0/Fall2021Release_x64.zip)
+[The most recent release build can be downloaded here.](https://github.com/GroverErin/ExeliusEngine/releases/latest)
 
 Note: This is a project that is in active development, and information displayed here may be out-of-date or incorrect.
 Updates are *usually* only checked in when the build is in a working state, however, stuff happens. Eventually I will figure
